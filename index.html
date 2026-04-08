@@ -354,30 +354,28 @@
       lucide.createIcons();
     }
 
-    async function updateWorkQuota(input) {
+function updateWorkQuota(input) {
       const memberId = input.getAttribute('data-member-id');
       const member = membersData.find(m => m.__backendId === memberId);
       if (!member) return;
       
       const workQuota = input.value.trim();
-      const updated = { ...member, work_quota: workQuota };
-      const r = await window.dataSdk.update(updated);
-      if (!r.isOk) {
-        input.value = member.work_quota || '40';
-      }
+      member.work_quota = workQuota; // Cập nhật giao diện ảo
+      
+      // Lưu âm thầm lên Firebase
+      db.collection("ThanhVien").doc(memberId).update({ work_quota: workQuota }).catch(e => console.log(e));
     }
 
-    async function updateFixedHours(input) {
+    function updateFixedHours(input) {
       const memberId = input.getAttribute('data-member-id');
       const member = membersData.find(m => m.__backendId === memberId);
       if (!member) return;
       
       const fixedHours = input.value.trim();
-      const updated = { ...member, fixed_hours: fixedHours };
-      const r = await window.dataSdk.update(updated);
-      if (!r.isOk) {
-        input.value = member.fixed_hours || '0';
-      }
+      member.fixed_hours = fixedHours; // Cập nhật giao diện ảo
+      
+      // Lưu âm thầm lên Firebase
+      db.collection("ThanhVien").doc(memberId).update({ fixed_hours: fixedHours }).catch(e => console.log(e));
     }
 
     function getWeekDays(startDate) {
@@ -810,7 +808,7 @@
       document.getElementById('edit-member-modal').classList.add('hidden');
     });
 
-    document.getElementById('hours-form').addEventListener('submit', async (e) => {
+document.getElementById('hours-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const memberId = document.getElementById('inp-hours-member-id').value;
       const workQuota = document.getElementById('inp-work-quota').value.trim();
@@ -836,26 +834,29 @@
       btn.disabled = true;
       btn.textContent = 'Đang lưu...';
       
-      const updated = {
-        ...member,
+      // GỬI LÊN FIREBASE
+      db.collection("ThanhVien").doc(memberId).update({
         work_quota: workQuota,
         fixed_hours: fixedHours,
         week_hours_data: JSON.stringify(weekHoursData),
         weekly_start_date: weekStartDate
-      };
-      
-      const r = await window.dataSdk.update(updated);
-      btn.disabled = false;
-      btn.textContent = 'Lưu thay đổi';
-      
-      if (!r.isOk) {
-        document.getElementById('hours-form-error').textContent = 'Lỗi khi lưu.';
+      }).then(() => {
+        // Lưu thành công -> Cập nhật giao diện web
+        member.work_quota = workQuota;
+        member.fixed_hours = fixedHours;
+        member.week_hours_data = JSON.stringify(weekHoursData);
+        member.weekly_start_date = weekStartDate;
+        
+        renderWorkingHoursList();
+        document.getElementById('edit-hours-modal').classList.add('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Lưu thay đổi';
+      }).catch(err => {
+        document.getElementById('hours-form-error').textContent = 'Lỗi lưu Firebase: ' + err.message;
         document.getElementById('hours-form-error').classList.remove('hidden');
-        return;
-      }
-      
-      renderWorkingHoursList();
-      document.getElementById('edit-hours-modal').classList.add('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Lưu thay đổi';
+      });
     });
 
     function getFiltered() {
