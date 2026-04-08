@@ -1033,16 +1033,30 @@
     document.getElementById('btn-detail-close').onclick = () => { document.getElementById('task-detail-modal').classList.add('hidden'); };
     document.getElementById('task-detail-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('task-detail-modal').classList.add('hidden'); } });
 
-    async function moveTask(id, newStatus) {
+async function moveTask(id, newStatus) {
       const task = allTasks.find(t => t.__backendId === id);
       if (!task) return;
+      
+      // Nếu trạng thái mới là hoàn thành, mở bảng yêu cầu nhập đánh giá
       if (newStatus === 'done' && task.status !== 'done') {
         showCompleteTaskForm(task);
         return;
       }
-      const updated = { ...task, status: newStatus };
-      const r = await window.dataSdk.update(updated);
-      if (!r.isOk) showFormError('Không thể cập nhật trạng thái.');
+
+      // 1. Cập nhật giao diện web ngay lập tức cho mượt mà
+      task.status = newStatus;
+      renderTasks();
+
+      // 2. Báo cho Firebase biết để lưu cập nhật vào Cơ sở dữ liệu
+      db.collection("CongViec").doc(id).update({
+          status: newStatus
+      })
+      .then(() => {
+          console.log("Đã chuyển trạng thái thành công trên Firebase!");
+      })
+      .catch((error) => {
+          alert("Lỗi khi cập nhật trạng thái: " + error.message);
+      });
     }
 
     function showCompleteTaskForm(task) {
@@ -1271,13 +1285,31 @@ document.getElementById('task-form').addEventListener('submit', function(e) {
         status: status,
         created_at: new Date().toISOString()
       };
-
-      if (editId) {
-        showFormError("Chức năng cập nhật đang được nâng cấp sang Firebase!");
-        btn.disabled = false;
-        btn.textContent = 'Cập nhật';
-        return;
-      } else {
+if (editId) {
+        // Cập nhật dữ liệu lên Firebase
+        db.collection("CongViec").doc(editId).update(data)
+        .then(() => {
+            // Cập nhật lại danh sách ảo trên giao diện để web hiển thị ngay
+            const index = allTasks.findIndex(t => t.__backendId === editId);
+            if (index !== -1) {
+                allTasks[index] = { ...allTasks[index], ...data };
+            }
+            if(typeof renderTasks === 'function') renderTasks();
+            
+            // Xóa thông báo, trả lại nút và đóng bảng
+            btn.disabled = false;
+            btn.textContent = 'Cập nhật';
+            closeModal();
+            document.getElementById('board-view').classList.remove('hidden');
+            document.getElementById('timeline-view').classList.add('hidden');
+        })
+        .catch((error) => {
+            showFormError('Lỗi kết nối Firebase: ' + error.message);
+            btn.disabled = false;
+            btn.textContent = 'Cập nhật';
+        });
+      }
+     else {
         db.collection("CongViec").add(data)
         .then((docRef) => {
             data.__backendId = docRef.id; 
