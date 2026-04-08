@@ -1364,7 +1364,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-  // 1. THẦY THAY THẾ ĐOẠN NÀY BẰNG THÔNG TIN TỪ FIREBASE CỦA THẦY
   const firebaseConfig = {
     apiKey: "AIzaSyDw57Lqyxml-gjg-sVbafOGFfLBwvepyBQ",
     authDomain: "quanlicongviec-897eb.firebaseapp.com",
@@ -1374,21 +1373,15 @@
     appId: "1:584097611418:web:dcd7d84736ba8164726923"
   };
 
-  // 2. Khởi động kết nối Firebase
   if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.firestore();
-
-  // 3. Lắng nghe sự kiện khi thầy bấm nút Thêm/Lưu thành viên
   document.getElementById('member-form').addEventListener('submit', function(e) {
-    // Lấy tên thành viên từ ô nhập
     var ten = document.getElementById("inp-member-name").value;
-    
-    // Nếu ô nhập trống thì bỏ qua
+
     if(ten.trim() === "") return;
 
-    // Gửi tên vừa nhập lên cơ sở dữ liệu Firebase
     db.collection("ThanhVien").add({
         Ten: ten,
         ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
