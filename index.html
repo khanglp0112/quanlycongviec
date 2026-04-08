@@ -1371,7 +1371,11 @@
     storageBucket: "quanlicongviec-897eb.firebasestorage.app",
     messagingSenderId: "584097611418",
     appId: "1:584097611418:web:dcd7d84736ba8164726923"
+   measurementId: "G-XZ6D13YF4Z"
   };
+ const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
 
   if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
