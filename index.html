@@ -997,10 +997,10 @@ document.getElementById('hours-form').addEventListener('submit', function(e) {
             <div class="avatar" style="background:${memberColor};width:24px;height:24px;font-size:11px;">${initial}</div>
             <span class="text-xs" style="color:#666666;">${escHtml(t.assignee)}</span>
           </div>
-          <div class="flex items-center gap-1">
-            ${t.status !== 'done' ? `<button onclick="moveTask('${t.__backendId}','${t.status === 'todo' ? 'doing' : 'done'}')" class="p-1 rounded transition-colors" style="color:#666666;" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
-            <button onclick="editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
-            <button onclick="showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
+         <div class="flex items-center gap-1">
+            ${t.status !== 'done' ? `<button onclick="event.stopPropagation(); moveTask('${t.__backendId}','${t.status === 'todo' ? 'doing' : 'done'}')" class="p-1 rounded transition-colors" style="color:#666666;" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
+            <button onclick="event.stopPropagation(); editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
+            <button onclick="event.stopPropagation(); showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
           </div>
         </div>
       `;
@@ -1134,6 +1134,7 @@ async function moveTask(id, newStatus) {
       deleteBtn.style.fontWeight = '700';
       deleteBtn.onclick = (e) => {
         e.preventDefault();
+       e.stopPropagation();
         confirmDelete(id);
       };
       
@@ -1425,59 +1426,119 @@ if (editId) {
   const db = firebase.firestore();
 
   // 2. VÔ HIỆU HÓA CODE LỖI CỦA CANVA
-  // Thủ thuật: Nhân bản (clone) form nhập liệu để xóa sạch các sự kiện cũ đang gây lỗi
   const oldForm = document.getElementById('member-form');
   const newForm = oldForm.cloneNode(true);
   oldForm.parentNode.replaceChild(newForm, oldForm);
 
-  // 3. GẮN LỆNH MỚI CHO NÚT LƯU
+  // Biến hỗ trợ xác nhận xóa
+  let isConfirmingDelete = false;
+
+  // 3. XỬ LÝ NÚT "LƯU" (CẢ KHI THÊM MỚI VÀ KHI SỬA)
   newForm.addEventListener('submit', function(e) {
-    e.preventDefault(); // Chặn tải lại trang
-    
-    // Lấy tên thành viên từ ô nhập
+    e.preventDefault();
     const ten = document.getElementById("inp-member-name").value.trim();
+    const memberId = document.getElementById("inp-member-index").value; // Lấy ID để biết là đang sửa hay thêm
     if(ten === "") return;
 
-    // Hiển thị trạng thái đang lưu
     const btn = document.getElementById("btn-member-save");
     btn.textContent = "Đang lưu...";
     btn.disabled = true;
 
-    // Gửi lên Firebase
-    db.collection("ThanhVien").add({
-        Ten: ten,
-        ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then((docRef) => {
-        // --- PHẦN QUAN TRỌNG: CẬP NHẬT GIAO DIỆN ---
-        
-        // Cấp màu sắc ngẫu nhiên cho avatar người mới
-        const mauSac = (typeof COLORS !== 'undefined') ? COLORS[membersData.length % COLORS.length] : '#38bdf8';
-        
-        // Đưa tên vào danh sách ảo của web
-        membersData.push({
-            __backendId: docRef.id,
-            name: ten,
-            color: mauSac
+    if (memberId) {
+        // --- ĐANG SỬA THÀNH VIÊN ---
+        db.collection("ThanhVien").doc(memberId).update({
+            Ten: ten
+        })
+        .then(() => {
+            // Cập nhật lại giao diện ảo
+            const m = membersData.find(x => x.__backendId === memberId);
+            if (m) m.name = ten;
+            membersList = membersData.map(x => ({ name: x.name, color: x.color }));
+            
+            if (typeof renderMembersList === "function") renderMembersList();
+            if (typeof populateMemberSelects === "function") populateMemberSelects();
+            if (typeof renderTasks === "function") renderTasks();
+            
+            document.getElementById("inp-member-name").value = "";
+            document.getElementById("inp-member-index").value = "";
+            btn.textContent = "Lưu";
+            btn.disabled = false;
+            document.getElementById('edit-member-modal').classList.add('hidden');
+        })
+        .catch((error) => {
+            alert("Lỗi khi cập nhật: " + error.message);
+            btn.textContent = "Lưu";
+            btn.disabled = false;
         });
-        membersList.push({ name: ten, color: mauSac });
+    } else {
+        // --- ĐANG THÊM THÀNH VIÊN MỚI ---
+        db.collection("ThanhVien").add({
+            Ten: ten,
+            ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then((docRef) => {
+            const mauSac = (typeof COLORS !== 'undefined') ? COLORS[membersData.length % COLORS.length] : '#38bdf8';
+            membersData.push({ __backendId: docRef.id, name: ten, color: mauSac });
+            membersList.push({ name: ten, color: mauSac });
 
-        // Yêu cầu web vẽ lại danh sách thành viên ra màn hình
-        if (typeof renderMembersList === "function") renderMembersList();
-        if (typeof populateMemberSelects === "function") populateMemberSelects();
-        
-        // Xóa trắng ô nhập, trả lại nút Lưu và Đóng bảng popup
-        document.getElementById("inp-member-name").value = "";
-        btn.textContent = "Lưu";
-        btn.disabled = false;
-        document.getElementById('edit-member-modal').classList.add('hidden');
-        
-    })
-    .catch((error) => {
-        alert("Có lỗi kết nối Firebase: " + error.message);
-        btn.textContent = "Lưu";
-        btn.disabled = false;
-    });
+            if (typeof renderMembersList === "function") renderMembersList();
+            if (typeof populateMemberSelects === "function") populateMemberSelects();
+            
+            document.getElementById("inp-member-name").value = "";
+            btn.textContent = "Lưu";
+            btn.disabled = false;
+            document.getElementById('edit-member-modal').classList.add('hidden');
+        })
+        .catch((error) => {
+            alert("Lỗi khi thêm: " + error.message);
+            btn.textContent = "Lưu";
+            btn.disabled = false;
+        });
+    }
+  });
+
+  // 4. XỬ LÝ NÚT "XÓA" THÀNH VIÊN
+  document.getElementById('btn-member-delete').addEventListener('click', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-member-delete');
+    const memberId = document.getElementById('inp-member-index').value;
+    
+    // Nếu chưa bấm lần nào thì hiện hỏi "Chắc chắn xóa?"
+    if (!isConfirmingDelete) {
+      isConfirmingDelete = true;
+      btn.textContent = 'Chắc chắn xóa?';
+      btn.style.fontWeight = '700';
+      btn.style.background = '#dc2626';
+      return;
+    }
+    
+    // Nếu đã xác nhận thì tiến hành xóa
+    if (memberId) {
+      btn.disabled = true;
+      btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:6px;animation:spin 1s linear infinite;"></i>Đang xóa...';
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+      
+      db.collection("ThanhVien").doc(memberId).delete()
+      .then(() => {
+          // Xóa khỏi danh sách ảo trên giao diện
+          const mIndex = membersData.findIndex(m => m.__backendId === memberId);
+          if (mIndex > -1) membersData.splice(mIndex, 1);
+          membersList = membersData.map(m => ({ name: m.name, color: m.color }));
+
+          if (typeof renderMembersList === "function") renderMembersList();
+          if (typeof populateMemberSelects === "function") populateMemberSelects();
+          if (typeof renderTasks === "function") renderTasks();
+          
+          document.getElementById('edit-member-modal').classList.add('hidden');
+          isConfirmingDelete = false;
+      })
+      .catch((error) => {
+          alert("Lỗi khi xóa: " + error.message);
+          btn.disabled = false;
+          btn.textContent = 'Chắc chắn xóa?';
+          isConfirmingDelete = false;
+      });
+    }
   });
 </script>
 </body>
