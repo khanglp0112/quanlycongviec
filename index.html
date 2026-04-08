@@ -158,7 +158,7 @@
     </div>
    </div><!-- Add/Edit Task Modal -->
    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="modal-backdrop w-full max-w-2xl rounded-2xl p-6 max-h-90 overflow-y-auto" style="background:#1e293b; border:1px solid #334155;">
+    <div class="modal-backdrop w-full max-w-2xl rounded-2xl p-6 overflow-y-auto" style="background:#1e293b; border:1px solid #334155; max-height: 90vh;">
      <div class="flex items-center justify-between mb-5">
       <h2 id="modal-title" class="font-display text-lg font-bold" style="color:#f8fafc;">Thêm công việc</h2><button id="btn-modal-close" class="p-1 rounded-lg transition-colors flex-shrink-0" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -695,14 +695,12 @@ function updateWorkQuota(input) {
     };
 
     let deleteMemberConfirmState = false;
-
-    document.getElementById('btn-member-delete').onclick = async (e) => {
+document.getElementById('btn-member-delete').onclick = function(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-member-delete');
       const memberId = document.getElementById('inp-member-index').value;
       
       if (!deleteMemberConfirmState) {
-        // First click - show confirmation
         deleteMemberConfirmState = true;
         btn.textContent = 'Chắc chắn xóa?';
         btn.style.fontWeight = '700';
@@ -710,7 +708,6 @@ function updateWorkQuota(input) {
         return;
       }
       
-      // Second click - confirm deletion
       if (memberId) {
         const member = membersData.find(m => m.__backendId === memberId);
         if (member) {
@@ -718,19 +715,29 @@ function updateWorkQuota(input) {
           btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:6px;animation:spin 1s linear infinite;"></i>Đang xóa...';
           lucide.createIcons();
           
-          const r = await window.dataSdk.delete(member);
-          
-          if (r.isOk) {
-            renderMembersList();
-            populateMemberSelects();
-            renderTasks();
-            document.getElementById('edit-member-modal').classList.add('hidden');
-          } else {
-            btn.disabled = false;
-            btn.textContent = 'Chắc chắn xóa?';
-            btn.style.fontWeight = '700';
-          }
-          deleteMemberConfirmState = false;
+          // XÓA TRÊN FIREBASE
+          db.collection("ThanhVien").doc(memberId).delete()
+          .then(() => {
+              // Cập nhật lại giao diện ảo
+              const mIndex = membersData.findIndex(m => m.__backendId === memberId);
+              if (mIndex > -1) membersData.splice(mIndex, 1);
+              
+              const lIndex = membersList.findIndex(m => m.name === member.name);
+              if (lIndex > -1) membersList.splice(lIndex, 1);
+
+              renderMembersList();
+              populateMemberSelects();
+              renderTasks();
+              document.getElementById('edit-member-modal').classList.add('hidden');
+              deleteMemberConfirmState = false;
+          })
+          .catch((error) => {
+              alert("Lỗi khi xóa thành viên: " + error.message);
+              btn.disabled = false;
+              btn.textContent = 'Chắc chắn xóa?';
+              btn.style.fontWeight = '700';
+              deleteMemberConfirmState = false;
+          });
         }
       }
     };
@@ -1157,9 +1164,9 @@ async function moveTask(id, newStatus) {
       deleteConfirmStates.set(id, { deleteBtn, cancelBtn });
     }
 
-    async function confirmDelete(id) {
-      const task = allTasks.find(t => t.__backendId === id);
-      if (!task) return;
+ async function confirmDelete(id) {
+      const taskIndex = allTasks.findIndex(t => t.__backendId === id);
+      if (taskIndex === -1) return;
       
       const card = document.querySelector(`[data-id="${id}"]`);
       if (!card) return;
@@ -1174,18 +1181,23 @@ async function moveTask(id, newStatus) {
       }
       if (cancelBtn) cancelBtn.disabled = true;
       
-      const r = await window.dataSdk.delete(task);
-      
-      if (!r.isOk) {
-        if (deleteBtn) {
-          deleteBtn.disabled = false;
-          deleteBtn.textContent = 'Chắc chắn?';
-        }
-        if (cancelBtn) cancelBtn.disabled = false;
-        showFormError('Không thể xoá công việc.');
-      }
-      deleteConfirmStates.delete(id);
-      lucide.createIcons();
+      // XÓA TRÊN FIREBASE
+      db.collection("CongViec").doc(id).delete()
+      .then(() => {
+          // Xóa thành công trên Database -> Xóa thẻ trên giao diện web
+          allTasks.splice(taskIndex, 1);
+          renderTasks(); 
+          deleteConfirmStates.delete(id);
+      })
+      .catch((error) => {
+          alert('Lỗi kết nối Firebase khi xóa: ' + error.message);
+          if (deleteBtn) {
+              deleteBtn.disabled = false;
+              deleteBtn.textContent = 'Chắc chắn?';
+          }
+          if (cancelBtn) cancelBtn.disabled = false;
+          deleteConfirmStates.delete(id);
+      });
     }
 
     function openModal() {
