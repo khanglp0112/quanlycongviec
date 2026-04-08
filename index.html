@@ -1540,6 +1540,52 @@ if (editId) {
       });
     }
   });
+ // 5. HÀM TẢI DỮ LIỆU TỪ FIREBASE KHI MỞ TRANG WEB
+  async function loadDataFromFirebase() {
+    try {
+      // 5.1 Tải danh sách Thành Viên
+      const membersSnapshot = await db.collection("ThanhVien").get();
+      membersData = [];
+      membersSnapshot.forEach((doc) => {
+        let data = doc.data();
+        // Chuyển đổi dữ liệu cho khớp với khung giao diện cũ
+        data.__backendId = doc.id;
+        data.name = data.Ten; 
+        data.color = (typeof COLORS !== 'undefined') ? COLORS[membersData.length % COLORS.length] : '#38bdf8';
+        
+        // Nạp các thông số giờ làm việc (nếu có)
+        data.work_quota = data.work_quota || '40';
+        data.fixed_hours = data.fixed_hours || '0';
+        data.week_hours_data = data.week_hours_data || '[]';
+        data.weekly_start_date = data.weekly_start_date || new Date().toISOString().split('T')[0];
+
+        membersData.push(data);
+      });
+      membersList = membersData.map(m => ({ name: m.name, color: m.color }));
+
+      // 5.2 Tải danh sách Công Việc
+      const tasksSnapshot = await db.collection("CongViec").get();
+      allTasks = [];
+      tasksSnapshot.forEach((doc) => {
+        let data = doc.data();
+        data.__backendId = doc.id;
+        allTasks.push(data);
+      });
+
+      // 5.3 Cập nhật tất cả ra màn hình
+      if (typeof populateMemberSelects === "function") populateMemberSelects();
+      if (typeof renderMembersList === "function") renderMembersList();
+      if (typeof renderTasks === "function") renderTasks();
+
+      console.log("Đã tải thành công trí nhớ từ Firebase!");
+
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu:", error);
+    }
+  }
+
+  // 6. RA LỆNH CHẠY HÀM TẢI DỮ LIỆU NGAY KHI WEB VỪA MỞ
+  loadDataFromFirebase();
 </script>
 </body>
 </html>
