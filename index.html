@@ -1373,28 +1373,64 @@
     appId: "1:584097611418:web:dcd7d84736ba8164726923"
    measurementId: "G-XZ6D13YF4Z"
   };
- const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-
-  if (!firebase.apps.length) {
+ if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
   }
   const db = firebase.firestore();
-  document.getElementById('member-form').addEventListener('submit', function(e) {
-    var ten = document.getElementById("inp-member-name").value;
 
-    if(ten.trim() === "") return;
+  // 2. VÔ HIỆU HÓA CODE LỖI CỦA CANVA
+  // Thủ thuật: Nhân bản (clone) form nhập liệu để xóa sạch các sự kiện cũ đang gây lỗi
+  const oldForm = document.getElementById('member-form');
+  const newForm = oldForm.cloneNode(true);
+  oldForm.parentNode.replaceChild(newForm, oldForm);
 
+  // 3. GẮN LỆNH MỚI CHO NÚT LƯU
+  newForm.addEventListener('submit', function(e) {
+    e.preventDefault(); // Chặn tải lại trang
+    
+    // Lấy tên thành viên từ ô nhập
+    const ten = document.getElementById("inp-member-name").value.trim();
+    if(ten === "") return;
+
+    // Hiển thị trạng thái đang lưu
+    const btn = document.getElementById("btn-member-save");
+    btn.textContent = "Đang lưu...";
+    btn.disabled = true;
+
+    // Gửi lên Firebase
     db.collection("ThanhVien").add({
         Ten: ten,
         ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
     })
-    .then(() => {
-        console.log("Đã đẩy dữ liệu lên Firebase thành công: " + ten);
+    .then((docRef) => {
+        // --- PHẦN QUAN TRỌNG: CẬP NHẬT GIAO DIỆN ---
+        
+        // Cấp màu sắc ngẫu nhiên cho avatar người mới
+        const mauSac = (typeof COLORS !== 'undefined') ? COLORS[membersData.length % COLORS.length] : '#38bdf8';
+        
+        // Đưa tên vào danh sách ảo của web
+        membersData.push({
+            __backendId: docRef.id,
+            name: ten,
+            color: mauSac
+        });
+        membersList.push({ name: ten, color: mauSac });
+
+        // Yêu cầu web vẽ lại danh sách thành viên ra màn hình
+        if (typeof renderMembersList === "function") renderMembersList();
+        if (typeof populateMemberSelects === "function") populateMemberSelects();
+        
+        // Xóa trắng ô nhập, trả lại nút Lưu và Đóng bảng popup
+        document.getElementById("inp-member-name").value = "";
+        btn.textContent = "Lưu";
+        btn.disabled = false;
+        document.getElementById('edit-member-modal').classList.add('hidden');
+        
     })
     .catch((error) => {
-        console.error("Lỗi khi lưu lên Firebase:", error);
+        alert("Có lỗi kết nối Firebase: " + error.message);
+        btn.textContent = "Lưu";
+        btn.disabled = false;
     });
   });
 </script>
