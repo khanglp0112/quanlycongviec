@@ -1586,6 +1586,67 @@ if (editId) {
 
   // 6. RA LỆNH CHẠY HÀM TẢI DỮ LIỆU NGAY KHI WEB VỪA MỞ
   loadDataFromFirebase();
+ // 7. XUẤT DỮ LIỆU RA EXCEL
+  document.getElementById('btn-export-excel').addEventListener('click', function() {
+      // Lấy danh sách công việc đang hiển thị trên màn hình
+      const danhSachCanXuat = typeof getFiltered === 'function' ? getFiltered() : allTasks;
+
+      if (danhSachCanXuat.length === 0) {
+          alert("Không có công việc nào để xuất!");
+          return;
+      }
+
+      // Đổi lại nút bấm cho ngầu
+      const btn = document.getElementById('btn-export-excel');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'Đang tạo file...';
+      btn.disabled = true;
+
+      // Xào nấu lại dữ liệu cho đẹp, dịch ra tiếng Việt
+      const exportData = danhSachCanXuat.map(t => {
+          const p = PRIORITY_MAP[t.priority] ? PRIORITY_MAP[t.priority].label : t.priority;
+          let statusVN = 'Chờ làm';
+          if (t.status === 'doing') statusVN = 'Đang làm';
+          if (t.status === 'done') statusVN = 'Hoàn thành';
+
+          return {
+              "Tiêu đề công việc": t.title || "",
+              "Mô tả": t.description || "",
+              "Người phụ trách": t.assignee || "",
+              "Hỗ trợ": t.supporters || "",
+              "Mức ưu tiên": p,
+              "Thời hạn": t.deadline ? new Date(t.deadline).toLocaleDateString('vi-VN') : "",
+              "Giờ dự kiến (h)": t.estimated_hours ? Number(t.estimated_hours) : "",
+              "Trạng thái": statusVN,
+              "Giờ thực tế (h)": t.actual_hours ? Number(t.actual_hours) : "",
+              "Đánh giá (Sao)": t.rating ? Number(t.rating) : "",
+              "Rút kinh nghiệm": t.lessons_learned || ""
+          };
+      });
+
+      // Đóng gói thành file Excel
+      setTimeout(() => {
+          const worksheet = XLSX.utils.json_to_sheet(exportData);
+          const workbook = XLSX.utils.book_new();
+          
+          // Chỉnh độ rộng cột cho đẹp
+          const wscols = [
+              {wch: 30}, {wch: 30}, {wch: 15}, {wch: 15}, {wch: 25}, 
+              {wch: 12}, {wch: 15}, {wch: 12}, {wch: 15}, {wch: 15}, {wch: 30}
+          ];
+          worksheet['!cols'] = wscols;
+
+          XLSX.utils.book_append_sheet(workbook, worksheet, "CongViecToToanTin");
+          
+          // Tự động tải xuống
+          XLSX.writeFile(workbook, "BaoCaoCongViec_" + new Date().toLocaleDateString('vi-VN').replace(/\//g, '-') + ".xlsx");
+          
+          // Trả lại nút bấm
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+      }, 500);
+  });
 </script>
 </body>
 </html>
