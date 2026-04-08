@@ -1240,23 +1240,24 @@
       el.textContent = msg;
       el.classList.remove('hidden');
     }
-
-    document.getElementById('task-form').addEventListener('submit', async (e) => {
+document.getElementById('task-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const title = document.getElementById('inp-title').value.trim();
       if (!title) return;
       const editId = document.getElementById('inp-edit-id').value;
       const status = document.getElementById('inp-status').value;
+      
       if (status === 'done' && !document.getElementById('inp-rating').value) {
         showFormError('Vui lòng đánh giá công việc trước khi hoàn thành.');
         return;
       }
+      
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
       btn.textContent = 'Đang lưu...';
+
       const data = {
-        _collection: 'tasks',
-        title,
+        title: title,
         description: document.getElementById('inp-desc').value.trim(),
         assignee: document.getElementById('inp-assignee').value,
         priority: document.getElementById('inp-priority').value,
@@ -1270,30 +1271,32 @@
         status: status,
         created_at: new Date().toISOString()
       };
-      let r;
+
       if (editId) {
-        const existing = allTasks.find(t => t.__backendId === editId);
-        if (existing) {
-          r = await window.dataSdk.update({ ...existing, ...data });
-        }
-      } else {
-        if (allTasks.length >= 999) {
-          showFormError('Đã đạt giới hạn 999 công việc. Hãy xoá bớt.');
-          btn.disabled = false;
-          btn.textContent = 'Thêm công việc';
-          return;
-        }
-        r = await window.dataSdk.create(data);
-      }
-      btn.disabled = false;
-      btn.textContent = editId ? 'Cập nhật' : 'Thêm công việc';
-      if (r && !r.isOk) {
-        showFormError('Đã có lỗi xảy ra.');
+        showFormError("Chức năng cập nhật đang được nâng cấp sang Firebase!");
+        btn.disabled = false;
+        btn.textContent = 'Cập nhật';
         return;
+      } else {
+        db.collection("CongViec").add(data)
+        .then((docRef) => {
+            data.__backendId = docRef.id; 
+            allTasks.push(data); 
+            
+            if(typeof renderTasks === 'function') renderTasks();
+            
+            btn.disabled = false;
+            btn.textContent = 'Thêm công việc';
+            closeModal();
+            document.getElementById('board-view').classList.remove('hidden');
+            document.getElementById('timeline-view').classList.add('hidden');
+        })
+        .catch((error) => {
+            showFormError('Lỗi kết nối Firebase: ' + error.message);
+            btn.disabled = false;
+            btn.textContent = 'Thêm công việc';
+        });
       }
-      closeModal();
-      document.getElementById('board-view').classList.remove('hidden');
-      document.getElementById('timeline-view').classList.add('hidden');
     });
 
     ['filter-status', 'filter-assignee', 'filter-priority'].forEach(id => {
