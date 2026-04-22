@@ -140,7 +140,15 @@
             <button onclick="toggleChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all">Đóng</button>
         </div>
     </div>
-
+<div class="flex gap-4 mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
+    <span class="text-sm font-bold text-slate-700">Hiển thị cấp học:</span>
+    <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600">
+        <input type="checkbox" id="show-tih" checked onchange="renderChamTietTable()"> Tiểu học
+    </label>
+    <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600">
+        <input type="checkbox" id="show-thcs" checked onchange="renderChamTietTable()"> THCS/THPT
+    </label>
+</div>
     <div class="table-responsive border rounded-lg">
       <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap">
         <thead>
@@ -1791,56 +1799,82 @@ if (editId) {
       }
   }
 
- async function renderChamTietTable() {
-      const tbody = document.getElementById('cham-tiet-tbody');
-      tbody.innerHTML = '<tr><td colspan="30" class="p-10 text-center text-slate-400">Đang tải dữ liệu tháng...</td></tr>';
+async function renderChamTietTable() {
+    const tbody = document.getElementById('cham-tiet-tbody');
+    
+    // 1. Kiểm tra xem thầy đang tick chọn hiện cấp học nào
+    const boxTiH = document.getElementById('show-tih');
+    const boxTHCS = document.getElementById('show-thcs');
+    const showTiH = boxTiH ? boxTiH.checked : true;
+    const showTHCS = boxTHCS ? boxTHCS.checked : true;
+    
+    // 2. Ẩn/Hiện phần Tiêu Đề của bảng (phần chữ TKB TiH, TKB THCS...)
+    const setDisplay = (id, isShow) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = isShow ? '' : 'none';
+    };
+    setDisplay('head-tih', showTiH);
+    setDisplay('sub-tih', showTiH);
+    setDisplay('head-thcs', showTHCS);
+    setDisplay('sub-thcs', showTHCS);
 
-      try {
-          // Firebase tự động lấy dữ liệu dựa trên id_tháng (xem lại các tháng đã tạo)
-          const snapshot = await db.collection("ChamTietTuan").where("thang", "==", currentChamTietMonth).get();
-          const dataThang = {};
-          snapshot.forEach(doc => { dataThang[doc.data().memberId] = doc.data(); });
+    // Ẩn/hiện các ô số 1, 2, 3, 4 (Tuần) trên thanh tiêu đề
+    document.querySelectorAll('.tih-col').forEach(el => el.style.display = showTiH ? '' : 'none');
+    document.querySelectorAll('.thcs-col').forEach(el => el.style.display = showTHCS ? '' : 'none');
 
-          tbody.innerHTML = '';
-          membersData.forEach((member, index) => {
-              const d = dataThang[member.__backendId] || {};
-              
-              // Khởi tạo mảng tuần nếu chưa có dữ liệu
-              const w = (key) => d[key] || [0, 0, 0, 0];
+    // Hiện thông báo đang tải...
+    tbody.innerHTML = '<tr><td colspan="40" class="p-10 text-center text-slate-400">Đang tải dữ liệu...</td></tr>';
 
-              const tr = document.createElement('tr');
-              tr.innerHTML = `
-                  <td class="p-2 sticky-col text-slate-500">${index + 1}</td>
-                  <td class="p-2 sticky-col text-left font-bold text-slate-700" style="left:40px;">${member.name}</td>
-                  
-                  ${[0,1,2,3].map(i => `<td><input type="number" class="ct-input-week ct-tih" data-week="${i}" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('')}
-                  
-                  ${[0,1,2,3].map(i => `<td><input type="number" class="ct-input-week ct-thcs" data-week="${i}" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('')}
-                  
-                  ${[0,1,2,3].map(i => `<td><input type="number" class="ct-input-week ct-vang" data-week="${i}" data-id="${member.__backendId}" value="${w('vang')[i]}"></td>`).join('')}
-                  
-                  ${[0,1,2,3].map(i => `<td><input type="number" class="ct-input-week ct-daythay" data-week="${i}" data-id="${member.__backendId}" value="${w('dayThay')[i]}"></td>`).join('')}
-                  
-                  <td class="p-1"><input type="number" class="ct-input-week ct-pl02" style="width:55px" data-id="${member.__backendId}" value="${d.pl02 || 0}"></td>
-                  <td class="p-1"><input type="number" class="ct-input-week ct-onthi" style="width:55px" data-id="${member.__backendId}" value="${d.onThi || 0}"></td>
-                  <td class="p-1"><input type="number" class="ct-input-week ct-coithi" style="width:55px" data-id="${member.__backendId}" value="${d.coiThi || 0}"></td>
-                  
-                  <td class="p-2 font-bold text-green-700 bg-green-50 ct-tong" id="tong-${member.__backendId}">0</td>
-                  <td class="p-1 bg-yellow-50"><input type="number" class="ct-input-week ct-dinhmuc" style="width:55px; font-weight:bold" data-id="${member.__backendId}" value="${d.dinhMuc || 80}"></td>
-                  <td class="p-2 font-bold text-blue-700 bg-blue-50 ct-vuot" id="vuot-${member.__backendId}">0</td>
-              `;
-              tbody.appendChild(tr);
-          });
+    try {
+      // 3. Kéo dữ liệu từ Firebase về
+      const snapshot = await db.collection("ChamTietTuan").where("thang", "==", currentChamTietMonth).get();
+      const dataThang = {};
+      snapshot.forEach(doc => { dataThang[doc.data().memberId] = doc.data(); });
 
-          // Lắng nghe sự kiện nhập liệu
-          document.querySelectorAll('.ct-input-week').forEach(input => {
-              input.addEventListener('input', () => calcRow(input.getAttribute('data-id')));
-          });
-          membersData.forEach(m => calcRow(m.__backendId));
+      // 4. Bắt đầu vẽ từng dòng cho từng giáo viên
+      tbody.innerHTML = '';
+      membersData.forEach((member, index) => {
+        const d = dataThang[member.__backendId] || {};
+        const w = (key) => d[key] || [0, 0, 0, 0];
 
-      } catch (error) {
-          tbody.innerHTML = `<tr><td colspan="30" class="p-4 text-red-500">Lỗi kết nối: ${error.message}</td></tr>`;
-      }
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border p-2 sticky-col left-0 bg-white text-slate-400">${index + 1}</td>
+          <td class="border p-2 sticky-col left-[40px] bg-white text-left font-bold text-slate-700">${member.name}</td>
+          
+          ${showTiH ? [0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('') : ''}
+          
+          ${showTHCS ? [0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('') : ''}
+          
+          ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i]}"></td>`).join('')}
+          ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-daythay" data-id="${member.__backendId}" value="${w('dayThay')[i]}"></td>`).join('')}
+          
+          <td class="border p-1"><input type="number" class="ct-input-week ct-pl02" data-id="${member.__backendId}" value="${d.pl02 || 0}"></td>
+          <td class="border p-1"><input type="number" class="ct-input-week ct-onthi" data-id="${member.__backendId}" value="${d.onThi || 0}"></td>
+          <td class="border p-1"><input type="number" class="ct-input-week ct-coithi" data-id="${member.__backendId}" value="${d.coiThi || 0}"></td>
+          <td class="border p-1"><input type="number" class="ct-input-week ct-khac" data-id="${member.__backendId}" value="${d.khac || 0}"></td>
+          
+          <td class="border p-2 font-bold text-green-700 bg-green-50 ct-tong" id="tong-${member.__backendId}">0</td>
+          <td class="border p-1 bg-yellow-50"><input type="number" class="ct-input-week ct-dinhmuc" data-id="${member.__backendId}" value="${d.dinhMuc || 80}"></td>
+          <td class="border p-2 font-bold text-blue-700 bg-blue-50 ct-vuot" id="vuot-${member.__backendId}">0</td>
+          
+          <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-after" data-id="${member.__backendId}" value="${d.afterSchool || 0}"></td>
+          <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-bd12" data-id="${member.__backendId}" value="${d.bd12 || 0}"></td>
+          <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-bd11" data-id="${member.__backendId}" value="${d.bd11 || 0}"></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 5. Kích hoạt bộ tính tổng tự động
+      document.querySelectorAll('.ct-input-week').forEach(input => {
+        input.addEventListener('input', () => calcRow(input.getAttribute('data-id')));
+      });
+      membersData.forEach(m => calcRow(m.__backendId));
+
+    } catch (error) { 
+        console.error("Lỗi:", error);
+        tbody.innerHTML = `<tr><td colspan="40" class="p-4 text-red-500">Lỗi kết nối Firebase. Hãy tải lại trang.</td></tr>`;
+    }
   }
 
   function calcRow(id) {
