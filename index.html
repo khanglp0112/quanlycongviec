@@ -148,14 +148,14 @@
 
     <div class="table-responsive border rounded-lg overflow-auto" style="max-height: 75vh;">
       <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap">
-        <thead class="sticky top-0 z-20">
+       <thead class="sticky top-0 z-20">
             <tr class="bg-slate-100 text-slate-700">
                 <th class="border p-2 sticky-col left-0 bg-slate-100" rowspan="3">STT</th>
                 <th class="border p-2 sticky-col bg-slate-100" style="left:40px;" rowspan="3">Họ Tên</th>
                 <th id="head-tih" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB TiH</th>
                 <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB THCS-PT</th>
                 <th class="border p-2 bg-amber-50" colspan="4">Số tiết vắng</th>
-                <th class="border p-2 bg-amber-50" colspan="4">Dạy thay</th>
+                <th class="border p-2 bg-amber-50" rowspan="3">Dạy thay</th>
                 <th class="border p-2 bg-orange-50" rowspan="3">PL02</th>
                 <th class="border p-2 bg-orange-50" rowspan="3">Ôn thi/CLB</th>
                 <th class="border p-2 bg-orange-50" rowspan="3">Coi thi</th>
@@ -171,12 +171,10 @@
                 <th id="sub-tih" colspan="4" class="border p-1 text-[10px]">Tuần</th>
                 <th id="sub-thcs" colspan="4" class="border p-1 text-[10px]">Tuần</th>
                 <th colspan="4" class="border p-1 text-[10px]">Tuần</th>
-                <th colspan="4" class="border p-1 text-[10px]">Tuần</th>
             </tr>
             <tr class="bg-slate-50">
                 <th class="border p-1 w-8 tih-col">1</th><th class="border p-1 w-8 tih-col">2</th><th class="border p-1 w-8 tih-col">3</th><th class="border p-1 w-8 tih-col">4</th>
                 <th class="border p-1 w-8 thcs-col">1</th><th class="border p-1 w-8 thcs-col">2</th><th class="border p-1 w-8 thcs-col">3</th><th class="border p-1 w-8 thcs-col">4</th>
-                <th class="border p-1 w-8">1</th><th class="border p-1 w-8">2</th><th class="border p-1 w-8">3</th><th class="border p-1 w-8">4</th>
                 <th class="border p-1 w-8">1</th><th class="border p-1 w-8">2</th><th class="border p-1 w-8">3</th><th class="border p-1 w-8">4</th>
             </tr>
         </thead>
@@ -1804,13 +1802,13 @@ async function renderChamTietTable() {
     const showTiH = document.getElementById('show-tih').checked;
     const showTHCS = document.getElementById('show-thcs').checked;
     
-    // Điều chỉnh ẩn hiện tiêu đề cột (ĐÃ SỬA LỖI DẤU NGOẶC)
+    // SỬA LỖI CÚ PHÁP: Đã bỏ dấu ngoặc thừa ở các dòng dưới đây
     document.querySelectorAll('.tih-col').forEach(el => el.style.display = showTiH ? '' : 'none');
     document.querySelectorAll('.thcs-col').forEach(el => el.style.display = showTHCS ? '' : 'none');
-    document.getElementById('head-tih').style.display = showTiH ? '' : 'none';
-    document.getElementById('sub-tih').style.display = showTiH ? '' : 'none';
-    document.getElementById('head-thcs').style.display = showTHCS ? '' : 'none';
-    document.getElementById('sub-thcs').style.display = showTHCS ? '' : 'none';
+    if(document.getElementById('head-tih')) document.getElementById('head-tih').style.display = showTiH ? '' : 'none';
+    if(document.getElementById('sub-tih')) document.getElementById('sub-tih').style.display = showTiH ? '' : 'none';
+    if(document.getElementById('head-thcs')) document.getElementById('head-thcs').style.display = showTHCS ? '' : 'none';
+    if(document.getElementById('sub-thcs')) document.getElementById('sub-thcs').style.display = showTHCS ? '' : 'none';
 
     tbody.innerHTML = '<tr><td colspan="40" class="p-10 text-center text-slate-400">Đang tải dữ liệu...</td></tr>';
 
@@ -1829,11 +1827,12 @@ async function renderChamTietTable() {
           <td class="border p-2 sticky-col left-0 bg-white text-slate-400">${index + 1}</td>
           <td class="border p-2 sticky-col left-[40px] bg-white text-left font-bold text-slate-700">${member.name}</td>
           
-          ${showTiH ? [0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('') : ''}
-          ${showTHCS ? [0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('') : ''}
+          ${showTiH ? [0,1,2,3].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('') : ''}
+          ${showTHCS ? [0,1,2,3].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('') : ''}
           
           ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i]}"></td>`).join('')}
-          ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-daythay" data-id="${member.__backendId}" value="${w('dayThay')[i]}"></td>`).join('')}
+          
+          <td class="border p-1"><input type="number" class="ct-input-week ct-daythay" style="width:55px" data-id="${member.__backendId}" value="${typeof d.dayThay === 'number' ? d.dayThay : 0}"></td>
           
           <td class="border p-1"><input type="number" class="ct-input-week ct-pl02" data-id="${member.__backendId}" value="${d.pl02 || 0}"></td>
           <td class="border p-1"><input type="number" class="ct-input-week ct-onthi" data-id="${member.__backendId}" value="${d.onThi || 0}"></td>
@@ -1858,7 +1857,7 @@ async function renderChamTietTable() {
     } catch (error) { console.error(error); }
   }
 
-  function calcRow(id) {
+ function calcRow(id) {
       const row = document.querySelector(`.ct-input-week[data-id="${id}"]`).closest('tr');
       const sumWeeks = (cls) => Array.from(row.querySelectorAll(cls)).reduce((a, b) => a + (parseFloat(b.value) || 0), 0);
       const val = (cls) => parseFloat(row.querySelector(cls).value) || 0;
@@ -1866,9 +1865,9 @@ async function renderChamTietTable() {
       const totalTih = sumWeeks('.ct-tih');
       const totalThcs = sumWeeks('.ct-thcs');
       const totalVang = sumWeeks('.ct-vang');
-      const totalDayThay = sumWeeks('.ct-daythay');
+      const totalDayThay = val('.ct-daythay'); // Đã sửa thành lấy 1 giá trị duy nhất
       
-      const tong = totalTih + totalThcs - totalVang + totalDayThay + val('.ct-pl02') + val('.ct-onthi') + val('.ct-coithi');
+      const tong = totalTih + totalThcs - totalVang + totalDayThay + val('.ct-pl02') + val('.ct-onthi') + val('.ct-coithi') + val('.ct-khac');
       const dinhmuc = val('.ct-dinhmuc');
       const vuot = tong - dinhmuc;
 
@@ -1876,7 +1875,7 @@ async function renderChamTietTable() {
       row.querySelector('.ct-vuot').textContent = vuot > 0 ? (Math.round(vuot * 10) / 10) : '-';
   }
 
-async function saveChamTiet() {
+  async function saveChamTiet() {
     const btn = document.querySelector('button[onclick="saveChamTiet()"]');
     btn.textContent = 'Đang lưu...';
     btn.disabled = true;
@@ -1895,7 +1894,7 @@ async function saveChamTiet() {
         tih: getW('.ct-tih'),
         thcs: getW('.ct-thcs'),
         vang: getW('.ct-vang'),
-        dayThay: getW('.ct-daythay'),
+        dayThay: getV('.ct-daythay'), // Lưu dưới dạng số thay vì mảng tuần
         pl02: getV('.ct-pl02'),
         onThi: getV('.ct-onthi'),
         coiThi: getV('.ct-coithi'),
