@@ -1804,13 +1804,13 @@ async function renderChamTietTable() {
     const showTiH = document.getElementById('show-tih').checked;
     const showTHCS = document.getElementById('show-thcs').checked;
     
-    // Điều chỉnh ẩn hiện tiêu đề cột
+    // Điều chỉnh ẩn hiện tiêu đề cột (ĐÃ SỬA LỖI DẤU NGOẶC)
     document.querySelectorAll('.tih-col').forEach(el => el.style.display = showTiH ? '' : 'none');
     document.querySelectorAll('.thcs-col').forEach(el => el.style.display = showTHCS ? '' : 'none');
-    document.getElementById('head-tih').style.display = showTiH ? '' : 'none');
-    document.getElementById('sub-tih').style.display = showTiH ? '' : 'none');
-    document.getElementById('head-thcs').style.display = showTHCS ? '' : 'none');
-    document.getElementById('sub-thcs').style.display = showTHCS ? '' : 'none');
+    document.getElementById('head-tih').style.display = showTiH ? '' : 'none';
+    document.getElementById('sub-tih').style.display = showTiH ? '' : 'none';
+    document.getElementById('head-thcs').style.display = showTHCS ? '' : 'none';
+    document.getElementById('sub-thcs').style.display = showTHCS ? '' : 'none';
 
     tbody.innerHTML = '<tr><td colspan="40" class="p-10 text-center text-slate-400">Đang tải dữ liệu...</td></tr>';
 
