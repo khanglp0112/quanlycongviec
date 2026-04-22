@@ -89,7 +89,9 @@
      </div>
      <h1 id="app-title" class="font-display text-lg sm:text-xl font-bold" style="color: #1a1a1a;">Quản lý công việc nhóm</h1>
     </div>
-    <div class="flex items-center gap-2"><button id="btn-personal-view" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="user" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Công việc của tôi</span></button> <button id="btn-members" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Thành viên</span></button> <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Giờ làm việc</span></button> <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Timeline</span></button> <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Thêm việc</span></button><button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors mr-2" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()">
+    <div class="flex items-center gap-2"><button id="btn-personal-view" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="user" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Công việc của tôi</span></button> <button id="btn-members" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Thành viên</span></button> <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Giờ làm việc</span></button> <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Timeline</span></button> <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors mr-2" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()">
+  <i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Liên kết</span>
+</button><button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Thêm việc</span></button><button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors mr-2" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()">
   <i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Chấm tiết</span>
 </button><button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors mr-2" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Xuất Excel</span></button>
     </div>
@@ -139,7 +141,23 @@
             <button onclick="toggleChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700">Đóng</button>
         </div>
     </div>
+<div id="lien-ket-view" class="hidden fade-in mb-6">
+  <div class="rounded-xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-slate-800">Danh mục Liên kết Công việc</h2>
+        <button onclick="toggleLienKet()" class="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 p-4 rounded-lg bg-slate-50 border border-slate-200">
+        <input type="text" id="inp-lk-ten" placeholder="Tên liên kết (VD: Quản lý điểm)" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
+        <input type="url" id="inp-lk-url" placeholder="Dán đường dẫn (https://...)" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
+        <button onclick="addLienKet()" class="bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all">Thêm liên kết mới</button>
+    </div>
 
+    <div id="ds-lien-ket" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        </div>
+  </div>
+</div>
     <div class="flex gap-4 mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
         <span class="text-sm font-bold text-slate-700">Hiển thị cấp học:</span>
         <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-tih" checked onchange="renderChamTietTable()"> Tiểu học</label>
@@ -1910,6 +1928,81 @@ async function renderChamTietTable() {
     await batch.commit();
     btn.textContent = 'Đã lưu!';
     setTimeout(() => { btn.textContent = 'Lưu dữ liệu'; btn.disabled = false; }, 2000);
+  }
+ // --- TÍNH NĂNG QUẢN LÝ LIÊN KẾT NHANH ---
+  function toggleLienKet() {
+      const board = document.getElementById('board-view');
+      const lkView = document.getElementById('lien-ket-view');
+      if (lkView.classList.contains('hidden')) {
+          if (board) board.classList.add('hidden');
+          lkView.classList.remove('hidden');
+          renderLienKet();
+      } else {
+          lkView.classList.add('hidden');
+          if (board) board.classList.remove('hidden');
+      }
+      if(typeof lucide !== 'undefined') lucide.createIcons();
+  }
+
+  // Hàm thêm Link mới lên Firebase
+  async function addLienKet() {
+      const ten = document.getElementById('inp-lk-ten').value.trim();
+      const url = document.getElementById('inp-lk-url').value.trim();
+      
+      if (!ten || !url) { alert("Vui lòng nhập đủ tên và đường dẫn!"); return; }
+
+      try {
+          await db.collection("LienKetNhanh").add({
+              ten: ten,
+              url: url,
+              created_at: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          document.getElementById('inp-lk-ten').value = '';
+          document.getElementById('inp-lk-url').value = '';
+          renderLienKet();
+      } catch (e) { alert("Lỗi khi thêm link: " + e.message); }
+  }
+
+  // Hàm vẽ danh sách nút Link ra màn hình
+  async function renderLienKet() {
+      const container = document.getElementById('ds-lien-ket');
+      container.innerHTML = '<p class="col-span-full text-center text-slate-400 py-4">Đang tải liên kết...</p>';
+
+      try {
+          const snapshot = await db.collection("LienKetNhanh").orderBy("created_at", "desc").get();
+          container.innerHTML = '';
+          
+          if (snapshot.empty) {
+              container.innerHTML = '<p class="col-span-full text-center text-slate-400 py-4">Chưa có liên kết nào. Thầy hãy thêm link ở phía trên nhé!</p>';
+              return;
+          }
+
+          snapshot.forEach(doc => {
+              const data = doc.data();
+              const div = document.createElement('div');
+              div.className = "group relative p-4 rounded-xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 text-center";
+              div.onclick = () => window.open(data.url, '_blank');
+              
+              div.innerHTML = `
+                  <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                      <i data-lucide="external-link" style="width:20px;height:20px;"></i>
+                  </div>
+                  <span class="font-bold text-slate-700 text-sm">${data.ten}</span>
+                  <button onclick="event.stopPropagation(); deleteLienKet('${doc.id}')" class="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg">
+                      <i data-lucide="trash-2" style="width:12px;height:12px;"></i>
+                  </button>
+              `;
+              container.appendChild(div);
+          });
+          if(typeof lucide !== 'undefined') lucide.createIcons();
+      } catch (e) { console.error(e); }
+  }
+
+  // Hàm xóa liên kết
+  async function deleteLienKet(id) {
+      if (!confirm("Thầy có chắc muốn xóa liên kết này không?")) return;
+      await db.collection("LienKetNhanh").doc(id).delete();
+      renderLienKet();
   }
   // 6. RA LỆNH CHẠY HÀM TẢI DỮ LIỆU NGAY KHI WEB VỪA MỞ
   loadDataFromFirebase();
