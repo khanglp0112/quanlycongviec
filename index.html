@@ -927,7 +927,7 @@ document.getElementById('hours-form').addEventListener('submit', function(e) {
       }
     }
 
-    function createCard(t) {
+function createCard(t) {
       const div = document.createElement('div');
       div.className = 'task-card rounded-xl p-3 fade-in cursor-pointer';
       div.style.background = '#ffffff';
@@ -935,6 +935,21 @@ document.getElementById('hours-form').addEventListener('submit', function(e) {
       div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
       div.dataset.id = t.__backendId;
       div.addEventListener('click', () => showTaskDetail(t));
+      
+      // --- KÍCH HOẠT KÉO THẢ CHO THẺ ---
+      div.setAttribute('draggable', 'true');
+      div.addEventListener('dragstart', (e) => {
+        // Gắn ID của công việc vào cú nhấc chuột
+        e.dataTransfer.setData('text/plain', t.__backendId);
+        // Làm mờ thẻ một chút khi đang lơ lửng trên không
+        setTimeout(() => div.style.opacity = '0.4', 0); 
+      });
+      div.addEventListener('dragend', () => {
+        // Trả lại độ nét khi thả tay ra
+        div.style.opacity = '1'; 
+      });
+      // ---------------------------------
+
       updateCard(div, t);
       return div;
     }
@@ -1683,6 +1698,44 @@ if (editId) {
           if (typeof lucide !== 'undefined') lucide.createIcons();
       }, 500);
   });
+ // --- KÍCH HOẠT VÙNG NHẬN KÉO THẢ CHO 3 CỘT ---
+  ['todo', 'doing', 'done'].forEach(status => {
+    const col = document.getElementById('col-' + status);
+    if (!col) return;
+    
+    // Tạo không gian trống ở đáy cột để dễ thả thẻ vào dù cột đang không có việc nào
+    col.style.minHeight = '150px';
+    col.style.paddingBottom = '30px';
+    col.style.transition = 'background 0.2s';
+    
+    // Khi lướt thẻ lơ lửng qua mặt cột
+    col.addEventListener('dragover', (e) => {
+      e.preventDefault(); // Phải có dòng này mới cho phép thả
+      col.style.background = '#f1f5f9'; // Đổi màu nền xám nhạt để báo hiệu vùng đáp
+    });
+
+    // Khi kéo thẻ rời khỏi cột mà chưa thả
+    col.addEventListener('dragleave', (e) => {
+      col.style.background = 'transparent'; // Trả lại nền trong suốt
+    });
+
+    // Khi chính thức thả tay (Drop)
+    col.addEventListener('drop', (e) => {
+      e.preventDefault();
+      col.style.background = 'transparent';
+      const taskId = e.dataTransfer.getData('text/plain');
+      
+      if (taskId) {
+        const task = allTasks.find(t => t.__backendId === taskId);
+        // Nếu thả thành công vào một cột mới (khác cột hiện tại)
+        if (task && task.status !== status) {
+          // Gọi hàm cập nhật lên Firebase
+          moveTask(taskId, status); 
+        }
+      }
+    });
+  });
+  // --------------------------------------------
 </script>
 </body>
 </html>
