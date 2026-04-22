@@ -1000,6 +1000,7 @@ document.getElementById('hours-form').addEventListener('submit', function(e) {
          <div class="flex items-center gap-1">
             ${t.status !== 'done' ? `<button onclick="event.stopPropagation(); moveTask('${t.__backendId}','${t.status === 'todo' ? 'doing' : 'done'}')" class="p-1 rounded transition-colors" style="color:#666666;" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
             <button onclick="event.stopPropagation(); editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
+            <button onclick="event.stopPropagation(); duplicateTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
             <button onclick="event.stopPropagation(); showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
           </div>
         </div>
@@ -1583,7 +1584,42 @@ if (editId) {
       console.error("Lỗi khi tải dữ liệu:", error);
     }
   }
+// --- HÀM SAO CHÉP (NHÂN BẢN) CÔNG VIỆC ---
+  function duplicateTask(id) {
+    if (event) event.stopPropagation();
 
+    // Tìm công việc gốc
+    const originalTask = allTasks.find(t => t.__backendId === id);
+    if (!originalTask) return;
+
+    // Hỏi xác nhận cho chắc chắn
+    if (!confirm(`Bạn có muốn tạo bản sao của công việc: "${originalTask.title}" không?`)) return;
+
+    // Tạo bản sao và làm sạch các dữ liệu cũ
+    const newTaskData = { ...originalTask };
+    delete newTaskData.__backendId; // Xóa ID cũ để Firebase cấp ID mới
+    
+    newTaskData.title = originalTask.title + " (Bản sao)"; // Thêm đuôi đánh dấu
+    newTaskData.status = 'todo'; // Trả về cột Chờ làm
+    newTaskData.actual_hours = ''; // Xóa giờ làm thực tế
+    newTaskData.rating = ''; // Xóa sao đánh giá
+    newTaskData.lessons_learned = ''; // Xóa bài học kinh nghiệm
+    newTaskData.created_at = firebase.firestore.FieldValue.serverTimestamp(); 
+
+    // Đẩy bản sao lên Firebase
+    db.collection("CongViec").add(newTaskData)
+    .then((docRef) => {
+        newTaskData.__backendId = docRef.id;
+        allTasks.push(newTaskData); // Cập nhật danh sách ảo
+        renderTasks(); // Vẽ lại giao diện web
+        
+        // Thông báo bằng icon cho ngầu
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    })
+    .catch((error) => {
+        alert("Lỗi khi sao chép Firebase: " + error.message);
+    });
+  }
   // 6. RA LỆNH CHẠY HÀM TẢI DỮ LIỆU NGAY KHI WEB VỪA MỞ
   loadDataFromFirebase();
  // 7. XUẤT DỮ LIỆU RA EXCEL
