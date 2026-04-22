@@ -130,57 +130,57 @@
     </div>
    </div><!-- Task columns -->
 <div id="cham-tiet-view" class="hidden fade-in mb-6">
-  <div class="cham-tiet-container rounded-xl p-4">
+  <div class="cham-tiet-container rounded-xl p-4" style="background:#ffffff; border:1px solid #e2e8f0;">
     <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
         <h2 class="text-xl font-bold text-slate-800">Bảng Tổng Hợp Tiết Dạy Chi Tiết</h2>
         <div class="flex items-center gap-3">
-            <label class="text-sm font-medium text-slate-600">Chọn tháng:</label>
-            <input type="month" id="inp-cham-tiet-month" class="px-3 py-1.5 rounded-lg text-sm border border-slate-300 outline-none" style="background:#fff; color:#334155;">
-            <button onclick="saveChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 transition-all">Lưu dữ liệu</button>
-            <button onclick="toggleChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-all">Đóng</button>
+            <input type="month" id="inp-cham-tiet-month" class="px-3 py-1.5 rounded-lg text-sm border border-slate-300 outline-none">
+            <button onclick="saveChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white hover:bg-blue-700">Lưu dữ liệu</button>
+            <button onclick="toggleChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700">Đóng</button>
         </div>
     </div>
-<div class="flex gap-4 mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
-    <span class="text-sm font-bold text-slate-700">Hiển thị cấp học:</span>
-    <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600">
-        <input type="checkbox" id="show-tih" checked onchange="renderChamTietTable()"> Tiểu học
-    </label>
-    <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600">
-        <input type="checkbox" id="show-thcs" checked onchange="renderChamTietTable()"> THCS/THPT
-    </label>
-</div>
-    <div class="table-responsive border rounded-lg">
+
+    <div class="flex gap-4 mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
+        <span class="text-sm font-bold text-slate-700">Hiển thị cấp học:</span>
+        <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-tih" checked onchange="renderChamTietTable()"> Tiểu học</label>
+        <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-thcs" checked onchange="renderChamTietTable()"> THCS/THPT</label>
+    </div>
+
+    <div class="table-responsive border rounded-lg overflow-auto" style="max-height: 75vh;">
       <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap">
-        <thead>
-            <tr>
-                <th class="p-2 sticky-col" rowspan="3">STT</th>
-                <th class="p-2 sticky-col" style="left:40px;" rowspan="3">Họ Tên</th>
-                <th class="p-2" colspan="4">Tiết TKB TiH</th>
-                <th class="p-2" colspan="4">Tiết TKB THCS-PT</th>
-                <th class="p-2" colspan="4">Số tiết vắng</th>
-                <th class="p-2" colspan="4">Dạy thay</th>
-                <th class="p-2 bg-orange-50" rowspan="3">PL02</th>
-                <th class="p-2 bg-orange-50" rowspan="3">Ôn thi/CLB</th>
-                <th class="p-2 bg-orange-50" rowspan="3">Coi thi</th>
-                <th class="p-2 bg-green-100 text-green-800" rowspan="3">TỔNG TIẾT</th>
-                <th class="p-2 bg-yellow-50" rowspan="3">Định mức</th>
-                <th class="p-2 bg-blue-100 text-blue-800" rowspan="3">VƯỢT</th>
+        <thead class="sticky top-0 z-20">
+            <tr class="bg-slate-100 text-slate-700">
+                <th class="border p-2 sticky-col left-0 bg-slate-100" rowspan="3">STT</th>
+                <th class="border p-2 sticky-col bg-slate-100" style="left:40px;" rowspan="3">Họ Tên</th>
+                <th id="head-tih" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB TiH</th>
+                <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB THCS-PT</th>
+                <th class="border p-2 bg-amber-50" colspan="4">Số tiết vắng</th>
+                <th class="border p-2 bg-amber-50" colspan="4">Dạy thay</th>
+                <th class="border p-2 bg-orange-50" rowspan="3">PL02</th>
+                <th class="border p-2 bg-orange-50" rowspan="3">Ôn thi/CLB</th>
+                <th class="border p-2 bg-orange-50" rowspan="3">Coi thi</th>
+                <th class="border p-2 bg-orange-50" rowspan="3">Khác</th>
+                <th class="border p-2 bg-green-600 text-white" rowspan="3">TỔNG</th>
+                <th class="border p-2 bg-yellow-100 text-yellow-900" rowspan="3">Định mức</th>
+                <th class="border p-2 bg-blue-600 text-white" rowspan="3">VƯỢT</th>
+                <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">After School</th>
+                <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD Khối 12</th>
+                <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD 1:1/17</th>
             </tr>
-            <tr>
-                <th colspan="4" class="p-1 text-[10px]">Tuần</th>
-                <th colspan="4" class="p-1 text-[10px]">Tuần</th>
-                <th colspan="4" class="p-1 text-[10px]">Tuần</th>
-                <th colspan="4" class="p-1 text-[10px]">Tuần</th>
+            <tr class="bg-slate-100">
+                <th id="sub-tih" colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                <th id="sub-thcs" colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                <th colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                <th colspan="4" class="border p-1 text-[10px]">Tuần</th>
             </tr>
-            <tr>
-                <th class="p-1 w-10">1</th><th class="p-1 w-10">2</th><th class="p-1 w-10">3</th><th class="p-1 w-10">4</th>
-                <th class="p-1 w-10">1</th><th class="p-1 w-10">2</th><th class="p-1 w-10">3</th><th class="p-1 w-10">4</th>
-                <th class="p-1 w-10">1</th><th class="p-1 w-10">2</th><th class="p-1 w-10">3</th><th class="p-1 w-10">4</th>
-                <th class="p-1 w-10">1</th><th class="p-1 w-10">2</th><th class="p-1 w-10">3</th><th class="p-1 w-10">4</th>
+            <tr class="bg-slate-50">
+                <th class="border p-1 w-8 tih-col">1</th><th class="border p-1 w-8 tih-col">2</th><th class="border p-1 w-8 tih-col">3</th><th class="border p-1 w-8 tih-col">4</th>
+                <th class="border p-1 w-8 thcs-col">1</th><th class="border p-1 w-8 thcs-col">2</th><th class="border p-1 w-8 thcs-col">3</th><th class="border p-1 w-8 thcs-col">4</th>
+                <th class="border p-1 w-8">1</th><th class="border p-1 w-8">2</th><th class="border p-1 w-8">3</th><th class="border p-1 w-8">4</th>
+                <th class="border p-1 w-8">1</th><th class="border p-1 w-8">2</th><th class="border p-1 w-8">3</th><th class="border p-1 w-8">4</th>
             </tr>
         </thead>
-        <tbody id="cham-tiet-tbody">
-            </tbody>
+        <tbody id="cham-tiet-tbody"></tbody>
       </table>
     </div>
   </div>
@@ -1801,37 +1801,24 @@ if (editId) {
 
 async function renderChamTietTable() {
     const tbody = document.getElementById('cham-tiet-tbody');
+    const showTiH = document.getElementById('show-tih').checked;
+    const showTHCS = document.getElementById('show-thcs').checked;
     
-    // 1. Kiểm tra xem thầy đang tick chọn hiện cấp học nào
-    const boxTiH = document.getElementById('show-tih');
-    const boxTHCS = document.getElementById('show-thcs');
-    const showTiH = boxTiH ? boxTiH.checked : true;
-    const showTHCS = boxTHCS ? boxTHCS.checked : true;
-    
-    // 2. Ẩn/Hiện phần Tiêu Đề của bảng (phần chữ TKB TiH, TKB THCS...)
-    const setDisplay = (id, isShow) => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = isShow ? '' : 'none';
-    };
-    setDisplay('head-tih', showTiH);
-    setDisplay('sub-tih', showTiH);
-    setDisplay('head-thcs', showTHCS);
-    setDisplay('sub-thcs', showTHCS);
-
-    // Ẩn/hiện các ô số 1, 2, 3, 4 (Tuần) trên thanh tiêu đề
+    // Điều chỉnh ẩn hiện tiêu đề cột
     document.querySelectorAll('.tih-col').forEach(el => el.style.display = showTiH ? '' : 'none');
     document.querySelectorAll('.thcs-col').forEach(el => el.style.display = showTHCS ? '' : 'none');
+    document.getElementById('head-tih').style.display = showTiH ? '' : 'none');
+    document.getElementById('sub-tih').style.display = showTiH ? '' : 'none');
+    document.getElementById('head-thcs').style.display = showTHCS ? '' : 'none');
+    document.getElementById('sub-thcs').style.display = showTHCS ? '' : 'none');
 
-    // Hiện thông báo đang tải...
     tbody.innerHTML = '<tr><td colspan="40" class="p-10 text-center text-slate-400">Đang tải dữ liệu...</td></tr>';
 
     try {
-      // 3. Kéo dữ liệu từ Firebase về
       const snapshot = await db.collection("ChamTietTuan").where("thang", "==", currentChamTietMonth).get();
       const dataThang = {};
       snapshot.forEach(doc => { dataThang[doc.data().memberId] = doc.data(); });
 
-      // 4. Bắt đầu vẽ từng dòng cho từng giáo viên
       tbody.innerHTML = '';
       membersData.forEach((member, index) => {
         const d = dataThang[member.__backendId] || {};
@@ -1843,7 +1830,6 @@ async function renderChamTietTable() {
           <td class="border p-2 sticky-col left-[40px] bg-white text-left font-bold text-slate-700">${member.name}</td>
           
           ${showTiH ? [0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('') : ''}
-          
           ${showTHCS ? [0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('') : ''}
           
           ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i]}"></td>`).join('')}
@@ -1865,16 +1851,11 @@ async function renderChamTietTable() {
         tbody.appendChild(tr);
       });
 
-      // 5. Kích hoạt bộ tính tổng tự động
       document.querySelectorAll('.ct-input-week').forEach(input => {
         input.addEventListener('input', () => calcRow(input.getAttribute('data-id')));
       });
       membersData.forEach(m => calcRow(m.__backendId));
-
-    } catch (error) { 
-        console.error("Lỗi:", error);
-        tbody.innerHTML = `<tr><td colspan="40" class="p-4 text-red-500">Lỗi kết nối Firebase. Hãy tải lại trang.</td></tr>`;
-    }
+    } catch (error) { console.error(error); }
   }
 
   function calcRow(id) {
@@ -1895,44 +1876,41 @@ async function renderChamTietTable() {
       row.querySelector('.ct-vuot').textContent = vuot > 0 ? (Math.round(vuot * 10) / 10) : '-';
   }
 
-  async function saveChamTiet() {
-      const btn = document.querySelector('button[onclick="saveChamTiet()"]');
-      btn.textContent = 'Đang lưu...';
-      btn.disabled = true;
+async function saveChamTiet() {
+    const btn = document.querySelector('button[onclick="saveChamTiet()"]');
+    btn.textContent = 'Đang lưu...';
+    btn.disabled = true;
 
-      const batch = db.batch();
-      membersData.forEach(member => {
-          const id = member.__backendId;
-          const row = document.querySelector(`.ct-input-week[data-id="${id}"]`).closest('tr');
-          
-          const getWeeks = (cls) => Array.from(row.querySelectorAll(cls)).map(i => parseFloat(i.value) || 0);
-          const val = (cls) => parseFloat(row.querySelector(cls).value) || 0;
+    const batch = db.batch();
+    membersData.forEach(member => {
+      const id = member.__backendId;
+      const row = document.querySelector(`.ct-input-week[data-id="${id}"]`).closest('tr');
+      const getW = (cls) => Array.from(row.querySelectorAll(cls)).map(i => parseFloat(i.value) || 0);
+      const getV = (cls) => parseFloat(row.querySelector(cls).value) || 0;
 
-          // Lưu theo format tháng để dễ dàng xem lại
-          const docRef = db.collection("ChamTietTuan").doc(`${id}_${currentChamTietMonth}`);
-          batch.set(docRef, {
-              memberId: id,
-              thang: currentChamTietMonth,
-              tih: getWeeks('.ct-tih'),
-              thcs: getWeeks('.ct-thcs'),
-              vang: getWeeks('.ct-vang'),
-              dayThay: getWeeks('.ct-daythay'),
-              pl02: val('.ct-pl02'),
-              onThi: val('.ct-onthi'),
-              coiThi: val('.ct-coithi'),
-              dinhMuc: val('.ct-dinhmuc'),
-              lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-      });
+      const docRef = db.collection("ChamTietTuan").doc(`${id}_${currentChamTietMonth}`);
+      batch.set(docRef, {
+        memberId: id,
+        thang: currentChamTietMonth,
+        tih: getW('.ct-tih'),
+        thcs: getW('.ct-thcs'),
+        vang: getW('.ct-vang'),
+        dayThay: getW('.ct-daythay'),
+        pl02: getV('.ct-pl02'),
+        onThi: getV('.ct-onthi'),
+        coiThi: getV('.ct-coithi'),
+        khac: getV('.ct-khac'),
+        dinhMuc: getV('.ct-dinhmuc'),
+        afterSchool: getV('.ct-after'),
+        bd12: getV('.ct-bd12'),
+        bd11: getV('.ct-bd11'),
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    });
 
-      try {
-          await batch.commit();
-          btn.textContent = 'Đã lưu!';
-          setTimeout(() => { btn.textContent = 'Lưu dữ liệu'; btn.disabled = false; }, 2000);
-      } catch (e) {
-          alert("Lỗi: " + e.message);
-          btn.disabled = false;
-      }
+    await batch.commit();
+    btn.textContent = 'Đã lưu!';
+    setTimeout(() => { btn.textContent = 'Lưu dữ liệu'; btn.disabled = false; }, 2000);
   }
   // 6. RA LỆNH CHẠY HÀM TẢI DỮ LIỆU NGAY KHI WEB VỪA MỞ
   loadDataFromFirebase();
