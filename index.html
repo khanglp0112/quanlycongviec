@@ -371,18 +371,17 @@ function populateMemberSelects() {
           });
       }
       
-      // 2. Tạo danh sách Checkbox để chọn nhiều người
+      // 2. Tạo danh sách Checkbox để chọn nhiều người (Giao diện Sáng)
       const listDiv = document.getElementById('assignee-list');
       if (listDiv) {
           listDiv.innerHTML = membersList.map(m => `
-            <label class="flex items-center gap-2 cursor-pointer p-1 hover:bg-slate-800 rounded transition-colors">
-              <input type="checkbox" value="${m.name}" class="assignee-cb w-3.5 h-3.5 rounded border-slate-500 bg-slate-700 accent-blue-500 cursor-pointer">
-              <span style="color:#e2e8f0;font-size:13px;">${escHtml(m.name)}</span>
+            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-slate-200 rounded transition-colors">
+              <input type="checkbox" value="${m.name}" class="assignee-cb w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer">
+              <span style="color:#1e293b;font-size:13px;font-weight:500;">${escHtml(m.name)}</span>
             </label>
           `).join('');
       }
     }
-
     function renderMembersList() {
       const container = document.getElementById('members-list');
       container.innerHTML = membersData.map((m) => `
