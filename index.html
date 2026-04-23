@@ -204,83 +204,84 @@
     <p class="text-sm" style="color:#64748b;">Nhấn "Thêm việc" để bắt đầu phân công</p>
    </div>
 
-   <div id="working-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="w-full max-w-4xl rounded-2xl p-6 flex flex-col" style="background:#1e293b; border:1px solid #334155; max-height:90vh;">
+<div id="working-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
+    <div class="w-full max-w-4xl rounded-2xl p-6 flex flex-col" style="background:#ffffff; border:1px solid #e2e8f0; max-height:90vh;">
      <div class="flex items-center justify-between mb-5 flex-shrink-0">
-      <h2 class="font-display text-lg font-bold" style="color:#f8fafc;">Quản lý giờ làm việc</h2><button id="btn-working-hours-close" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <h2 class="font-display text-lg font-bold" style="color:#1e293b;">Quản lý giờ làm việc</h2><button id="btn-working-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
-     <div id="working-hours-list" class="space-y-3 overflow-y-auto scrollbar-thin flex-1"></div>
+     <div id="working-hours-list" class="space-y-3 overflow-y-auto scrollbar-thin flex-1 pr-2"></div>
     </div>
    </div>
    <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6); overflow-y:auto;">
-    <div class="modal-backdrop w-full max-w-4xl rounded-2xl p-6 my-4" style="background:#1e293b; border:1px solid #334155; max-height:90vh; overflow-y:auto;">
+    <div class="modal-backdrop w-full max-w-4xl rounded-2xl p-6 my-4" style="background:#ffffff; border:1px solid #e2e8f0; max-height:90vh; overflow-y:auto;">
      <div class="flex items-center justify-between mb-4">
-      <h2 class="font-display text-lg font-bold" style="color:#f8fafc;" id="edit-hours-title">Quản lý giờ làm việc</h2><button id="btn-edit-hours-close" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <h2 class="font-display text-lg font-bold" style="color:#1e293b;" id="edit-hours-title">Quản lý giờ làm việc</h2><button id="btn-edit-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
-     <form id="hours-form" class="space-y-4 max-h-96 overflow-y-auto">
+     <form id="hours-form" class="space-y-4 max-h-96 overflow-y-auto pr-2">
       <div class="grid grid-cols-2 gap-3">
-       <div><label for="inp-work-quota" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Định mức giờ/tuần (h) *</label> <input id="inp-work-quota" type="number" min="0" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 40" required></div>
-       <div><label for="inp-fixed-hours" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ công việc cố định (h/tuần)</label> <input id="inp-fixed-hours" type="number" min="0" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 20"></div>
+       <div><label for="inp-work-quota" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Định mức giờ/tuần (h) *</label> <input id="inp-work-quota" type="number" min="0" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: 40" required></div>
+       <div><label for="inp-fixed-hours" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Giờ công việc cố định (h/tuần)</label> <input id="inp-fixed-hours" type="number" min="0" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: 20"></div>
       </div>
-      <div><label for="inp-week-start" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tuần bắt đầu từ ngày</label> <input id="inp-week-start" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" required></div>
-      <div><label class="block text-xs font-medium mb-2.5" style="color:#94a3b8;">Giờ công việc cố định chi tiết theo ngày</label><div id="week-hours-grid" class="grid grid-cols-2 gap-3 mb-2"></div></div>
-      <div class="p-3 rounded-lg" style="background:#0f172a;border:1px solid #334155;">
-       <div style="color:#e2e8f0;font-size:13px;font-weight:500;margin-bottom:8px;">📊 Tổng hợp</div>
+      <div><label for="inp-week-start" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Tuần bắt đầu từ ngày</label> <input id="inp-week-start" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" required></div>
+      <div><label class="block text-xs font-semibold mb-2.5" style="color:#475569;">Giờ công việc cố định chi tiết theo ngày</label><div id="week-hours-grid" class="grid grid-cols-2 gap-3 mb-2"></div></div>
+      <div class="p-3 rounded-lg" style="background:#f8fafc;border:1px solid #e2e8f0;">
+       <div style="color:#1e293b;font-size:13px;font-weight:600;margin-bottom:8px;">📊 Tổng hợp</div>
        <div class="space-y-1.5" style="font-size:12px;">
-        <div class="flex justify-between" style="color:#94a3b8;"><span>Định mức:</span><span id="summary-quota" style="color:#34d399;font-weight:600;">0h</span></div>
-        <div class="flex justify-between" style="color:#94a3b8;"><span>Công việc cố định:</span><span id="summary-fixed" style="color:#f59e0b;font-weight:600;">0h</span></div>
-        <div class="flex justify-between" style="color:#94a3b8;"><span>Công việc không cố định:</span><span id="summary-flexible" style="color:#a78bfa;font-weight:600;">0h</span></div>
-        <div class="flex justify-between" style="color:#94a3b8; border-top:1px solid #334155; padding-top:6px; margin-top:6px;"><span>Còn lại thực tế tuần:</span><span id="summary-remaining-week" style="color:#38bdf8;font-weight:600;">0h</span></div>
+        <div class="flex justify-between" style="color:#64748b;"><span>Định mức:</span><span id="summary-quota" style="color:#059669;font-weight:700;">0h</span></div>
+        <div class="flex justify-between" style="color:#64748b;"><span>Công việc cố định:</span><span id="summary-fixed" style="color:#d97706;font-weight:700;">0h</span></div>
+        <div class="flex justify-between" style="color:#64748b;"><span>Công việc không cố định:</span><span id="summary-flexible" style="color:#7c3aed;font-weight:700;">0h</span></div>
+        <div class="flex justify-between" style="color:#475569; border-top:1px solid #cbd5e1; padding-top:6px; margin-top:6px; font-weight:600;"><span>Còn lại thực tế tuần:</span><span id="summary-remaining-week" style="color:#0284c7;font-weight:700;">0h</span></div>
        </div>
       </div>
       <input type="hidden" id="inp-hours-member-id" value="">
-      <div id="hours-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#7f1d1d;color:#fca5a5;"></div><button type="submit" id="btn-hours-save" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;">Lưu thay đổi</button>
+      <div id="hours-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#fee2e2;color:#b91c1c;"></div>
+      <button type="submit" id="btn-hours-save" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;">Lưu thay đổi</button>
      </form>
     </div>
    </div>
    <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="modal-backdrop w-full max-w-md rounded-2xl p-6 max-h-96 overflow-y-auto" style="background:#1e293b; border:1px solid #334155;">
+    <div class="modal-backdrop w-full max-w-md rounded-2xl p-6 max-h-96 overflow-y-auto" style="background:#ffffff; border:1px solid #e2e8f0;">
      <div class="flex items-center justify-between mb-4">
-      <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#f8fafc;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#1e293b;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <div id="detail-content" class="space-y-3 mb-4"></div>
-     <div class="grid grid-cols-3 gap-2"><button id="detail-status-todo" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Chờ làm</button> <button id="detail-status-doing" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Đang làm</button> <button id="detail-status-done" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Hoàn thành</button></div>
+     <div class="grid grid-cols-3 gap-2"><button id="detail-status-todo" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Chờ làm</button> <button id="detail-status-doing" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Đang làm</button> <button id="detail-status-done" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Hoàn thành</button></div>
     </div>
    </div>
    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="modal-backdrop w-full max-w-2xl rounded-2xl p-6 overflow-y-auto" style="background:#1e293b; border:1px solid #334155; max-height: 90vh;">
+    <div class="modal-backdrop w-full max-w-2xl rounded-2xl p-6 overflow-y-auto" style="background:#ffffff; border:1px solid #e2e8f0; max-height: 90vh;">
      <div class="flex items-center justify-between mb-5">
-      <h2 id="modal-title" class="font-display text-lg font-bold" style="color:#f8fafc;">Thêm công việc</h2><button id="btn-modal-close" class="p-1 rounded-lg transition-colors flex-shrink-0" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <h2 id="modal-title" class="font-display text-lg font-bold" style="color:#1e293b;">Thêm công việc</h2><button id="btn-modal-close" class="p-1 rounded-lg transition-colors flex-shrink-0" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <form id="task-form" class="space-y-4">
       <div class="grid grid-cols-6 gap-3">
-       <div class="col-span-6"><label for="inp-title" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tiêu đề *</label> <input id="inp-title" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tiêu đề công việc"></div>
-       <div class="col-span-6"><label for="inp-desc" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mô tả</label> <textarea id="inp-desc" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Mô tả chi tiết (tuỳ chọn)"></textarea></div>
+       <div class="col-span-6"><label for="inp-title" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Tiêu đề *</label> <input id="inp-title" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Nhập tiêu đề công việc"></div>
+       <div class="col-span-6"><label for="inp-desc" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mô tả</label> <textarea id="inp-desc" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Mô tả chi tiết (tuỳ chọn)"></textarea></div>
        <div class="col-span-6">
-         <label class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Danh sách việc cần làm (Subtasks)</label>
+         <label class="block text-xs font-semibold mb-1.5" style="color:#475569;">Danh sách việc cần làm (Subtasks)</label>
          <div id="subtasks-container" class="space-y-2 mb-2"></div>
-         <button type="button" onclick="addSubtaskInput()" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium"><i data-lucide="plus" style="width:14px;height:14px;"></i> Thêm mục con</button>
+         <button type="button" onclick="addSubtaskInput()" class="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 font-semibold"><i data-lucide="plus" style="width:14px;height:14px;"></i> Thêm mục con</button>
        </div>
-     <div class="col-span-2">
-    <label class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Phân công (chọn nhiều)</label> 
-    <div id="assignee-list" class="w-full max-h-[84px] overflow-y-auto px-2 py-1.5 rounded-lg text-sm outline-none scrollbar-thin space-y-1" style="background:#0f172a;border:1px solid #334155;"></div>
-</div>
-       <div class="col-span-2"><label for="inp-priority" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mức ưu tiên</label> <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"><option value="delegable">Không quan trọng & Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="important" selected>Quan trọng nhưng Không khẩn</option><option value="urgent_important">Quan trọng & Khẩn cấp</option></select></div>
-       <div class="col-span-2"><label for="inp-deadline" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Thời hạn</label> <input id="inp-deadline" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"></div>
-       <div class="col-span-2"><label for="inp-estimated-hours" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ dự kiến</label> <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 2.5"></div>
-       <div class="col-span-4 flex items-center gap-2 pt-6"><input id="inp-weekly" type="checkbox" class="w-4 h-4 rounded border-slate-300 bg-slate-700 accent-blue-500 cursor-pointer"><label for="inp-weekly" class="text-xs font-medium cursor-pointer" style="color:#94a3b8;">🔁 Lặp lại hàng tuần</label></div>
-       <div class="col-span-6"><label for="inp-supporters" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Nhân sự hỗ trợ</label> <input id="inp-supporters" type="text" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: Minh, Lan, Tuấn"></div>
-       <div class="col-span-6"><label for="inp-goal" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mục tiêu công việc</label> <textarea id="inp-goal" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Ghi rõ mục tiêu cần đạt được..."></textarea></div>
-       <div id="rating-section" class="hidden col-span-6"><label class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Đánh giá *</label>
+       <div class="col-span-2">
+         <label class="block text-xs font-semibold mb-1.5" style="color:#475569;">Phân công (chọn nhiều)</label> 
+         <div id="assignee-list" class="w-full max-h-[84px] overflow-y-auto px-2 py-1.5 rounded-lg text-sm outline-none scrollbar-thin space-y-1 focus:border-blue-500" style="background:#f8fafc;border:1px solid #cbd5e1;"></div>
+       </div>
+       <div class="col-span-2"><label for="inp-priority" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mức ưu tiên</label> <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;"><option value="delegable">Không quan trọng & Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="important" selected>Quan trọng nhưng Không khẩn</option><option value="urgent_important">Quan trọng & Khẩn cấp</option></select></div>
+       <div class="col-span-2"><label for="inp-deadline" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Thời hạn</label> <input id="inp-deadline" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;"></div>
+       <div class="col-span-2"><label for="inp-estimated-hours" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Giờ dự kiến</label> <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: 2.5"></div>
+       <div class="col-span-4 flex items-center gap-2 pt-6"><input id="inp-weekly" type="checkbox" class="w-4 h-4 rounded border-slate-400 bg-white accent-blue-600 cursor-pointer"><label for="inp-weekly" class="text-xs font-semibold cursor-pointer" style="color:#475569;">🔁 Lặp lại hàng tuần</label></div>
+       <div class="col-span-6"><label for="inp-supporters" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Nhân sự hỗ trợ</label> <input id="inp-supporters" type="text" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: Minh, Lan, Tuấn"></div>
+       <div class="col-span-6"><label for="inp-goal" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mục tiêu công việc</label> <textarea id="inp-goal" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Ghi rõ mục tiêu cần đạt được..."></textarea></div>
+       <div id="rating-section" class="hidden col-span-6"><label class="block text-xs font-semibold mb-1.5" style="color:#475569;">Đánh giá *</label>
         <div class="flex gap-1.5">
-          <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="1" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="2" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="3" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="4" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="5" style="background:#334155;color:#fbbf24;">⭐</button>
+          <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="1" style="background:#f1f5f9;color:#cbd5e1;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="2" style="background:#f1f5f9;color:#cbd5e1;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="3" style="background:#f1f5f9;color:#cbd5e1;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="4" style="background:#f1f5f9;color:#cbd5e1;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="5" style="background:#f1f5f9;color:#cbd5e1;">⭐</button>
         </div><input type="hidden" id="inp-rating" value="">
        </div>
-       <div id="actual-hours-section" class="hidden col-span-6"><label for="inp-actual-hours-review" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ thực tế hoàn thành</label> <input id="inp-actual-hours-review" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 3"></div>
-       <div id="lessons-section" class="hidden col-span-6"><label for="inp-lessons" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Rút kinh nghiệm</label> <textarea id="inp-lessons" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Ghi lại bài học..."></textarea></div>
+       <div id="actual-hours-section" class="hidden col-span-6"><label for="inp-actual-hours-review" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Giờ thực tế hoàn thành</label> <input id="inp-actual-hours-review" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: 3"></div>
+       <div id="lessons-section" class="hidden col-span-6"><label for="inp-lessons" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Rút kinh nghiệm</label> <textarea id="inp-lessons" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Ghi lại bài học..."></textarea></div>
       </div>
       <input type="hidden" id="inp-status" value="todo"> <input type="hidden" id="inp-edit-id" value="">
-      <div id="form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#7f1d1d;color:#fca5a5;"></div>
+      <div id="form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#fee2e2;color:#b91c1c;"></div>
       <button type="submit" id="btn-submit" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;">Thêm công việc</button>
      </form>
     </div>
@@ -399,7 +400,7 @@ function populateMemberSelects() {
       lucide.createIcons();
     }
 
-    function renderWorkingHoursList() {
+ function renderWorkingHoursList() {
       const container = document.getElementById('working-hours-list');
       container.innerHTML = membersData.map((m) => {
         const workQuota = parseFloat(m.work_quota || '40');
@@ -416,54 +417,54 @@ function populateMemberSelects() {
         const remainingActual = Math.max(0, workQuota - totalUsedActual);
         
         return `
-          <div class="fade-in flex flex-col" style="background:linear-gradient(135deg, #0f172a 0%, #1a1f35 100%);border:1px solid #334155;border-radius:12px;padding:16px;">
-            <div class="flex items-center justify-between mb-4 pb-3" style="border-bottom:1px solid #334155;">
+          <div class="fade-in flex flex-col" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
+            <div class="flex items-center justify-between mb-4 pb-3" style="border-bottom:1px solid #e2e8f0;">
               <div class="flex items-center gap-3">
                 <div class="avatar" style="background:${m.color};width:36px;height:36px;font-size:14px;font-weight:700;box-shadow:0 4px 12px ${m.color}40;">${m.name.charAt(0).toUpperCase()}</div>
                 <div>
-                  <div style="color:#e2e8f0;font-size:15px;font-weight:700;">${escHtml(m.name)}</div>
+                  <div style="color:#1e293b;font-size:15px;font-weight:700;">${escHtml(m.name)}</div>
                   <div style="color:#64748b;font-size:12px;">Quản lý giờ làm việc</div>
                 </div>
               </div>
             </div>
             <div class="space-y-3">
               <div class="grid grid-cols-2 gap-3">
-                <div class="p-4 rounded-lg" style="background:#1e293b;border:1px solid #475569;text-align:center;">
-                  <div style="color:#94a3b8;font-size:12px;margin-bottom:12px;letter-spacing:0.5px;">📊 ĐỊNH MỨC</div>
+                <div class="p-4 rounded-lg" style="background:#ffffff;border:1px solid #e2e8f0;text-align:center;">
+                  <div style="color:#64748b;font-size:12px;margin-bottom:12px;letter-spacing:0.5px;font-weight:600;">📊 ĐỊNH MỨC</div>
                   <div class="flex items-center justify-center gap-2">
-                    <input type="number" value="${workQuota}" min="0" step="0.5" class="quota-input px-5 py-4 rounded text-center outline-none font-bold" style="background:#0f172a;color:#34d399;border:2px solid #475569;width:110px;font-size:20px;letter-spacing:1px;" data-member-id="${m.__backendId}" onchange="updateWorkQuota(this)">
-                    <span style="color:#94a3b8;font-size:14px;font-weight:600;">h/tuần</span>
+                    <input type="number" value="${workQuota}" min="0" step="0.5" class="quota-input px-3 py-2 rounded text-center outline-none font-bold focus:border-blue-500" style="background:#f8fafc;color:#059669;border:2px solid #cbd5e1;width:90px;font-size:18px;" data-member-id="${m.__backendId}" onchange="updateWorkQuota(this)">
+                    <span style="color:#64748b;font-size:14px;font-weight:600;">h/tuần</span>
                   </div>
                 </div>
-                <div class="p-4 rounded-lg" style="background:#1e293b;border:1px solid #475569;text-align:center;">
-                  <div style="color:#94a3b8;font-size:12px;margin-bottom:12px;letter-spacing:0.5px;">🔧 CỐ ĐỊNH</div>
+                <div class="p-4 rounded-lg" style="background:#ffffff;border:1px solid #e2e8f0;text-align:center;">
+                  <div style="color:#64748b;font-size:12px;margin-bottom:12px;letter-spacing:0.5px;font-weight:600;">🔧 CỐ ĐỊNH</div>
                   <div class="flex items-center justify-center gap-2">
-                    <input type="number" value="${fixedHours}" min="0" step="0.5" class="fixed-input px-5 py-4 rounded text-center outline-none font-bold" style="background:#0f172a;color:#f59e0b;border:2px solid #475569;width:110px;font-size:20px;letter-spacing:1px;" data-member-id="${m.__backendId}" onchange="updateFixedHours(this)">
-                    <span style="color:#94a3b8;font-size:14px;font-weight:600;">h/tuần</span>
+                    <input type="number" value="${fixedHours}" min="0" step="0.5" class="fixed-input px-3 py-2 rounded text-center outline-none font-bold focus:border-blue-500" style="background:#f8fafc;color:#d97706;border:2px solid #cbd5e1;width:90px;font-size:18px;" data-member-id="${m.__backendId}" onchange="updateFixedHours(this)">
+                    <span style="color:#64748b;font-size:14px;font-weight:600;">h/tuần</span>
                   </div>
                 </div>
               </div>
-              <div class="p-3 rounded-lg" style="background:linear-gradient(135deg, #1e293b 0%, #243447 100%);border:1px solid #475569;">
-                <div style="color:#e2e8f0;font-size:13px;font-weight:700;margin-bottom:10px;letter-spacing:0.5px;">📈 THỐNG KÊ TUẦN</div>
+              <div class="p-3 rounded-lg" style="background:#ffffff;border:1px solid #e2e8f0;">
+                <div style="color:#1e293b;font-size:13px;font-weight:700;margin-bottom:10px;letter-spacing:0.5px;">📈 THỐNG KÊ TUẦN</div>
                 <div class="space-y-2.5 text-xs">
-                  <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#0f172a80;">
-                    <span style="color:#c4b5fd;">Dự kiến:</span><span style="color:#c4b5fd;font-weight:700;font-size:13px;">${totalEstimated.toFixed(1)}h</span>
+                  <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#f3e8ff;">
+                    <span style="color:#7c3aed;font-weight:600;">Dự kiến:</span><span style="color:#7c3aed;font-weight:700;font-size:13px;">${totalEstimated.toFixed(1)}h</span>
                   </div>
-                  <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#34d39920;">
-                    <span style="color:#86efac;">Thực tế:</span><span style="color:#86efac;font-weight:700;font-size:13px;">${totalActual.toFixed(1)}h</span>
+                  <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#dcfce7;">
+                    <span style="color:#16a34a;font-weight:600;">Thực tế:</span><span style="color:#16a34a;font-weight:700;font-size:13px;">${totalActual.toFixed(1)}h</span>
                   </div>
-                  <div style="border-t:1px solid #475569;padding-top:8px;margin-top:8px;">
-                    <div class="flex items-center justify-between px-2 py-1 mb-1.5 rounded" style="background:#f59e0b20;">
-                      <span style="color:#fbbf24;">Còn dự kiến:</span><span style="color:#fbbf24;font-weight:700;font-size:13px;">${remainingEstimated.toFixed(1)}h</span>
+                  <div style="border-t:1px solid #e2e8f0;padding-top:8px;margin-top:8px;">
+                    <div class="flex items-center justify-between px-2 py-1 mb-1.5 rounded" style="background:#fef3c7;">
+                      <span style="color:#d97706;font-weight:600;">Còn dự kiến:</span><span style="color:#d97706;font-weight:700;font-size:13px;">${remainingEstimated.toFixed(1)}h</span>
                     </div>
-                    <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#38bdf820;">
-                      <span style="color:#7dd3fc;">Còn thực tế:</span><span style="color:#7dd3fc;font-weight:700;font-size:13px;">${remainingActual.toFixed(1)}h</span>
+                    <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#e0f2fe;">
+                      <span style="color:#0284c7;font-weight:600;">Còn thực tế:</span><span style="color:#0284c7;font-weight:700;font-size:13px;">${remainingActual.toFixed(1)}h</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <button type="button" onclick="editWorkingHours('${m.__backendId}')" class="w-full mt-4 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200" style="background:linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);color:#0f172a;border:none;box-shadow:0 4px 12px #38bdf840;">⚙️ Cấu hình chi tiết</button>
+            <button type="button" onclick="editWorkingHours('${m.__backendId}')" class="w-full mt-4 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;">⚙️ Cấu hình chi tiết</button>
           </div>
         `;
       }).join('');
@@ -539,12 +540,12 @@ function populateMemberSelects() {
       const hoursMap = {};
       weekHoursData.forEach(day => { hoursMap[day.date] = day.hours; });
       const grid = document.getElementById('week-hours-grid');
-      grid.innerHTML = weekDays.map((day) => `
-        <div class="p-3 rounded-lg" style="background:#0f172a;border:1px solid #334155;">
+     grid.innerHTML = weekDays.map((day) => `
+        <div class="p-3 rounded-lg" style="background:#f8fafc;border:1px solid #e2e8f0;">
           <div class="flex items-center justify-between mb-2">
-            <span style="color:#e2e8f0;font-size:13px;font-weight:500;">${day.display}</span>
+            <span style="color:#475569;font-size:13px;font-weight:600;">${day.display}</span>
           </div>
-          <input type="number" min="0" step="0.5" value="${hoursMap[day.date] || 0}" class="day-hour-input w-full px-2 py-1.5 rounded text-sm outline-none text-center" style="background:#1e293b;color:#e2e8f0;border:1px solid #475569;" data-date="${day.date}" placeholder="0">
+          <input type="number" min="0" step="0.5" value="${hoursMap[day.date] || 0}" class="day-hour-input w-full px-2 py-1.5 rounded text-sm outline-none text-center focus:border-blue-500" style="background:#ffffff;color:#1e293b;border:1px solid #cbd5e1;" data-date="${day.date}" placeholder="0">
         </div>
       `).join('');
       document.querySelectorAll('.day-hour-input').forEach(input => {
@@ -561,12 +562,12 @@ function populateMemberSelects() {
       if (!startDate) return;
       const weekDays = getWeekDays(startDate);
       const grid = document.getElementById('week-hours-grid');
-      grid.innerHTML = weekDays.map((day) => `
-        <div class="p-3 rounded-lg" style="background:#0f172a;border:1px solid #334155;">
+     grid.innerHTML = weekDays.map((day) => `
+        <div class="p-3 rounded-lg" style="background:#f8fafc;border:1px solid #e2e8f0;">
           <div class="flex items-center justify-between mb-2">
-            <span style="color:#e2e8f0;font-size:13px;font-weight:500;">${day.display}</span>
+            <span style="color:#475569;font-size:13px;font-weight:600;">${day.display}</span>
           </div>
-          <input type="number" min="0" step="0.5" value="0" class="day-hour-input w-full px-2 py-1.5 rounded text-sm outline-none text-center" style="background:#1e293b;color:#e2e8f0;border:1px solid #475569;" data-date="${day.date}" placeholder="0">
+          <input type="number" min="0" step="0.5" value="0" class="day-hour-input w-full px-2 py-1.5 rounded text-sm outline-none text-center focus:border-blue-500" style="background:#ffffff;color:#1e293b;border:1px solid #cbd5e1;" data-date="${day.date}" placeholder="0">
         </div>
       `).join('');
       document.querySelectorAll('.day-hour-input').forEach(input => {
@@ -1246,14 +1247,14 @@ ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
     }
 
     function openModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('form-error').classList.add('hidden'); }
-   function addSubtaskInput(text = '', done = false) {
+ function addSubtaskInput(text = '', done = false) {
         const container = document.getElementById('subtasks-container');
         const div = document.createElement('div');
         div.className = 'flex items-center gap-2 subtask-item';
         div.innerHTML = `
-            <input type="checkbox" class="subtask-cb w-4 h-4 rounded border-slate-500 bg-slate-700 accent-blue-500 cursor-pointer" ${done ? 'checked' : ''} title="Đã hoàn thành?">
-            <input type="text" class="subtask-text flex-1 px-3 py-1.5 rounded-lg text-sm outline-none" style="background:#1e293b;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập việc cần làm..." value="${escHtml(text)}">
-            <button type="button" onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 p-1"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+            <input type="checkbox" class="subtask-cb w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer" ${done ? 'checked' : ''} title="Đã hoàn thành?">
+            <input type="text" class="subtask-text flex-1 px-3 py-1.5 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#ffffff;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Nhập việc cần làm..." value="${escHtml(text)}">
+            <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
         `;
         container.appendChild(div);
         if(typeof lucide !== 'undefined') lucide.createIcons();
