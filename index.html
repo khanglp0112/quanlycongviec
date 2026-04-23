@@ -255,7 +255,10 @@
       <div class="grid grid-cols-6 gap-3">
        <div class="col-span-6"><label for="inp-title" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tiêu đề *</label> <input id="inp-title" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tiêu đề công việc"></div>
        <div class="col-span-6"><label for="inp-desc" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mô tả</label> <textarea id="inp-desc" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Mô tả chi tiết (tuỳ chọn)"></textarea></div>
-       <div class="col-span-2"><label for="inp-assignee" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Phân công cho</label> <select id="inp-assignee" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"></select></div>
+     <div class="col-span-2">
+    <label class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Phân công (chọn nhiều)</label> 
+    <div id="assignee-list" class="w-full max-h-[84px] overflow-y-auto px-2 py-1.5 rounded-lg text-sm outline-none scrollbar-thin space-y-1" style="background:#0f172a;border:1px solid #334155;"></div>
+</div>
        <div class="col-span-2"><label for="inp-priority" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mức ưu tiên</label> <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"><option value="delegable">Không quan trọng & Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="important" selected>Quan trọng nhưng Không khẩn</option><option value="urgent_important">Quan trọng & Khẩn cấp</option></select></div>
        <div class="col-span-2"><label for="inp-deadline" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Thời hạn</label> <input id="inp-deadline" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"></div>
        <div class="col-span-2"><label for="inp-estimated-hours" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ dự kiến</label> <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 2.5"></div>
@@ -344,23 +347,33 @@
     function closeLogoViewer() {
         document.getElementById('logo-viewer-modal').classList.add('hidden');
     }
-    function getMemberColor(name) {
-      const m = membersList.find(m => m.name === name);
+function getMemberColor(name) {
+      if (!name) return '#94a3b8';
+      const firstName = name.split(',')[0].trim(); // Lấy màu của người đầu tiên nếu có nhiều người
+      const m = membersList.find(m => m.name === firstName);
       return m ? m.color : '#94a3b8';
     }
 
-    function populateMemberSelects() {
-      const selects = [document.getElementById('inp-assignee'), document.getElementById('filter-assignee')];
-      selects.forEach((sel, i) => {
-        if (i === 1) { sel.innerHTML = '<option value="all">Tất cả thành viên</option>'; }
-        else { sel.innerHTML = ''; }
-        membersList.forEach(m => {
-          const o = document.createElement('option');
-          o.value = m.name;
-          o.textContent = m.name;
-          sel.appendChild(o);
-        });
-      });
+function populateMemberSelects() {
+      // 1. Cập nhật bộ lọc
+      const filterSel = document.getElementById('filter-assignee');
+      if (filterSel) {
+          filterSel.innerHTML = '<option value="all">Tất cả thành viên</option>';
+          membersList.forEach(m => {
+              const o = document.createElement('option'); o.value = m.name; o.textContent = m.name; filterSel.appendChild(o);
+          });
+      }
+      
+      // 2. Tạo danh sách Checkbox để chọn nhiều người
+      const listDiv = document.getElementById('assignee-list');
+      if (listDiv) {
+          listDiv.innerHTML = membersList.map(m => `
+            <label class="flex items-center gap-2 cursor-pointer p-1 hover:bg-slate-800 rounded transition-colors">
+              <input type="checkbox" value="${m.name}" class="assignee-cb w-3.5 h-3.5 rounded border-slate-500 bg-slate-700 accent-blue-500 cursor-pointer">
+              <span style="color:#e2e8f0;font-size:13px;">${escHtml(m.name)}</span>
+            </label>
+          `).join('');
+      }
     }
 
     function renderMembersList() {
@@ -385,7 +398,7 @@
       container.innerHTML = membersData.map((m) => {
         const workQuota = parseFloat(m.work_quota || '40');
         const fixedHours = parseFloat(m.fixed_hours || '0');
-        const memberTasks = allTasks.filter(t => t.assignee === m.name);
+        const memberTasks = allTasks.filter(t => t.assignee && t.assignee.includes(m.name));
         let totalEstimated = 0, totalActual = 0;
         memberTasks.forEach(t => {
           if (t.estimated_hours) totalEstimated += parseFloat(t.estimated_hours) || 0;
@@ -906,7 +919,7 @@ document.getElementById('btn-timeline').onclick = () => {
 
       return allTasks.filter(t => {
         const matchStatus = (statusVal === 'all' || t.status === statusVal);
-        const matchAssignee = (assigneeVal === 'all' || t.assignee === assigneeVal);
+        const matchAssignee = (assigneeVal === 'all' || (t.assignee && t.assignee.includes(assigneeVal)));
         const matchPriority = (priorityVal === 'all' || t.priority === priorityVal);
         let matchMonth = true;
         if (monthVal !== 'all' && monthVal !== '') {
@@ -950,16 +963,22 @@ document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('stat-doing').textContent = allTasks.filter(t => t.status === 'doing').length;
       document.getElementById('stat-done').textContent = allTasks.filter(t => t.status === 'done').length;
       
-      const emptyState = document.getElementById('empty-state');
+const emptyState = document.getElementById('empty-state');
+      const isLKOpen = !document.getElementById('lien-ket-view').classList.contains('hidden');
+      const isCTOpen = !document.getElementById('cham-tiet-view').classList.contains('hidden');
+      const isTLOpen = !document.getElementById('timeline-view').classList.contains('hidden');
+
       if (allTasks.length === 0) {
         document.getElementById('board-view').classList.add('hidden');
-        emptyState.classList.remove('hidden');
-        emptyState.classList.add('flex');
+        // Chỉ hiện thông báo "Chưa có việc" nếu tất cả các bảng khác đều đang đóng
+        if (!isLKOpen && !isCTOpen && !isTLOpen) {
+            emptyState.classList.remove('hidden');
+            emptyState.classList.add('flex');
+        } else {
+            emptyState.classList.add('hidden');
+            emptyState.classList.remove('flex');
+        }
       } else {
-        const isLKOpen = !document.getElementById('lien-ket-view').classList.contains('hidden');
-        const isCTOpen = !document.getElementById('cham-tiet-view').classList.contains('hidden');
-        const isTLOpen = !document.getElementById('timeline-view').classList.contains('hidden');
-        
         if(!isLKOpen && !isCTOpen && !isTLOpen) {
              document.getElementById('board-view').classList.remove('hidden');
         }
@@ -1032,9 +1051,13 @@ document.getElementById('btn-timeline').onclick = () => {
         ${t.status === 'done' && t.rating ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#fbbf2420;color:#d97706;">⭐ Đánh giá: ${t.rating}/5</div>` : ''}
         ${t.status === 'done' && t.lessons_learned ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#34d39920;color:#059669;">💡 ${escHtml(t.lessons_learned.substring(0, 40))}${t.lessons_learned.length > 40 ? '...' : ''}</div>` : ''}
         <div class="flex items-center justify-between mt-3">
-          <div class="flex items-center gap-2">
-            <div class="avatar" style="background:${memberColor};width:24px;height:24px;font-size:11px;">${initial}</div>
-            <span class="text-xs" style="color:#666666;">${escHtml(t.assignee)}</span>
+<div class="flex items-center gap-2">
+            <div class="flex items-center pl-1">
+              ${(t.assignee ? t.assignee.split(',').map(s => s.trim()) : []).map((name, i) => `
+                <div class="avatar relative" style="background:${getMemberColor(name)};width:24px;height:24px;font-size:11px;border:2px solid #fff;margin-left:-8px;z-index:${10-i};" title="${name}">${name.charAt(0).toUpperCase()}</div>
+              `).join('')}
+            </div>
+            <span class="text-xs truncate max-w-[100px]" style="color:#666666;" title="${escHtml(t.assignee)}">${escHtml(t.assignee)}</span>
           </div>
          <div class="flex items-center gap-1">
             ${t.status !== 'done' ? `<button onclick="event.stopPropagation(); moveTask('${t.__backendId}','${t.status === 'todo' ? 'doing' : 'done'}')" class="p-1 rounded transition-colors" style="color:#666666;" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
@@ -1095,7 +1118,7 @@ document.getElementById('btn-timeline').onclick = () => {
     function showCompleteTaskForm(task) {
       document.getElementById('inp-title').value = task.title;
       document.getElementById('inp-desc').value = task.description || '';
-      document.getElementById('inp-assignee').value = task.assignee;
+      document.querySelectorAll('.assignee-cb').forEach(cb => { cb.checked = task.assignee && task.assignee.includes(cb.value); });
       document.getElementById('inp-priority').value = task.priority;
       document.getElementById('inp-deadline').value = task.deadline || '';
       document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
@@ -1118,7 +1141,7 @@ document.getElementById('btn-timeline').onclick = () => {
       if (!task) return;
       document.getElementById('inp-title').value = task.title;
       document.getElementById('inp-desc').value = task.description || '';
-      document.getElementById('inp-assignee').value = task.assignee;
+      document.querySelectorAll('.assignee-cb').forEach(cb => { cb.checked = task.assignee && task.assignee.includes(cb.value); });
       document.getElementById('inp-priority').value = task.priority;
       document.getElementById('inp-deadline').value = task.deadline || '';
       document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
@@ -1207,6 +1230,7 @@ document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('actual-hours-section').classList.add('hidden');
       document.getElementById('lessons-section').classList.add('hidden');
       document.getElementById('inp-weekly').checked = false;
+      document.querySelectorAll('.assignee-cb').forEach(cb => cb.checked = false);
     }
 
     function updateReviewSections() {
@@ -1235,9 +1259,13 @@ document.getElementById('btn-add').onclick = () => {
       document.getElementById('timeline-view').classList.add('hidden');
       document.getElementById('cham-tiet-view').classList.add('hidden');
       document.getElementById('lien-ket-view').classList.add('hidden');
-      document.getElementById('board-view').classList.remove('hidden');
-      document.getElementById('filter-bar').classList.remove('hidden');
-      document.getElementById('stats-bar').classList.remove('hidden');
+      
+      const filterBar = document.getElementById('filter-bar');
+      const statsBar = document.getElementById('stats-bar');
+      if (filterBar) filterBar.classList.remove('hidden');
+      if (statsBar) statsBar.classList.remove('hidden');
+      
+      renderTasks(); // Để hệ thống tự quét xem nên hiện Bảng hay hiện "Chưa có việc"
       closeModal(); openModal(); 
     };
     document.getElementById('btn-modal-close').onclick = closeModal;
@@ -1263,7 +1291,7 @@ document.getElementById('btn-add').onclick = () => {
       btn.disabled = true; btn.textContent = 'Đang lưu...';
 
       const data = {
-        title: title, description: document.getElementById('inp-desc').value.trim(), assignee: document.getElementById('inp-assignee').value,
+        title: title, description: document.getElementById('inp-desc').value.trim(), assignee: Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value).join(', '),
         priority: document.getElementById('inp-priority').value, deadline: document.getElementById('inp-deadline').value || '',
         estimated_hours: document.getElementById('inp-estimated-hours').value || '', actual_hours: document.getElementById('inp-actual-hours-review').value || '',
         supporters: document.getElementById('inp-supporters').value.trim() || '', goal: document.getElementById('inp-goal').value.trim() || '',
@@ -1456,6 +1484,7 @@ function toggleChamTiet() {
         const timeline = document.getElementById('timeline-view');
         const filterBar = document.getElementById('filter-bar');
         const statsBar = document.getElementById('stats-bar');
+        const emptyState = document.getElementById('empty-state');
 
         if (chamTiet.classList.contains('hidden')) {
             if (board) board.classList.add('hidden');
@@ -1463,13 +1492,15 @@ function toggleChamTiet() {
             if (timeline) timeline.classList.add('hidden');
             if (filterBar) filterBar.classList.add('hidden');
             if (statsBar) statsBar.classList.add('hidden');
+            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
+            
             chamTiet.classList.remove('hidden');
             renderChamTietTable();
         } else {
             chamTiet.classList.add('hidden');
-            if (board) board.classList.remove('hidden');
             if (filterBar) filterBar.classList.remove('hidden');
             if (statsBar) statsBar.classList.remove('hidden');
+            renderTasks(); // Gọi lại bộ não để phục hồi giao diện chuẩn
         }
     }
 
@@ -1570,6 +1601,7 @@ function toggleLienKet() {
         const timeline = document.getElementById('timeline-view');
         const filterBar = document.getElementById('filter-bar');
         const statsBar = document.getElementById('stats-bar');
+        const emptyState = document.getElementById('empty-state');
 
         if (!lkView) return;
         if (lkView.classList.contains('hidden')) {
@@ -1578,13 +1610,15 @@ function toggleLienKet() {
             if (timeline) timeline.classList.add('hidden');
             if (filterBar) filterBar.classList.add('hidden');
             if (statsBar) statsBar.classList.add('hidden');
+            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
+            
             lkView.classList.remove('hidden');
             renderLienKet();
         } else {
             lkView.classList.add('hidden');
-            if (board) board.classList.remove('hidden');
             if (filterBar) filterBar.classList.remove('hidden');
             if (statsBar) statsBar.classList.remove('hidden');
+            renderTasks(); // Gọi lại bộ não để phục hồi giao diện chuẩn
         }
         if(typeof lucide !== 'undefined') lucide.createIcons();
     }
