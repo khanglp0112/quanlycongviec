@@ -74,18 +74,19 @@
     <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;"><span style="color:#34d399;" id="stat-done">0</span>Hoàn thành</div>
    </div>
 
-    <div id="lien-ket-view" class="hidden fade-in mb-6 px-4 sm:px-6">
+<div id="lien-ket-view" class="hidden fade-in mb-6 px-4 sm:px-6">
       <div class="rounded-xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-slate-800">Danh mục Liên kết Công việc</h2>
             <button onclick="toggleLienKet()" class="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
         </div>
         
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6 p-4 rounded-lg bg-slate-50 border border-slate-200">
-            <input type="text" id="inp-lk-ten" placeholder="Tên liên kết *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-            <input type="url" id="inp-lk-url" placeholder="Đường dẫn (https://...) *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-            <input type="text" id="inp-lk-mota" placeholder="Mô tả / Ghi chú (nếu có)" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-            <button onclick="addLienKet()" class="bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all p-2 flex items-center justify-center gap-2">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6 p-4 rounded-lg bg-slate-50 border border-slate-200 relative">
+            <input type="hidden" id="inp-lk-id" value="">
+            <input type="text" id="inp-lk-ten" placeholder="Tên liên kết *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500">
+            <input type="url" id="inp-lk-url" placeholder="Đường dẫn (https://...) *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500">
+            <input type="text" id="inp-lk-mota" placeholder="Mô tả / Ghi chú (nếu có)" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500">
+            <button id="btn-lk-submit" onclick="saveLienKet()" class="bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all p-2 flex items-center justify-center gap-2">
                 <i data-lucide="plus" style="width:16px;height:16px;"></i> Thêm liên kết
             </button>
         </div>
@@ -94,11 +95,11 @@
             <table class="w-full text-sm text-left whitespace-nowrap">
                 <thead class="text-xs uppercase bg-slate-100 text-slate-600">
                     <tr>
-                        <th class="px-4 py-3 border-b text-center w-12">STT</th>
+                        <th class="px-4 py-3 border-b text-center w-12"><i data-lucide="arrow-up-down" style="width:14px;height:14px;display:inline-block;opacity:0.5;" title="Kéo thả"></i></th>
                         <th class="px-4 py-3 border-b">Tên liên kết</th>
                         <th class="px-4 py-3 border-b">Mô tả / Ghi chú</th>
                         <th class="px-4 py-3 border-b text-center">Ngày tạo</th>
-                        <th class="px-4 py-3 border-b text-center w-32">Thao tác</th>
+                        <th class="px-4 py-3 border-b text-center w-40">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody id="ds-lien-ket"></tbody>
@@ -1489,7 +1490,10 @@
       setTimeout(() => { btn.textContent = 'Lưu dữ liệu'; btn.disabled = false; }, 2000);
     }
 
-    // --- LIÊN KẾT ---
+   // --- TÍNH NĂNG QUẢN LÝ LIÊN KẾT (CÓ SỬA & KÉO THẢ) ---
+    let currentLinks = [];
+    let dragStartIndex = -1;
+
     function toggleLienKet() {
         const board = document.getElementById('board-view');
         const lkView = document.getElementById('lien-ket-view');
@@ -1509,59 +1513,174 @@
         if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    async function addLienKet() {
+    // Đưa dữ liệu lên ô Input để Sửa
+    function editLienKet(id, ten, url, moTa) {
+        document.getElementById('inp-lk-id').value = id;
+        document.getElementById('inp-lk-ten').value = ten;
+        document.getElementById('inp-lk-url').value = url;
+        document.getElementById('inp-lk-mota').value = (moTa === 'undefined' || moTa === 'null') ? '' : moTa;
+        
+        const btn = document.getElementById('btn-lk-submit');
+        btn.innerHTML = '<i data-lucide="save" style="width:16px;height:16px;"></i> Cập nhật link';
+        btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        btn.classList.add('bg-emerald-600', 'hover:bg-emerald-700');
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+        document.getElementById('inp-lk-ten').focus();
+    }
+
+    // Hàm Thêm mới HOẶC Cập nhật
+    async function saveLienKet() {
+        const id = document.getElementById('inp-lk-id').value;
         const ten = document.getElementById('inp-lk-ten').value.trim();
         let url = document.getElementById('inp-lk-url').value.trim();
         const moTa = document.getElementById('inp-lk-mota').value.trim();
+        
         if (!ten || !url) { alert("Vui lòng nhập Tên và Đường dẫn!"); return; }
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-        const btn = document.querySelector('button[onclick="addLienKet()"]');
-        const oldText = btn.innerHTML; btn.innerHTML = 'Đang thêm...'; btn.disabled = true;
+        
+        const btn = document.getElementById('btn-lk-submit');
+        const oldText = btn.innerHTML; 
+        btn.innerHTML = 'Đang lưu...'; btn.disabled = true;
+
         try {
-            await db.collection("LienKetNhanh").add({ ten: ten, url: url, moTa: moTa, created_at: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('inp-lk-ten').value = ''; document.getElementById('inp-lk-url').value = ''; document.getElementById('inp-lk-mota').value = '';
+            if (id) {
+                // Chế độ Cập nhật
+                await db.collection("LienKetNhanh").doc(id).update({
+                    ten: ten, url: url, moTa: moTa
+                });
+            } else {
+                // Chế độ Thêm mới (Đẩy xuống cuối danh sách)
+                await db.collection("LienKetNhanh").add({ 
+                    ten: ten, url: url, moTa: moTa, 
+                    order: Date.now(), 
+                    created_at: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+            }
+            
+            // Xóa form sau khi lưu
+            document.getElementById('inp-lk-id').value = '';
+            document.getElementById('inp-lk-ten').value = ''; 
+            document.getElementById('inp-lk-url').value = ''; 
+            document.getElementById('inp-lk-mota').value = '';
+            
+            // Trả lại nút "Thêm liên kết"
+            btn.innerHTML = '<i data-lucide="plus" style="width:16px;height:16px;"></i> Thêm liên kết';
+            btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-700');
+            btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            
             renderLienKet();
         } catch (e) { alert("Lỗi: " + e.message); }
-        btn.innerHTML = oldText; btn.disabled = false;
+        btn.disabled = false;
     }
 
+    // Tải dữ liệu và Sắp xếp
     async function renderLienKet() {
         const tbody = document.getElementById('ds-lien-ket');
         if (!tbody) return;
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Đang tải...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Đang tải dữ liệu...</td></tr>';
+        
         try {
-            const snapshot = await db.collection("LienKetNhanh").orderBy("created_at", "desc").get();
-            tbody.innerHTML = '';
-            if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Chưa có liên kết nào.</td></tr>'; return; }
-            let stt = 1;
+            const snapshot = await db.collection("LienKetNhanh").get();
+            currentLinks = [];
             snapshot.forEach(doc => {
                 const data = doc.data();
-                let ngayTao = data.created_at ? data.created_at.toDate().toLocaleDateString('vi-VN') : "Mới đây";
-                const tr = document.createElement('tr');
-                tr.className = "border-b hover:bg-slate-50 transition-colors";
-                tr.innerHTML = `
-                    <td class="px-4 py-3 text-center text-slate-500">${stt++}</td>
-                    <td class="px-4 py-3 font-bold text-slate-800"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded bg-blue-100 text-blue-600 flex items-center justify-center"><i data-lucide="link" style="width:12px;height:12px;"></i></div>${data.ten}</div></td>
-                    <td class="px-4 py-3 text-slate-600">${data.moTa || "-"}</td>
-                    <td class="px-4 py-3 text-center text-slate-500 text-xs">${ngayTao}</td>
-                    <td class="px-4 py-3 text-center">
-                        <div class="flex items-center justify-center gap-2">
-                            <a href="${data.url}" target="_blank" class="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-bold transition-colors">Truy cập</a>
-                            <button onclick="deleteLienKet('${doc.id}')" class="p-1.5 bg-red-100 text-red-600 rounded-lg"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                data.id = doc.id;
+                if (data.order === undefined) data.order = data.created_at ? data.created_at.toMillis() : Date.now();
+                currentLinks.push(data);
             });
-            if(typeof lucide !== 'undefined') lucide.createIcons();
+            
+            currentLinks.sort((a, b) => a.order - b.order);
+            drawLinksTable();
         } catch (e) { console.error(e); }
+    }
+
+    // Vẽ bảng ra HTML và gắn tính năng Kéo thả
+    function drawLinksTable() {
+        const tbody = document.getElementById('ds-lien-ket');
+        tbody.innerHTML = '';
+        if (currentLinks.length === 0) { 
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Chưa có liên kết nào.</td></tr>'; 
+            return; 
+        }
+
+        currentLinks.forEach((data, index) => {
+            let ngayTao = data.created_at ? data.created_at.toDate().toLocaleDateString('vi-VN') : "Mới đây";
+            const tr = document.createElement('tr');
+            tr.className = "border-b hover:bg-slate-50 transition-colors";
+            
+            // LOGIC KÉO THẢ (DRAG & DROP)
+            tr.setAttribute("draggable", "true");
+            tr.dataset.index = index;
+            tr.addEventListener("dragstart", function(e) {
+                dragStartIndex = +this.dataset.index;
+                this.style.opacity = '0.4';
+                e.dataTransfer.effectAllowed = "move";
+                e.dataTransfer.setData("text/plain", dragStartIndex);
+            });
+            tr.addEventListener("dragenter", function(e) { e.preventDefault(); this.classList.add("bg-blue-100"); });
+            tr.addEventListener("dragover", function(e) { e.preventDefault(); e.dataTransfer.dropEffect = "move"; });
+            tr.addEventListener("dragleave", function(e) { this.classList.remove("bg-blue-100"); });
+            tr.addEventListener("dragend", function() { this.style.opacity = '1'; });
+            tr.addEventListener("drop", async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.classList.remove("bg-blue-100");
+                
+                const dragEndIndex = +this.dataset.index;
+                if (dragStartIndex === dragEndIndex || dragStartIndex === -1) return;
+
+                // Cắt và nhét vào vị trí mới trong mảng
+                const item = currentLinks.splice(dragStartIndex, 1)[0];
+                currentLinks.splice(dragEndIndex, 0, item);
+                
+                drawLinksTable(); // Cập nhật web lập tức cho mượt
+
+                // Lưu thứ tự mới lên Firebase trong nền
+                const batch = db.batch();
+                currentLinks.forEach((link, idx) => {
+                    link.order = idx;
+                    const ref = db.collection("LienKetNhanh").doc(link.id);
+                    batch.update(ref, { order: idx });
+                });
+                try { await batch.commit(); } 
+                catch(err) { alert("Lỗi khi lưu vị trí: " + err.message); }
+            });
+
+            // Xử lý chuỗi để tránh lỗi HTML nếu có dấu nháy
+            const safeTen = (data.ten || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeUrl = (data.url || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeMoTa = (data.moTa || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+            tr.innerHTML = `
+                <td class="px-4 py-3 text-center text-slate-400 cursor-move" title="Nhấn giữ và kéo để sắp xếp">
+                    <i data-lucide="grip-vertical" style="width:18px;height:18px;display:inline-block;cursor:grab;"></i>
+                </td>
+                <td class="px-4 py-3 font-bold text-slate-800">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="link" style="width:12px;height:12px;"></i></div>
+                        ${escHtml(data.ten)}
+                    </div>
+                </td>
+                <td class="px-4 py-3 text-slate-600">${escHtml(data.moTa) || "-"}</td>
+                <td class="px-4 py-3 text-center text-slate-500 text-xs">${ngayTao}</td>
+                <td class="px-4 py-3 text-center">
+                    <div class="flex items-center justify-center gap-1.5">
+                        <a href="${data.url}" target="_blank" class="px-2.5 py-1.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded text-xs font-bold transition-colors" title="Mở link">Truy cập</a>
+                        <button onclick="editLienKet('${data.id}', '${safeTen}', '${safeUrl}', '${safeMoTa}')" class="p-1.5 bg-amber-100 text-amber-600 hover:bg-amber-200 rounded transition-colors" title="Sửa link"><i data-lucide="edit-2" style="width:14px;height:14px;"></i></button>
+                        <button onclick="deleteLienKet('${data.id}')" class="p-1.5 bg-red-100 text-red-600 hover:bg-red-200 rounded transition-colors" title="Xóa link"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     async function deleteLienKet(id) {
         if (!confirm("Xóa liên kết này?")) return;
-        await db.collection("LienKetNhanh").doc(id).delete(); renderLienKet();
+        await db.collection("LienKetNhanh").doc(id).delete(); 
+        renderLienKet();
     }
-
     // --- EXPORT EXCEL ---
     document.getElementById('btn-export-excel').addEventListener('click', function() {
         const danhSachCanXuat = typeof getFiltered === 'function' ? getFiltered() : allTasks;
