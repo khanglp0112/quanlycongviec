@@ -6,57 +6,15 @@
   <title>Team Task Manager</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Newsreader:wght@600;700&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
   <style>
-   /* Giao diện bảng chấm tiết màu sáng */
-.cham-tiet-container {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Thanh cuộn chuyên nghiệp */
-.table-responsive {
-    max-height: 70vh; /* Giới hạn chiều cao để cuộn dọc */
-    overflow-y: auto;
-    overflow-x: auto; /* Cho phép cuộn ngang */
-}
-
-/* Cố định cột Họ Tên khi cuộn ngang */
-.sticky-col {
-    position: sticky;
-    left: 0;
-    background: #f8fafc;
-    z-index: 10;
-    border-right: 2px solid #e2e8f0 !important;
-}
-
-.ct-table th {
-    background: #f1f5f9;
-    color: #475569;
-    font-weight: 700;
-    border: 1px solid #e2e8f0;
-}
-
-.ct-table td {
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
-}
-
-/* Input tập trung */
-.ct-input-week {
-    width: 45px;
-    text-align: center;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    padding: 2px;
-    font-size: 12px;
-}
-.ct-input-week:focus {
-    border-color: #3b82f6;
-    outline: none;
-    background: #eff6ff;
-}
+    .cham-tiet-container { background: #ffffff !important; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .table-responsive { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
+    .sticky-col { position: sticky; left: 0; background: #f8fafc; z-index: 10; border-right: 2px solid #e2e8f0 !important; }
+    .ct-table th { background: #f1f5f9; color: #475569; font-weight: 700; border: 1px solid #e2e8f0; }
+    .ct-table td { border: 1px solid #e2e8f0; background: #ffffff; }
+    .ct-input-week { width: 45px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px; font-size: 12px; }
+    .ct-input-week:focus { border-color: #3b82f6; outline: none; background: #eff6ff; }
     * { box-sizing: border-box; }
     body { font-family: 'Geist', sans-serif; margin: 0; }
     .font-display { font-family: 'Newsreader', serif; }
@@ -78,178 +36,130 @@
     .timeline-line { position: absolute; left: 15px; top: 0; width: 2px; height: 100%; background: linear-gradient(to bottom, #38bdf8, transparent); }
     .timeline-date { font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
   </style>
-  <style>body { box-sizing: border-box; }</style>
  </head>
  <body class="h-full">
-  <div id="app" class="w-full h-full flex flex-col overflow-auto" style="background: #ffffff;"><!-- Header -->
-   <header class="w-full px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-bottom: 2px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+  <div id="app" class="w-full h-full flex flex-col overflow-auto" style="background: #ffffff;">
+   <header class="w-full px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 flex-wrap gap-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-bottom: 2px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
     <div class="flex items-center gap-3">
-     <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: #f59e0b;">
-      <i data-lucide="layout-grid" style="width:18px;height:18px;color:#0f172a;"></i>
-     </div>
+     <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background: #f59e0b;"><i data-lucide="layout-grid" style="width:18px;height:18px;color:#0f172a;"></i></div>
      <h1 id="app-title" class="font-display text-lg sm:text-xl font-bold" style="color: #1a1a1a;">Quản lý công việc nhóm</h1>
     </div>
-    <div class="flex items-center gap-2"><button id="btn-personal-view" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="user" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Công việc của tôi</span></button> <button id="btn-members" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Thành viên</span></button> <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Giờ làm việc</span></button> <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Timeline</span></button> <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors mr-2" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()">
-  <i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Liên kết</span>
-</button><button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Thêm việc</span></button><button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors mr-2" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()">
-  <i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Chấm tiết</span>
-</button><button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors mr-2" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden sm:inline">Xuất Excel</span></button>
+    <div class="flex items-center gap-2 flex-wrap justify-end">
+      <button id="btn-personal-view" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="user" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Công việc của tôi</span></button> 
+      <button id="btn-members" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thành viên</span></button> 
+      <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Giờ làm</span></button> 
+      <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span></button> 
+      <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()"><i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Liên kết</span></button>
+      <button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()"><i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Chấm tiết</span></button>
+      <button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
+      <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thêm việc</span></button>
     </div>
    </header>
-   <!-- Filter bar -->
+
    <div class="w-full px-4 sm:px-6 py-3 flex flex-wrap gap-2 items-center flex-shrink-0" style="background:#f5f5f5; border-bottom:1px solid #e5e5e5;">
-    <div class="flex items-center gap-2 mr-2">
-     <i data-lucide="filter" style="width:14px;height:14px;color:#666666;"></i><span class="text-xs font-medium" style="color:#666666;">Lọc:</span>
-    </div>
-    <div id="personal-badge" class="hidden flex items-center gap-1 px-2 py-1 rounded text-xs font-medium" style="background:#38bdf820;color:#0284c7;"><i data-lucide="user" style="width:12px;height:12px;"></i><span id="personal-name">Công việc của tôi</span><button onclick="clearPersonalView()" class="ml-1 p-0 hover:opacity-70"><i data-lucide="x" style="width:12px;height:12px;"></i></button>
-    </div><select id="filter-status" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả trạng thái</option><option value="todo">Chờ làm</option><option value="doing">Đang làm</option><option value="done">Hoàn thành</option></select> <select id="filter-assignee" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả thành viên</option></select> <select id="filter-priority" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả ưu tiên</option><option value="urgent_important">Quan trọng &amp; Khẩn cấp</option><option value="important">Quan trọng nhưng Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="delegable">Không quan trọng &amp; Không khẩn</option></select><select id="filter-month" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;">
-  <option value="all">Tất cả các tháng</option>
-  <option value="1">Tháng 1</option>
-  <option value="2">Tháng 2</option>
-  <option value="3">Tháng 3</option>
-  <option value="4">Tháng 4</option>
-  <option value="5">Tháng 5</option>
-  <option value="6">Tháng 6</option>
-  <option value="7">Tháng 7</option>
-  <option value="8">Tháng 8</option>
-  <option value="9">Tháng 9</option>
-  <option value="10">Tháng 10</option>
-  <option value="11">Tháng 11</option>
-  <option value="12">Tháng 12</option>
-</select>
-   </div><!-- Stats -->
+    <div class="flex items-center gap-2 mr-2"><i data-lucide="filter" style="width:14px;height:14px;color:#666666;"></i><span class="text-xs font-medium" style="color:#666666;">Lọc:</span></div>
+    <div id="personal-badge" class="hidden flex items-center gap-1 px-2 py-1 rounded text-xs font-medium" style="background:#38bdf820;color:#0284c7;"><i data-lucide="user" style="width:12px;height:12px;"></i><span id="personal-name">Công việc của tôi</span><button onclick="clearPersonalView()" class="ml-1 p-0 hover:opacity-70"><i data-lucide="x" style="width:12px;height:12px;"></i></button></div>
+    <select id="filter-status" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả trạng thái</option><option value="todo">Chờ làm</option><option value="doing">Đang làm</option><option value="done">Hoàn thành</option></select> 
+    <select id="filter-assignee" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả thành viên</option></select> 
+    <select id="filter-priority" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả ưu tiên</option><option value="urgent_important">Quan trọng & Khẩn cấp</option><option value="important">Quan trọng nhưng Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="delegable">Không quan trọng & Không khẩn</option></select>
+    <select id="filter-month" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả các tháng</option><option value="1">Tháng 1</option><option value="2">Tháng 2</option><option value="3">Tháng 3</option><option value="4">Tháng 4</option><option value="5">Tháng 5</option><option value="6">Tháng 6</option><option value="7">Tháng 7</option><option value="8">Tháng 8</option><option value="9">Tháng 9</option><option value="10">Tháng 10</option><option value="11">Tháng 11</option><option value="12">Tháng 12</option></select>
+   </div>
+
    <div id="stats-bar" class="w-full px-4 sm:px-6 py-3 flex gap-3 flex-wrap flex-shrink-0">
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;">
-     <span style="color:#f59e0b;" id="stat-total">0</span>Tổng
-    </div>
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;">
-     <span style="color:#38bdf8;" id="stat-todo">0</span>Chờ làm
-    </div>
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;">
-     <span style="color:#a78bfa;" id="stat-doing">0</span>Đang làm
-    </div>
-    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;">
-     <span style="color:#34d399;" id="stat-done">0</span>Hoàn thành
-    </div>
-   </div><!-- Task columns -->
-<div id="cham-tiet-view" class="hidden fade-in mb-6">
-  <div class="cham-tiet-container rounded-xl p-4" style="background:#ffffff; border:1px solid #e2e8f0;">
-    <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
-        <h2 class="text-xl font-bold text-slate-800">Bảng Tổng Hợp Tiết Dạy Chi Tiết</h2>
-        <div class="flex items-center gap-3">
-            <input type="month" id="inp-cham-tiet-month" class="px-3 py-1.5 rounded-lg text-sm border border-slate-300 outline-none">
-            <button onclick="saveChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white hover:bg-blue-700">Lưu dữ liệu</button>
-            <button onclick="toggleChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700">Đóng</button>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;"><span style="color:#f59e0b;" id="stat-total">0</span>Tổng</div>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;"><span style="color:#38bdf8;" id="stat-todo">0</span>Chờ làm</div>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;"><span style="color:#a78bfa;" id="stat-doing">0</span>Đang làm</div>
+    <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium" style="background:#f5f5f5;color:#666666;"><span style="color:#34d399;" id="stat-done">0</span>Hoàn thành</div>
+   </div>
+
+    <div id="lien-ket-view" class="hidden fade-in mb-6 px-4 sm:px-6">
+      <div class="rounded-xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-slate-800">Danh mục Liên kết Công việc</h2>
+            <button onclick="toggleLienKet()" class="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
         </div>
-    </div>
-<div id="lien-ket-view" class="hidden fade-in mb-6 px-4 sm:px-6">
-  <div class="rounded-xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-slate-800">Danh mục Liên kết Công việc</h2>
-        <button onclick="toggleLienKet()" class="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
-    </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6 p-4 rounded-lg bg-slate-50 border border-slate-200">
-        <input type="text" id="inp-lk-ten" placeholder="Tên liên kết *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-        <input type="url" id="inp-lk-url" placeholder="Đường dẫn (https://...) *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-        <input type="text" id="inp-lk-mota" placeholder="Mô tả / Ghi chú (nếu có)" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-        <button onclick="addLienKet()" class="bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all p-2 flex items-center justify-center gap-2">
-            <i data-lucide="plus" style="width:16px;height:16px;"></i> Thêm liên kết
-        </button>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6 p-4 rounded-lg bg-slate-50 border border-slate-200">
+            <input type="text" id="inp-lk-ten" placeholder="Tên liên kết *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
+            <input type="url" id="inp-lk-url" placeholder="Đường dẫn (https://...) *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
+            <input type="text" id="inp-lk-mota" placeholder="Mô tả / Ghi chú (nếu có)" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
+            <button onclick="addLienKet()" class="bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all p-2 flex items-center justify-center gap-2">
+                <i data-lucide="plus" style="width:16px;height:16px;"></i> Thêm liên kết
+            </button>
+        </div>
+
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <table class="w-full text-sm text-left whitespace-nowrap">
+                <thead class="text-xs uppercase bg-slate-100 text-slate-600">
+                    <tr>
+                        <th class="px-4 py-3 border-b text-center w-12">STT</th>
+                        <th class="px-4 py-3 border-b">Tên liên kết</th>
+                        <th class="px-4 py-3 border-b">Mô tả / Ghi chú</th>
+                        <th class="px-4 py-3 border-b text-center">Ngày tạo</th>
+                        <th class="px-4 py-3 border-b text-center w-32">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="ds-lien-ket"></tbody>
+            </table>
+        </div>
+      </div>
     </div>
 
-    <div class="overflow-x-auto rounded-lg border border-slate-200">
-        <table class="w-full text-sm text-left whitespace-nowrap">
-            <thead class="text-xs uppercase bg-slate-100 text-slate-600">
-                <tr>
-                    <th class="px-4 py-3 border-b text-center w-12">STT</th>
-                    <th class="px-4 py-3 border-b">Tên liên kết</th>
-                    <th class="px-4 py-3 border-b">Mô tả / Ghi chú</th>
-                    <th class="px-4 py-3 border-b text-center">Ngày tạo</th>
-                    <th class="px-4 py-3 border-b text-center w-32">Thao tác</th>
+    <div id="cham-tiet-view" class="hidden fade-in mb-6 px-4 sm:px-6">
+      <div class="cham-tiet-container rounded-xl p-4" style="background:#ffffff; border:1px solid #e2e8f0;">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+            <h2 class="text-xl font-bold text-slate-800">Bảng Tổng Hợp Tiết Dạy Chi Tiết</h2>
+            <div class="flex items-center gap-3">
+                <input type="month" id="inp-cham-tiet-month" class="px-3 py-1.5 rounded-lg text-sm border border-slate-300 outline-none">
+                <button onclick="saveChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white hover:bg-blue-700">Lưu dữ liệu</button>
+                <button onclick="toggleChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700">Đóng</button>
+            </div>
+        </div>
+
+        <div class="flex gap-4 mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
+            <span class="text-sm font-bold text-slate-700">Hiển thị cấp học:</span>
+            <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-tih" checked onchange="renderChamTietTable()"> Tiểu học</label>
+            <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-thcs" checked onchange="renderChamTietTable()"> THCS/THPT</label>
+        </div>
+
+        <div class="table-responsive border rounded-lg overflow-auto" style="max-height: 75vh;">
+          <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap">
+            <thead class="sticky top-0 z-20">
+                <tr class="bg-slate-100 text-slate-700">
+                    <th class="border p-2 sticky-col left-0 bg-slate-100" rowspan="3">STT</th>
+                    <th class="border p-2 sticky-col bg-slate-100" style="left:40px;" rowspan="3">Họ Tên</th>
+                    <th id="head-tih" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB TiH</th>
+                    <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB THCS-PT</th>
+                    <th class="border p-2 bg-amber-50" colspan="4">Số tiết vắng</th>
+                    <th class="border p-2 bg-amber-50" rowspan="3">Dạy thay</th>
+                    <th class="border p-2 bg-orange-50" rowspan="3">PL02</th>
+                    <th class="border p-2 bg-orange-50" rowspan="3">Ôn thi/CLB</th>
+                    <th class="border p-2 bg-orange-50" rowspan="3">Coi thi</th>
+                    <th class="border p-2 bg-orange-50" rowspan="3">Khác</th>
+                    <th class="border p-2 bg-green-600 text-white" rowspan="3">TỔNG</th>
+                    <th class="border p-2 bg-yellow-100 text-yellow-900" rowspan="3">Định mức</th>
+                    <th class="border p-2 bg-blue-600 text-white" rowspan="3">VƯỢT</th>
+                    <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">After School</th>
+                    <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD Khối 12</th>
+                    <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD 1:1/17</th>
+                </tr>
+                <tr class="bg-slate-100">
+                    <th id="sub-tih" colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                    <th id="sub-thcs" colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                    <th colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                </tr>
+                <tr class="bg-slate-50">
+                    <th class="border p-1 w-8 tih-col">1</th><th class="border p-1 w-8 tih-col">2</th><th class="border p-1 w-8 tih-col">3</th><th class="border p-1 w-8 tih-col">4</th>
+                    <th class="border p-1 w-8 thcs-col">1</th><th class="border p-1 w-8 thcs-col">2</th><th class="border p-1 w-8 thcs-col">3</th><th class="border p-1 w-8 thcs-col">4</th>
+                    <th class="border p-1 w-8">1</th><th class="border p-1 w-8">2</th><th class="border p-1 w-8">3</th><th class="border p-1 w-8">4</th>
                 </tr>
             </thead>
-            <tbody id="ds-lien-ket">
-                </tbody>
-        </table>
-    </div>
-  </div>
-</div>
-    <div class="flex gap-4 mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
-        <span class="text-sm font-bold text-slate-700">Hiển thị cấp học:</span>
-        <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-tih" checked onchange="renderChamTietTable()"> Tiểu học</label>
-        <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-thcs" checked onchange="renderChamTietTable()"> THCS/THPT</label>
+            <tbody id="cham-tiet-tbody"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
-    <div class="table-responsive border rounded-lg overflow-auto" style="max-height: 75vh;">
-      <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap">
-       <thead class="sticky top-0 z-20">
-            <tr class="bg-slate-100 text-slate-700">
-                <th class="border p-2 sticky-col left-0 bg-slate-100" rowspan="3">STT</th>
-                <th class="border p-2 sticky-col bg-slate-100" style="left:40px;" rowspan="3">Họ Tên</th>
-                <th id="head-tih" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB TiH</th>
-                <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB THCS-PT</th>
-                <th class="border p-2 bg-amber-50" colspan="4">Số tiết vắng</th>
-                <th class="border p-2 bg-amber-50" rowspan="3">Dạy thay</th>
-                <th class="border p-2 bg-orange-50" rowspan="3">PL02</th>
-                <th class="border p-2 bg-orange-50" rowspan="3">Ôn thi/CLB</th>
-                <th class="border p-2 bg-orange-50" rowspan="3">Coi thi</th>
-                <th class="border p-2 bg-orange-50" rowspan="3">Khác</th>
-                <th class="border p-2 bg-green-600 text-white" rowspan="3">TỔNG</th>
-                <th class="border p-2 bg-yellow-100 text-yellow-900" rowspan="3">Định mức</th>
-                <th class="border p-2 bg-blue-600 text-white" rowspan="3">VƯỢT</th>
-                <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">After School</th>
-                <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD Khối 12</th>
-                <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD 1:1/17</th>
-            </tr>
-            <tr class="bg-slate-100">
-                <th id="sub-tih" colspan="4" class="border p-1 text-[10px]">Tuần</th>
-                <th id="sub-thcs" colspan="4" class="border p-1 text-[10px]">Tuần</th>
-                <th colspan="4" class="border p-1 text-[10px]">Tuần</th>
-            </tr>
-            <tr class="bg-slate-50">
-                <th class="border p-1 w-8 tih-col">1</th><th class="border p-1 w-8 tih-col">2</th><th class="border p-1 w-8 tih-col">3</th><th class="border p-1 w-8 tih-col">4</th>
-                <th class="border p-1 w-8 thcs-col">1</th><th class="border p-1 w-8 thcs-col">2</th><th class="border p-1 w-8 thcs-col">3</th><th class="border p-1 w-8 thcs-col">4</th>
-                <th class="border p-1 w-8">1</th><th class="border p-1 w-8">2</th><th class="border p-1 w-8">3</th><th class="border p-1 w-8">4</th>
-            </tr>
-        </thead>
-        <tbody id="cham-tiet-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-<div id="lien-ket-view" class="hidden fade-in mb-6 px-4 sm:px-6">
-  <div class="rounded-xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-bold text-slate-800">Danh mục Liên kết Công việc</h2>
-        <button onclick="toggleLienKet()" class="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
-    </div>
-    
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6 p-4 rounded-lg bg-slate-50 border border-slate-200">
-        <input type="text" id="inp-lk-ten" placeholder="Tên liên kết *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-        <input type="url" id="inp-lk-url" placeholder="Đường dẫn (https://...) *" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-        <input type="text" id="inp-lk-mota" placeholder="Mô tả / Ghi chú (nếu có)" class="px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none">
-        <button onclick="addLienKet()" class="bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-all p-2 flex items-center justify-center gap-2">
-            <i data-lucide="plus" style="width:16px;height:16px;"></i> Thêm liên kết
-        </button>
-    </div>
-
-    <div class="overflow-x-auto rounded-lg border border-slate-200">
-        <table class="w-full text-sm text-left whitespace-nowrap">
-            <thead class="text-xs uppercase bg-slate-100 text-slate-600">
-                <tr>
-                    <th class="px-4 py-3 border-b text-center w-12">STT</th>
-                    <th class="px-4 py-3 border-b">Tên liên kết</th>
-                    <th class="px-4 py-3 border-b">Mô tả / Ghi chú</th>
-                    <th class="px-4 py-3 border-b text-center">Ngày tạo</th>
-                    <th class="px-4 py-3 border-b text-center w-32">Thao tác</th>
-                </tr>
-            </thead>
-            <tbody id="ds-lien-ket"></tbody>
-        </table>
-    </div>
-  </div>
-</div>
    <div id="board-view" class="flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-0">
      <div class="rounded-xl p-4" style="background:#ffffff;border: 2px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
@@ -271,24 +181,24 @@
       <div id="col-done" class="space-y-2 scrollbar-thin" style="max-height: 500px; overflow-y: auto;"></div>
      </div>
     </div>
-   </div><!-- Timeline View -->
+   </div>
+
    <div id="timeline-view" class="hidden flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
     <div class="max-w-4xl mx-auto">
      <div class="mb-6 flex items-center justify-between">
       <h2 class="text-lg font-bold" style="color:#1a1a1a;">📅 Trục thời gian công việc</h2><button id="btn-close-timeline" class="p-2 rounded-lg transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
-     <div class="flex gap-2 mb-6"><button id="timeline-filter-all" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#f59e0b;color:#0f172a;" onclick="filterTimelineBy('all')">Tất cả</button> <button id="timeline-filter-todo" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('todo')">Chờ làm</button> <button id="timeline-filter-doing" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('doing')">Đang làm</button> <button id="timeline-filter-done" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('done')">Hoàn thành</button>
-     </div>
+     <div class="flex gap-2 mb-6"><button id="timeline-filter-all" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#f59e0b;color:#0f172a;" onclick="filterTimelineBy('all')">Tất cả</button> <button id="timeline-filter-todo" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('todo')">Chờ làm</button> <button id="timeline-filter-doing" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('doing')">Đang làm</button> <button id="timeline-filter-done" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('done')">Hoàn thành</button></div>
      <div id="timeline-container" class="space-y-6 relative"></div>
     </div>
-   </div><!-- Empty state -->
+   </div>
+
    <div id="empty-state" class="hidden flex-1 flex flex-col items-center justify-center py-16 px-4">
-    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style="background:#1e293b;">
-     <i data-lucide="clipboard-list" style="width:28px;height:28px;color:#f59e0b;"></i>
-    </div>
+    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style="background:#1e293b;"><i data-lucide="clipboard-list" style="width:28px;height:28px;color:#f59e0b;"></i></div>
     <p class="text-base font-semibold mb-1" style="color:#e2e8f0;">Chưa có công việc nào</p>
     <p class="text-sm" style="color:#64748b;">Nhấn "Thêm việc" để bắt đầu phân công</p>
-   </div><!-- Working Hours Modal -->
+   </div>
+
    <div id="working-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
     <div class="w-full max-w-4xl rounded-2xl p-6 flex flex-col" style="background:#1e293b; border:1px solid #334155; max-height:90vh;">
      <div class="flex items-center justify-between mb-5 flex-shrink-0">
@@ -296,7 +206,7 @@
      </div>
      <div id="working-hours-list" class="space-y-3 overflow-y-auto scrollbar-thin flex-1"></div>
     </div>
-   </div><!-- Edit Working Hours Modal -->
+   </div>
    <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6); overflow-y:auto;">
     <div class="modal-backdrop w-full max-w-4xl rounded-2xl p-6 my-4" style="background:#1e293b; border:1px solid #334155; max-height:90vh; overflow-y:auto;">
      <div class="flex items-center justify-between mb-4">
@@ -304,45 +214,34 @@
      </div>
      <form id="hours-form" class="space-y-4 max-h-96 overflow-y-auto">
       <div class="grid grid-cols-2 gap-3">
-       <div><label for="inp-work-quota" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Định mức giờ/tuần (h) *</label> <input id="inp-work-quota" type="number" min="0" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 40" required>
-       </div>
-       <div><label for="inp-fixed-hours" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ công việc cố định (h/tuần)</label> <input id="inp-fixed-hours" type="number" min="0" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 20">
-       </div>
+       <div><label for="inp-work-quota" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Định mức giờ/tuần (h) *</label> <input id="inp-work-quota" type="number" min="0" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 40" required></div>
+       <div><label for="inp-fixed-hours" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ công việc cố định (h/tuần)</label> <input id="inp-fixed-hours" type="number" min="0" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 20"></div>
       </div>
-      <div><label for="inp-week-start" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tuần bắt đầu từ ngày</label> <input id="inp-week-start" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" required>
-      </div>
-      <div><label class="block text-xs font-medium mb-2.5" style="color:#94a3b8;">Giờ công việc cố định chi tiết theo ngày</label>
-       <div id="week-hours-grid" class="grid grid-cols-2 gap-3 mb-2"></div>
-      </div>
+      <div><label for="inp-week-start" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tuần bắt đầu từ ngày</label> <input id="inp-week-start" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" required></div>
+      <div><label class="block text-xs font-medium mb-2.5" style="color:#94a3b8;">Giờ công việc cố định chi tiết theo ngày</label><div id="week-hours-grid" class="grid grid-cols-2 gap-3 mb-2"></div></div>
       <div class="p-3 rounded-lg" style="background:#0f172a;border:1px solid #334155;">
-       <div style="color:#e2e8f0;font-size:13px;font-weight:500;margin-bottom:8px;">
-        📊 Tổng hợp
-       </div>
+       <div style="color:#e2e8f0;font-size:13px;font-weight:500;margin-bottom:8px;">📊 Tổng hợp</div>
        <div class="space-y-1.5" style="font-size:12px;">
-        <div class="flex justify-between" style="color:#94a3b8;"><span>Định mức:</span><span id="summary-quota" style="color:#34d399;font-weight:600;">0h</span>
-        </div>
-        <div class="flex justify-between" style="color:#94a3b8;"><span>Công việc cố định:</span><span id="summary-fixed" style="color:#f59e0b;font-weight:600;">0h</span>
-        </div>
-        <div class="flex justify-between" style="color:#94a3b8;"><span>Công việc không cố định:</span><span id="summary-flexible" style="color:#a78bfa;font-weight:600;">0h</span>
-        </div>
-        <div class="flex justify-between" style="color:#94a3b8; border-top:1px solid #334155; padding-top:6px; margin-top:6px;"><span>Còn lại thực tế tuần:</span><span id="summary-remaining-week" style="color:#38bdf8;font-weight:600;">0h</span>
-        </div>
+        <div class="flex justify-between" style="color:#94a3b8;"><span>Định mức:</span><span id="summary-quota" style="color:#34d399;font-weight:600;">0h</span></div>
+        <div class="flex justify-between" style="color:#94a3b8;"><span>Công việc cố định:</span><span id="summary-fixed" style="color:#f59e0b;font-weight:600;">0h</span></div>
+        <div class="flex justify-between" style="color:#94a3b8;"><span>Công việc không cố định:</span><span id="summary-flexible" style="color:#a78bfa;font-weight:600;">0h</span></div>
+        <div class="flex justify-between" style="color:#94a3b8; border-top:1px solid #334155; padding-top:6px; margin-top:6px;"><span>Còn lại thực tế tuần:</span><span id="summary-remaining-week" style="color:#38bdf8;font-weight:600;">0h</span></div>
        </div>
-      </div><input type="hidden" id="inp-hours-member-id" value="">
+      </div>
+      <input type="hidden" id="inp-hours-member-id" value="">
       <div id="hours-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#7f1d1d;color:#fca5a5;"></div><button type="submit" id="btn-hours-save" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;">Lưu thay đổi</button>
      </form>
     </div>
-   </div><!-- Task Detail Modal -->
+   </div>
    <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
     <div class="modal-backdrop w-full max-w-md rounded-2xl p-6 max-h-96 overflow-y-auto" style="background:#1e293b; border:1px solid #334155;">
      <div class="flex items-center justify-between mb-4">
       <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#f8fafc;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <div id="detail-content" class="space-y-3 mb-4"></div>
-     <div class="grid grid-cols-3 gap-2"><button id="detail-status-todo" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Chờ làm</button> <button id="detail-status-doing" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Đang làm</button> <button id="detail-status-done" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Hoàn thành</button>
-     </div>
+     <div class="grid grid-cols-3 gap-2"><button id="detail-status-todo" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Chờ làm</button> <button id="detail-status-doing" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Đang làm</button> <button id="detail-status-done" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#334155;color:#e2e8f0;">Hoàn thành</button></div>
     </div>
-   </div><!-- Add/Edit Task Modal -->
+   </div>
    <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
     <div class="modal-backdrop w-full max-w-2xl rounded-2xl p-6 overflow-y-auto" style="background:#1e293b; border:1px solid #334155; max-height: 90vh;">
      <div class="flex items-center justify-between mb-5">
@@ -350,57 +249,53 @@
      </div>
      <form id="task-form" class="space-y-4">
       <div class="grid grid-cols-6 gap-3">
-       <div class="col-span-6"><label for="inp-title" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tiêu đề *</label> <input id="inp-title" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tiêu đề công việc">
-       </div>
-       <div class="col-span-6"><label for="inp-desc" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mô tả</label> <textarea id="inp-desc" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Mô tả chi tiết (tuỳ chọn)"></textarea>
-       </div>
-       <div class="col-span-2"><label for="inp-assignee" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Phân công cho</label> <select id="inp-assignee" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"></select>
-       </div>
-       <div class="col-span-2"><label for="inp-priority" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mức ưu tiên</label> <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"><option value="delegable">Không quan trọng &amp; Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="important" selected>Quan trọng nhưng Không khẩn</option><option value="urgent_important">Quan trọng &amp; Khẩn cấp</option></select>
-       </div>
-       <div class="col-span-2"><label for="inp-deadline" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Thời hạn</label> <input id="inp-deadline" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;">
-       </div>
-       <div class="col-span-2"><label for="inp-estimated-hours" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ dự kiến</label> <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 2.5">
-       </div>
-       <div class="col-span-6"><label for="inp-supporters" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Nhân sự hỗ trợ</label> <input id="inp-supporters" type="text" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: Minh, Lan, Tuấn">
-       </div>
-       <div class="col-span-6"><label for="inp-goal" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mục tiêu công việc</label> <textarea id="inp-goal" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Ghi rõ mục tiêu cần đạt được..."></textarea>
-       </div>
+       <div class="col-span-6"><label for="inp-title" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tiêu đề *</label> <input id="inp-title" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tiêu đề công việc"></div>
+       <div class="col-span-6"><label for="inp-desc" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mô tả</label> <textarea id="inp-desc" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Mô tả chi tiết (tuỳ chọn)"></textarea></div>
+       <div class="col-span-2"><label for="inp-assignee" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Phân công cho</label> <select id="inp-assignee" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"></select></div>
+       <div class="col-span-2"><label for="inp-priority" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mức ưu tiên</label> <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"><option value="delegable">Không quan trọng & Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="important" selected>Quan trọng nhưng Không khẩn</option><option value="urgent_important">Quan trọng & Khẩn cấp</option></select></div>
+       <div class="col-span-2"><label for="inp-deadline" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Thời hạn</label> <input id="inp-deadline" type="date" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;"></div>
+       <div class="col-span-2"><label for="inp-estimated-hours" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ dự kiến</label> <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 2.5"></div>
+       <div class="col-span-6"><label for="inp-supporters" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Nhân sự hỗ trợ</label> <input id="inp-supporters" type="text" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: Minh, Lan, Tuấn"></div>
+       <div class="col-span-6"><label for="inp-goal" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Mục tiêu công việc</label> <textarea id="inp-goal" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Ghi rõ mục tiêu cần đạt được..."></textarea></div>
        <div id="rating-section" class="hidden col-span-6"><label class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Đánh giá *</label>
-        <div class="flex gap-1.5"><button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="1" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="2" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="3" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="4" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="5" style="background:#334155;color:#fbbf24;">⭐</button>
+        <div class="flex gap-1.5">
+          <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="1" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="2" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="3" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="4" style="background:#334155;color:#fbbf24;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="5" style="background:#334155;color:#fbbf24;">⭐</button>
         </div><input type="hidden" id="inp-rating" value="">
        </div>
-       <div id="actual-hours-section" class="hidden col-span-6"><label for="inp-actual-hours-review" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ thực tế hoàn thành</label> <input id="inp-actual-hours-review" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 3">
-       </div>
-       <div id="lessons-section" class="hidden col-span-6"><label for="inp-lessons" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Rút kinh nghiệm</label> <textarea id="inp-lessons" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Ghi lại bài học..."></textarea>
-       </div>
-      </div><input type="hidden" id="inp-status" value="todo"> <input type="hidden" id="inp-edit-id" value="">
-      <div id="form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#7f1d1d;color:#fca5a5;"></div><button type="submit" id="btn-submit" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;">Thêm công việc</button>
+       <div id="actual-hours-section" class="hidden col-span-6"><label for="inp-actual-hours-review" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Giờ thực tế hoàn thành</label> <input id="inp-actual-hours-review" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="VD: 3"></div>
+       <div id="lessons-section" class="hidden col-span-6"><label for="inp-lessons" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Rút kinh nghiệm</label> <textarea id="inp-lessons" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Ghi lại bài học..."></textarea></div>
+      </div>
+      <input type="hidden" id="inp-status" value="todo"> <input type="hidden" id="inp-edit-id" value="">
+      <div id="form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#7f1d1d;color:#fca5a5;"></div>
+      <button type="submit" id="btn-submit" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;">Thêm công việc</button>
      </form>
     </div>
-   </div><!-- Members Modal -->
+   </div>
    <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
     <div class="modal-backdrop w-full max-w-md rounded-2xl p-6" style="background:#1e293b; border:1px solid #334155;">
      <div class="flex items-center justify-between mb-5">
       <h2 class="font-display text-lg font-bold" style="color:#f8fafc;">Quản lý thành viên</h2><button id="btn-members-close" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
-     <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin"></div><button id="btn-add-member" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
+     <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin"></div>
+     <button id="btn-add-member" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
     </div>
-   </div><!-- Edit Member Modal -->
+   </div>
    <div id="edit-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
     <div class="modal-backdrop w-full max-w-xs rounded-2xl p-6" style="background:#1e293b; border:1px solid #334155;">
      <div class="flex items-center justify-between mb-4">
       <h2 class="font-display text-lg font-bold" style="color:#f8fafc;" id="edit-member-title">Sửa thành viên</h2><button id="btn-edit-member-close" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <form id="member-form" class="space-y-4">
-      <div><label for="inp-member-name" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tên thành viên</label> <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tên">
-      </div><input type="hidden" id="inp-member-index" value="">
+      <div><label for="inp-member-name" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tên thành viên</label> <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tên"></div>
+      <input type="hidden" id="inp-member-index" value="">
       <div id="member-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#7f1d1d;color:#fca5a5;"></div>
-      <div class="flex gap-2"><button type="button" id="btn-member-delete" class="flex-1 py-2 rounded-lg text-sm font-medium" style="background:#7f1d1d;color:#fca5a5;display:none;">Xoá</button> <button type="submit" id="btn-member-save" class="flex-1 py-2 rounded-lg text-sm font-semibold" style="background:#f59e0b;color:#0f172a;">Lưu</button>
+      <div class="flex gap-2">
+        <button type="button" id="btn-member-delete" class="flex-1 py-2 rounded-lg text-sm font-medium" style="background:#7f1d1d;color:#fca5a5;display:none;">Xoá</button> 
+        <button type="submit" id="btn-member-save" class="flex-1 py-2 rounded-lg text-sm font-semibold" style="background:#f59e0b;color:#0f172a;">Lưu</button>
       </div>
      </form>
     </div>
-   </div><!-- Personal View Selection Modal -->
+   </div>
    <div id="personal-select-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
     <div class="modal-backdrop w-full max-w-sm rounded-2xl p-6" style="background:#1e293b; border:1px solid #334155;">
      <div class="flex items-center justify-between mb-4">
@@ -410,6 +305,7 @@
     </div>
    </div>
   </div>
+
   <script>
     const COLORS = ['#f59e0b', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fb923c', '#6ee7b7', '#ec4899', '#14b8a6', '#8b5cf6'];
     let membersList = [];
@@ -468,14 +364,12 @@
       container.innerHTML = membersData.map((m) => {
         const workQuota = parseFloat(m.work_quota || '40');
         const fixedHours = parseFloat(m.fixed_hours || '0');
-        
         const memberTasks = allTasks.filter(t => t.assignee === m.name);
         let totalEstimated = 0, totalActual = 0;
         memberTasks.forEach(t => {
           if (t.estimated_hours) totalEstimated += parseFloat(t.estimated_hours) || 0;
           if (t.actual_hours) totalActual += parseFloat(t.actual_hours) || 0;
         });
-        
         const totalUsedEstimated = fixedHours + totalEstimated;
         const totalUsedActual = fixedHours + totalActual;
         const remainingEstimated = Math.max(0, workQuota - totalUsedEstimated);
@@ -513,42 +407,35 @@
                 <div style="color:#e2e8f0;font-size:13px;font-weight:700;margin-bottom:10px;letter-spacing:0.5px;">📈 THỐNG KÊ TUẦN</div>
                 <div class="space-y-2.5 text-xs">
                   <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#0f172a80;">
-                    <span style="color:#c4b5fd;">Dự kiến:</span>
-                    <span style="color:#c4b5fd;font-weight:700;font-size:13px;">${totalEstimated.toFixed(1)}h</span>
+                    <span style="color:#c4b5fd;">Dự kiến:</span><span style="color:#c4b5fd;font-weight:700;font-size:13px;">${totalEstimated.toFixed(1)}h</span>
                   </div>
                   <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#34d39920;">
-                    <span style="color:#86efac;">Thực tế:</span>
-                    <span style="color:#86efac;font-weight:700;font-size:13px;">${totalActual.toFixed(1)}h</span>
+                    <span style="color:#86efac;">Thực tế:</span><span style="color:#86efac;font-weight:700;font-size:13px;">${totalActual.toFixed(1)}h</span>
                   </div>
                   <div style="border-t:1px solid #475569;padding-top:8px;margin-top:8px;">
                     <div class="flex items-center justify-between px-2 py-1 mb-1.5 rounded" style="background:#f59e0b20;">
-                      <span style="color:#fbbf24;">Còn dự kiến:</span>
-                      <span style="color:#fbbf24;font-weight:700;font-size:13px;">${remainingEstimated.toFixed(1)}h</span>
+                      <span style="color:#fbbf24;">Còn dự kiến:</span><span style="color:#fbbf24;font-weight:700;font-size:13px;">${remainingEstimated.toFixed(1)}h</span>
                     </div>
                     <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#38bdf820;">
-                      <span style="color:#7dd3fc;">Còn thực tế:</span>
-                      <span style="color:#7dd3fc;font-weight:700;font-size:13px;">${remainingActual.toFixed(1)}h</span>
+                      <span style="color:#7dd3fc;">Còn thực tế:</span><span style="color:#7dd3fc;font-weight:700;font-size:13px;">${remainingActual.toFixed(1)}h</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <button type="button" onclick="editWorkingHours('${m.__backendId}')" class="w-full mt-4 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200" style="background:linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);color:#0f172a;border:none;box-shadow:0 4px 12px #38bdf840;" onmouseenter="this.style.boxShadow='0 6px 20px #38bdf860'" onmouseleave="this.style.boxShadow='0 4px 12px #38bdf840'">⚙️ Cấu hình chi tiết</button>
+            <button type="button" onclick="editWorkingHours('${m.__backendId}')" class="w-full mt-4 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200" style="background:linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);color:#0f172a;border:none;box-shadow:0 4px 12px #38bdf840;">⚙️ Cấu hình chi tiết</button>
           </div>
         `;
       }).join('');
       lucide.createIcons();
     }
 
-function updateWorkQuota(input) {
+    function updateWorkQuota(input) {
       const memberId = input.getAttribute('data-member-id');
       const member = membersData.find(m => m.__backendId === memberId);
       if (!member) return;
-      
       const workQuota = input.value.trim();
-      member.work_quota = workQuota; // Cập nhật giao diện ảo
-      
-      // Lưu âm thầm lên Firebase
+      member.work_quota = workQuota; 
       db.collection("ThanhVien").doc(memberId).update({ work_quota: workQuota }).catch(e => console.log(e));
     }
 
@@ -556,23 +443,17 @@ function updateWorkQuota(input) {
       const memberId = input.getAttribute('data-member-id');
       const member = membersData.find(m => m.__backendId === memberId);
       if (!member) return;
-      
       const fixedHours = input.value.trim();
-      member.fixed_hours = fixedHours; // Cập nhật giao diện ảo
-      
-      // Lưu âm thầm lên Firebase
+      member.fixed_hours = fixedHours;
       db.collection("ThanhVien").doc(memberId).update({ fixed_hours: fixedHours }).catch(e => console.log(e));
     }
 
     function getWeekDays(startDate) {
       const days = [];
       let start = new Date(startDate);
-      
-      // Ensure start date is always Monday
       const dayOfWeek = start.getDay();
-      const diff = start.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust to Monday
+      const diff = start.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
       start.setDate(diff);
-      
       const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
       for (let i = 0; i < 7; i++) {
         const date = new Date(start);
@@ -592,15 +473,9 @@ function updateWorkQuota(input) {
       const dayInputs = document.querySelectorAll('.day-hour-input');
       let flexible = 0;
       dayInputs.forEach(input => { flexible += parseFloat(input.value) || 0; });
-      
-      // Fixed hours = sum of daily fixed hours (Mon-Sat, indices 1-6)
       const fixedFromDays = flexible;
-      
-      // Auto-update the fixed hours input field
       document.getElementById('inp-fixed-hours').value = fixedFromDays.toFixed(1);
-      
       const remainingWeek = Math.max(0, quota - fixedFromDays);
-      
       document.getElementById('summary-quota').textContent = quota.toFixed(1) + 'h';
       document.getElementById('summary-fixed').textContent = fixedFromDays.toFixed(1) + 'h';
       document.getElementById('summary-flexible').textContent = '0h';
@@ -613,20 +488,16 @@ function updateWorkQuota(input) {
     function editWorkingHours(memberId) {
       const member = membersData.find(m => m.__backendId === memberId);
       if (!member) return;
-      
       document.getElementById('edit-hours-title').textContent = 'Quản lý giờ làm: ' + member.name;
       document.getElementById('inp-hours-member-id').value = memberId;
       document.getElementById('inp-work-quota').value = member.work_quota || '40';
       document.getElementById('inp-fixed-hours').value = member.fixed_hours || '0';
-      
       const weekStartDate = member.weekly_start_date || new Date().toISOString().split('T')[0];
       document.getElementById('inp-week-start').value = weekStartDate;
-      
       const weekDays = getWeekDays(weekStartDate);
       const weekHoursData = member.week_hours_data ? JSON.parse(member.week_hours_data) : [];
       const hoursMap = {};
       weekHoursData.forEach(day => { hoursMap[day.date] = day.hours; });
-      
       const grid = document.getElementById('week-hours-grid');
       grid.innerHTML = weekDays.map((day) => `
         <div class="p-3 rounded-lg" style="background:#0f172a;border:1px solid #334155;">
@@ -636,12 +507,10 @@ function updateWorkQuota(input) {
           <input type="number" min="0" step="0.5" value="${hoursMap[day.date] || 0}" class="day-hour-input w-full px-2 py-1.5 rounded text-sm outline-none text-center" style="background:#1e293b;color:#e2e8f0;border:1px solid #475569;" data-date="${day.date}" placeholder="0">
         </div>
       `).join('');
-      
       document.querySelectorAll('.day-hour-input').forEach(input => {
         input.addEventListener('change', updateHoursSummary);
         input.addEventListener('input', updateHoursSummary);
       });
-      
       document.getElementById('hours-form-error').classList.add('hidden');
       updateHoursSummary();
       document.getElementById('edit-hours-modal').classList.remove('hidden');
@@ -691,9 +560,7 @@ function updateWorkQuota(input) {
         return t.deadline;
       });
 
-      // Sort by deadline - closest first
       tasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-
       const container = document.getElementById('timeline-container');
       if (tasks.length === 0) {
         container.innerHTML = `
@@ -717,10 +584,8 @@ function updateWorkQuota(input) {
           currentDate = dateStr;
           html += `<div class="timeline-date"><i data-lucide="calendar" style="width:14px;height:14px;"></i>${dateStr}</div>`;
         }
-
         const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.important;
         const memberColor = getMemberColor(task.assignee);
-
         html += `
           <div class="timeline-item ${task.status}" onclick="showTaskDetail(${JSON.stringify(task).replace(/"/g, '&quot;')})">
             <div class="rounded-lg p-3" style="background:#ffffff;border:2px solid #e8e8e8;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.boxShadow='0 8px 16px rgba(0,0,0,0.1)'" onmouseleave="this.style.boxShadow='none'">
@@ -745,7 +610,6 @@ function updateWorkQuota(input) {
           </div>
         `;
       });
-
       container.innerHTML = html;
       lucide.createIcons();
     }
@@ -769,6 +633,8 @@ function updateWorkQuota(input) {
 
     document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('board-view').classList.add('hidden');
+      document.getElementById('cham-tiet-view').classList.add('hidden');
+      document.getElementById('lien-ket-view').classList.add('hidden');
       document.getElementById('timeline-view').classList.remove('hidden');
       renderTimeline();
     };
@@ -781,7 +647,6 @@ function updateWorkQuota(input) {
     function editMember(memberId) {
       const member = membersData.find(m => m.__backendId === memberId);
       if (!member) return;
-      
       document.getElementById('inp-member-name').value = member.name;
       document.getElementById('inp-member-index').value = memberId;
       document.getElementById('edit-member-title').textContent = 'Sửa thành viên';
@@ -833,9 +698,7 @@ function updateWorkQuota(input) {
       document.getElementById('personal-select-modal').classList.remove('hidden');
     };
 
-    function closePersonalSelectModal() {
-      document.getElementById('personal-select-modal').classList.add('hidden');
-    }
+    function closePersonalSelectModal() { document.getElementById('personal-select-modal').classList.add('hidden'); }
 
     function renderPersonalSelectModal() {
       const container = document.getElementById('personal-members-list');
@@ -881,11 +744,10 @@ function updateWorkQuota(input) {
     };
 
     let deleteMemberConfirmState = false;
-document.getElementById('btn-member-delete').onclick = function(e) {
+    document.getElementById('btn-member-delete').onclick = function(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-member-delete');
       const memberId = document.getElementById('inp-member-index').value;
-      
       if (!deleteMemberConfirmState) {
         deleteMemberConfirmState = true;
         btn.textContent = 'Chắc chắn xóa?';
@@ -893,24 +755,18 @@ document.getElementById('btn-member-delete').onclick = function(e) {
         btn.style.background = '#dc2626';
         return;
       }
-      
       if (memberId) {
         const member = membersData.find(m => m.__backendId === memberId);
         if (member) {
           btn.disabled = true;
           btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:6px;animation:spin 1s linear infinite;"></i>Đang xóa...';
           lucide.createIcons();
-          
-          // XÓA TRÊN FIREBASE
           db.collection("ThanhVien").doc(memberId).delete()
           .then(() => {
-              // Cập nhật lại giao diện ảo
               const mIndex = membersData.findIndex(m => m.__backendId === memberId);
               if (mIndex > -1) membersData.splice(mIndex, 1);
-              
               const lIndex = membersList.findIndex(m => m.name === member.name);
               if (lIndex > -1) membersList.splice(lIndex, 1);
-
               renderMembersList();
               populateMemberSelects();
               renderTasks();
@@ -936,72 +792,53 @@ document.getElementById('btn-member-delete').onclick = function(e) {
       const errorEl = document.getElementById('member-form-error');
       const btn = document.getElementById('btn-member-save');
       const isDuplicate = membersData.some((m) => m.name.toLowerCase() === name.toLowerCase() && m.__backendId !== memberId);
-      if (isDuplicate) {
-        errorEl.textContent = 'Tên thành viên này đã tồn tại.';
-        errorEl.classList.remove('hidden');
-        return;
-      }
-      const isEdit = memberId !== '';
-      const oldMember = isEdit ? membersData.find(m => m.__backendId === memberId) : null;
-      const oldName = oldMember ? oldMember.name : null;
+      if (isDuplicate) { errorEl.textContent = 'Tên thành viên đã tồn tại.'; errorEl.classList.remove('hidden'); return; }
+      
       btn.disabled = true;
       errorEl.classList.add('hidden');
-      if (!isEdit) {
-        const color = COLORS[membersData.length % COLORS.length];
-        const result = await window.dataSdk.create({
-          _collection: 'members',
-          name: name,
-          color: color,
-          work_quota: '40',
-          fixed_hours: '40',
-          weekly_hours: JSON.stringify([]),
-          week_start_date: new Date().toISOString().split('T')[0],
-          created_at: new Date().toISOString()
-        });
-        if (!result.isOk) {
-          errorEl.textContent = 'Lỗi khi thêm thành viên.';
-          errorEl.classList.remove('hidden');
-          btn.disabled = false;
-          return;
-        }
+      
+      if (!memberId) {
+        const mauSac = COLORS[membersData.length % COLORS.length];
+        db.collection("ThanhVien").add({
+            Ten: name, ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then((docRef) => {
+            membersData.push({ __backendId: docRef.id, name: name, color: mauSac });
+            membersList.push({ name: name, color: mauSac });
+            renderMembersList(); populateMemberSelects();
+            document.getElementById("inp-member-name").value = "";
+            btn.textContent = "Lưu"; btn.disabled = false;
+            document.getElementById('edit-member-modal').classList.add('hidden');
+        })
+        .catch(error => { alert("Lỗi thêm: " + error.message); btn.disabled = false; });
       } else {
-        const updated = { ...oldMember, name: name };
-        const result = await window.dataSdk.update(updated);
-        if (!result.isOk) {
-          errorEl.textContent = 'Lỗi khi cập nhật thành viên.';
-          errorEl.classList.remove('hidden');
-          btn.disabled = false;
-          return;
-        }
-        for (let t of allTasks) {
-          let needsUpdate = false;
-          if (t.assignee === oldName) {
-            t.assignee = name;
-            needsUpdate = true;
-          }
-          if (t.supporters && t.supporters.includes(oldName)) {
-            t.supporters = t.supporters.split(',').map(s => s.trim() === oldName ? name : s.trim()).join(', ');
-            needsUpdate = true;
-          }
-          if (needsUpdate) {
-            const r = await window.dataSdk.update(t);
-            if (!r.isOk) {
-              errorEl.textContent = 'Lỗi khi cập nhật công việc.';
-              errorEl.classList.remove('hidden');
-              btn.disabled = false;
-              return;
-            }
-          }
-        }
+        const oldMember = membersData.find(m => m.__backendId === memberId);
+        const oldName = oldMember ? oldMember.name : null;
+        db.collection("ThanhVien").doc(memberId).update({ Ten: name })
+        .then(() => {
+            if (oldMember) oldMember.name = name;
+            membersList = membersData.map(x => ({ name: x.name, color: x.color }));
+            renderMembersList(); populateMemberSelects(); renderTasks();
+            document.getElementById("inp-member-name").value = "";
+            btn.textContent = "Lưu"; btn.disabled = false;
+            document.getElementById('edit-member-modal').classList.add('hidden');
+            
+            // Update tasks with old name
+            allTasks.forEach(t => {
+                let needsUpdate = false;
+                if (t.assignee === oldName) { t.assignee = name; needsUpdate = true; }
+                if (t.supporters && t.supporters.includes(oldName)) {
+                    t.supporters = t.supporters.split(',').map(s => s.trim() === oldName ? name : s.trim()).join(', ');
+                    needsUpdate = true;
+                }
+                if (needsUpdate) db.collection("CongViec").doc(t.__backendId).update(t);
+            });
+        })
+        .catch(error => { alert("Lỗi sửa: " + error.message); btn.disabled = false; });
       }
-      btn.disabled = false;
-      populateMemberSelects();
-      renderMembersList();
-      renderTasks();
-      document.getElementById('edit-member-modal').classList.add('hidden');
     });
 
-document.getElementById('hours-form').addEventListener('submit', function(e) {
+    document.getElementById('hours-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const memberId = document.getElementById('inp-hours-member-id').value;
       const workQuota = document.getElementById('inp-work-quota').value.trim();
@@ -1009,76 +846,50 @@ document.getElementById('hours-form').addEventListener('submit', function(e) {
       const weekStartDate = document.getElementById('inp-week-start').value;
       
       if (!workQuota || !weekStartDate) {
-        document.getElementById('hours-form-error').textContent = 'Vui lòng điền đầy đủ thông tin.';
+        document.getElementById('hours-form-error').textContent = 'Vui lòng điền đủ thông tin.';
         document.getElementById('hours-form-error').classList.remove('hidden');
         return;
       }
       
       const dayInputs = document.querySelectorAll('.day-hour-input');
-      const weekHoursData = Array.from(dayInputs).map(input => ({
-        date: input.getAttribute('data-date'),
-        hours: parseFloat(input.value) || 0
-      }));
-      
+      const weekHoursData = Array.from(dayInputs).map(input => ({ date: input.getAttribute('data-date'), hours: parseFloat(input.value) || 0 }));
       const member = membersData.find(m => m.__backendId === memberId);
       if (!member) return;
       
       const btn = document.getElementById('btn-hours-save');
-      btn.disabled = true;
-      btn.textContent = 'Đang lưu...';
+      btn.disabled = true; btn.textContent = 'Đang lưu...';
       
-      // GỬI LÊN FIREBASE
       db.collection("ThanhVien").doc(memberId).update({
-        work_quota: workQuota,
-        fixed_hours: fixedHours,
-        week_hours_data: JSON.stringify(weekHoursData),
-        weekly_start_date: weekStartDate
+        work_quota: workQuota, fixed_hours: fixedHours, week_hours_data: JSON.stringify(weekHoursData), weekly_start_date: weekStartDate
       }).then(() => {
-        // Lưu thành công -> Cập nhật giao diện web
-        member.work_quota = workQuota;
-        member.fixed_hours = fixedHours;
-        member.week_hours_data = JSON.stringify(weekHoursData);
-        member.weekly_start_date = weekStartDate;
-        
+        member.work_quota = workQuota; member.fixed_hours = fixedHours; member.week_hours_data = JSON.stringify(weekHoursData); member.weekly_start_date = weekStartDate;
         renderWorkingHoursList();
         document.getElementById('edit-hours-modal').classList.add('hidden');
-        btn.disabled = false;
-        btn.textContent = 'Lưu thay đổi';
+        btn.disabled = false; btn.textContent = 'Lưu thay đổi';
       }).catch(err => {
-        document.getElementById('hours-form-error').textContent = 'Lỗi lưu Firebase: ' + err.message;
+        document.getElementById('hours-form-error').textContent = 'Lỗi lưu: ' + err.message;
         document.getElementById('hours-form-error').classList.remove('hidden');
-        btn.disabled = false;
-        btn.textContent = 'Lưu thay đổi';
+        btn.disabled = false; btn.textContent = 'Lưu thay đổi';
       });
     });
 
-function getFiltered() {
-      // 1. Lấy giá trị từ cả 4 ô lọc
+    function getFiltered() {
       const statusVal = document.getElementById('filter-status') ? document.getElementById('filter-status').value : 'all';
       const assigneeVal = document.getElementById('filter-assignee') ? document.getElementById('filter-assignee').value : 'all';
       const priorityVal = document.getElementById('filter-priority') ? document.getElementById('filter-priority').value : 'all';
       const monthVal = document.getElementById('filter-month') ? document.getElementById('filter-month').value : 'all';
 
-      // 2. Chạy màng lọc qua toàn bộ công việc
       return allTasks.filter(t => {
         const matchStatus = (statusVal === 'all' || t.status === statusVal);
         const matchAssignee = (assigneeVal === 'all' || t.assignee === assigneeVal);
         const matchPriority = (priorityVal === 'all' || t.priority === priorityVal);
-        
-        // Xử lý lọc theo tháng (dựa vào Deadline)
         let matchMonth = true;
         if (monthVal !== 'all' && monthVal !== '') {
             if (t.deadline) {
-                // Rút trích tháng từ ngày tháng năm
                 const taskMonth = (new Date(t.deadline).getMonth() + 1).toString();
                 matchMonth = (taskMonth === monthVal);
-            } else {
-                // Nếu công việc không có hạn chót thì ẩn đi khi đang ép lọc tháng
-                matchMonth = false; 
-            }
+            } else matchMonth = false; 
         }
-        
-        // Công việc phải thỏa mãn TẤT CẢ các điều kiện mới được hiện ra
         return matchStatus && matchAssignee && matchPriority && matchMonth;
       });
     }
@@ -1088,18 +899,11 @@ function getFiltered() {
       const cols = { todo: [], doing: [], done: [] };
       filtered.forEach(t => { if (cols[t.status]) cols[t.status].push(t); });
       
-      // Sort each column by deadline - closer deadlines first
       ['todo', 'doing', 'done'].forEach(status => {
         cols[status].sort((a, b) => {
-          // If both have deadlines, sort by deadline
-          if (a.deadline && b.deadline) {
-            return new Date(a.deadline) - new Date(b.deadline);
-          }
-          // If only a has deadline, put it first
+          if (a.deadline && b.deadline) return new Date(a.deadline) - new Date(b.deadline);
           if (a.deadline && !b.deadline) return -1;
-          // If only b has deadline, put it first
           if (!a.deadline && b.deadline) return 1;
-          // If neither has deadline, keep original order
           return 0;
         });
       });
@@ -1120,20 +924,26 @@ function getFiltered() {
       document.getElementById('stat-todo').textContent = allTasks.filter(t => t.status === 'todo').length;
       document.getElementById('stat-doing').textContent = allTasks.filter(t => t.status === 'doing').length;
       document.getElementById('stat-done').textContent = allTasks.filter(t => t.status === 'done').length;
-      const colsContainer = document.querySelector('.grid.grid-cols-1');
+      
       const emptyState = document.getElementById('empty-state');
       if (allTasks.length === 0) {
         document.getElementById('board-view').classList.add('hidden');
         emptyState.classList.remove('hidden');
         emptyState.classList.add('flex');
       } else {
-        document.getElementById('board-view').classList.remove('hidden');
+        const isLKOpen = !document.getElementById('lien-ket-view').classList.contains('hidden');
+        const isCTOpen = !document.getElementById('cham-tiet-view').classList.contains('hidden');
+        const isTLOpen = !document.getElementById('timeline-view').classList.contains('hidden');
+        
+        if(!isLKOpen && !isCTOpen && !isTLOpen) {
+             document.getElementById('board-view').classList.remove('hidden');
+        }
         emptyState.classList.add('hidden');
         emptyState.classList.remove('flex');
       }
     }
 
-function createCard(t) {
+    function createCard(t) {
       const div = document.createElement('div');
       div.className = 'task-card rounded-xl p-3 fade-in cursor-pointer';
       div.style.background = '#ffffff';
@@ -1142,20 +952,13 @@ function createCard(t) {
       div.dataset.id = t.__backendId;
       div.addEventListener('click', () => showTaskDetail(t));
       
-      // --- KÍCH HOẠT KÉO THẢ CHO THẺ ---
       div.setAttribute('draggable', 'true');
       div.addEventListener('dragstart', (e) => {
-        // Gắn ID của công việc vào cú nhấc chuột
         e.dataTransfer.setData('text/plain', t.__backendId);
-        // Làm mờ thẻ một chút khi đang lơ lửng trên không
         setTimeout(() => div.style.opacity = '0.4', 0); 
       });
-      div.addEventListener('dragend', () => {
-        // Trả lại độ nét khi thả tay ra
-        div.style.opacity = '1'; 
-      });
-      // ---------------------------------
-
+      div.addEventListener('dragend', () => { div.style.opacity = '1'; });
+      
       updateCard(div, t);
       return div;
     }
@@ -1167,7 +970,6 @@ function createCard(t) {
       const hours = Math.floor((totalSeconds % 86400) / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
-      
       if (days > 0) return `${days}d ${hours}h`;
       if (hours > 0) return `${hours}h ${minutes}m`;
       if (minutes > 0) return `${minutes}m ${seconds}s`;
@@ -1187,30 +989,20 @@ function createCard(t) {
         let deadlineColor = '#34d399';
         if (daysLeft < 0) deadlineColor = '#ef4444';
         else if (daysLeft <= 2) deadlineColor = '#f59e0b';
-        
         const now = new Date();
-        const timeLeft = deadline - now;
-        const countdownText = formatCountdown(timeLeft);
-        
+        const countdownText = formatCountdown(deadline - now);
         deadlineInfo = `<div class="text-[10px] font-medium mt-2 px-1.5 py-0.5 rounded" style="background:${deadlineColor}20;color:${deadlineColor};">📅 ${deadline.toLocaleDateString('vi-VN')} <span class="countdown-timer" data-deadline="${t.deadline}" style="display:inline-block;margin-left:4px;font-weight:700;">${countdownText}</span></div>`;
       }
-      let supportersInfo = '';
-      if (t.supporters) {
-        supportersInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#6366f120;color:#818cf8;">👥 ${escHtml(t.supporters)}</div>`;
-      }
-      let hoursInfo = '';
-      if (t.estimated_hours) {
-        hoursInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#a78bfa20;color:#c4b5fd;">⏱️ ${t.estimated_hours}h</div>`;
-      }
+      let supportersInfo = t.supporters ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#6366f120;color:#818cf8;">👥 ${escHtml(t.supporters)}</div>` : '';
+      let hoursInfo = t.estimated_hours ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#a78bfa20;color:#c4b5fd;">⏱️ ${t.estimated_hours}h</div>` : '';
+      
       div.innerHTML = `
         <div class="flex items-start justify-between gap-2 mb-2">
           <span class="text-sm font-semibold" style="color:#1a1a1a;word-break:break-word;">${escHtml(t.title)}</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0" style="background:${p.color}20;color:${p.color};">${p.label}</span>
         </div>
         ${t.description ? `<p class="text-xs mb-2" style="color:#555555;word-break:break-word;">${escHtml(t.description)}</p>` : ''}
-        ${deadlineInfo}
-        ${supportersInfo}
-        ${hoursInfo}
+        ${deadlineInfo}${supportersInfo}${hoursInfo}
         ${t.status === 'done' && t.rating ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#fbbf2420;color:#d97706;">⭐ Đánh giá: ${t.rating}/5</div>` : ''}
         ${t.status === 'done' && t.lessons_learned ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#34d39920;color:#059669;">💡 ${escHtml(t.lessons_learned.substring(0, 40))}${t.lessons_learned.length > 40 ? '...' : ''}</div>` : ''}
         <div class="flex items-center justify-between mt-3">
@@ -1263,30 +1055,15 @@ function createCard(t) {
     document.getElementById('btn-detail-close').onclick = () => { document.getElementById('task-detail-modal').classList.add('hidden'); };
     document.getElementById('task-detail-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('task-detail-modal').classList.add('hidden'); } });
 
-async function moveTask(id, newStatus) {
+    async function moveTask(id, newStatus) {
       const task = allTasks.find(t => t.__backendId === id);
       if (!task) return;
-      
-      // Nếu trạng thái mới là hoàn thành, mở bảng yêu cầu nhập đánh giá
       if (newStatus === 'done' && task.status !== 'done') {
-        showCompleteTaskForm(task);
-        return;
+        showCompleteTaskForm(task); return;
       }
-
-      // 1. Cập nhật giao diện web ngay lập tức cho mượt mà
       task.status = newStatus;
       renderTasks();
-
-      // 2. Báo cho Firebase biết để lưu cập nhật vào Cơ sở dữ liệu
-      db.collection("CongViec").doc(id).update({
-          status: newStatus
-      })
-      .then(() => {
-          console.log("Đã chuyển trạng thái thành công trên Firebase!");
-      })
-      .catch((error) => {
-          alert("Lỗi khi cập nhật trạng thái: " + error.message);
-      });
+      db.collection("CongViec").doc(id).update({ status: newStatus }).catch((error) => { alert("Lỗi khi cập nhật trạng thái: " + error.message); });
     }
 
     function showCompleteTaskForm(task) {
@@ -1303,8 +1080,7 @@ async function moveTask(id, newStatus) {
       document.getElementById('inp-lessons').value = task.lessons_learned || '';
       document.getElementById('inp-status').value = 'done';
       document.getElementById('inp-edit-id').value = task.__backendId;
-      updateRatingButtons();
-      updateReviewSections();
+      updateRatingButtons(); updateReviewSections();
       document.getElementById('modal-title').textContent = 'Hoàn thành công việc';
       document.getElementById('btn-submit').textContent = 'Hoàn thành & Lưu';
       openModal();
@@ -1326,108 +1102,69 @@ async function moveTask(id, newStatus) {
       document.getElementById('inp-lessons').value = task.lessons_learned || '';
       document.getElementById('inp-status').value = task.status;
       document.getElementById('inp-edit-id').value = id;
-      updateRatingButtons();
-      updateReviewSections();
+      updateRatingButtons(); updateReviewSections();
       document.getElementById('modal-title').textContent = 'Sửa công việc';
       document.getElementById('btn-submit').textContent = 'Cập nhật';
       openModal();
     }
 
-    let pendingDeleteId = null;
     let deleteConfirmStates = new Map();
-
     function showDeleteConfirm(id) {
       const task = allTasks.find(t => t.__backendId === id);
       if (!task) return;
-      
       const card = document.querySelector(`[data-id="${id}"]`);
       if (!card) return;
-      
       const deleteBtn = card.querySelector('button[onclick*="showDeleteConfirm"]');
       if (!deleteBtn) return;
-      
-      // Store original state
       const originalHtml = deleteBtn.innerHTML;
       const originalOnclick = deleteBtn.onclick;
-      
-      // Update button to confirmation state
       deleteBtn.innerHTML = `Chắc chắn?`;
       deleteBtn.style.background = '#dc2626';
       deleteBtn.style.fontWeight = '700';
-      deleteBtn.onclick = (e) => {
-        e.preventDefault();
-       e.stopPropagation();
-        confirmDelete(id);
-      };
+      deleteBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); confirmDelete(id); };
       
-      // Create cancel button
       const cancelBtn = document.createElement('button');
       cancelBtn.type = 'button';
       cancelBtn.className = 'px-2 py-1 rounded text-xs font-medium transition-colors';
-      cancelBtn.style.background = '#64748b';
-      cancelBtn.style.color = '#ffffff';
-      cancelBtn.style.marginRight = '4px';
+      cancelBtn.style.background = '#64748b'; cancelBtn.style.color = '#ffffff'; cancelBtn.style.marginRight = '4px';
       cancelBtn.textContent = 'Không';
       cancelBtn.onmouseenter = () => { cancelBtn.style.background = '#475569'; };
       cancelBtn.onmouseleave = () => { cancelBtn.style.background = '#64748b'; };
       cancelBtn.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Restore original state
-        deleteBtn.innerHTML = originalHtml;
-        deleteBtn.style.background = '#ef4444';
-        deleteBtn.style.fontWeight = '500';
+        e.preventDefault(); e.stopPropagation();
+        deleteBtn.innerHTML = originalHtml; deleteBtn.style.background = '#ef4444'; deleteBtn.style.fontWeight = '500';
         deleteBtn.onclick = () => showDeleteConfirm(id);
-        cancelBtn.remove();
-        deleteConfirmStates.delete(id);
+        cancelBtn.remove(); deleteConfirmStates.delete(id);
       };
-      
       deleteBtn.parentNode.insertBefore(cancelBtn, deleteBtn);
       deleteConfirmStates.set(id, { deleteBtn, cancelBtn });
     }
 
- async function confirmDelete(id) {
+    async function confirmDelete(id) {
       const taskIndex = allTasks.findIndex(t => t.__backendId === id);
       if (taskIndex === -1) return;
-      
       const card = document.querySelector(`[data-id="${id}"]`);
       if (!card) return;
-      
       const state = deleteConfirmStates.get(id);
       const deleteBtn = state ? state.deleteBtn : card.querySelector('button[onclick*="confirmDelete"]');
       const cancelBtn = state ? state.cancelBtn : card.querySelector('button:has-sibling');
       
-      if (deleteBtn) {
-        deleteBtn.disabled = true;
-        deleteBtn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:4px;animation:spin 1s linear infinite;"></i>Đang xóa...';
-      }
+      if (deleteBtn) { deleteBtn.disabled = true; deleteBtn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:4px;animation:spin 1s linear infinite;"></i>Đang xóa...'; }
       if (cancelBtn) cancelBtn.disabled = true;
       
-      // XÓA TRÊN FIREBASE
       db.collection("CongViec").doc(id).delete()
       .then(() => {
-          // Xóa thành công trên Database -> Xóa thẻ trên giao diện web
-          allTasks.splice(taskIndex, 1);
-          renderTasks(); 
-          deleteConfirmStates.delete(id);
+          allTasks.splice(taskIndex, 1); renderTasks(); deleteConfirmStates.delete(id);
       })
       .catch((error) => {
           alert('Lỗi kết nối Firebase khi xóa: ' + error.message);
-          if (deleteBtn) {
-              deleteBtn.disabled = false;
-              deleteBtn.textContent = 'Chắc chắn?';
-          }
+          if (deleteBtn) { deleteBtn.disabled = false; deleteBtn.textContent = 'Chắc chắn?'; }
           if (cancelBtn) cancelBtn.disabled = false;
           deleteConfirmStates.delete(id);
       });
     }
 
-    function openModal() {
-      document.getElementById('modal').classList.remove('hidden');
-      document.getElementById('form-error').classList.add('hidden');
-    }
-
+    function openModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('form-error').classList.add('hidden'); }
     function closeModal() {
       document.getElementById('modal').classList.add('hidden');
       document.getElementById('task-form').reset();
@@ -1466,123 +1203,76 @@ async function moveTask(id, newStatus) {
     }
 
     document.getElementById('btn-add').onclick = () => { 
-      document.getElementById('board-view').classList.remove('hidden');
       document.getElementById('timeline-view').classList.add('hidden');
-      closeModal(); 
-      openModal(); 
+      document.getElementById('cham-tiet-view').classList.add('hidden');
+      document.getElementById('lien-ket-view').classList.add('hidden');
+      document.getElementById('board-view').classList.remove('hidden');
+      closeModal(); openModal(); 
     };
     document.getElementById('btn-modal-close').onclick = closeModal;
     document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
     document.querySelectorAll('.rating-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        const rating = btn.getAttribute('data-rating');
-        document.getElementById('inp-rating').value = rating;
-        updateRatingButtons();
-      });
+      btn.addEventListener('click', (e) => { e.preventDefault(); const rating = btn.getAttribute('data-rating'); document.getElementById('inp-rating').value = rating; updateRatingButtons(); });
     });
-
     document.getElementById('inp-status').addEventListener('change', updateReviewSections);
 
-    function showFormError(msg) {
-      const el = document.getElementById('form-error');
-      el.textContent = msg;
-      el.classList.remove('hidden');
-    }
-document.getElementById('task-form').addEventListener('submit', function(e) {
+    function showFormError(msg) { const el = document.getElementById('form-error'); el.textContent = msg; el.classList.remove('hidden'); }
+
+    document.getElementById('task-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const title = document.getElementById('inp-title').value.trim();
       if (!title) return;
       const editId = document.getElementById('inp-edit-id').value;
       const status = document.getElementById('inp-status').value;
       
-      if (status === 'done' && !document.getElementById('inp-rating').value) {
-        showFormError('Vui lòng đánh giá công việc trước khi hoàn thành.');
-        return;
-      }
+      if (status === 'done' && !document.getElementById('inp-rating').value) { showFormError('Vui lòng đánh giá công việc trước khi hoàn thành.'); return; }
       
       const btn = document.getElementById('btn-submit');
-      btn.disabled = true;
-      btn.textContent = 'Đang lưu...';
+      btn.disabled = true; btn.textContent = 'Đang lưu...';
 
       const data = {
-        title: title,
-        description: document.getElementById('inp-desc').value.trim(),
-        assignee: document.getElementById('inp-assignee').value,
-        priority: document.getElementById('inp-priority').value,
-        deadline: document.getElementById('inp-deadline').value || '',
-        estimated_hours: document.getElementById('inp-estimated-hours').value || '',
-        actual_hours: document.getElementById('inp-actual-hours-review').value || '',
-        supporters: document.getElementById('inp-supporters').value.trim() || '',
-        goal: document.getElementById('inp-goal').value.trim() || '',
-        rating: document.getElementById('inp-rating').value || '',
-        lessons_learned: document.getElementById('inp-lessons').value.trim() || '',
-        status: status,
-        created_at: new Date().toISOString()
+        title: title, description: document.getElementById('inp-desc').value.trim(), assignee: document.getElementById('inp-assignee').value,
+        priority: document.getElementById('inp-priority').value, deadline: document.getElementById('inp-deadline').value || '',
+        estimated_hours: document.getElementById('inp-estimated-hours').value || '', actual_hours: document.getElementById('inp-actual-hours-review').value || '',
+        supporters: document.getElementById('inp-supporters').value.trim() || '', goal: document.getElementById('inp-goal').value.trim() || '',
+        rating: document.getElementById('inp-rating').value || '', lessons_learned: document.getElementById('inp-lessons').value.trim() || '',
+        status: status, created_at: new Date().toISOString()
       };
-if (editId) {
-        // Cập nhật dữ liệu lên Firebase
+      
+      if (editId) {
         db.collection("CongViec").doc(editId).update(data)
         .then(() => {
-            // Cập nhật lại danh sách ảo trên giao diện để web hiển thị ngay
             const index = allTasks.findIndex(t => t.__backendId === editId);
-            if (index !== -1) {
-                allTasks[index] = { ...allTasks[index], ...data };
-            }
+            if (index !== -1) allTasks[index] = { ...allTasks[index], ...data };
             if(typeof renderTasks === 'function') renderTasks();
-            
-            // Xóa thông báo, trả lại nút và đóng bảng
-            btn.disabled = false;
-            btn.textContent = 'Cập nhật';
-            closeModal();
+            btn.disabled = false; btn.textContent = 'Cập nhật'; closeModal();
             document.getElementById('board-view').classList.remove('hidden');
-            document.getElementById('timeline-view').classList.add('hidden');
         })
-        .catch((error) => {
-            showFormError('Lỗi kết nối Firebase: ' + error.message);
-            btn.disabled = false;
-            btn.textContent = 'Cập nhật';
-        });
-      }
-     else {
+        .catch((error) => { showFormError('Lỗi kết nối Firebase: ' + error.message); btn.disabled = false; btn.textContent = 'Cập nhật'; });
+      } else {
         db.collection("CongViec").add(data)
         .then((docRef) => {
-            data.__backendId = docRef.id; 
-            allTasks.push(data); 
-            
+            data.__backendId = docRef.id; allTasks.push(data); 
             if(typeof renderTasks === 'function') renderTasks();
-            
-            btn.disabled = false;
-            btn.textContent = 'Thêm công việc';
-            closeModal();
+            btn.disabled = false; btn.textContent = 'Thêm công việc'; closeModal();
             document.getElementById('board-view').classList.remove('hidden');
-            document.getElementById('timeline-view').classList.add('hidden');
         })
-        .catch((error) => {
-            showFormError('Lỗi kết nối Firebase: ' + error.message);
-            btn.disabled = false;
-            btn.textContent = 'Thêm công việc';
-        });
+        .catch((error) => { showFormError('Lỗi kết nối Firebase: ' + error.message); btn.disabled = false; btn.textContent = 'Thêm công việc'; });
       }
     });
 
-   ['filter-status', 'filter-assignee', 'filter-priority', 'filter-month'].forEach(id => {
-      document.getElementById(id).addEventListener('change', renderTasks);
-    });
+    ['filter-status', 'filter-assignee', 'filter-priority', 'filter-month'].forEach(id => { document.getElementById(id).addEventListener('change', renderTasks); });
 
     const dataHandler = {
       onDataChanged(data) {
         const members = data.filter(d => d._collection === 'members');
         const tasks = data.filter(d => d._collection !== 'members');
         if (members.length > 0) {
-          membersData = members;
-          membersList = members.map(m => ({ name: m.name, color: m.color }));
-          populateMemberSelects();
+          membersData = members; membersList = members.map(m => ({ name: m.name, color: m.color })); populateMemberSelects();
         }
         if (tasks.length > 0 || (data.length > 0 && !data[0]._collection)) {
-          allTasks = tasks.length > 0 ? tasks : data.filter(d => d.title);
-          renderTasks();
+          allTasks = tasks.length > 0 ? tasks : data.filter(d => d.title); renderTasks();
         }
       }
     };
@@ -1593,14 +1283,12 @@ if (editId) {
     })();
 
     function applyConfig(config) {
-      const c = { ...defaultConfig, ...config };
-      document.getElementById('app-title').textContent = c.app_title;
+      const c = { ...defaultConfig, ...config }; document.getElementById('app-title').textContent = c.app_title;
     }
 
     if (window.elementSdk) {
       window.elementSdk.init({
-        defaultConfig,
-        onConfigChange: async (config) => { applyConfig(config); },
+        defaultConfig, onConfigChange: async (config) => { applyConfig(config); },
         mapToCapabilities: (config) => ({
           recolorables: [
             { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; if (window.elementSdk) window.elementSdk.setConfig({ background_color: v }); } },
@@ -1619,573 +1307,301 @@ if (editId) {
 
     lucide.createIcons();
 
-    // Update all countdown timers every second
     setInterval(() => {
       document.querySelectorAll('.countdown-timer').forEach(el => {
         const deadline = new Date(el.getAttribute('data-deadline'));
         const now = new Date();
-        const timeLeft = deadline - now;
-        el.textContent = formatCountdown(timeLeft);
+        el.textContent = formatCountdown(deadline - now);
       });
     }, 1000);
   </script>
+  
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDw57Lqyxml-gjg-sVbafOGFfLBwvepyBQ",
-    authDomain: "quanlicongviec-897eb.firebaseapp.com",
-    projectId: "quanlicongviec-897eb",
-    storageBucket: "quanlicongviec-897eb.firebasestorage.app",
-    messagingSenderId: "584097611418",
-    appId: "1:584097611418:web:dcd7d84736ba8164726923",
-   measurementId: "G-XZ6D13YF4Z"
-  };
- if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-  }
-  const db = firebase.firestore();
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDw57Lqyxml-gjg-sVbafOGFfLBwvepyBQ",
+      authDomain: "quanlicongviec-897eb.firebaseapp.com",
+      projectId: "quanlicongviec-897eb",
+      storageBucket: "quanlicongviec-897eb.firebasestorage.app",
+      messagingSenderId: "584097611418",
+      appId: "1:584097611418:web:dcd7d84736ba8164726923",
+      measurementId: "G-XZ6D13YF4Z"
+    };
+    if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+    const db = firebase.firestore();
 
-  // 2. VÔ HIỆU HÓA CODE LỖI CỦA CANVA
-  const oldForm = document.getElementById('member-form');
-  const newForm = oldForm.cloneNode(true);
-  oldForm.parentNode.replaceChild(newForm, oldForm);
-
-  // Biến hỗ trợ xác nhận xóa
-  let isConfirmingDelete = false;
-
-  // 3. XỬ LÝ NÚT "LƯU" (CẢ KHI THÊM MỚI VÀ KHI SỬA)
-  newForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const ten = document.getElementById("inp-member-name").value.trim();
-    const memberId = document.getElementById("inp-member-index").value; // Lấy ID để biết là đang sửa hay thêm
-    if(ten === "") return;
-
-    const btn = document.getElementById("btn-member-save");
-    btn.textContent = "Đang lưu...";
-    btn.disabled = true;
-
-    if (memberId) {
-        // --- ĐANG SỬA THÀNH VIÊN ---
-        db.collection("ThanhVien").doc(memberId).update({
-            Ten: ten
-        })
-        .then(() => {
-            // Cập nhật lại giao diện ảo
-            const m = membersData.find(x => x.__backendId === memberId);
-            if (m) m.name = ten;
-            membersList = membersData.map(x => ({ name: x.name, color: x.color }));
-            
-            if (typeof renderMembersList === "function") renderMembersList();
-            if (typeof populateMemberSelects === "function") populateMemberSelects();
-            if (typeof renderTasks === "function") renderTasks();
-            
-            document.getElementById("inp-member-name").value = "";
-            document.getElementById("inp-member-index").value = "";
-            btn.textContent = "Lưu";
-            btn.disabled = false;
-            document.getElementById('edit-member-modal').classList.add('hidden');
-        })
-        .catch((error) => {
-            alert("Lỗi khi cập nhật: " + error.message);
-            btn.textContent = "Lưu";
-            btn.disabled = false;
-        });
-    } else {
-        // --- ĐANG THÊM THÀNH VIÊN MỚI ---
-        db.collection("ThanhVien").add({
-            Ten: ten,
-            ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then((docRef) => {
-            const mauSac = (typeof COLORS !== 'undefined') ? COLORS[membersData.length % COLORS.length] : '#38bdf8';
-            membersData.push({ __backendId: docRef.id, name: ten, color: mauSac });
-            membersList.push({ name: ten, color: mauSac });
-
-            if (typeof renderMembersList === "function") renderMembersList();
-            if (typeof populateMemberSelects === "function") populateMemberSelects();
-            
-            document.getElementById("inp-member-name").value = "";
-            btn.textContent = "Lưu";
-            btn.disabled = false;
-            document.getElementById('edit-member-modal').classList.add('hidden');
-        })
-        .catch((error) => {
-            alert("Lỗi khi thêm: " + error.message);
-            btn.textContent = "Lưu";
-            btn.disabled = false;
-        });
-    }
-  });
-
-  // 4. XỬ LÝ NÚT "XÓA" THÀNH VIÊN
-  document.getElementById('btn-member-delete').addEventListener('click', function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btn-member-delete');
-    const memberId = document.getElementById('inp-member-index').value;
-    
-    // Nếu chưa bấm lần nào thì hiện hỏi "Chắc chắn xóa?"
-    if (!isConfirmingDelete) {
-      isConfirmingDelete = true;
-      btn.textContent = 'Chắc chắn xóa?';
-      btn.style.fontWeight = '700';
-      btn.style.background = '#dc2626';
-      return;
-    }
-    
-    // Nếu đã xác nhận thì tiến hành xóa
-    if (memberId) {
-      btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:6px;animation:spin 1s linear infinite;"></i>Đang xóa...';
-      if (typeof lucide !== 'undefined') lucide.createIcons();
-      
-      db.collection("ThanhVien").doc(memberId).delete()
-      .then(() => {
-          // Xóa khỏi danh sách ảo trên giao diện
-          const mIndex = membersData.findIndex(m => m.__backendId === memberId);
-          if (mIndex > -1) membersData.splice(mIndex, 1);
-          membersList = membersData.map(m => ({ name: m.name, color: m.color }));
-
-          if (typeof renderMembersList === "function") renderMembersList();
-          if (typeof populateMemberSelects === "function") populateMemberSelects();
-          if (typeof renderTasks === "function") renderTasks();
-          
-          document.getElementById('edit-member-modal').classList.add('hidden');
-          isConfirmingDelete = false;
-      })
-      .catch((error) => {
-          alert("Lỗi khi xóa: " + error.message);
-          btn.disabled = false;
-          btn.textContent = 'Chắc chắn xóa?';
-          isConfirmingDelete = false;
-      });
-    }
-  });
- // 5. HÀM TẢI DỮ LIỆU TỪ FIREBASE KHI MỞ TRANG WEB
-  async function loadDataFromFirebase() {
-    try {
-      // 5.1 Tải danh sách Thành Viên
-      const membersSnapshot = await db.collection("ThanhVien").get();
-      membersData = [];
-      membersSnapshot.forEach((doc) => {
-        let data = doc.data();
-        // Chuyển đổi dữ liệu cho khớp với khung giao diện cũ
-        data.__backendId = doc.id;
-        data.name = data.Ten; 
-        data.color = (typeof COLORS !== 'undefined') ? COLORS[membersData.length % COLORS.length] : '#38bdf8';
-        
-        // Nạp các thông số giờ làm việc (nếu có)
-        data.work_quota = data.work_quota || '40';
-        data.fixed_hours = data.fixed_hours || '0';
-        data.week_hours_data = data.week_hours_data || '[]';
-        data.weekly_start_date = data.weekly_start_date || new Date().toISOString().split('T')[0];
-
-        membersData.push(data);
-      });
-      membersList = membersData.map(m => ({ name: m.name, color: m.color }));
-
-      // 5.2 Tải danh sách Công Việc
-      const tasksSnapshot = await db.collection("CongViec").get();
-      allTasks = [];
-      tasksSnapshot.forEach((doc) => {
-        let data = doc.data();
-        data.__backendId = doc.id;
-        allTasks.push(data);
-      });
-
-      // 5.3 Cập nhật tất cả ra màn hình
-      if (typeof populateMemberSelects === "function") populateMemberSelects();
-      if (typeof renderMembersList === "function") renderMembersList();
-      if (typeof renderTasks === "function") renderTasks();
-
-      console.log("Đã tải thành công trí nhớ từ Firebase!");
-
-    } catch (error) {
-      console.error("Lỗi khi tải dữ liệu:", error);
-    }
-  }
-// --- HÀM SAO CHÉP (NHÂN BẢN) CÔNG VIỆC ---
-  function duplicateTask(id) {
-    if (event) event.stopPropagation();
-
-    // Tìm công việc gốc
-    const originalTask = allTasks.find(t => t.__backendId === id);
-    if (!originalTask) return;
-
-    // Hỏi xác nhận cho chắc chắn
-    if (!confirm(`Bạn có muốn tạo bản sao của công việc: "${originalTask.title}" không?`)) return;
-
-    // Tạo bản sao và làm sạch các dữ liệu cũ
-    const newTaskData = { ...originalTask };
-    delete newTaskData.__backendId; // Xóa ID cũ để Firebase cấp ID mới
-    
-    newTaskData.title = originalTask.title + " (Bản sao)"; // Thêm đuôi đánh dấu
-    newTaskData.status = 'todo'; // Trả về cột Chờ làm
-    newTaskData.actual_hours = ''; // Xóa giờ làm thực tế
-    newTaskData.rating = ''; // Xóa sao đánh giá
-    newTaskData.lessons_learned = ''; // Xóa bài học kinh nghiệm
-    newTaskData.created_at = firebase.firestore.FieldValue.serverTimestamp(); 
-
-    // Đẩy bản sao lên Firebase
-    db.collection("CongViec").add(newTaskData)
-    .then((docRef) => {
-        newTaskData.__backendId = docRef.id;
-        allTasks.push(newTaskData); // Cập nhật danh sách ảo
-        renderTasks(); // Vẽ lại giao diện web
-        
-        // Thông báo bằng icon cho ngầu
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    })
-    .catch((error) => {
-        alert("Lỗi khi sao chép Firebase: " + error.message);
-    });
-  }
-// --- TÍNH NĂNG CHẤM TIẾT (EXCEL ONLINE) ---
-  let currentChamTietMonth = new Date().toISOString().slice(0, 7);
-  const inpMonth = document.getElementById('inp-cham-tiet-month');
-  if(inpMonth) inpMonth.value = currentChamTietMonth;
-
-  if(inpMonth) inpMonth.addEventListener('change', (e) => {
-      currentChamTietMonth = e.target.value;
-      renderChamTietTable();
-  });
-
-  function toggleChamTiet() {
-      const board = document.getElementById('board-view');
-      const chamTiet = document.getElementById('cham-tiet-view');
-      if (chamTiet.classList.contains('hidden')) {
-          if (board) board.classList.add('hidden');
-          chamTiet.classList.remove('hidden');
-          renderChamTietTable();
-      } else {
-          chamTiet.classList.add('hidden');
-          if (board) board.classList.remove('hidden');
-      }
-  }
-
-async function renderChamTietTable() {
-    const tbody = document.getElementById('cham-tiet-tbody');
-    const showTiH = document.getElementById('show-tih').checked;
-    const showTHCS = document.getElementById('show-thcs').checked;
-    
-    // Điều chỉnh ẩn hiện tiêu đề cột (Đã sửa lỗi dấu ngoặc dư)
-    document.querySelectorAll('.tih-col').forEach(el => el.style.display = showTiH ? '' : 'none');
-    document.querySelectorAll('.thcs-col').forEach(el => el.style.display = showTHCS ? '' : 'none');
-    if(document.getElementById('head-tih')) document.getElementById('head-tih').style.display = showTiH ? '' : 'none';
-    if(document.getElementById('sub-tih')) document.getElementById('sub-tih').style.display = showTiH ? '' : 'none';
-    if(document.getElementById('head-thcs')) document.getElementById('head-thcs').style.display = showTHCS ? '' : 'none';
-    if(document.getElementById('sub-thcs')) document.getElementById('sub-thcs').style.display = showTHCS ? '' : 'none';
-
-    tbody.innerHTML = '<tr><td colspan="40" class="p-10 text-center text-slate-400">Đang tải dữ liệu...</td></tr>';
-
-    try {
-      const snapshot = await db.collection("ChamTietTuan").where("thang", "==", currentChamTietMonth).get();
-      const dataThang = {};
-      snapshot.forEach(doc => { dataThang[doc.data().memberId] = doc.data(); });
-
-      tbody.innerHTML = '';
-      membersData.forEach((member, index) => {
-        const d = dataThang[member.__backendId] || {};
-        const w = (key) => d[key] || [0, 0, 0, 0];
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border p-2 sticky-col left-0 bg-white text-slate-400">${index + 1}</td>
-          <td class="border p-2 sticky-col left-[40px] bg-white text-left font-bold text-slate-700">${member.name}</td>
-          ${showTiH ? [0,1,2,3].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('') : ''}
-          ${showTHCS ? [0,1,2,3].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('') : ''}
-          ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i]}"></td>`).join('')}
-          <td class="border p-1"><input type="number" class="ct-input-week ct-daythay" style="width:55px" data-id="${member.__backendId}" value="${typeof d.dayThay === 'number' ? d.dayThay : 0}"></td>
-          <td class="border p-1"><input type="number" class="ct-input-week ct-pl02" data-id="${member.__backendId}" value="${d.pl02 || 0}"></td>
-          <td class="border p-1"><input type="number" class="ct-input-week ct-onthi" data-id="${member.__backendId}" value="${d.onThi || 0}"></td>
-          <td class="border p-1"><input type="number" class="ct-input-week ct-coithi" data-id="${member.__backendId}" value="${d.coiThi || 0}"></td>
-          <td class="border p-1"><input type="number" class="ct-input-week ct-khac" data-id="${member.__backendId}" value="${d.khac || 0}"></td>
-          <td class="border p-2 font-bold text-green-700 bg-green-50 ct-tong" id="tong-${member.__backendId}">0</td>
-          <td class="border p-1 bg-yellow-50"><input type="number" class="ct-input-week ct-dinhmuc" data-id="${member.__backendId}" value="${d.dinhMuc || 80}"></td>
-          <td class="border p-2 font-bold text-blue-700 bg-blue-50 ct-vuot" id="vuot-${member.__backendId}">0</td>
-          <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-after" data-id="${member.__backendId}" value="${d.afterSchool || 0}"></td>
-          <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-bd12" data-id="${member.__backendId}" value="${d.bd12 || 0}"></td>
-          <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-bd11" data-id="${member.__backendId}" value="${d.bd11 || 0}"></td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.querySelectorAll('.ct-input-week').forEach(input => {
-        input.addEventListener('input', () => calcRow(input.getAttribute('data-id')));
-      });
-      membersData.forEach(m => calcRow(m.__backendId));
-    } catch (error) { console.error(error); }
-  }
-
- function calcRow(id) {
-      const row = document.querySelector(`.ct-input-week[data-id="${id}"]`).closest('tr');
-      const sumWeeks = (cls) => Array.from(row.querySelectorAll(cls)).reduce((a, b) => a + (parseFloat(b.value) || 0), 0);
-      const val = (cls) => parseFloat(row.querySelector(cls).value) || 0;
-
-      const totalTih = sumWeeks('.ct-tih');
-      const totalThcs = sumWeeks('.ct-thcs');
-      const totalVang = sumWeeks('.ct-vang');
-      const totalDayThay = val('.ct-daythay'); // Đã sửa thành lấy 1 giá trị duy nhất
-      
-      const tong = totalTih + totalThcs - totalVang + totalDayThay + val('.ct-pl02') + val('.ct-onthi') + val('.ct-coithi') + val('.ct-khac');
-      const dinhmuc = val('.ct-dinhmuc');
-      const vuot = tong - dinhmuc;
-
-      row.querySelector('.ct-tong').textContent = Math.round(tong * 10) / 10;
-      row.querySelector('.ct-vuot').textContent = vuot > 0 ? (Math.round(vuot * 10) / 10) : '-';
-  }
-
-  async function saveChamTiet() {
-    const btn = document.querySelector('button[onclick="saveChamTiet()"]');
-    btn.textContent = 'Đang lưu...';
-    btn.disabled = true;
-
-    const batch = db.batch();
-    membersData.forEach(member => {
-      const id = member.__backendId;
-      const row = document.querySelector(`.ct-input-week[data-id="${id}"]`).closest('tr');
-      const getW = (cls) => Array.from(row.querySelectorAll(cls)).map(i => parseFloat(i.value) || 0);
-      const getV = (cls) => parseFloat(row.querySelector(cls).value) || 0;
-
-      const docRef = db.collection("ChamTietTuan").doc(`${id}_${currentChamTietMonth}`);
-      batch.set(docRef, {
-        memberId: id,
-        thang: currentChamTietMonth,
-        tih: getW('.ct-tih'),
-        thcs: getW('.ct-thcs'),
-        vang: getW('.ct-vang'),
-        dayThay: getV('.ct-daythay'), // Lưu dưới dạng số thay vì mảng tuần
-        pl02: getV('.ct-pl02'),
-        onThi: getV('.ct-onthi'),
-        coiThi: getV('.ct-coithi'),
-        khac: getV('.ct-khac'),
-        dinhMuc: getV('.ct-dinhmuc'),
-        afterSchool: getV('.ct-after'),
-        bd12: getV('.ct-bd12'),
-        bd11: getV('.ct-bd11'),
-        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-    });
-
-    await batch.commit();
-    btn.textContent = 'Đã lưu!';
-    setTimeout(() => { btn.textContent = 'Lưu dữ liệu'; btn.disabled = false; }, 2000);
-  }
- 
-// --- TÍNH NĂNG QUẢN LÝ LIÊN KẾT NHANH ---
-  function toggleLienKet() {
-      const board = document.getElementById('board-view');
-      const lkView = document.getElementById('lien-ket-view');
-      const ctView = document.getElementById('cham-tiet-view');
-      
-      // Kiểm tra xem đã dán HTML thành công chưa
-      if (!lkView) {
-          alert("Chưa tìm thấy giao diện Bảng Liên kết! Thầy hãy kiểm tra lại Bước 1 xem đã dán đúng vị trí chưa nhé.");
-          return;
-      }
-
-      if (lkView.classList.contains('hidden')) {
-          if (board) board.classList.add('hidden');
-          if (ctView) ctView.classList.add('hidden');
-          lkView.classList.remove('hidden');
-          renderLienKet();
-      } else {
-          lkView.classList.add('hidden');
-          if (board) board.classList.remove('hidden');
-      }
-      if(typeof lucide !== 'undefined') lucide.createIcons();
-  }
-
-  async function addLienKet() {
-      const ten = document.getElementById('inp-lk-ten').value.trim();
-      let url = document.getElementById('inp-lk-url').value.trim();
-      const moTa = document.getElementById('inp-lk-mota').value.trim();
-      
-      if (!ten || !url) { alert("Vui lòng nhập tối thiểu Tên và Đường dẫn!"); return; }
-      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-
-      const btn = document.querySelector('button[onclick="addLienKet()"]');
-      const oldText = btn.innerHTML;
-      btn.innerHTML = 'Đang thêm...';
-      btn.disabled = true;
-
+    async function loadDataFromFirebase() {
       try {
-          await db.collection("LienKetNhanh").add({
-              ten: ten, url: url, moTa: moTa,
-              created_at: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          document.getElementById('inp-lk-ten').value = '';
-          document.getElementById('inp-lk-url').value = '';
-          document.getElementById('inp-lk-mota').value = '';
-          renderLienKet();
-      } catch (e) { alert("Lỗi khi thêm link: " + e.message); }
+        const membersSnapshot = await db.collection("ThanhVien").get();
+        membersData = [];
+        membersSnapshot.forEach((doc) => {
+          let data = doc.data();
+          data.__backendId = doc.id; data.name = data.Ten; 
+          data.color = (typeof COLORS !== 'undefined') ? COLORS[membersData.length % COLORS.length] : '#38bdf8';
+          data.work_quota = data.work_quota || '40'; data.fixed_hours = data.fixed_hours || '0';
+          data.week_hours_data = data.week_hours_data || '[]'; data.weekly_start_date = data.weekly_start_date || new Date().toISOString().split('T')[0];
+          membersData.push(data);
+        });
+        membersList = membersData.map(m => ({ name: m.name, color: m.color }));
+
+        const tasksSnapshot = await db.collection("CongViec").get();
+        allTasks = [];
+        tasksSnapshot.forEach((doc) => { let data = doc.data(); data.__backendId = doc.id; allTasks.push(data); });
+
+        if (typeof populateMemberSelects === "function") populateMemberSelects();
+        if (typeof renderMembersList === "function") renderMembersList();
+        if (typeof renderTasks === "function") renderTasks();
+      } catch (error) { console.error("Lỗi tải dữ liệu:", error); }
+    }
+    loadDataFromFirebase();
+
+    function duplicateTask(id) {
+      if (event) event.stopPropagation();
+      const originalTask = allTasks.find(t => t.__backendId === id);
+      if (!originalTask) return;
+      if (!confirm(`Bạn có muốn tạo bản sao của công việc: "${originalTask.title}" không?`)) return;
       
-      btn.innerHTML = oldText;
-      btn.disabled = false;
-  }
+      const newTaskData = { ...originalTask };
+      delete newTaskData.__backendId; 
+      newTaskData.title = originalTask.title + " (Bản sao)"; 
+      newTaskData.status = 'todo'; newTaskData.actual_hours = ''; newTaskData.rating = ''; newTaskData.lessons_learned = ''; 
+      newTaskData.created_at = firebase.firestore.FieldValue.serverTimestamp(); 
 
-  async function renderLienKet() {
-      const tbody = document.getElementById('ds-lien-ket');
-      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Đang tải dữ liệu...</td></tr>';
-
-      try {
-          const snapshot = await db.collection("LienKetNhanh").orderBy("created_at", "desc").get();
-          tbody.innerHTML = '';
-          
-          if (snapshot.empty) {
-              tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Chưa có liên kết nào được tạo.</td></tr>';
-              return;
-          }
-
-          let stt = 1;
-          snapshot.forEach(doc => {
-              const data = doc.data();
-              let ngayTao = "Mới đây";
-              if (data.created_at) {
-                  const date = data.created_at.toDate();
-                  ngayTao = date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
-              }
-
-              const tr = document.createElement('tr');
-              tr.className = "border-b hover:bg-slate-50 transition-colors";
-              tr.innerHTML = `
-                  <td class="px-4 py-3 text-center text-slate-500 font-medium">${stt++}</td>
-                  <td class="px-4 py-3 font-bold text-slate-800">
-                      <div class="flex items-center gap-2">
-                          <div class="w-7 h-7 rounded bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                              <i data-lucide="link" style="width:12px;height:12px;"></i>
-                          </div>
-                          ${data.ten}
-                      </div>
-                  </td>
-                  <td class="px-4 py-3 text-slate-600 max-w-xs truncate" title="${data.moTa || ''}">
-                      ${data.moTa || '<span class="italic text-slate-400">Không có</span>'}
-                  </td>
-                  <td class="px-4 py-3 text-center text-slate-500 text-xs">${ngayTao}</td>
-                  <td class="px-4 py-3 text-center">
-                      <div class="flex items-center justify-center gap-2">
-                          <a href="${data.url}" target="_blank" class="px-3 py-1.5 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg text-xs font-bold transition-colors flex items-center gap-1">
-                              <i data-lucide="external-link" style="width:12px;height:12px;"></i> Truy cập
-                          </a>
-                          <button onclick="deleteLienKet('${doc.id}')" class="p-1.5 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition-colors" title="Xóa liên kết">
-                              <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
-                          </button>
-                      </div>
-                  </td>
-              `;
-              tbody.appendChild(tr);
-          });
-          if(typeof lucide !== 'undefined') lucide.createIcons();
-      } catch (e) { console.error(e); }
-  }
-
-  async function deleteLienKet(id) {
-      if (!confirm("Xóa liên kết này?")) return;
-      await db.collection("LienKetNhanh").doc(id).delete();
-      renderLienKet();
-  }
-  // 6. RA LỆNH CHẠY HÀM TẢI DỮ LIỆU NGAY KHI WEB VỪA MỞ
-  loadDataFromFirebase();
- // 7. XUẤT DỮ LIỆU RA EXCEL
-  document.getElementById('btn-export-excel').addEventListener('click', function() {
-      // Lấy danh sách công việc đang hiển thị trên màn hình
-      const danhSachCanXuat = typeof getFiltered === 'function' ? getFiltered() : allTasks;
-
-      if (danhSachCanXuat.length === 0) {
-          alert("Không có công việc nào để xuất!");
-          return;
-      }
-
-      // Đổi lại nút bấm cho ngầu
-      const btn = document.getElementById('btn-export-excel');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = 'Đang tạo file...';
-      btn.disabled = true;
-
-      // Xào nấu lại dữ liệu cho đẹp, dịch ra tiếng Việt
-      const exportData = danhSachCanXuat.map(t => {
-          const p = PRIORITY_MAP[t.priority] ? PRIORITY_MAP[t.priority].label : t.priority;
-          let statusVN = 'Chờ làm';
-          if (t.status === 'doing') statusVN = 'Đang làm';
-          if (t.status === 'done') statusVN = 'Hoàn thành';
-
-          return {
-              "Tiêu đề công việc": t.title || "",
-              "Mô tả": t.description || "",
-              "Người phụ trách": t.assignee || "",
-              "Hỗ trợ": t.supporters || "",
-              "Mức ưu tiên": p,
-              "Thời hạn": t.deadline ? new Date(t.deadline).toLocaleDateString('vi-VN') : "",
-              "Giờ dự kiến (h)": t.estimated_hours ? Number(t.estimated_hours) : "",
-              "Trạng thái": statusVN,
-              "Giờ thực tế (h)": t.actual_hours ? Number(t.actual_hours) : "",
-              "Đánh giá (Sao)": t.rating ? Number(t.rating) : "",
-              "Rút kinh nghiệm": t.lessons_learned || ""
-          };
-      });
-
-      // Đóng gói thành file Excel
-      setTimeout(() => {
-          const worksheet = XLSX.utils.json_to_sheet(exportData);
-          const workbook = XLSX.utils.book_new();
-          
-          // Chỉnh độ rộng cột cho đẹp
-          const wscols = [
-              {wch: 30}, {wch: 30}, {wch: 15}, {wch: 15}, {wch: 25}, 
-              {wch: 12}, {wch: 15}, {wch: 12}, {wch: 15}, {wch: 15}, {wch: 30}
-          ];
-          worksheet['!cols'] = wscols;
-
-          XLSX.utils.book_append_sheet(workbook, worksheet, "CongViecToToanTin");
-          
-          // Tự động tải xuống
-          XLSX.writeFile(workbook, "BaoCaoCongViec_" + new Date().toLocaleDateString('vi-VN').replace(/\//g, '-') + ".xlsx");
-          
-          // Trả lại nút bấm
-          btn.innerHTML = originalText;
-          btn.disabled = false;
+      db.collection("CongViec").add(newTaskData).then((docRef) => {
+          newTaskData.__backendId = docRef.id; allTasks.push(newTaskData); renderTasks();
           if (typeof lucide !== 'undefined') lucide.createIcons();
-      }, 500);
-  });
- // --- KÍCH HOẠT VÙNG NHẬN KÉO THẢ CHO 3 CỘT ---
-  ['todo', 'doing', 'done'].forEach(status => {
-    const col = document.getElementById('col-' + status);
-    if (!col) return;
-    
-    // Tạo không gian trống ở đáy cột để dễ thả thẻ vào dù cột đang không có việc nào
-    col.style.minHeight = '150px';
-    col.style.paddingBottom = '30px';
-    col.style.transition = 'background 0.2s';
-    
-    // Khi lướt thẻ lơ lửng qua mặt cột
-    col.addEventListener('dragover', (e) => {
-      e.preventDefault(); // Phải có dòng này mới cho phép thả
-      col.style.background = '#f1f5f9'; // Đổi màu nền xám nhạt để báo hiệu vùng đáp
-    });
+      }).catch((error) => { alert("Lỗi sao chép Firebase: " + error.message); });
+    }
 
-    // Khi kéo thẻ rời khỏi cột mà chưa thả
-    col.addEventListener('dragleave', (e) => {
-      col.style.background = 'transparent'; // Trả lại nền trong suốt
-    });
+    // --- CHẤM TIẾT ---
+    let currentChamTietMonth = new Date().toISOString().slice(0, 7);
+    const inpMonth = document.getElementById('inp-cham-tiet-month');
+    if(inpMonth) {
+        inpMonth.value = currentChamTietMonth;
+        inpMonth.addEventListener('change', (e) => { currentChamTietMonth = e.target.value; renderChamTietTable(); });
+    }
 
-    // Khi chính thức thả tay (Drop)
-    col.addEventListener('drop', (e) => {
-      e.preventDefault();
-      col.style.background = 'transparent';
-      const taskId = e.dataTransfer.getData('text/plain');
-      
-      if (taskId) {
-        const task = allTasks.find(t => t.__backendId === taskId);
-        // Nếu thả thành công vào một cột mới (khác cột hiện tại)
-        if (task && task.status !== status) {
-          // Gọi hàm cập nhật lên Firebase
-          moveTask(taskId, status); 
+    function toggleChamTiet() {
+        const board = document.getElementById('board-view');
+        const chamTiet = document.getElementById('cham-tiet-view');
+        const lkView = document.getElementById('lien-ket-view');
+        const timeline = document.getElementById('timeline-view');
+        if (chamTiet.classList.contains('hidden')) {
+            if (board) board.classList.add('hidden');
+            if (lkView) lkView.classList.add('hidden');
+            if (timeline) timeline.classList.add('hidden');
+            chamTiet.classList.remove('hidden');
+            renderChamTietTable();
+        } else {
+            chamTiet.classList.add('hidden');
+            if (board) board.classList.remove('hidden');
         }
-      }
+    }
+
+    async function renderChamTietTable() {
+      const tbody = document.getElementById('cham-tiet-tbody');
+      const boxTiH = document.getElementById('show-tih');
+      const boxTHCS = document.getElementById('show-thcs');
+      const showTiH = boxTiH ? boxTiH.checked : true;
+      const showTHCS = boxTHCS ? boxTHCS.checked : true;
+      
+      document.querySelectorAll('.tih-col').forEach(el => el.style.display = showTiH ? '' : 'none');
+      document.querySelectorAll('.thcs-col').forEach(el => el.style.display = showTHCS ? '' : 'none');
+      if(document.getElementById('head-tih')) document.getElementById('head-tih').style.display = showTiH ? '' : 'none';
+      if(document.getElementById('sub-tih')) document.getElementById('sub-tih').style.display = showTiH ? '' : 'none';
+      if(document.getElementById('head-thcs')) document.getElementById('head-thcs').style.display = showTHCS ? '' : 'none';
+      if(document.getElementById('sub-thcs')) document.getElementById('sub-thcs').style.display = showTHCS ? '' : 'none';
+
+      if (!tbody) return;
+      tbody.innerHTML = '<tr><td colspan="40" class="p-10 text-center text-slate-400">Đang tải dữ liệu...</td></tr>';
+
+      try {
+        const snapshot = await db.collection("ChamTietTuan").where("thang", "==", currentChamTietMonth).get();
+        const dataThang = {};
+        snapshot.forEach(doc => { dataThang[doc.data().memberId] = doc.data(); });
+
+        tbody.innerHTML = '';
+        membersData.forEach((member, index) => {
+          const d = dataThang[member.__backendId] || {};
+          const w = (key) => d[key] || [0, 0, 0, 0];
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="border p-2 sticky-col left-0 bg-white text-slate-400">${index + 1}</td>
+            <td class="border p-2 sticky-col left-[40px] bg-white text-left font-bold text-slate-700">${member.name}</td>
+            ${showTiH ? [0,1,2,3].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('') : ''}
+            ${showTHCS ? [0,1,2,3].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('') : ''}
+            ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i]}"></td>`).join('')}
+            <td class="border p-1"><input type="number" class="ct-input-week ct-daythay" style="width:55px" data-id="${member.__backendId}" value="${typeof d.dayThay === 'number' ? d.dayThay : 0}"></td>
+            <td class="border p-1"><input type="number" class="ct-input-week ct-pl02" data-id="${member.__backendId}" value="${d.pl02 || 0}"></td>
+            <td class="border p-1"><input type="number" class="ct-input-week ct-onthi" data-id="${member.__backendId}" value="${d.onThi || 0}"></td>
+            <td class="border p-1"><input type="number" class="ct-input-week ct-coithi" data-id="${member.__backendId}" value="${d.coiThi || 0}"></td>
+            <td class="border p-1"><input type="number" class="ct-input-week ct-khac" data-id="${member.__backendId}" value="${d.khac || 0}"></td>
+            <td class="border p-2 font-bold text-green-700 bg-green-50 ct-tong" id="tong-${member.__backendId}">0</td>
+            <td class="border p-1 bg-yellow-50"><input type="number" class="ct-input-week ct-dinhmuc" data-id="${member.__backendId}" value="${d.dinhMuc || 80}"></td>
+            <td class="border p-2 font-bold text-blue-700 bg-blue-50 ct-vuot" id="vuot-${member.__backendId}">0</td>
+            <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-after" data-id="${member.__backendId}" value="${d.afterSchool || 0}"></td>
+            <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-bd12" data-id="${member.__backendId}" value="${d.bd12 || 0}"></td>
+            <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-bd11" data-id="${member.__backendId}" value="${d.bd11 || 0}"></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        document.querySelectorAll('.ct-input-week').forEach(input => { input.addEventListener('input', () => calcRow(input.getAttribute('data-id'))); });
+        membersData.forEach(m => calcRow(m.__backendId));
+      } catch (error) { console.error(error); }
+    }
+
+    function calcRow(id) {
+        const row = document.querySelector(`.ct-input-week[data-id="${id}"]`).closest('tr');
+        const sumWeeks = (cls) => Array.from(row.querySelectorAll(cls)).reduce((a, b) => a + (parseFloat(b.value) || 0), 0);
+        const val = (cls) => parseFloat(row.querySelector(cls).value) || 0;
+        const totalTih = sumWeeks('.ct-tih'); const totalThcs = sumWeeks('.ct-thcs'); const totalVang = sumWeeks('.ct-vang');
+        const totalDayThay = val('.ct-daythay'); 
+        const tong = totalTih + totalThcs - totalVang + totalDayThay + val('.ct-pl02') + val('.ct-onthi') + val('.ct-coithi') + val('.ct-khac');
+        const dinhmuc = val('.ct-dinhmuc');
+        const vuot = tong - dinhmuc;
+        row.querySelector('.ct-tong').textContent = Math.round(tong * 10) / 10;
+        row.querySelector('.ct-vuot').textContent = vuot > 0 ? (Math.round(vuot * 10) / 10) : '-';
+    }
+
+    async function saveChamTiet() {
+      const btn = document.querySelector('button[onclick="saveChamTiet()"]');
+      btn.textContent = 'Đang lưu...'; btn.disabled = true;
+      const batch = db.batch();
+      membersData.forEach(member => {
+        const id = member.__backendId;
+        const row = document.querySelector(`.ct-input-week[data-id="${id}"]`).closest('tr');
+        const getW = (cls) => Array.from(row.querySelectorAll(cls)).map(i => parseFloat(i.value) || 0);
+        const getV = (cls) => parseFloat(row.querySelector(cls).value) || 0;
+        const docRef = db.collection("ChamTietTuan").doc(`${id}_${currentChamTietMonth}`);
+        batch.set(docRef, {
+          memberId: id, thang: currentChamTietMonth, tih: getW('.ct-tih'), thcs: getW('.ct-thcs'), vang: getW('.ct-vang'), dayThay: getV('.ct-daythay'),
+          pl02: getV('.ct-pl02'), onThi: getV('.ct-onthi'), coiThi: getV('.ct-coithi'), khac: getV('.ct-khac'), dinhMuc: getV('.ct-dinhmuc'),
+          afterSchool: getV('.ct-after'), bd12: getV('.ct-bd12'), bd11: getV('.ct-bd11'), lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      });
+      await batch.commit();
+      btn.textContent = 'Đã lưu!';
+      setTimeout(() => { btn.textContent = 'Lưu dữ liệu'; btn.disabled = false; }, 2000);
+    }
+
+    // --- LIÊN KẾT ---
+    function toggleLienKet() {
+        const board = document.getElementById('board-view');
+        const lkView = document.getElementById('lien-ket-view');
+        const ctView = document.getElementById('cham-tiet-view');
+        const timeline = document.getElementById('timeline-view');
+        if (!lkView) return;
+        if (lkView.classList.contains('hidden')) {
+            if (board) board.classList.add('hidden');
+            if (ctView) ctView.classList.add('hidden');
+            if (timeline) timeline.classList.add('hidden');
+            lkView.classList.remove('hidden');
+            renderLienKet();
+        } else {
+            lkView.classList.add('hidden');
+            if (board) board.classList.remove('hidden');
+        }
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    async function addLienKet() {
+        const ten = document.getElementById('inp-lk-ten').value.trim();
+        let url = document.getElementById('inp-lk-url').value.trim();
+        const moTa = document.getElementById('inp-lk-mota').value.trim();
+        if (!ten || !url) { alert("Vui lòng nhập Tên và Đường dẫn!"); return; }
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        const btn = document.querySelector('button[onclick="addLienKet()"]');
+        const oldText = btn.innerHTML; btn.innerHTML = 'Đang thêm...'; btn.disabled = true;
+        try {
+            await db.collection("LienKetNhanh").add({ ten: ten, url: url, moTa: moTa, created_at: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById('inp-lk-ten').value = ''; document.getElementById('inp-lk-url').value = ''; document.getElementById('inp-lk-mota').value = '';
+            renderLienKet();
+        } catch (e) { alert("Lỗi: " + e.message); }
+        btn.innerHTML = oldText; btn.disabled = false;
+    }
+
+    async function renderLienKet() {
+        const tbody = document.getElementById('ds-lien-ket');
+        if (!tbody) return;
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Đang tải...</td></tr>';
+        try {
+            const snapshot = await db.collection("LienKetNhanh").orderBy("created_at", "desc").get();
+            tbody.innerHTML = '';
+            if (snapshot.empty) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-slate-400">Chưa có liên kết nào.</td></tr>'; return; }
+            let stt = 1;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                let ngayTao = data.created_at ? data.created_at.toDate().toLocaleDateString('vi-VN') : "Mới đây";
+                const tr = document.createElement('tr');
+                tr.className = "border-b hover:bg-slate-50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-center text-slate-500">${stt++}</td>
+                    <td class="px-4 py-3 font-bold text-slate-800"><div class="flex items-center gap-2"><div class="w-7 h-7 rounded bg-blue-100 text-blue-600 flex items-center justify-center"><i data-lucide="link" style="width:12px;height:12px;"></i></div>${data.ten}</div></td>
+                    <td class="px-4 py-3 text-slate-600">${data.moTa || "-"}</td>
+                    <td class="px-4 py-3 text-center text-slate-500 text-xs">${ngayTao}</td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="${data.url}" target="_blank" class="px-3 py-1.5 bg-green-100 text-green-700 rounded-lg text-xs font-bold transition-colors">Truy cập</a>
+                            <button onclick="deleteLienKet('${doc.id}')" class="p-1.5 bg-red-100 text-red-600 rounded-lg"><i data-lucide="trash-2" style="width:14px;height:14px;"></i></button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        } catch (e) { console.error(e); }
+    }
+
+    async function deleteLienKet(id) {
+        if (!confirm("Xóa liên kết này?")) return;
+        await db.collection("LienKetNhanh").doc(id).delete(); renderLienKet();
+    }
+
+    // --- EXPORT EXCEL ---
+    document.getElementById('btn-export-excel').addEventListener('click', function() {
+        const danhSachCanXuat = typeof getFiltered === 'function' ? getFiltered() : allTasks;
+        if (danhSachCanXuat.length === 0) { alert("Không có công việc nào!"); return; }
+        const btn = document.getElementById('btn-export-excel');
+        const oldText = btn.innerHTML; btn.innerHTML = 'Đang tạo...'; btn.disabled = true;
+        const exportData = danhSachCanXuat.map(t => {
+            const p = PRIORITY_MAP[t.priority] ? PRIORITY_MAP[t.priority].label : t.priority;
+            let st = 'Chờ làm'; if (t.status === 'doing') st = 'Đang làm'; if (t.status === 'done') st = 'Hoàn thành';
+            return {
+                "Tiêu đề công việc": t.title || "", "Mô tả": t.description || "", "Người phụ trách": t.assignee || "", "Hỗ trợ": t.supporters || "",
+                "Mức ưu tiên": p, "Thời hạn": t.deadline ? new Date(t.deadline).toLocaleDateString('vi-VN') : "",
+                "Giờ dự kiến (h)": t.estimated_hours ? Number(t.estimated_hours) : "", "Trạng thái": st,
+                "Giờ thực tế (h)": t.actual_hours ? Number(t.actual_hours) : "", "Đánh giá (Sao)": t.rating ? Number(t.rating) : "", "Rút kinh nghiệm": t.lessons_learned || ""
+            };
+        });
+        setTimeout(() => {
+            const worksheet = XLSX.utils.json_to_sheet(exportData); const workbook = XLSX.utils.book_new();
+            worksheet['!cols'] = [{wch:30}, {wch:30}, {wch:15}, {wch:15}, {wch:25}, {wch:12}, {wch:15}, {wch:12}, {wch:15}, {wch:15}, {wch:30}];
+            XLSX.utils.book_append_sheet(workbook, worksheet, "CongViecToToanTin");
+            XLSX.writeFile(workbook, "BaoCaoCongViec_" + new Date().toLocaleDateString('vi-VN').replace(/\//g, '-') + ".xlsx");
+            btn.innerHTML = oldText; btn.disabled = false;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }, 500);
     });
-  });
-  // --------------------------------------------
-</script>
-</body>
+
+    // --- DRAG AND DROP ---
+    ['todo', 'doing', 'done'].forEach(status => {
+      const col = document.getElementById('col-' + status);
+      if (!col) return;
+      col.style.minHeight = '150px'; col.style.paddingBottom = '30px'; col.style.transition = 'background 0.2s';
+      col.addEventListener('dragover', (e) => { e.preventDefault(); col.style.background = '#f1f5f9'; });
+      col.addEventListener('dragleave', (e) => { col.style.background = 'transparent'; });
+      col.addEventListener('drop', (e) => {
+        e.preventDefault(); col.style.background = 'transparent';
+        const taskId = e.dataTransfer.getData('text/plain');
+        if (taskId) {
+          const task = allTasks.find(t => t.__backendId === taskId);
+          if (task && task.status !== status) moveTask(taskId, status); 
+        }
+      });
+    });
+  </script>
+ </body>
 </html>
