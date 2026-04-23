@@ -1067,24 +1067,6 @@
         showCompleteTaskForm(task); return;
       }
       task.status = newStatus;
-     // Tự động tạo việc mới nếu là việc định kỳ
-      if (newStatus === 'done' && task.is_weekly) {
-          const nextTask = { ...task };
-          delete nextTask.__backendId;
-          if (task.deadline) {
-              const d = new Date(task.deadline);
-              d.setDate(d.getDate() + 7);
-              nextTask.deadline = d.toISOString().split('T')[0];
-          }
-          nextTask.status = 'todo';
-          nextTask.actual_hours = '';
-          nextTask.rating = '';
-          db.collection("CongViec").add(nextTask).then((docRef) => {
-              nextTask.__backendId = docRef.id;
-              allTasks.push(nextTask);
-              renderTasks();
-          });
-      }
       renderTasks();
       db.collection("CongViec").doc(id).update({ status: newStatus }).catch((error) => { alert("Lỗi khi cập nhật trạng thái: " + error.message); });
     }
@@ -1267,11 +1249,44 @@
         status: status, created_at: new Date().toISOString()
       };
       
-      if (editId) {
+     if (editId) {
         db.collection("CongViec").doc(editId).update(data)
         .then(() => {
             const index = allTasks.findIndex(t => t.__backendId === editId);
             if (index !== -1) allTasks[index] = { ...allTasks[index], ...data };
+            
+            // --- LOGIC TỰ TẠO VIỆC TUẦN SAU KHI BẤM LƯU ---
+            if (status === 'done' && data.is_weekly) {
+                const nextTask = { ...data };
+                delete nextTask.__backendId; 
+                
+                // Cộng 7 ngày cho deadline
+                if (data.deadline) {
+                    const d = new Date(data.deadline);
+                    d.setDate(d.getDate() + 7); 
+                    nextTask.deadline = d.toISOString().split('T')[0];
+                }
+                
+                // Trả các thông số về trạng thái việc mới
+                nextTask.status = 'todo';
+                nextTask.actual_hours = '';
+                nextTask.rating = '';
+                nextTask.lessons_learned = '';
+                nextTask.created_at = new Date().toISOString();
+                
+                // Tắt tick lặp lại ở việc cũ để không bị nhân đôi nếu thầy sửa lại việc cũ
+                db.collection("CongViec").doc(editId).update({ is_weekly: false });
+                if (index !== -1) allTasks[index].is_weekly = false;
+
+                // Lưu việc mới tuần sau lên Firebase
+                db.collection("CongViec").add(nextTask).then(docRef => {
+                    nextTask.__backendId = docRef.id;
+                    allTasks.push(nextTask);
+                    renderTasks();
+                });
+            }
+            // ---------------------------------------------
+
             if(typeof renderTasks === 'function') renderTasks();
             btn.disabled = false; btn.textContent = 'Cập nhật'; closeModal();
             document.getElementById('board-view').classList.remove('hidden');
