@@ -3,7 +3,7 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DÍ DEADLINE</title>
+<title>Σ Tasks</title>
   <link rel="icon" href="LogoToToanTin.png" type="image/png">
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
@@ -1348,32 +1348,15 @@ const subtasksList = [];
           const stDone = item.querySelector('.subtask-cb').checked;
           if(stText) subtasksList.push({ text: stText, done: stDone });
       });
-     // 1. Thu thập danh sách mục con (To-do list)
-          const subtasksList = [];
-          document.querySelectorAll('.subtask-item').forEach(item => {
-              const stText = item.querySelector('.subtask-text').value.trim();
-              const stDone = item.querySelector('.subtask-cb').checked;
-              if(stText) subtasksList.push({ text: stText, done: stDone });
-          });
-
-          // 2. Đóng gói toàn bộ dữ liệu gửi lên Firebase
-          const data = {
-            title: title, 
-            description: document.getElementById('inp-desc').value.trim(), 
-            assignee: Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value).join(', '),
-            priority: document.getElementById('inp-priority').value, 
-            deadline: document.getElementById('inp-deadline').value || '',
-            estimated_hours: document.getElementById('inp-estimated-hours').value || '', 
-            actual_hours: document.getElementById('inp-actual-hours-review').value || '',
-            supporters: document.getElementById('inp-supporters').value.trim() || '', 
-            goal: document.getElementById('inp-goal').value.trim() || '',
-            rating: document.getElementById('inp-rating').value || '', 
-            lessons_learned: document.getElementById('inp-lessons').value.trim() || '',
-            is_weekly: document.getElementById('inp-weekly').checked,
-            subtasks: subtasksList, // <-- Lệnh quan trọng để lưu mục con
-            status: status, 
-            created_at: new Date().toISOString()
-          };
+      const data = {
+        title: title, description: document.getElementById('inp-desc').value.trim(), assignee: Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value).join(', '),
+        priority: document.getElementById('inp-priority').value, deadline: document.getElementById('inp-deadline').value || '',
+        estimated_hours: document.getElementById('inp-estimated-hours').value || '', actual_hours: document.getElementById('inp-actual-hours-review').value || '',
+        supporters: document.getElementById('inp-supporters').value.trim() || '', goal: document.getElementById('inp-goal').value.trim() || '',
+        rating: document.getElementById('inp-rating').value || '', lessons_learned: document.getElementById('inp-lessons').value.trim() || '',
+       is_weekly: document.getElementById('inp-weekly').checked,
+        status: status, created_at: new Date().toISOString()
+      };
       
      if (editId) {
         db.collection("CongViec").doc(editId).update(data)
