@@ -48,7 +48,6 @@
      <h1 id="app-title" class="font-display text-lg sm:text-xl font-bold" style="color: #1a1a1a;">Quản lý công việc nhóm</h1>
     </div>
     <div class="flex items-center gap-2 flex-wrap justify-end">
-      <button id="btn-personal-view" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="user" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Công việc của tôi</span></button> 
       <button id="btn-members" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thành viên</span></button> 
       <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Giờ làm</span></button> 
       <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span></button> 
@@ -62,7 +61,6 @@
    <div class="w-full px-4 sm:px-6 py-3 flex flex-wrap gap-2 items-center flex-shrink-0" style="background:#f5f5f5; border-bottom:1px solid #e5e5e5;">
     <div id="filter-bar" class="w-full px-4 sm:px-6 py-3 flex flex-wrap gap-2 items-center flex-shrink-0" style="background:#f5f5f5; border-bottom:1px solid #e5e5e5;">
     <div class="flex items-center gap-2 mr-2"><i data-lucide="filter" style="width:14px;height:14px;color:#666666;"></i><span class="text-xs font-medium" style="color:#666666;">Lọc:</span></div>
-    <div id="personal-badge" class="hidden flex items-center gap-1 px-2 py-1 rounded text-xs font-medium" style="background:#38bdf820;color:#0284c7;"><i data-lucide="user" style="width:12px;height:12px;"></i><span id="personal-name">Công việc của tôi</span><button onclick="clearPersonalView()" class="ml-1 p-0 hover:opacity-70"><i data-lucide="x" style="width:12px;height:12px;"></i></button></div>
     <select id="filter-status" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả trạng thái</option><option value="todo">Chờ làm</option><option value="doing">Đang làm</option><option value="done">Hoàn thành</option></select> 
     <select id="filter-assignee" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả thành viên</option></select> 
     <select id="filter-priority" class="text-xs px-3 py-1.5 rounded-md border-0 outline-none cursor-pointer" style="background:#f0f0f0;color:#1a1a1a;"><option value="all">Tất cả ưu tiên</option><option value="urgent_important">Quan trọng & Khẩn cấp</option><option value="important">Quan trọng nhưng Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="delegable">Không quan trọng & Không khẩn</option></select>
@@ -311,14 +309,6 @@
      </form>
     </div>
    </div>
-   <div id="personal-select-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="modal-backdrop w-full max-w-sm rounded-2xl p-6" style="background:#1e293b; border:1px solid #334155;">
-     <div class="flex items-center justify-between mb-4">
-      <h2 class="font-display text-lg font-bold" style="color:#f8fafc;">Xem công việc của ai?</h2><button onclick="closePersonalSelectModal()" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
-     </div>
-     <div id="personal-members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin"></div>
-    </div>
-   </div>
   </div>
 <div id="logo-viewer-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.85);" onclick="closeLogoViewer()">
     <div class="relative max-w-3xl max-h-[90vh] flex items-center justify-center modal-backdrop fade-in" onclick="event.stopPropagation()">
@@ -335,7 +325,6 @@
     const PRIORITY_MAP = { urgent_important: { label: 'Quan trọng & Khẩn cấp', color: '#ef4444' }, important: { label: 'Quan trọng nhưng Không khẩn', color: '#f59e0b' }, urgent: { label: 'Khẩn cấp nhưng Không quan trọng', color: '#38bdf8' }, delegable: { label: 'Không quan trọng & Không khẩn', color: '#64748b' } };
     const STATUS_MAP = { todo: '#38bdf8', doing: '#a78bfa', done: '#34d399' };
     let allTasks = [];
-    let personalViewMember = null;
     let timelineFilter = 'all';
     const defaultConfig = { app_title: 'Quản lý công việc nhóm', background_color: '#ffffff', surface_color: '#f5f5f5', text_color: '#1a1a1a', primary_action_color: '#f59e0b', secondary_action_color: '#e5e5e5', font_family: 'Geist', font_size: 24 };
 
@@ -596,7 +585,6 @@ function populateMemberSelects() {
     function renderTimeline() {
       let tasks = allTasks.filter(t => {
         if (timelineFilter !== 'all' && t.status !== timelineFilter) return false;
-        if (personalViewMember && t.assignee !== personalViewMember) return false;
         return t.deadline;
       });
 
@@ -736,41 +724,6 @@ document.getElementById('btn-timeline').onclick = () => {
 
     document.getElementById('btn-edit-hours-close').onclick = () => { document.getElementById('edit-hours-modal').classList.add('hidden'); };
     document.getElementById('edit-hours-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('edit-hours-modal').classList.add('hidden'); } });
-
-    document.getElementById('btn-personal-view').onclick = () => {
-      renderPersonalSelectModal();
-      document.getElementById('personal-select-modal').classList.remove('hidden');
-    };
-
-    function closePersonalSelectModal() { document.getElementById('personal-select-modal').classList.add('hidden'); }
-
-    function renderPersonalSelectModal() {
-      const container = document.getElementById('personal-members-list');
-      container.innerHTML = membersData.map(m => `
-        <button type="button" onclick="setPersonalView('${escHtml(m.name)}')" class="w-full flex items-center gap-3 p-3 rounded-lg text-left transition-colors" style="background:#0f172a;border:1px solid #334155;" onmouseenter="this.style.background='#334155'" onmouseleave="this.style.background='#0f172a'">
-          <div class="avatar" style="background:${m.color};width:32px;height:32px;font-size:13px;">${m.name.charAt(0).toUpperCase()}</div>
-          <div class="flex-1">
-            <div style="color:#e2e8f0;font-size:14px;font-weight:500;">${escHtml(m.name)}</div>
-            <div style="color:#64748b;font-size:12px;">Xem công việc của ${escHtml(m.name)}</div>
-          </div>
-        </button>
-      `).join('');
-    }
-
-    function setPersonalView(memberName) {
-      personalViewMember = memberName;
-      document.getElementById('personal-badge').classList.remove('hidden');
-      document.getElementById('personal-name').textContent = memberName;
-      document.getElementById('personal-select-modal').classList.add('hidden');
-      renderTasks();
-    }
-
-    function clearPersonalView() {
-      personalViewMember = null;
-      document.getElementById('personal-badge').classList.add('hidden');
-      renderTasks();
-    }
-
     document.getElementById('btn-add-member').onclick = openAddMember;
     document.getElementById('btn-edit-member-close').onclick = () => { 
       document.getElementById('edit-member-modal').classList.add('hidden');
