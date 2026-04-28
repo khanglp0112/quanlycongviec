@@ -1006,7 +1006,6 @@ const emptyState = document.getElementById('empty-state');
       div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
       div.dataset.id = t.__backendId;
       div.addEventListener('click', () => showTaskDetail(t));
-      
       div.setAttribute('draggable', 'true');
       div.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', t.__backendId);
@@ -1059,6 +1058,7 @@ function updateCard(div, t) {
         subtasksInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:${stColor}20;color:${stColor}; font-weight:600;">☑️ ${doneCount}/${totalCount}</div>`;
       }
 
+      // Xóa bỏ toàn bộ các lệnh onclick="..." trên các thẻ HTML
       div.innerHTML = `
         <div class="flex items-start justify-between gap-2 mb-2">
           <span class="text-sm font-semibold" style="color:#1a1a1a;word-break:break-word;">${escHtml(t.title)}</span>
@@ -1078,14 +1078,27 @@ function updateCard(div, t) {
             <span class="text-xs truncate max-w-[100px]" style="color:#666666;" title="${escHtml(t.assignee)}">${escHtml(t.assignee)}</span>
           </div>
           <div class="flex items-center gap-1 flex-shrink-0">
-            ${t.status !== 'done' ? `<button data-id="${t.__backendId}" data-status="${t.status === 'todo' ? 'doing' : 'done'}" onclick="event.stopPropagation(); moveTask(this.dataset.id, this.dataset.status)" class="p-1 rounded transition-colors" style="color:#666666;" onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
-            <button data-id="${t.__backendId}" onclick="event.stopPropagation(); editTask(this.dataset.id)" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
-            <button data-id="${t.__backendId}" onclick="event.stopPropagation(); duplicateTask(this.dataset.id)" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
-            <button data-id="${t.__backendId}" onclick="event.stopPropagation(); showDeleteConfirm(this.dataset.id)" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
+            ${t.status !== 'done' ? `<button class="btn-move-task p-1 rounded transition-colors" style="color:#666666;" onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
+            <button class="btn-edit-task px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
+            <button class="btn-duplicate-task px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
+            <button class="btn-delete-task px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
           </div>
         </div>
       `;
       if(typeof lucide !== 'undefined') lucide.createIcons();
+      
+      // Gán sự kiện cực kỳ an toàn bằng Javascript thuần
+      const btnMove = div.querySelector('.btn-move-task');
+      if (btnMove) btnMove.onclick = (e) => { e.stopPropagation(); moveTask(t.__backendId, t.status === 'todo' ? 'doing' : 'done'); };
+      
+      const btnEdit = div.querySelector('.btn-edit-task');
+      if (btnEdit) btnEdit.onclick = (e) => { e.stopPropagation(); editTask(t.__backendId); };
+      
+      const btnDup = div.querySelector('.btn-duplicate-task');
+      if (btnDup) btnDup.onclick = (e) => { e.stopPropagation(); duplicateTask(t.__backendId); };
+      
+      const btnDel = div.querySelector('.btn-delete-task');
+      if (btnDel) btnDel.onclick = (e) => { e.stopPropagation(); showDeleteConfirm(t.__backendId); };
     }
    function showTaskDetail(task) {
       document.getElementById('detail-title').textContent = task.title;
@@ -1171,10 +1184,10 @@ function updateCard(div, t) {
       openModal();
     }
 
-    function editTask(id) {
+  function editTask(id) {
       const task = allTasks.find(t => t.__backendId === id);
       if (!task) return;
-     document.getElementById('subtasks-container').innerHTML = '';
+      document.getElementById('subtasks-container').innerHTML = '';
       if (task.subtasks && task.subtasks.length > 0) {
           task.subtasks.forEach(st => addSubtaskInput(st.text, st.done));
       }
@@ -1182,7 +1195,12 @@ function updateCard(div, t) {
       document.getElementById('inp-desc').value = task.description || '';
       document.querySelectorAll('.assignee-cb').forEach(cb => { cb.checked = task.assignee && task.assignee.includes(cb.value); });
       document.getElementById('inp-priority').value = task.priority;
-      document.getElementById('inp-deadline').value = task.deadline || '';
+      
+      // Khắc phục lỗi định dạng ngày cũ trên trình duyệt
+      let taskDl = task.deadline || '';
+      if (taskDl.length === 10) taskDl += 'T00:00'; 
+      document.getElementById('inp-deadline').value = taskDl;
+      
       document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
       document.getElementById('inp-supporters').value = task.supporters || '';
       document.getElementById('inp-goal').value = task.goal || '';
@@ -1204,8 +1222,11 @@ function updateCard(div, t) {
       if (!task) return;
       const card = document.querySelector(`[data-id="${id}"]`);
       if (!card) return;
-      const deleteBtn = card.querySelector('button[onclick*="showDeleteConfirm"]');
+      
+      // Cập nhật cách tìm nút Xóa an toàn mới
+      const deleteBtn = card.querySelector('.btn-delete-task') || card.querySelector('button[onclick*="showDeleteConfirm"]');
       if (!deleteBtn) return;
+      
       const originalHtml = deleteBtn.innerHTML;
       const originalOnclick = deleteBtn.onclick;
       deleteBtn.innerHTML = `Chắc chắn?`;
@@ -1223,7 +1244,7 @@ function updateCard(div, t) {
       cancelBtn.onclick = (e) => {
         e.preventDefault(); e.stopPropagation();
         deleteBtn.innerHTML = originalHtml; deleteBtn.style.background = '#ef4444'; deleteBtn.style.fontWeight = '500';
-        deleteBtn.onclick = () => showDeleteConfirm(id);
+        deleteBtn.onclick = originalOnclick || (() => showDeleteConfirm(id));
         cancelBtn.remove(); deleteConfirmStates.delete(id);
       };
       deleteBtn.parentNode.insertBefore(cancelBtn, deleteBtn);
@@ -1236,7 +1257,7 @@ function updateCard(div, t) {
       const card = document.querySelector(`[data-id="${id}"]`);
       if (!card) return;
       const state = deleteConfirmStates.get(id);
-      const deleteBtn = state ? state.deleteBtn : card.querySelector('button[onclick*="confirmDelete"]');
+      const deleteBtn = state ? state.deleteBtn : (card.querySelector('.btn-delete-task') || card.querySelector('button[onclick*="confirmDelete"]'));
       const cancelBtn = state ? state.cancelBtn : card.querySelector('button:has-sibling');
       
       if (deleteBtn) { deleteBtn.disabled = true; deleteBtn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:4px;animation:spin 1s linear infinite;"></i>Đang xóa...'; }
