@@ -412,7 +412,8 @@ function populateMemberSelects() {
       
       const listDiv = document.getElementById('assignee-list');
       if (listDiv) {
-          const currentMon = new Date(typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0]);
+          const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
+          const currentMon = new Date(currentMonStr);
           const nextMon = new Date(currentMon); nextMon.setDate(currentMon.getDate() + 7);
 
           listDiv.innerHTML = membersData.map(m => {
@@ -422,10 +423,17 @@ function populateMemberSelects() {
               let taskHours = 0;
               if (typeof allTasks !== 'undefined') {
                   allTasks.forEach(t => {
-                      // Bóc tách số giờ của các Task đang làm trong tuần này
-                      if (t.assignee && t.assignee.includes(m.name) && t.deadline && t.status !== 'done') {
-                          const d = new Date(t.deadline);
-                          if (d >= currentMon && d < nextMon) taskHours += parseFloat(t.estimated_hours) || 0;
+                      if (t.assignee && t.assignee.includes(m.name)) {
+                          // Nếu xong rồi thì tính vào tuần hoàn thành, chưa xong thì tính vào tuần Deadline
+                          let targetDateStr = t.deadline;
+                          if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
+                          
+                          if (targetDateStr) {
+                              const d = new Date(targetDateStr);
+                              if (d >= currentMon && d < nextMon) {
+                                  taskHours += parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours) : t.estimated_hours) || 0;
+                              }
+                          }
                       }
                   });
               }
@@ -478,12 +486,19 @@ function renderWorkingHoursList() {
         
         let taskEstimated = 0;
         const memberTasksThisWeek = allTasks.filter(t => {
-          if (!t.assignee || !t.assignee.includes(m.name) || !t.deadline || t.status === 'done') return false;
-          const d = new Date(t.deadline);
+          if (!t.assignee || !t.assignee.includes(m.name)) return false;
+          // Áp dụng bộ lọc thời gian: Đã xong -> Tính ngày xong. Chưa xong -> Tính ngày hết hạn
+          let targetDateStr = t.deadline;
+          if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
+          
+          if (!targetDateStr) return false;
+          const d = new Date(targetDateStr);
           return d >= currentMonday && d < nextMonday;
         });
 
-        memberTasksThisWeek.forEach(t => { taskEstimated += parseFloat(t.estimated_hours) || 0; });
+        memberTasksThisWeek.forEach(t => { 
+            taskEstimated += parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours) : t.estimated_hours) || 0; 
+        });
 
         const totalUsedEst = fixedHours + taskEstimated;
         const remainingEst = Math.max(0, workQuota - totalUsedEst);
@@ -573,7 +588,7 @@ function renderWorkingHoursList() {
       return days;
     }
 
-   function updateHoursSummary() {
+  function updateHoursSummary() {
       const quota = parseFloat(document.getElementById('inp-work-quota').value) || 0;
       const memberId = document.getElementById('inp-hours-member-id').value;
       const member = membersData.find(m => m.__backendId === memberId);
@@ -590,9 +605,16 @@ function renderWorkingHoursList() {
       let taskHours = 0;
       if (member && typeof allTasks !== 'undefined') {
         allTasks.forEach(t => {
-          if (t.assignee && t.assignee.includes(member.name) && t.deadline && t.status !== 'done') {
-            const d = new Date(t.deadline);
-            if (d >= currentMonday && d < nextMonday) taskHours += parseFloat(t.estimated_hours) || 0;
+          if (t.assignee && t.assignee.includes(member.name)) {
+            let targetDateStr = t.deadline;
+            if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
+            
+            if (targetDateStr) {
+                const d = new Date(targetDateStr);
+                if (d >= currentMonday && d < nextMonday) {
+                    taskHours += parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours) : t.estimated_hours) || 0;
+                }
+            }
           }
         });
       }
@@ -606,9 +628,6 @@ function renderWorkingHoursList() {
       document.getElementById('summary-flexible').textContent = taskHours.toFixed(1) + 'h (Task tuần)';
       document.getElementById('summary-remaining-week').innerHTML = `<span class="${totalUsed > quota ? 'text-red-600' : 'text-blue-600'}">${remaining.toFixed(1)}h</span>`;
     }
-
-    document.getElementById('inp-work-quota').addEventListener('change', updateHoursSummary);
-    document.getElementById('inp-fixed-hours').addEventListener('change', updateHoursSummary);
 
     function editWorkingHours(memberId) {
       const member = membersData.find(m => m.__backendId === memberId);
@@ -1426,7 +1445,15 @@ const subtasksList = [];
        subtasks: subtasksList,
         status: status, created_at: new Date().toISOString()
       };
-      
+      // --- LƯU LẠI NGÀY HOÀN THÀNH ---
+      if (status === 'done') {
+          const oldTask = editId ? allTasks.find(t => t.__backendId === editId) : null;
+          // Nếu đã hoàn thành từ trước thì giữ nguyên ngày, nếu mới hoàn thành thì lấy ngày hôm nay
+          data.completed_at = (oldTask && oldTask.completed_at) ? oldTask.completed_at : new Date().toISOString();
+      } else {
+          data.completed_at = null; // Trả lại task đang làm thì xóa ngày hoàn thành
+      }
+      // -------------------------------
      if (editId) {
         db.collection("CongViec").doc(editId).update(data)
         .then(() => {
