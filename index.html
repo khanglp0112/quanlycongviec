@@ -1043,6 +1043,7 @@ const emptyState = document.getElementById('empty-state');
         const countdownText = formatCountdown(deadline - now);
        const timeStr = ('0' + deadline.getHours()).slice(-2) + ':' + ('0' + deadline.getMinutes()).slice(-2);
         deadlineInfo = `<div class="text-[10px] font-medium mt-2 px-1.5 py-0.5 rounded" style="background:${deadlineColor}20;color:${deadlineColor};">📅 ${timeStr} ngày ${deadline.toLocaleDateString('vi-VN')} <span class="countdown-timer" data-deadline="${t.deadline}" style="display:inline-block;margin-left:4px;font-weight:700;">${countdownText}</span></div>`;
+      }
       let supportersInfo = t.supporters ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#6366f120;color:#818cf8;">👥 ${escHtml(t.supporters)}</div>` : '';
       let hoursInfo = t.estimated_hours ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#a78bfa20;color:#c4b5fd;">⏱️ ${t.estimated_hours}h</div>` : '';
       let weeklyInfo = t.is_weekly ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:#0ea5e920;color:#0ea5e9;">🔁 Định kỳ</div>` : '';
