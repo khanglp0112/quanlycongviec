@@ -623,7 +623,7 @@ function populateMemberSelects() {
           btn.style.fontWeight = '500';
         }
       });
-      renderTimeline();
+if (timelineMode === 'vertical') renderTimeline(); else renderCalendar();
     }
 
 function renderTimeline() {
@@ -1885,7 +1885,6 @@ function toggleLienKet() {
         btnCal.className = !isVert ? "px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm bg-white text-blue-600" : "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-slate-600 hover:text-slate-800";
 
         // Ẩn/Hiện container tương ứng
-        document.getElementById('timeline-filters').classList.toggle('hidden', !isVert);
         document.getElementById('timeline-vertical-container').classList.toggle('hidden', !isVert);
         document.getElementById('timeline-calendar-container').classList.toggle('hidden', isVert);
         
@@ -1926,9 +1925,12 @@ function toggleLienKet() {
             dayCell.innerHTML = `<div class="text-[9px] font-bold text-slate-400 mb-1">${day}</div>`;
             
         const filtered = getFiltered(); // Lấy danh sách đã qua bộ lọc ở thanh header
-// Ép lấy dữ liệu đã qua bộ lọc cho Lịch
-            const filteredTasks = typeof getFiltered === 'function' ? getFiltered() : allTasks;
-            const tasks = filteredTasks.filter(t => t.deadline && t.deadline.startsWith(dateKey));
+const filteredTasks = typeof getFiltered === 'function' ? getFiltered() : allTasks;
+            const tasks = filteredTasks.filter(t => {
+                // Thêm logic lọc theo trạng thái (Chờ làm, Đang làm, Hoàn thành)
+                if (typeof timelineFilter !== 'undefined' && timelineFilter !== 'all' && t.status !== timelineFilter) return false;
+                return t.deadline && t.deadline.startsWith(dateKey);
+            });
             tasks.forEach(t => {
                 const p = PRIORITY_MAP[t.priority] || PRIORITY_MAP.important;
                 const dObj = new Date(t.deadline);
