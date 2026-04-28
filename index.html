@@ -309,7 +309,11 @@
          <label class="block text-xs font-semibold mb-1.5" style="color:#475569;">Phân công (chọn nhiều)</label> 
          <div id="assignee-list" class="w-full max-h-[84px] overflow-y-auto px-2 py-1.5 rounded-lg text-sm outline-none scrollbar-thin space-y-1 focus:border-blue-500" style="background:#f8fafc;border:1px solid #cbd5e1;"></div>
        </div>
-       <div class="col-span-2"><label for="inp-priority" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mức ưu tiên</label> <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;"><option value="delegable">Không quan trọng & Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="important" selected>Quan trọng nhưng Không khẩn</option><option value="urgent_important">Quan trọng & Khẩn cấp</option></select></div>
+       <div class="col-span-2"><label for="inp-priority" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mức ưu tiên</label> <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;"><option value="delegable">Không quan trọng & Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="important" selected>Quan trọng nhưng Không khẩn</option><option value="urgent_important">Quan trọng & Khẩn cấp</option></select></div><div class="col-span-2">
+         <label for="inp-tag" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Nhãn dán (Tự nhập)</label>
+         <input type="text" id="inp-tag" list="tag-list" placeholder="VD: Toán, Tin..." class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;">
+         <datalist id="tag-list"></datalist>
+       </div>
        <div class="col-span-2"><label for="inp-deadline" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Thời hạn (Ngày & Giờ)</label> <input id="inp-deadline" type="datetime-local" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;"></div>
        <div class="col-span-2"><label for="inp-estimated-hours" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Giờ dự kiến</label> <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: 2.5"></div>
        <div class="col-span-4 flex items-center gap-2 pt-6"><input id="inp-weekly" type="checkbox" class="w-4 h-4 rounded border-slate-400 bg-white accent-blue-600 cursor-pointer"><label for="inp-weekly" class="text-xs font-semibold cursor-pointer" style="color:#475569;">🔁 Lặp lại hàng tuần</label></div>
@@ -367,6 +371,28 @@
     const COLORS = ['#f59e0b', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fb923c', '#6ee7b7', '#ec4899', '#14b8a6', '#8b5cf6'];
     let membersList = [];
     let membersData = [];
+   const TAG_PALETTE = [
+      { color: '#2563eb', bg: '#eff6ff' }, { color: '#ea580c', bg: '#fff7ed' },
+      { color: '#dc2626', bg: '#fef2f2' }, { color: '#7c3aed', bg: '#f5f3ff' },
+      { color: '#059669', bg: '#ecfdf5' }, { color: '#db2777', bg: '#fdf2f8' },
+      { color: '#d97706', bg: '#fffbeb' }, { color: '#0284c7', bg: '#f0f9ff' },
+      { color: '#4f46e5', bg: '#e0e7ff' }, { color: '#be123c', bg: '#fff1f2' }
+    ];
+
+    function getTagStyle(tag) {
+      if (!tag || tag.trim() === '') return null;
+      const str = tag.trim().toLowerCase();
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+      return TAG_PALETTE[Math.abs(hash) % TAG_PALETTE.length];
+    }
+
+    function updateTagList() {
+      const tags = new Set();
+      allTasks.forEach(t => { if (t.tag) tags.add(t.tag.trim()); });
+      const dl = document.getElementById('tag-list');
+      if (dl) dl.innerHTML = Array.from(tags).map(t => `<option value="${t}">`).join('');
+    }
     const PRIORITY_MAP = { urgent_important: { label: 'Quan trọng & Khẩn cấp', color: '#ef4444' }, important: { label: 'Quan trọng nhưng Không khẩn', color: '#f59e0b' }, urgent: { label: 'Khẩn cấp nhưng Không quan trọng', color: '#38bdf8' }, delegable: { label: 'Không quan trọng & Không khẩn', color: '#64748b' } };
     const STATUS_MAP = { todo: '#38bdf8', doing: '#a78bfa', done: '#34d399' };
     let allTasks = [];
@@ -944,6 +970,7 @@ document.getElementById('btn-timeline').onclick = () => {
     }
 
     function renderTasks() {
+     updateTagList();
       const filtered = getFiltered();
       const cols = { todo: [], doing: [], done: [] };
       filtered.forEach(t => { if (cols[t.status]) cols[t.status].push(t); });
@@ -1062,7 +1089,10 @@ const emptyState = document.getElementById('empty-state');
       div.innerHTML = `
         <div class="flex items-start justify-between gap-2 mb-2">
           <span class="text-sm font-semibold" style="color:#1a1a1a;word-break:break-word;">${escHtml(t.title)}</span>
-          <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0" style="background:${p.color}20;color:${p.color};">${p.label}</span>
+         <div class="flex gap-1 overflow-hidden">
+            ${t.tag ? `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold border truncate max-w-[90px]" style="background:${getTagStyle(t.tag).bg};color:${getTagStyle(t.tag).color};border-color:${getTagStyle(t.tag).color}40;" title="${escHtml(t.tag)}">#${escHtml(t.tag)}</span>` : ''}
+            <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0" style="background:${p.color}20;color:${p.color};">${p.label}</span>
+          </div>
         </div>
         ${t.description ? `<p class="text-xs mb-2" style="color:#555555;word-break:break-word;">${escHtml(t.description)}</p>` : ''}
 ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
@@ -1099,6 +1129,10 @@ function showTaskDetail(task) {
 
       if (task.description) { html += `<div><span style="${labelStyle}">Mô tả:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;">${escHtml(task.description)}</p></div>`; }
       if (task.goal) { html += `<div><span style="${labelStyle}">Mục tiêu:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;">${escHtml(task.goal)}</p></div>`; }
+ if (task.tag) {
+        const s = getTagStyle(task.tag);
+        html += `<div><span style="color:#94a3b8;font-size:12px;">Nhãn dán:</span><span style="background:${s.bg};color:${s.color};border:1px solid ${s.color}40;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;margin-left:4px;">#${escHtml(task.tag)}</span></div>`;
+      }
       html += `<div><span style="${labelStyle}">Ưu tiên:</span><span style="background:${p.color}20;color:${p.color};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;margin-left:4px;">${p.label}</span></div>`;
       html += `<div><span style="${labelStyle}">Phân công:</span><span style="${valueStyle}">${escHtml(task.assignee)}</span></div>`;
       if (task.deadline) { 
@@ -1161,6 +1195,7 @@ function showTaskDetail(task) {
       document.getElementById('inp-desc').value = task.description || '';
       document.querySelectorAll('.assignee-cb').forEach(cb => { cb.checked = task.assignee && task.assignee.includes(cb.value); });
       document.getElementById('inp-priority').value = task.priority;
+      document.getElementById('inp-tag').value = task.tag || '';
       document.getElementById('inp-deadline').value = task.deadline || '';
       document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
       document.getElementById('inp-supporters').value = task.supporters || '';
@@ -1188,6 +1223,7 @@ function showTaskDetail(task) {
       document.getElementById('inp-desc').value = task.description || '';
       document.querySelectorAll('.assignee-cb').forEach(cb => { cb.checked = task.assignee && task.assignee.includes(cb.value); });
       document.getElementById('inp-priority').value = task.priority;
+      document.getElementById('inp-tag').value = task.tag || '';
       document.getElementById('inp-deadline').value = task.deadline || '';
       document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
       document.getElementById('inp-supporters').value = task.supporters || '';
@@ -1365,7 +1401,7 @@ const subtasksList = [];
       });
       const data = {
         title: title, description: document.getElementById('inp-desc').value.trim(), assignee: Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value).join(', '),
-        priority: document.getElementById('inp-priority').value, deadline: document.getElementById('inp-deadline').value || '',
+        priority: document.getElementById('inp-priority').value, tag: document.getElementById('inp-tag').value.trim(), deadline: document.getElementById('inp-deadline').value || '',
         estimated_hours: document.getElementById('inp-estimated-hours').value || '', actual_hours: document.getElementById('inp-actual-hours-review').value || '',
         supporters: document.getElementById('inp-supporters').value.trim() || '', goal: document.getElementById('inp-goal').value.trim() || '',
         rating: document.getElementById('inp-rating').value || '', lessons_learned: document.getElementById('inp-lessons').value.trim() || '',
