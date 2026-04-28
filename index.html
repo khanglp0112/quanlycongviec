@@ -90,7 +90,13 @@
             <i data-lucide="plus" style="width:16px;height:16px;"></i> Thêm liên kết
         </button>
     </div>
-
+<div class="flex items-center gap-2 mb-3">
+        <i data-lucide="filter" style="width:16px;height:16px;color:#64748b;"></i>
+        <span class="text-sm font-semibold text-slate-600">Lọc theo nhãn:</span>
+        <select id="filter-lk-tag" onchange="drawLinksTable()" class="px-3 py-1.5 rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500 bg-white min-w-[150px] font-medium text-slate-700">
+            <option value="all">Tất cả liên kết</option>
+        </select>
+    </div>
     <div class="overflow-x-auto rounded-lg border border-slate-200">
         <table class="w-full text-sm text-left whitespace-nowrap">
             <thead class="text-xs uppercase bg-slate-100 text-slate-600">
@@ -1772,15 +1778,40 @@ function toggleLienKet() {
               if (d.order === undefined) d.order = d.created_at ? d.created_at.toMillis() : Date.now();
               currentLinks.push(d); 
             });
-            currentLinks.sort((a, b) => a.order - b.order);
+currentLinks.sort((a, b) => a.order - b.order);
+            
+            // --- TỰ ĐỘNG GOM HASHTAG VÀO BỘ LỌC ---
+            const tags = new Set();
+            currentLinks.forEach(link => {
+                if (link.moTa) {
+                    const found = link.moTa.match(/(#\S+)/g); // Quét tìm các chữ bắt đầu bằng #
+                    if (found) found.forEach(t => tags.add(t));
+                }
+            });
+            const selectTag = document.getElementById('filter-lk-tag');
+            if (selectTag) {
+                const currentVal = selectTag.value;
+                selectTag.innerHTML = '<option value="all">Tất cả liên kết</option>' + 
+                    Array.from(tags).map(t => `<option value="${t}">${t}</option>`).join('');
+                if (tags.has(currentVal)) selectTag.value = currentVal; // Giữ nguyên lựa chọn hiện tại nếu có
+            }
+            // --------------------------------------
+            
             drawLinksTable();
         } catch (e) { console.error(e); }
     }
-
-    function drawLinksTable() {
+function drawLinksTable() {
         const tbody = document.getElementById('ds-lien-ket');
         tbody.innerHTML = '';
+        
+        // --- LẤY GIÁ TRỊ TỪ BỘ LỌC ---
+        const filterTag = document.getElementById('filter-lk-tag') ? document.getElementById('filter-lk-tag').value : 'all';
+
         currentLinks.forEach((data, index) => {
+            // --- KIỂM TRA ĐIỀU KIỆN LỌC ---
+            if (filterTag !== 'all') {
+                if (!data.moTa || !data.moTa.includes(filterTag)) return; // Bỏ qua, không vẽ ra bảng nếu không chứa hashtag đang chọn
+            }
             const tr = document.createElement('tr');
             tr.className = "border-b hover:bg-slate-50 transition-colors";
             tr.setAttribute("draggable", "true");
