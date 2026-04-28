@@ -1034,26 +1034,23 @@ const emptyState = document.getElementById('empty-state');
 function updateCard(div, t) {
       const p = PRIORITY_MAP[t.priority] || PRIORITY_MAP.important;
       const memberColor = getMemberColor(t.assignee);
-      const initial = t.assignee ? t.assignee.charAt(0).toUpperCase() : '?';
       
-      // Khai báo sẵn các biến rỗng
+      // 1. Khai báo các biến thông tin mặc định
       let deadlineInfo = '', supportersInfo = '', hoursInfo = '', weeklyInfo = '', subtasksInfo = '';
 
+      // 2. Xử lý Hạn chót
       if (t.deadline) {
         const deadline = new Date(t.deadline);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const today = new Date(); today.setHours(0,0,0,0);
         const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-        let deadlineColor = '#10b981'; // Xanh lá
-        if (daysLeft < 0) deadlineColor = '#ef4444'; // Đỏ
-        else if (daysLeft <= 2) deadlineColor = '#f59e0b'; // Vàng
+        let deadlineColor = daysLeft < 0 ? '#ef4444' : (daysLeft <= 2 ? '#f59e0b' : '#10b981');
         const now = new Date();
         const countdownText = formatCountdown(deadline - now);
         const timeStr = ('0' + deadline.getHours()).slice(-2) + ':' + ('0' + deadline.getMinutes()).slice(-2);
         deadlineInfo = `<div class="text-[10px] font-medium mt-2 px-1.5 py-0.5 rounded" style="background:${deadlineColor}20;color:${deadlineColor};">📅 ${timeStr} ngày ${deadline.toLocaleDateString('vi-VN')} <span class="countdown-timer" data-deadline="${t.deadline}" style="display:inline-block;margin-left:4px;font-weight:700;">${countdownText}</span></div>`;
       }
-      
-      // Các biến này được tách ra ĐỘC LẬP khỏi if (t.deadline)
+
+      // 3. Xử lý các nhãn phụ (Định kỳ, Người hỗ trợ, Giờ dự kiến, Mục con)
       if (t.supporters) supportersInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:#6366f120;color:#6366f1;">👥 ${escHtml(t.supporters)}</div>`;
       if (t.estimated_hours) hoursInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:#a78bfa20;color:#8b5cf6;">⏱️ ${t.estimated_hours}h</div>`;
       if (t.is_weekly) weeklyInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:#0ea5e920;color:#0284c7;">🔁 Định kỳ</div>`;
@@ -1065,6 +1062,7 @@ function updateCard(div, t) {
         subtasksInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:${stColor}20;color:${stColor}; font-weight:600;">☑️ ${doneCount}/${totalCount}</div>`;
       }
 
+      // 4. Vẽ nội dung thẻ
       div.innerHTML = `
         <div class="flex items-start justify-between gap-2 mb-2">
           <span class="text-sm font-semibold" style="color:#1a1a1a;word-break:break-word;">${escHtml(t.title)}</span>
@@ -1072,8 +1070,6 @@ function updateCard(div, t) {
         </div>
         ${t.description ? `<p class="text-xs mb-2" style="color:#555555;word-break:break-word;">${escHtml(t.description)}</p>` : ''}
         <div class="flex flex-wrap gap-1">${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}</div>
-        ${t.status === 'done' && t.rating ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#fbbf2420;color:#d97706;">⭐ Đánh giá: ${t.rating}/5</div>` : ''}
-        ${t.status === 'done' && t.lessons_learned ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#34d39920;color:#059669;">💡 ${escHtml(t.lessons_learned.substring(0, 40))}${t.lessons_learned.length > 40 ? '...' : ''}</div>` : ''}
         <div class="flex items-center justify-between mt-3">
           <div class="flex items-center gap-2">
             <div class="flex items-center pl-1">
@@ -1081,19 +1077,17 @@ function updateCard(div, t) {
                 <div class="avatar relative" style="background:${getMemberColor(name)};width:24px;height:24px;font-size:11px;border:2px solid #fff;margin-left:-8px;z-index:${10-i};" title="${name}">${name.charAt(0).toUpperCase()}</div>
               `).join('')}
             </div>
-            <span class="text-xs truncate max-w-[100px]" style="color:#666666;" title="${escHtml(t.assignee)}">${escHtml(t.assignee)}</span>
+            <span class="text-xs truncate max-w-[100px]" style="color:#666666;">${escHtml(t.assignee)}</span>
           </div>
-          <div class="flex items-center gap-1 flex-shrink-0">
-            ${t.status !== 'done' ? `<button onclick="event.stopPropagation(); moveTask('${t.__backendId}','${t.status === 'todo' ? 'doing' : 'done'}')" class="p-1 rounded transition-colors" style="color:#666666;" onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
-            <button onclick="event.stopPropagation(); editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
-            <button onclick="event.stopPropagation(); duplicateTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
-            <button onclick="event.stopPropagation(); showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
+          <div class="flex items-center gap-1">
+            <button onclick="event.stopPropagation(); editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;">Sửa</button>
+            <button onclick="event.stopPropagation(); duplicateTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;">Chép</button>
+            <button onclick="event.stopPropagation(); showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;">Xoá</button>
           </div>
         </div>
       `;
       if(typeof lucide !== 'undefined') lucide.createIcons();
     }
-
    function showTaskDetail(task) {
       document.getElementById('detail-title').textContent = task.title;
       const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.important;
