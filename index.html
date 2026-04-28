@@ -127,13 +127,17 @@ input, textarea, select { font-family: 'Geist', sans-serif; }
 
 <div class="table-responsive border rounded-lg overflow-auto" style="max-height: 75vh;">
 <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap">
-<thead class="sticky top-0 z-20">
+            <thead class="sticky top-0 z-20">
+          <thead class="sticky top-0 z-20">
 <tr class="bg-slate-100 text-slate-700">
 <th class="border p-2 sticky-col left-0 bg-slate-100" rowspan="3">STT</th>
 <th class="border p-2 sticky-col bg-slate-100" style="left:40px;" rowspan="3">Họ Tên</th>
-<th id="head-tih" class="border p-2 bg-emerald-50" colspan="5">Tiết TKB TiH</th>
-<th id="head-thcs" class="border p-2 bg-emerald-50" colspan="5">Tiết TKB THCS-PT</th>
-<th class="border p-2 bg-amber-50" colspan="5">Số tiết vắng</th>
+                    <th id="head-tih" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB TiH</th>
+                    <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB THCS-PT</th>
+                    <th class="border p-2 bg-amber-50" colspan="4">Số tiết vắng</th>
+                    <th id="head-tih" class="border p-2 bg-emerald-50" colspan="5">Tiết TKB TiH</th>
+                    <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="5">Tiết TKB THCS-PT</th>
+                    <th class="border p-2 bg-amber-50" colspan="5">Số tiết vắng</th>
 <th class="border p-2 bg-amber-50" rowspan="3">Dạy thay</th>
 <th class="border p-2 bg-orange-50" rowspan="3">PL02</th>
 <th class="border p-2 bg-orange-50" rowspan="3">Ôn thi/CLB</th>
@@ -147,28 +151,36 @@ input, textarea, select { font-family: 'Geist', sans-serif; }
 <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD 1:1/17</th>
 </tr>
 <tr class="bg-slate-100">
-<th id="sub-tih" colspan="5" class="border p-1 text-[10px]">Tuần</th>
-<th id="sub-thcs" colspan="5" class="border p-1 text-[10px]">Tuần</th>
-<th colspan="5" class="border p-1 text-[10px]">Tuần</th>
+                    <th id="sub-tih" colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                    <th id="sub-thcs" colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                    <th colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                </tr>
+                <tr class="bg-slate-50">
+                    <th class="border p-1 w-8 tih-col">1</th><th class="border p-1 w-8 tih-col">2</th><th class="border p-1 w-8 tih-col">3</th><th class="border p-1 w-8 tih-col">4</th>
+                    <th class="border p-1 w-8 thcs-col">1</th><th class="border p-1 w-8 thcs-col">2</th><th class="border p-1 w-8 thcs-col">3</th><th class="border p-1 w-8 thcs-col">4</th>
+                    <th class="border p-1 w-8">1</th><th class="border p-1 w-8">2</th><th class="border p-1 w-8">3</th><th class="border p-1 w-8">4</th>
+                    <th id="sub-tih" colspan="5" class="border p-1 text-[10px]">Tuần</th>
+                    <th id="sub-thcs" colspan="5" class="border p-1 text-[10px]">Tuần</th>
+                    <th colspan="5" class="border p-1 text-[10px]">Tuần</th>
 </tr>
-<tr class="bg-slate-50" id="week-dates-row">
-<th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-0">1</th>
-<th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-1">2</th>
-<th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-2">3</th>
-<th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-3">4</th>
-<th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-4">5</th>
-
-<th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-0">1</th>
-<th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-1">2</th>
-<th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-2">3</th>
-<th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-3">4</th>
-<th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-4">5</th>
-
-<th class="border p-1 w-12 text-[9px] leading-tight week-head-0">1</th>
-<th class="border p-1 w-12 text-[9px] leading-tight week-head-1">2</th>
-<th class="border p-1 w-12 text-[9px] leading-tight week-head-2">3</th>
-<th class="border p-1 w-12 text-[9px] leading-tight week-head-3">4</th>
-<th class="border p-1 w-12 text-[9px] leading-tight week-head-4">5</th>
+             <tr class="bg-slate-50" id="week-dates-row">
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-0">1</th>
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-1">2</th>
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-2">3</th>
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-3">4</th>
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-4">5</th>
+    
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-0">1</th>
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-1">2</th>
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-2">3</th>
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-3">4</th>
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-4">5</th>
+    
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-0">1</th>
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-1">2</th>
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-2">3</th>
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-3">4</th>
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-4">5</th>
 </tr>
 </thead>
 <tbody id="cham-tiet-tbody"></tbody>
@@ -201,42 +213,12 @@ input, textarea, select { font-family: 'Geist', sans-serif; }
 </div>
 
 <div id="timeline-view" class="hidden flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
-<div class="max-w-5xl mx-auto">
-<div class="mb-6 flex items-center justify-between flex-wrap gap-4">
-<div class="flex items-center gap-4">
-<h2 id="timeline-title" class="text-xl font-bold text-slate-800">📅 Trục thời gian</h2>
-<div class="flex bg-slate-200 p-1 rounded-lg">
-<button id="view-mode-vertical" onclick="switchTimelineMode('vertical')" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm bg-white text-blue-600">Dạng dọc</button>
-<button id="view-mode-calendar" onclick="switchTimelineMode('calendar')" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all text-slate-600 hover:text-slate-800">Dạng lịch</button>
+<div class="max-w-4xl mx-auto">
+<div class="mb-6 flex items-center justify-between">
+<h2 class="text-lg font-bold" style="color:#1a1a1a;">📅 Trục thời gian công việc</h2><button id="btn-close-timeline" class="p-2 rounded-lg transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
 </div>
-</div>
-<button id="btn-close-timeline" class="p-2 rounded-lg transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
-</div>
-
-<div id="timeline-filters" class="flex gap-2 mb-6">
-<button id="timeline-filter-all" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#f59e0b;color:#0f172a;" onclick="filterTimelineBy('all')">Tất cả</button> 
-<button id="timeline-filter-todo" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('todo')">Chờ làm</button> 
-<button id="timeline-filter-doing" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('doing')">Đang làm</button> 
-<button id="timeline-filter-done" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('done')">Hoàn thành</button>
-</div>
-
-<div id="timeline-vertical-container" class="space-y-6 relative"></div>
-
-<div id="timeline-calendar-container" class="hidden">
-<div class="flex items-center gap-3 mb-4 justify-center">
-<button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600"><i data-lucide="chevron-left"></i></button>
-<h3 id="calendar-month-year" class="text-sm font-bold text-slate-700 min-w-[140px] text-center"></h3>
-<button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600"><i data-lucide="chevron-right"></i></button>
-</div>
-<div class="grid grid-cols-7 gap-px bg-slate-200 border border-slate-200 rounded-lg overflow-hidden" id="calendar-grid">
-<div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T2</div>
-<div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T3</div>
-<div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T4</div>
-<div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T5</div>
-<div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T6</div>
-<div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T7</div>
-<div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-red-500">CN</div>
-</div>
+<div class="flex gap-2 mb-6"><button id="timeline-filter-all" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#f59e0b;color:#0f172a;" onclick="filterTimelineBy('all')">Tất cả</button> <button id="timeline-filter-todo" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('todo')">Chờ làm</button> <button id="timeline-filter-doing" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('doing')">Đang làm</button> <button id="timeline-filter-done" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('done')">Hoàn thành</button></div>
+<div id="timeline-container" class="space-y-6 relative"></div>
 </div>
 </div>
 
@@ -623,19 +605,17 @@ btn.style.color = '#1a1a1a';
 btn.style.fontWeight = '500';
 }
 });
-if (timelineMode === 'vertical') renderTimeline(); else renderCalendar();
+renderTimeline();
 }
 
 function renderTimeline() {
-// Ép lấy dữ liệu đã qua bộ lọc
-const filteredTasks = typeof getFiltered === 'function' ? getFiltered() : allTasks;
-let tasks = filteredTasks.filter(t => {
+let tasks = allTasks.filter(t => {
 if (timelineFilter !== 'all' && t.status !== timelineFilter) return false;
 return t.deadline;
 });
 
 tasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-const container = document.getElementById('timeline-vertical-container');
+const container = document.getElementById('timeline-container');
 if (tasks.length === 0) {
 container.innerHTML = `
          <div class="text-center py-12" style="color:#94a3b8;">
@@ -712,9 +692,7 @@ document.getElementById('lien-ket-view').classList.add('hidden');
 document.getElementById('filter-bar').classList.add('hidden');
 document.getElementById('stats-bar').classList.add('hidden');
 document.getElementById('timeline-view').classList.remove('hidden');
-
-// Mặc định luôn mở chế độ hiện tại khi quay lại Timeline
-if (timelineMode === 'vertical') renderTimeline(); else renderCalendar();
+renderTimeline();
 };
 
 document.getElementById('btn-close-timeline').onclick = () => {
@@ -951,10 +929,6 @@ if (a.deadline && !b.deadline) return -1;
 if (!a.deadline && b.deadline) return 1;
 return 0;
 });
-const isTLOpen = !document.getElementById('timeline-view').classList.contains('hidden');
-if (isTLOpen) {
-if (timelineMode === 'vertical') renderTimeline(); else renderCalendar();
-}
 });
 
 ['todo', 'doing', 'done'].forEach(status => {
@@ -1034,50 +1008,42 @@ return `${seconds}s`;
 function updateCard(div, t) {
 const p = PRIORITY_MAP[t.priority] || PRIORITY_MAP.important;
 const memberColor = getMemberColor(t.assignee);
-      const initial = t.assignee ? t.assignee.charAt(0).toUpperCase() : '?';
-
-      // Khai báo sẵn các biến rỗng
-let deadlineInfo = '', supportersInfo = '', hoursInfo = '', weeklyInfo = '', subtasksInfo = '';
-
+const initial = t.assignee ? t.assignee.charAt(0).toUpperCase() : '?';
+let deadlineInfo = '';
 if (t.deadline) {
 const deadline = new Date(t.deadline);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const today = new Date(); today.setHours(0,0,0,0);
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-        let deadlineColor = '#10b981'; // Xanh lá
-        if (daysLeft < 0) deadlineColor = '#ef4444'; // Đỏ
-        else if (daysLeft <= 2) deadlineColor = '#f59e0b'; // Vàng
-        let deadlineColor = daysLeft < 0 ? '#ef4444' : (daysLeft <= 2 ? '#f59e0b' : '#10b981');
+let deadlineColor = '#34d399';
+if (daysLeft < 0) deadlineColor = '#ef4444';
+else if (daysLeft <= 2) deadlineColor = '#f59e0b';
 const now = new Date();
 const countdownText = formatCountdown(deadline - now);
 const timeStr = ('0' + deadline.getHours()).slice(-2) + ':' + ('0' + deadline.getMinutes()).slice(-2);
 deadlineInfo = `<div class="text-[10px] font-medium mt-2 px-1.5 py-0.5 rounded" style="background:${deadlineColor}20;color:${deadlineColor};">📅 ${timeStr} ngày ${deadline.toLocaleDateString('vi-VN')} <span class="countdown-timer" data-deadline="${t.deadline}" style="display:inline-block;margin-left:4px;font-weight:700;">${countdownText}</span></div>`;
 }
-
-      // Các biến này được tách ra ĐỘC LẬP khỏi if (t.deadline)
-if (t.supporters) supportersInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:#6366f120;color:#6366f1;">👥 ${escHtml(t.supporters)}</div>`;
-if (t.estimated_hours) hoursInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:#a78bfa20;color:#8b5cf6;">⏱️ ${t.estimated_hours}h</div>`;
-if (t.is_weekly) weeklyInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:#0ea5e920;color:#0284c7;">🔁 Định kỳ</div>`;
-
+let supportersInfo = t.supporters ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#6366f120;color:#818cf8;">👥 ${escHtml(t.supporters)}</div>` : '';
+let hoursInfo = t.estimated_hours ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#a78bfa20;color:#c4b5fd;">⏱️ ${t.estimated_hours}h</div>` : '';
+let weeklyInfo = t.is_weekly ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:#0ea5e920;color:#0ea5e9;">🔁 Định kỳ</div>` : '';
+let subtasksInfo = '';
 if (t.subtasks && t.subtasks.length > 0) {
 const doneCount = t.subtasks.filter(st => st.done).length;
 const totalCount = t.subtasks.length;
-const stColor = doneCount === totalCount ? '#10b981' : '#8b5cf6';
+const stColor = doneCount === totalCount ? '#10b981' : '#8b5cf6'; // Xanh lá nếu xong hết, tím nếu đang làm
 subtasksInfo = `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded inline-block mr-1" style="background:${stColor}20;color:${stColor}; font-weight:600;">☑️ ${doneCount}/${totalCount}</div>`;
 }
-
 div.innerHTML = `
        <div class="flex items-start justify-between gap-2 mb-2">
          <span class="text-sm font-semibold" style="color:#1a1a1a;word-break:break-word;">${escHtml(t.title)}</span>
          <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0" style="background:${p.color}20;color:${p.color};">${p.label}</span>
        </div>
        ${t.description ? `<p class="text-xs mb-2" style="color:#555555;word-break:break-word;">${escHtml(t.description)}</p>` : ''}
-       <div class="flex flex-wrap gap-1">${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}</div>
+${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
        ${t.status === 'done' && t.rating ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#fbbf2420;color:#d97706;">⭐ Đánh giá: ${t.rating}/5</div>` : ''}
        ${t.status === 'done' && t.lessons_learned ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#34d39920;color:#059669;">💡 ${escHtml(t.lessons_learned.substring(0, 40))}${t.lessons_learned.length > 40 ? '...' : ''}</div>` : ''}
        <div class="flex items-center justify-between mt-3">
-         <div class="flex items-center gap-2">
+<div class="flex items-center gap-2">
            <div class="flex items-center pl-1">
              ${(t.assignee ? t.assignee.split(',').map(s => s.trim()) : []).map((name, i) => `
                <div class="avatar relative" style="background:${getMemberColor(name)};width:24px;height:24px;font-size:11px;border:2px solid #fff;margin-left:-8px;z-index:${10-i};" title="${name}">${name.charAt(0).toUpperCase()}</div>
@@ -1085,55 +1051,52 @@ div.innerHTML = `
            </div>
            <span class="text-xs truncate max-w-[100px]" style="color:#666666;" title="${escHtml(t.assignee)}">${escHtml(t.assignee)}</span>
          </div>
-         <div class="flex items-center gap-1 flex-shrink-0">
-            ${t.status !== 'done' ? `<button onclick="event.stopPropagation(); moveTask('${t.__backendId}','${t.status === 'todo' ? 'doing' : 'done'}')" class="p-1 rounded transition-colors" style="color:#666666;" onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
-            <button onclick="event.stopPropagation(); editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
-            <button onclick="event.stopPropagation(); duplicateTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
-            <button onclick="event.stopPropagation(); showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
-            ${t.status !== 'done' ? `<button data-id="${t.__backendId}" data-status="${t.status === 'todo' ? 'doing' : 'done'}" onclick="event.stopPropagation(); moveTask(this.dataset.id, this.dataset.status)" class="p-1 rounded transition-colors" style="color:#666666;" onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
-            <button data-id="${t.__backendId}" onclick="event.stopPropagation(); editTask(this.dataset.id)" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
-            <button data-id="${t.__backendId}" onclick="event.stopPropagation(); duplicateTask(this.dataset.id)" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
-            <button data-id="${t.__backendId}" onclick="event.stopPropagation(); showDeleteConfirm(this.dataset.id)" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
+        <div class="flex items-center gap-1">
+           ${t.status !== 'done' ? `<button onclick="event.stopPropagation(); moveTask('${t.__backendId}','${t.status === 'todo' ? 'doing' : 'done'}')" class="p-1 rounded transition-colors" style="color:#666666;" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
+           <button onclick="event.stopPropagation(); editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
+           <button onclick="event.stopPropagation(); duplicateTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
+           <button onclick="event.stopPropagation(); showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
          </div>
        </div>
      `;
-if(typeof lucide !== 'undefined') lucide.createIcons();
+lucide.createIcons();
 }
+
 function showTaskDetail(task) {
 document.getElementById('detail-title').textContent = task.title;
 const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.important;
 let html = '';
-if (task.description) { html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Mô tả:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;">${escHtml(task.description)}</p></div>`; }
-if (task.goal) { html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Mục tiêu:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;">${escHtml(task.goal)}</p></div>`; }
-html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Ưu tiên:</span><span style="background:${p.color}20;color:${p.color};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;margin-left:4px;">${p.label}</span></div>`;
-html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Phân công:</span><span style="color:#1e293b;font-size:13px;margin-left:4px;font-weight:600;">${escHtml(task.assignee)}</span></div>`;
+if (task.description) { html += `<div><span style="color:#94a3b8;font-size:12px;">Mô tả:</span><p style="color:#e2e8f0;margin:4px 0 0 0;font-size:13px;">${escHtml(task.description)}</p></div>`; }
+if (task.goal) { html += `<div><span style="color:#94a3b8;font-size:12px;">Mục tiêu:</span><p style="color:#e2e8f0;margin:4px 0 0 0;font-size:13px;">${escHtml(task.goal)}</p></div>`; }
+html += `<div><span style="color:#94a3b8;font-size:12px;">Ưu tiên:</span><span style="background:${p.color}20;color:${p.color};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${p.label}</span></div>`;
+html += `<div><span style="color:#94a3b8;font-size:12px;">Phân công:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">${escHtml(task.assignee)}</span></div>`;
 if (task.deadline) { 
 const d = new Date(task.deadline);
 const tStr = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Thời hạn:</span><span style="color:#1e293b;font-size:13px;margin-left:4px;font-weight:600;">📅 ${tStr} ngày ${d.toLocaleDateString('vi-VN')}</span></div>`; 
+html += `<div><span style="color:#94a3b8;font-size:12px;">Thời hạn:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">📅 ${tStr} ngày ${d.toLocaleDateString('vi-VN')}</span></div>`; 
 }
-if (task.estimated_hours) { html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Giờ dự kiến:</span><span style="color:#1e293b;font-size:13px;margin-left:4px;font-weight:600;">⏱️ ${task.estimated_hours}h</span></div>`; }
-if (task.supporters) { html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Hỗ trợ:</span><span style="color:#1e293b;font-size:13px;margin-left:4px;font-weight:600;">👥 ${escHtml(task.supporters)}</span></div>`; }
+if (task.estimated_hours) { html += `<div><span style="color:#94a3b8;font-size:12px;">Giờ dự kiến:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">⏱️ ${task.estimated_hours}h</span></div>`; }
+if (task.supporters) { html += `<div><span style="color:#94a3b8;font-size:12px;">Hỗ trợ:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">👥 ${escHtml(task.supporters)}</span></div>`; }
 if (task.subtasks && task.subtasks.length > 0) { 
-html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Việc cần làm:</span><div class="mt-1.5 space-y-1.5">`;
+html += `<div><span style="color:#94a3b8;font-size:12px;">Việc cần làm:</span><div class="mt-1.5 space-y-1.5">`;
 task.subtasks.forEach((st, idx) => {
-html += `<label class="flex items-start gap-2 text-[13px] text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded transition-colors" style="border: 1px solid #e2e8f0;">
-                       <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtask('${task.__backendId}', ${idx}, this.checked)" class="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
-                       <span class="${st.done ? 'line-through text-slate-400' : 'font-medium'}" style="word-break:break-word;">${escHtml(st.text)}</span>
+html += `<label class="flex items-start gap-2 text-[13px] text-slate-300 cursor-pointer hover:bg-slate-800 p-1.5 rounded transition-colors" style="border: 1px solid transparent; hover:border-slate-700;">
+                       <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtask('${task.__backendId}', ${idx}, this.checked)" class="mt-0.5 w-3.5 h-3.5 rounded border-slate-500 bg-slate-700 accent-blue-500 cursor-pointer flex-shrink-0">
+                       <span class="${st.done ? 'line-through text-slate-500' : ''}" style="word-break:break-word;">${escHtml(st.text)}</span>
                     </label>`;
 });
 html += `</div></div>`;
 }
 if (task.status === 'done') {
-if (task.rating) { html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Đánh giá:</span><span style="color:#d97706;font-size:13px;margin-left:4px;font-weight:600;">⭐ ${task.rating}/5</span></div>`; }
-if (task.actual_hours) { html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Giờ thực tế:</span><span style="color:#1e293b;font-size:13px;margin-left:4px;font-weight:600;">${task.actual_hours}h</span></div>`; }
-if (task.lessons_learned) { html += `<div><span style="color:#64748b;font-size:12px;font-weight:600;">Kinh nghiệm:</span><p style="color:#059669;margin:4px 0 0 0;font-size:13px;font-weight:600;">💡 ${escHtml(task.lessons_learned)}</p></div>`; }
+if (task.rating) { html += `<div><span style="color:#94a3b8;font-size:12px;">Đánh giá:</span><span style="color:#fbbf24;font-size:13px;margin-left:4px;">⭐ ${task.rating}/5</span></div>`; }
+if (task.actual_hours) { html += `<div><span style="color:#94a3b8;font-size:12px;">Giờ thực tế:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">${task.actual_hours}h</span></div>`; }
+if (task.lessons_learned) { html += `<div><span style="color:#94a3b8;font-size:12px;">Kinh nghiệm:</span><p style="color:#86efac;margin:4px 0 0 0;font-size:13px;">💡 ${escHtml(task.lessons_learned)}</p></div>`; }
 }
 document.getElementById('detail-content').innerHTML = html;
 ['todo', 'doing', 'done'].forEach(s => {
 const btn = document.getElementById('detail-status-' + s);
-if (task.status === s) { btn.style.background = STATUS_MAP[s]; btn.style.color = '#ffffff'; btn.style.fontWeight = '700'; }
-else { btn.style.background = '#f1f5f9'; btn.style.color = '#475569'; btn.style.fontWeight = '600'; }
+if (task.status === s) { btn.style.background = STATUS_MAP[s]; btn.style.color = '#0f172a'; btn.style.fontWeight = '700'; }
+else { btn.style.background = '#334155'; btn.style.color = '#e2e8f0'; btn.style.fontWeight = '500'; }
 btn.onclick = () => changeStatusAndClose(task.__backendId, s);
 });
 document.getElementById('task-detail-modal').classList.remove('hidden');
@@ -1585,35 +1548,35 @@ renderTasks(); // Gọi lại bộ não để phục hồi giao diện chuẩn
 }
 
 async function renderChamTietTable() {
-// --- TỰ ĐỘNG TÍNH NGÀY TRÊN TIÊU ĐỀ TUẦN ---
-const parts = currentChamTietMonth.split('-');
-const year = parseInt(parts[0]);
-const month = parseInt(parts[1]);
+     // --- TỰ ĐỘNG TÍNH NGÀY TRÊN TIÊU ĐỀ TUẦN ---
+      const parts = currentChamTietMonth.split('-');
+      const year = parseInt(parts[0]);
+      const month = parseInt(parts[1]);
+      
+      // Ngày bắt đầu chu kỳ: 26 tháng trước
+      const startDate = new Date(year, month - 2, 26);
+      // Ngày kết thúc chu kỳ: 25 tháng này
+      const endDateLimit = new Date(year, month - 1, 25);
 
-// Ngày bắt đầu chu kỳ: 26 tháng trước
-const startDate = new Date(year, month - 2, 26);
-// Ngày kết thúc chu kỳ: 25 tháng này
-const endDateLimit = new Date(year, month - 1, 25);
+      for (let i = 0; i < 5; i++) {
+          let wStart = new Date(startDate);
+          wStart.setDate(startDate.getDate() + (i * 7));
+          
+          let wEnd = new Date(wStart);
+          wEnd.setDate(wStart.getDate() + 6);
 
-for (let i = 0; i < 5; i++) {
-let wStart = new Date(startDate);
-wStart.setDate(startDate.getDate() + (i * 7));
-
-let wEnd = new Date(wStart);
-wEnd.setDate(wStart.getDate() + 6);
-
-let dateText = "";
-if (wStart <= endDateLimit) {
-// Nếu ngày kết thúc tuần vượt quá ngày 25, thì lấy ngày 25 làm mốc
-const finalEnd = wEnd > endDateLimit ? endDateLimit : wEnd;
-dateText = `${i+1}<br><span style="color:#94a3b8">${wStart.getDate()}/${wStart.getMonth()+1}-${finalEnd.getDate()}/${finalEnd.getMonth()+1}</span>`;
-} else {
-dateText = i + 1; // Hết tuần thì chỉ hiện số
-}
-
-// Điền vào tất cả các ô tiêu đề có cùng nhóm tuần
-document.querySelectorAll(`.week-head-${i}`).forEach(el => el.innerHTML = dateText);
-}
+          let dateText = "";
+          if (wStart <= endDateLimit) {
+              // Nếu ngày kết thúc tuần vượt quá ngày 25, thì lấy ngày 25 làm mốc
+              const finalEnd = wEnd > endDateLimit ? endDateLimit : wEnd;
+              dateText = `${i+1}<br><span style="color:#94a3b8">${wStart.getDate()}/${wStart.getMonth()+1}-${finalEnd.getDate()}/${finalEnd.getMonth()+1}</span>`;
+          } else {
+              dateText = i + 1; // Hết tuần thì chỉ hiện số
+          }
+          
+          // Điền vào tất cả các ô tiêu đề có cùng nhóm tuần
+          document.querySelectorAll(`.week-head-${i}`).forEach(el => el.innerHTML = dateText);
+      }
 const tbody = document.getElementById('cham-tiet-tbody');
 const boxTiH = document.getElementById('show-tih');
 const boxTHCS = document.getElementById('show-thcs');
@@ -1638,14 +1601,18 @@ snapshot.forEach(doc => { dataThang[doc.data().memberId] = doc.data(); });
 tbody.innerHTML = '';
 membersData.forEach((member, index) => {
 const d = dataThang[member.__backendId] || {};
-const w = (key) => d[key] || [0, 0, 0, 0, 0];
+          const w = (key) => d[key] || [0, 0, 0, 0];
+         const w = (key) => d[key] || [0, 0, 0, 0, 0];
 const tr = document.createElement('tr');
 tr.innerHTML = `
            <td class="border p-2 sticky-col left-0 bg-white text-slate-400">${index + 1}</td>
            <td class="border p-2 sticky-col left-[40px] bg-white text-left font-bold text-slate-700">${member.name}</td>
-           ${showTiH ? [0,1,2,3,4].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i] || 0}"></td>`).join('') : ''}
-           ${showTHCS ? [0,1,2,3,4].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i] || 0}"></td>`).join('') : ''}
-           ${[0,1,2,3,4].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i] || 0}"></td>`).join('')}
+            ${showTiH ? [0,1,2,3].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('') : ''}
+            ${showTHCS ? [0,1,2,3].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('') : ''}
+            ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i]}"></td>`).join('')}
+            ${showTiH ? [0,1,2,3,4].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i] || 0}"></td>`).join('') : ''}
+            ${showTHCS ? [0,1,2,3,4].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i] || 0}"></td>`).join('') : ''}
+            ${[0,1,2,3,4].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i] || 0}"></td>`).join('')}
            <td class="border p-1"><input type="number" class="ct-input-week ct-daythay" style="width:55px" data-id="${member.__backendId}" value="${typeof d.dayThay === 'number' ? d.dayThay : 0}"></td>
            <td class="border p-1"><input type="number" class="ct-input-week ct-pl02" data-id="${member.__backendId}" value="${d.pl02 || 0}"></td>
            <td class="border p-1"><input type="number" class="ct-input-week ct-onthi" data-id="${member.__backendId}" value="${d.onThi || 0}"></td>
@@ -1875,83 +1842,6 @@ if (task && task.status !== status) moveTask(taskId, status);
 }
 });
 });
-let timelineMode = 'vertical'; 
-let currentCalDate = new Date();
-
-function switchTimelineMode(mode) {
-timelineMode = mode;
-const isVert = mode === 'vertical';
-
-// Cập nhật giao diện nút bấm chuyển đổi
-const btnVert = document.getElementById('view-mode-vertical');
-const btnCal = document.getElementById('view-mode-calendar');
-
-btnVert.className = isVert ? "px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm bg-white text-blue-600" : "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-slate-600 hover:text-slate-800";
-btnCal.className = !isVert ? "px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm bg-white text-blue-600" : "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-slate-600 hover:text-slate-800";
-
-// Ẩn/Hiện container tương ứng
-document.getElementById('timeline-vertical-container').classList.toggle('hidden', !isVert);
-document.getElementById('timeline-calendar-container').classList.toggle('hidden', isVert);
-
-if (isVert) renderTimeline(); else renderCalendar();
-if(typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-function changeMonth(step) {
-currentCalDate.setMonth(currentCalDate.getMonth() + step);
-renderCalendar();
-}
-
-function renderCalendar() {
-const grid = document.getElementById('calendar-grid');
-const label = document.getElementById('calendar-month-year');
-const year = currentCalDate.getFullYear();
-const month = currentCalDate.getMonth();
-
-label.textContent = `Tháng ${month + 1} / ${year}`;
-const headerCells = Array.from(grid.children).slice(0, 7);
-grid.innerHTML = '';
-headerCells.forEach(c => grid.appendChild(c));
-
-const firstDay = new Date(year, month, 1).getDay();
-const daysInMonth = new Date(year, month + 1, 0).getDate();
-const startOffset = (firstDay === 0 ? 6 : firstDay - 1);
-
-for (let i = 0; i < startOffset; i++) {
-const empty = document.createElement('div');
-empty.className = 'bg-slate-50 h-24 border-t border-l border-slate-200';
-grid.appendChild(empty);
-}
-
-for (let day = 1; day <= daysInMonth; day++) {
-const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-const dayCell = document.createElement('div');
-dayCell.className = 'bg-white h-24 p-1 border-t border-l border-slate-200 overflow-y-auto scrollbar-thin hover:bg-slate-50';
-dayCell.innerHTML = `<div class="text-[9px] font-bold text-slate-400 mb-1">${day}</div>`;
-
-const filtered = getFiltered(); // Lấy danh sách đã qua bộ lọc ở thanh header
-const filteredTasks = typeof getFiltered === 'function' ? getFiltered() : allTasks;
-const tasks = filteredTasks.filter(t => {
-// Thêm logic lọc theo trạng thái (Chờ làm, Đang làm, Hoàn thành)
-if (typeof timelineFilter !== 'undefined' && timelineFilter !== 'all' && t.status !== timelineFilter) return false;
-return t.deadline && t.deadline.startsWith(dateKey);
-});
-tasks.forEach(t => {
-const p = PRIORITY_MAP[t.priority] || PRIORITY_MAP.important;
-const dObj = new Date(t.deadline);
-const tStr = ('0' + dObj.getHours()).slice(-2) + ':' + ('0' + dObj.getMinutes()).slice(-2);
-
-const taskDiv = document.createElement('div');
-taskDiv.className = 'text-[8px] p-1 mb-0.5 rounded border-l-2 truncate font-bold cursor-pointer';
-taskDiv.style = `background:${p.color}10; color:${p.color}; border-color:${p.color};`;
-taskDiv.innerHTML = `<span class="opacity-60">${tStr}</span> ${escHtml(t.title)}`;
-taskDiv.onclick = (e) => { e.stopPropagation(); showTaskDetail(t); };
-dayCell.appendChild(taskDiv);
-});
-grid.appendChild(dayCell);
-}
-if(typeof lucide !== 'undefined') lucide.createIcons();
-}
 </script>
 </body>
 </html>
