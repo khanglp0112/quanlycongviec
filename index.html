@@ -402,7 +402,6 @@ function getMemberColor(name) {
     }
 
 function populateMemberSelects() {
-      // 1. Cập nhật bộ lọc
       const filterSel = document.getElementById('filter-assignee');
       if (filterSel) {
           filterSel.innerHTML = '<option value="all">Tất cả thành viên</option>';
@@ -411,15 +410,42 @@ function populateMemberSelects() {
           });
       }
       
-      // 2. Tạo danh sách Checkbox để chọn nhiều người (Giao diện Sáng)
       const listDiv = document.getElementById('assignee-list');
       if (listDiv) {
-          listDiv.innerHTML = membersList.map(m => `
-            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-slate-200 rounded transition-colors">
-              <input type="checkbox" value="${m.name}" class="assignee-cb w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer">
-              <span style="color:#1e293b;font-size:13px;font-weight:500;">${escHtml(m.name)}</span>
-            </label>
-          `).join('');
+          const currentMon = new Date(typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0]);
+          const nextMon = new Date(currentMon); nextMon.setDate(currentMon.getDate() + 7);
+
+          listDiv.innerHTML = membersData.map(m => {
+              const workQuota = parseFloat(m.work_quota || '40');
+              const fixedHours = parseFloat(m.fixed_hours || '0');
+              
+              let taskHours = 0;
+              if (typeof allTasks !== 'undefined') {
+                  allTasks.forEach(t => {
+                      // Bóc tách số giờ của các Task đang làm trong tuần này
+                      if (t.assignee && t.assignee.includes(m.name) && t.deadline && t.status !== 'done') {
+                          const d = new Date(t.deadline);
+                          if (d >= currentMon && d < nextMon) taskHours += parseFloat(t.estimated_hours) || 0;
+                      }
+                  });
+              }
+              
+              const totalUsed = fixedHours + taskHours;
+              const remaining = Math.max(0, workQuota - totalUsed);
+              
+              let badge = '';
+              if (totalUsed >= workQuota) badge = '<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-red-100 text-red-600 ml-auto border border-red-200">🔴 Quá tải</span>';
+              else if (totalUsed >= workQuota * 0.8) badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-100 text-amber-700 ml-auto border border-amber-200">🟡 Còn ${remaining.toFixed(1)}h</span>`;
+              else badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-700 ml-auto border border-emerald-200">🟢 Còn ${remaining.toFixed(1)}h</span>`;
+
+              return `
+                <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-slate-200 rounded transition-colors w-full">
+                  <input type="checkbox" value="${m.name}" class="assignee-cb w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
+                  <span style="color:#1e293b;font-size:13px;font-weight:600;" class="truncate">${escHtml(m.name)}</span>
+                  ${badge}
+                </label>
+              `;
+          }).join('');
       }
     }
     function renderMembersList() {
@@ -439,75 +465,74 @@ function populateMemberSelects() {
       lucide.createIcons();
     }
 
- function renderWorkingHoursList() {
+function renderWorkingHoursList() {
       const container = document.getElementById('working-hours-list');
+      const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
+      const currentMonday = new Date(currentMonStr);
+      const nextMonday = new Date(currentMonday);
+      nextMonday.setDate(currentMonday.getDate() + 7);
+
       container.innerHTML = membersData.map((m) => {
         const workQuota = parseFloat(m.work_quota || '40');
         const fixedHours = parseFloat(m.fixed_hours || '0');
-        const memberTasks = allTasks.filter(t => t.assignee && t.assignee.includes(m.name));
-        let totalEstimated = 0, totalActual = 0;
-        memberTasks.forEach(t => {
-          if (t.estimated_hours) totalEstimated += parseFloat(t.estimated_hours) || 0;
-          if (t.actual_hours) totalActual += parseFloat(t.actual_hours) || 0;
-        });
-        const totalUsedEstimated = fixedHours + totalEstimated;
-        const totalUsedActual = fixedHours + totalActual;
-        const remainingEstimated = Math.max(0, workQuota - totalUsedEstimated);
-        const remainingActual = Math.max(0, workQuota - totalUsedActual);
         
+        let taskEstimated = 0;
+        const memberTasksThisWeek = allTasks.filter(t => {
+          if (!t.assignee || !t.assignee.includes(m.name) || !t.deadline || t.status === 'done') return false;
+          const d = new Date(t.deadline);
+          return d >= currentMonday && d < nextMonday;
+        });
+
+        memberTasksThisWeek.forEach(t => { taskEstimated += parseFloat(t.estimated_hours) || 0; });
+
+        const totalUsedEst = fixedHours + taskEstimated;
+        const remainingEst = Math.max(0, workQuota - totalUsedEst);
+        
+        const percent = Math.min(100, (totalUsedEst / workQuota) * 100);
+        let barColor = '#10b981'; 
+        if (percent >= 100) barColor = '#ef4444'; 
+        else if (percent >= 80) barColor = '#f59e0b'; 
+
         return `
-          <div class="fade-in flex flex-col" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;">
-            <div class="flex items-center justify-between mb-4 pb-3" style="border-bottom:1px solid #e2e8f0;">
+          <div class="fade-in flex flex-col mb-4" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+            <div class="flex items-center justify-between mb-3">
               <div class="flex items-center gap-3">
-                <div class="avatar" style="background:${m.color};width:36px;height:36px;font-size:14px;font-weight:700;box-shadow:0 4px 12px ${m.color}40;">${m.name.charAt(0).toUpperCase()}</div>
+                <div class="avatar" style="background:${m.color};width:36px;height:36px;font-weight:700;">${m.name.charAt(0).toUpperCase()}</div>
                 <div>
                   <div style="color:#1e293b;font-size:15px;font-weight:700;">${escHtml(m.name)}</div>
-                  <div style="color:#64748b;font-size:12px;">Quản lý giờ làm việc</div>
+                  <div style="color:#64748b;font-size:11px;">Tuần: ${currentMonday.toLocaleDateString('vi-VN')} - ${new Date(nextMonday-1).toLocaleDateString('vi-VN')}</div>
                 </div>
+              </div>
+              <div class="text-right">
+                <div class="text-xs font-bold ${totalUsedEst > workQuota ? 'text-red-500' : 'text-slate-500'}">${totalUsedEst.toFixed(1)} / ${workQuota}h</div>
+                <div class="text-[10px] text-slate-400">Định mức tuần</div>
               </div>
             </div>
-            <div class="space-y-3">
-              <div class="grid grid-cols-2 gap-3">
-                <div class="p-4 rounded-lg" style="background:#ffffff;border:1px solid #e2e8f0;text-align:center;">
-                  <div style="color:#64748b;font-size:12px;margin-bottom:12px;letter-spacing:0.5px;font-weight:600;">📊 ĐỊNH MỨC</div>
-                  <div class="flex items-center justify-center gap-2">
-                    <input type="number" value="${workQuota}" min="0" step="0.5" class="quota-input px-3 py-2 rounded text-center outline-none font-bold focus:border-blue-500" style="background:#f8fafc;color:#059669;border:2px solid #cbd5e1;width:90px;font-size:18px;" data-member-id="${m.__backendId}" onchange="updateWorkQuota(this)">
-                    <span style="color:#64748b;font-size:14px;font-weight:600;">h/tuần</span>
-                  </div>
-                </div>
-                <div class="p-4 rounded-lg" style="background:#ffffff;border:1px solid #e2e8f0;text-align:center;">
-                  <div style="color:#64748b;font-size:12px;margin-bottom:12px;letter-spacing:0.5px;font-weight:600;">🔧 CỐ ĐỊNH</div>
-                  <div class="flex items-center justify-center gap-2">
-                    <input type="number" value="${fixedHours}" min="0" step="0.5" class="fixed-input px-3 py-2 rounded text-center outline-none font-bold focus:border-blue-500" style="background:#f8fafc;color:#d97706;border:2px solid #cbd5e1;width:90px;font-size:18px;" data-member-id="${m.__backendId}" onchange="updateFixedHours(this)">
-                    <span style="color:#64748b;font-size:14px;font-weight:600;">h/tuần</span>
-                  </div>
-                </div>
+
+            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
+              <div style="width:${percent}%; background:${barColor}; height:100%; transition:width 0.5s ease;"></div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="p-2 rounded-lg bg-slate-50 border border-slate-100 text-center">
+                <div class="text-[10px] text-slate-500 font-bold mb-1">GIỜ CỐ ĐỊNH</div>
+                <div class="text-sm font-bold text-slate-700">${fixedHours.toFixed(1)}h</div>
               </div>
-              <div class="p-3 rounded-lg" style="background:#ffffff;border:1px solid #e2e8f0;">
-                <div style="color:#1e293b;font-size:13px;font-weight:700;margin-bottom:10px;letter-spacing:0.5px;">📈 THỐNG KÊ TUẦN</div>
-                <div class="space-y-2.5 text-xs">
-                  <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#f3e8ff;">
-                    <span style="color:#7c3aed;font-weight:600;">Dự kiến:</span><span style="color:#7c3aed;font-weight:700;font-size:13px;">${totalEstimated.toFixed(1)}h</span>
-                  </div>
-                  <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#dcfce7;">
-                    <span style="color:#16a34a;font-weight:600;">Thực tế:</span><span style="color:#16a34a;font-weight:700;font-size:13px;">${totalActual.toFixed(1)}h</span>
-                  </div>
-                  <div style="border-t:1px solid #e2e8f0;padding-top:8px;margin-top:8px;">
-                    <div class="flex items-center justify-between px-2 py-1 mb-1.5 rounded" style="background:#fef3c7;">
-                      <span style="color:#d97706;font-weight:600;">Còn dự kiến:</span><span style="color:#d97706;font-weight:700;font-size:13px;">${remainingEstimated.toFixed(1)}h</span>
-                    </div>
-                    <div class="flex items-center justify-between px-2 py-1 rounded" style="background:#e0f2fe;">
-                      <span style="color:#0284c7;font-weight:600;">Còn thực tế:</span><span style="color:#0284c7;font-weight:700;font-size:13px;">${remainingActual.toFixed(1)}h</span>
-                    </div>
-                  </div>
-                </div>
+              <div class="p-2 rounded-lg bg-blue-50 border border-blue-100 text-center">
+                <div class="text-[10px] text-blue-500 font-bold mb-1">TASK TUẦN</div>
+                <div class="text-sm font-bold text-blue-600">${taskEstimated.toFixed(1)}h</div>
+              </div>
+              <div class="p-2 rounded-lg ${remainingEst <= 0 ? 'bg-red-50 border-red-100' : 'bg-emerald-50 border-emerald-100'} text-center">
+                <div class="text-[10px] ${remainingEst <= 0 ? 'text-red-500' : 'text-emerald-500'} font-bold mb-1">CÒN TRỐNG</div>
+                <div class="text-sm font-bold ${remainingEst <= 0 ? 'text-red-600' : 'text-emerald-600'}">${remainingEst.toFixed(1)}h</div>
               </div>
             </div>
-            <button type="button" onclick="editWorkingHours('${m.__backendId}')" class="w-full mt-4 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;">⚙️ Cấu hình chi tiết</button>
+            
+            <button type="button" onclick="editWorkingHours('${m.__backendId}')" class="w-full mt-3 py-2 rounded-lg text-xs font-bold text-blue-600 hover:bg-blue-50 border border-blue-100 transition-colors">⚙️ Cấu hình cố định</button>
           </div>
         `;
       }).join('');
-      lucide.createIcons();
+      if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
     function updateWorkQuota(input) {
@@ -548,18 +573,38 @@ function populateMemberSelects() {
       return days;
     }
 
-    function updateHoursSummary() {
+   function updateHoursSummary() {
       const quota = parseFloat(document.getElementById('inp-work-quota').value) || 0;
+      const memberId = document.getElementById('inp-hours-member-id').value;
+      const member = membersData.find(m => m.__backendId === memberId);
+      
       const dayInputs = document.querySelectorAll('.day-hour-input');
-      let flexible = 0;
-      dayInputs.forEach(input => { flexible += parseFloat(input.value) || 0; });
-      const fixedFromDays = flexible;
-      document.getElementById('inp-fixed-hours').value = fixedFromDays.toFixed(1);
-      const remainingWeek = Math.max(0, quota - fixedFromDays);
+      let manualFixed = 0;
+      dayInputs.forEach(input => { manualFixed += parseFloat(input.value) || 0; });
+      
+      const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
+      const currentMonday = new Date(currentMonStr);
+      const nextMonday = new Date(currentMonday);
+      nextMonday.setDate(currentMonday.getDate() + 7);
+      
+      let taskHours = 0;
+      if (member && typeof allTasks !== 'undefined') {
+        allTasks.forEach(t => {
+          if (t.assignee && t.assignee.includes(member.name) && t.deadline && t.status !== 'done') {
+            const d = new Date(t.deadline);
+            if (d >= currentMonday && d < nextMonday) taskHours += parseFloat(t.estimated_hours) || 0;
+          }
+        });
+      }
+
+      const totalUsed = manualFixed + taskHours;
+      const remaining = Math.max(0, quota - totalUsed);
+
+      document.getElementById('inp-fixed-hours').value = manualFixed.toFixed(1);
       document.getElementById('summary-quota').textContent = quota.toFixed(1) + 'h';
-      document.getElementById('summary-fixed').textContent = fixedFromDays.toFixed(1) + 'h';
-      document.getElementById('summary-flexible').textContent = '0h';
-      document.getElementById('summary-remaining-week').textContent = remainingWeek.toFixed(1) + 'h';
+      document.getElementById('summary-fixed').textContent = manualFixed.toFixed(1) + 'h (Cố định)';
+      document.getElementById('summary-flexible').textContent = taskHours.toFixed(1) + 'h (Task tuần)';
+      document.getElementById('summary-remaining-week').innerHTML = `<span class="${totalUsed > quota ? 'text-red-600' : 'text-blue-600'}">${remaining.toFixed(1)}h</span>`;
     }
 
     document.getElementById('inp-work-quota').addEventListener('change', updateHoursSummary);
@@ -1002,6 +1047,8 @@ const emptyState = document.getElementById('empty-state');
         emptyState.classList.add('hidden');
         emptyState.classList.remove('flex');
       }
+     if (typeof populateMemberSelects === 'function') populateMemberSelects();
+      if (!document.getElementById('working-hours-modal').classList.contains('hidden')) renderWorkingHoursList();
     }
 
     function createCard(t) {
@@ -1505,7 +1552,31 @@ const subtasksList = [];
     };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
+// --- BỘ NÃO THỜI GIAN & TỰ ĐỘNG RESET TUẦN ---
+    function getCurrentMonday() {
+        let d = new Date();
+        let day = d.getDay();
+        let diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        d.setDate(diff);
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
 
+    async function autoResetWeeklyHours() {
+        const currentMonday = getCurrentMonday();
+        let needsUpdate = false;
+        const batch = db.batch();
+
+        membersData.forEach(m => {
+            if (!m.weekly_start_date || m.weekly_start_date < currentMonday) {
+                m.weekly_start_date = currentMonday;
+                m.week_hours_data = '[]'; // Chỉ xóa giờ nhập tay của ngày
+                const ref = db.collection("ThanhVien").doc(m.__backendId);
+                batch.update(ref, { weekly_start_date: currentMonday, week_hours_data: '[]' });
+                needsUpdate = true;
+            }
+        });
+        if (needsUpdate) await batch.commit();
+    }
     async function loadDataFromFirebase() {
       try {
         const membersSnapshot = await db.collection("ThanhVien").get();
@@ -1519,7 +1590,7 @@ const subtasksList = [];
           membersData.push(data);
         });
         membersList = membersData.map(m => ({ name: m.name, color: m.color }));
-
+await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
         const tasksSnapshot = await db.collection("CongViec").get();
         allTasks = [];
         tasksSnapshot.forEach((doc) => { let data = doc.data(); data.__backendId = doc.id; allTasks.push(data); });
