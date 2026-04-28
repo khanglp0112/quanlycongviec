@@ -200,13 +200,44 @@
     </div>
    </div>
 
-   <div id="timeline-view" class="hidden flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
-    <div class="max-w-4xl mx-auto">
-     <div class="mb-6 flex items-center justify-between">
-      <h2 class="text-lg font-bold" style="color:#1a1a1a;">📅 Trục thời gian công việc</h2><button id="btn-close-timeline" class="p-2 rounded-lg transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+<div id="timeline-view" class="hidden flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
+    <div class="max-w-5xl mx-auto">
+     <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-4">
+        <h2 id="timeline-title" class="text-xl font-bold text-slate-800">📅 Trục thời gian</h2>
+        <div class="flex bg-slate-200 p-1 rounded-lg">
+          <button id="view-mode-vertical" onclick="switchTimelineMode('vertical')" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm bg-white text-blue-600">Dạng dọc</button>
+          <button id="view-mode-calendar" onclick="switchTimelineMode('calendar')" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all text-slate-600 hover:text-slate-800">Dạng lịch</button>
+        </div>
+      </div>
+      <button id="btn-close-timeline" class="p-2 rounded-lg transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
-     <div class="flex gap-2 mb-6"><button id="timeline-filter-all" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#f59e0b;color:#0f172a;" onclick="filterTimelineBy('all')">Tất cả</button> <button id="timeline-filter-todo" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('todo')">Chờ làm</button> <button id="timeline-filter-doing" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('doing')">Đang làm</button> <button id="timeline-filter-done" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('done')">Hoàn thành</button></div>
-     <div id="timeline-container" class="space-y-6 relative"></div>
+
+     <div id="timeline-filters" class="flex gap-2 mb-6">
+        <button id="timeline-filter-all" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#f59e0b;color:#0f172a;" onclick="filterTimelineBy('all')">Tất cả</button> 
+        <button id="timeline-filter-todo" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('todo')">Chờ làm</button> 
+        <button id="timeline-filter-doing" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('doing')">Đang làm</button> 
+        <button id="timeline-filter-done" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('done')">Hoàn thành</button>
+     </div>
+
+     <div id="timeline-vertical-container" class="space-y-6 relative"></div>
+
+     <div id="timeline-calendar-container" class="hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-3 mb-4 justify-center">
+            <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600"><i data-lucide="chevron-left"></i></button>
+            <h3 id="calendar-month-year" class="text-sm font-bold text-slate-700 min-w-[140px] text-center"></h3>
+            <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600"><i data-lucide="chevron-right"></i></button>
+        </div>
+        <div class="grid grid-cols-7 gap-px bg-slate-200 border border-slate-200 rounded-lg overflow-hidden" id="calendar-grid">
+            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T2</div>
+            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T3</div>
+            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T4</div>
+            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T5</div>
+            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T6</div>
+            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T7</div>
+            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-red-500">CN</div>
+        </div>
+     </div>
     </div>
    </div>
 
@@ -579,7 +610,7 @@ function populateMemberSelects() {
       updateHoursSummary();
     });
 
-    function filterTimelineBy(status) {
+   function filterTimelineBy(status) {
       timelineFilter = status;
       ['all', 'todo', 'doing', 'done'].forEach(s => {
         const btn = document.getElementById('timeline-filter-' + s);
@@ -593,17 +624,21 @@ function populateMemberSelects() {
           btn.style.fontWeight = '500';
         }
       });
-      renderTimeline();
+      // Vẽ lại Dọc hay Lịch tùy theo trạng thái đang chọn
+      if (typeof timelineMode !== 'undefined' && timelineMode === 'calendar') renderCalendar();
+      else renderTimeline();
     }
 
     function renderTimeline() {
-      let tasks = allTasks.filter(t => {
+      // Ép lấy dữ liệu đã qua bộ lọc
+      const filteredTasks = typeof getFiltered === 'function' ? getFiltered() : allTasks;
+      let tasks = filteredTasks.filter(t => {
         if (timelineFilter !== 'all' && t.status !== timelineFilter) return false;
         return t.deadline;
       });
 
       tasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-      const container = document.getElementById('timeline-container');
+      const container = document.getElementById('timeline-vertical-container');
       if (tasks.length === 0) {
         container.innerHTML = `
           <div class="text-center py-12" style="color:#94a3b8;">
@@ -680,7 +715,10 @@ document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('filter-bar').classList.add('hidden');
       document.getElementById('stats-bar').classList.add('hidden');
       document.getElementById('timeline-view').classList.remove('hidden');
-      renderTimeline();
+      
+      // Mặc định luôn mở chế độ hiện tại khi quay lại Timeline
+      if (typeof timelineMode !== 'undefined' && timelineMode === 'calendar') renderCalendar(); 
+      else renderTimeline();
     };
 
     document.getElementById('btn-close-timeline').onclick = () => {
@@ -1050,41 +1088,46 @@ ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
       lucide.createIcons();
     }
 
-    function showTaskDetail(task) {
+function showTaskDetail(task) {
       document.getElementById('detail-title').textContent = task.title;
       const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.important;
       let html = '';
-      if (task.description) { html += `<div><span style="color:#94a3b8;font-size:12px;">Mô tả:</span><p style="color:#e2e8f0;margin:4px 0 0 0;font-size:13px;">${escHtml(task.description)}</p></div>`; }
-      if (task.goal) { html += `<div><span style="color:#94a3b8;font-size:12px;">Mục tiêu:</span><p style="color:#e2e8f0;margin:4px 0 0 0;font-size:13px;">${escHtml(task.goal)}</p></div>`; }
-      html += `<div><span style="color:#94a3b8;font-size:12px;">Ưu tiên:</span><span style="background:${p.color}20;color:${p.color};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;">${p.label}</span></div>`;
-      html += `<div><span style="color:#94a3b8;font-size:12px;">Phân công:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">${escHtml(task.assignee)}</span></div>`;
-     if (task.deadline) { 
+      
+      // Định dạng kiểu chữ đậm và rõ nét hơn
+      const labelStyle = 'color:#64748b;font-size:12px;font-weight:700;';
+      const valueStyle = 'color:#1e293b;font-size:13px;font-weight:700;margin-left:4px;';
+
+      if (task.description) { html += `<div><span style="${labelStyle}">Mô tả:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;">${escHtml(task.description)}</p></div>`; }
+      if (task.goal) { html += `<div><span style="${labelStyle}">Mục tiêu:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;">${escHtml(task.goal)}</p></div>`; }
+      html += `<div><span style="${labelStyle}">Ưu tiên:</span><span style="background:${p.color}20;color:${p.color};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;margin-left:4px;">${p.label}</span></div>`;
+      html += `<div><span style="${labelStyle}">Phân công:</span><span style="${valueStyle}">${escHtml(task.assignee)}</span></div>`;
+      if (task.deadline) { 
           const d = new Date(task.deadline);
           const tStr = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-          html += `<div><span style="color:#94a3b8;font-size:12px;">Thời hạn:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">📅 ${tStr} ngày ${d.toLocaleDateString('vi-VN')}</span></div>`; 
+          html += `<div><span style="${labelStyle}">Thời hạn:</span><span style="${valueStyle}">📅 ${tStr} ngày ${d.toLocaleDateString('vi-VN')}</span></div>`; 
       }
-      if (task.estimated_hours) { html += `<div><span style="color:#94a3b8;font-size:12px;">Giờ dự kiến:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">⏱️ ${task.estimated_hours}h</span></div>`; }
-      if (task.supporters) { html += `<div><span style="color:#94a3b8;font-size:12px;">Hỗ trợ:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">👥 ${escHtml(task.supporters)}</span></div>`; }
-     if (task.subtasks && task.subtasks.length > 0) { 
-        html += `<div><span style="color:#94a3b8;font-size:12px;">Việc cần làm:</span><div class="mt-1.5 space-y-1.5">`;
+      if (task.estimated_hours) { html += `<div><span style="${labelStyle}">Giờ dự kiến:</span><span style="${valueStyle}">⏱️ ${task.estimated_hours}h</span></div>`; }
+      if (task.supporters) { html += `<div><span style="${labelStyle}">Hỗ trợ:</span><span style="${valueStyle}">👥 ${escHtml(task.supporters)}</span></div>`; }
+      if (task.subtasks && task.subtasks.length > 0) { 
+        html += `<div><span style="${labelStyle}">Việc cần làm:</span><div class="mt-1.5 space-y-1.5">`;
         task.subtasks.forEach((st, idx) => {
-            html += `<label class="flex items-start gap-2 text-[13px] text-slate-300 cursor-pointer hover:bg-slate-800 p-1.5 rounded transition-colors" style="border: 1px solid transparent; hover:border-slate-700;">
-                        <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtask('${task.__backendId}', ${idx}, this.checked)" class="mt-0.5 w-3.5 h-3.5 rounded border-slate-500 bg-slate-700 accent-blue-500 cursor-pointer flex-shrink-0">
-                        <span class="${st.done ? 'line-through text-slate-500' : ''}" style="word-break:break-word;">${escHtml(st.text)}</span>
+            html += `<label class="flex items-start gap-2 text-[13px] text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded transition-colors" style="border: 1px solid #e2e8f0;">
+                        <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtask('${task.__backendId}', ${idx}, this.checked)" class="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
+                        <span class="${st.done ? 'line-through text-slate-400' : 'font-semibold'}" style="word-break:break-word;color:#1e293b;">${escHtml(st.text)}</span>
                      </label>`;
         });
         html += `</div></div>`;
       }
       if (task.status === 'done') {
-        if (task.rating) { html += `<div><span style="color:#94a3b8;font-size:12px;">Đánh giá:</span><span style="color:#fbbf24;font-size:13px;margin-left:4px;">⭐ ${task.rating}/5</span></div>`; }
-        if (task.actual_hours) { html += `<div><span style="color:#94a3b8;font-size:12px;">Giờ thực tế:</span><span style="color:#e2e8f0;font-size:13px;margin-left:4px;">${task.actual_hours}h</span></div>`; }
-        if (task.lessons_learned) { html += `<div><span style="color:#94a3b8;font-size:12px;">Kinh nghiệm:</span><p style="color:#86efac;margin:4px 0 0 0;font-size:13px;">💡 ${escHtml(task.lessons_learned)}</p></div>`; }
+        if (task.rating) { html += `<div><span style="${labelStyle}">Đánh giá:</span><span style="color:#d97706;font-size:13px;margin-left:4px;font-weight:700;">⭐ ${task.rating}/5</span></div>`; }
+        if (task.actual_hours) { html += `<div><span style="${labelStyle}">Giờ thực tế:</span><span style="${valueStyle}">${task.actual_hours}h</span></div>`; }
+        if (task.lessons_learned) { html += `<div><span style="${labelStyle}">Kinh nghiệm:</span><p style="color:#059669;margin:4px 0 0 0;font-size:13px;font-weight:700;">💡 ${escHtml(task.lessons_learned)}</p></div>`; }
       }
       document.getElementById('detail-content').innerHTML = html;
       ['todo', 'doing', 'done'].forEach(s => {
         const btn = document.getElementById('detail-status-' + s);
-        if (task.status === s) { btn.style.background = STATUS_MAP[s]; btn.style.color = '#0f172a'; btn.style.fontWeight = '700'; }
-        else { btn.style.background = '#334155'; btn.style.color = '#e2e8f0'; btn.style.fontWeight = '500'; }
+        if (task.status === s) { btn.style.background = STATUS_MAP[s]; btn.style.color = '#ffffff'; btn.style.fontWeight = '700'; }
+        else { btn.style.background = '#f1f5f9'; btn.style.color = '#475569'; btn.style.fontWeight = '600'; }
         btn.onclick = () => changeStatusAndClose(task.__backendId, s);
       });
       document.getElementById('task-detail-modal').classList.remove('hidden');
@@ -1826,6 +1869,80 @@ function toggleLienKet() {
         }
       });
     });
+   let timelineMode = 'vertical'; 
+    let currentCalDate = new Date();
+
+    function switchTimelineMode(mode) {
+        timelineMode = mode;
+        const isVert = mode === 'vertical';
+        
+        document.getElementById('view-mode-vertical').className = isVert ? "px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm bg-white text-blue-600" : "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-slate-600 hover:text-slate-800";
+        document.getElementById('view-mode-calendar').className = !isVert ? "px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm bg-white text-blue-600" : "px-3 py-1.5 rounded-md text-xs font-bold transition-all text-slate-600 hover:text-slate-800";
+
+        document.getElementById('timeline-vertical-container').classList.toggle('hidden', !isVert);
+        document.getElementById('timeline-calendar-container').classList.toggle('hidden', isVert);
+        
+        if (isVert) renderTimeline(); else renderCalendar();
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function changeMonth(step) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + step);
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendar-grid');
+        const label = document.getElementById('calendar-month-year');
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+
+        label.textContent = `Tháng ${month + 1} / ${year}`;
+        const headerCells = Array.from(grid.children).slice(0, 7);
+        grid.innerHTML = '';
+        headerCells.forEach(c => grid.appendChild(c));
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const startOffset = (firstDay === 0 ? 6 : firstDay - 1);
+
+        for (let i = 0; i < startOffset; i++) {
+            const empty = document.createElement('div');
+            empty.className = 'bg-slate-50 h-24 border-t border-l border-slate-200';
+            grid.appendChild(empty);
+        }
+
+        // Ép lấy dữ liệu đã qua bộ lọc thanh Header
+        const filteredTasks = typeof getFiltered === 'function' ? getFiltered() : allTasks;
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayCell = document.createElement('div');
+            dayCell.className = 'bg-white h-24 p-1 border-t border-l border-slate-200 overflow-y-auto scrollbar-thin hover:bg-slate-50';
+            dayCell.innerHTML = `<div class="text-[9px] font-bold text-slate-400 mb-1">${day}</div>`;
+            
+            // Lọc logic theo trạng thái của Timeline (Chờ làm/Đang làm/Hoàn thành)
+            const tasks = filteredTasks.filter(t => {
+                if (typeof timelineFilter !== 'undefined' && timelineFilter !== 'all' && t.status !== timelineFilter) return false;
+                return t.deadline && t.deadline.startsWith(dateKey);
+            });
+
+            tasks.forEach(t => {
+                const p = PRIORITY_MAP[t.priority] || PRIORITY_MAP.important;
+                const dObj = new Date(t.deadline);
+                const tStr = ('0' + dObj.getHours()).slice(-2) + ':' + ('0' + dObj.getMinutes()).slice(-2);
+                
+                const taskDiv = document.createElement('div');
+                taskDiv.className = 'text-[8px] p-1 mb-0.5 rounded border-l-2 truncate font-bold cursor-pointer';
+                taskDiv.style = `background:${p.color}15; color:${p.color}; border-color:${p.color};`;
+                taskDiv.innerHTML = `<span class="opacity-70">${tStr}</span> ${escHtml(t.title)}`;
+                taskDiv.onclick = (e) => { e.stopPropagation(); showTaskDetail(t); };
+                dayCell.appendChild(taskDiv);
+            });
+            grid.appendChild(dayCell);
+        }
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
   </script>
  </body>
 </html>
