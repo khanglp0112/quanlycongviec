@@ -127,13 +127,13 @@
 
         <div class="table-responsive border rounded-lg overflow-auto" style="max-height: 75vh;">
           <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap">
-            <thead class="sticky top-0 z-20">
+          <thead class="sticky top-0 z-20">
                 <tr class="bg-slate-100 text-slate-700">
                     <th class="border p-2 sticky-col left-0 bg-slate-100" rowspan="3">STT</th>
                     <th class="border p-2 sticky-col bg-slate-100" style="left:40px;" rowspan="3">Họ Tên</th>
-                    <th id="head-tih" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB TiH</th>
-                    <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="4">Tiết TKB THCS-PT</th>
-                    <th class="border p-2 bg-amber-50" colspan="4">Số tiết vắng</th>
+                    <th id="head-tih" class="border p-2 bg-emerald-50" colspan="5">Tiết TKB TiH</th>
+                    <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="5">Tiết TKB THCS-PT</th>
+                    <th class="border p-2 bg-amber-50" colspan="5">Số tiết vắng</th>
                     <th class="border p-2 bg-amber-50" rowspan="3">Dạy thay</th>
                     <th class="border p-2 bg-orange-50" rowspan="3">PL02</th>
                     <th class="border p-2 bg-orange-50" rowspan="3">Ôn thi/CLB</th>
@@ -147,15 +147,29 @@
                     <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD 1:1/17</th>
                 </tr>
                 <tr class="bg-slate-100">
-                    <th id="sub-tih" colspan="4" class="border p-1 text-[10px]">Tuần</th>
-                    <th id="sub-thcs" colspan="4" class="border p-1 text-[10px]">Tuần</th>
-                    <th colspan="4" class="border p-1 text-[10px]">Tuần</th>
+                    <th id="sub-tih" colspan="5" class="border p-1 text-[10px]">Tuần</th>
+                    <th id="sub-thcs" colspan="5" class="border p-1 text-[10px]">Tuần</th>
+                    <th colspan="5" class="border p-1 text-[10px]">Tuần</th>
                 </tr>
-                <tr class="bg-slate-50">
-                    <th class="border p-1 w-8 tih-col">1</th><th class="border p-1 w-8 tih-col">2</th><th class="border p-1 w-8 tih-col">3</th><th class="border p-1 w-8 tih-col">4</th>
-                    <th class="border p-1 w-8 thcs-col">1</th><th class="border p-1 w-8 thcs-col">2</th><th class="border p-1 w-8 thcs-col">3</th><th class="border p-1 w-8 thcs-col">4</th>
-                    <th class="border p-1 w-8">1</th><th class="border p-1 w-8">2</th><th class="border p-1 w-8">3</th><th class="border p-1 w-8">4</th>
-                </tr>
+             <tr class="bg-slate-50" id="week-dates-row">
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-0">1</th>
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-1">2</th>
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-2">3</th>
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-3">4</th>
+    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-4">5</th>
+    
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-0">1</th>
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-1">2</th>
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-2">3</th>
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-3">4</th>
+    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-4">5</th>
+    
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-0">1</th>
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-1">2</th>
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-2">3</th>
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-3">4</th>
+    <th class="border p-1 w-12 text-[9px] leading-tight week-head-4">5</th>
+</tr>
             </thead>
             <tbody id="cham-tiet-tbody"></tbody>
           </table>
@@ -1522,6 +1536,35 @@ function toggleChamTiet() {
     }
 
     async function renderChamTietTable() {
+     // --- TỰ ĐỘNG TÍNH NGÀY TRÊN TIÊU ĐỀ TUẦN ---
+      const parts = currentChamTietMonth.split('-');
+      const year = parseInt(parts[0]);
+      const month = parseInt(parts[1]);
+      
+      // Ngày bắt đầu chu kỳ: 26 tháng trước
+      const startDate = new Date(year, month - 2, 26);
+      // Ngày kết thúc chu kỳ: 25 tháng này
+      const endDateLimit = new Date(year, month - 1, 25);
+
+      for (let i = 0; i < 5; i++) {
+          let wStart = new Date(startDate);
+          wStart.setDate(startDate.getDate() + (i * 7));
+          
+          let wEnd = new Date(wStart);
+          wEnd.setDate(wStart.getDate() + 6);
+
+          let dateText = "";
+          if (wStart <= endDateLimit) {
+              // Nếu ngày kết thúc tuần vượt quá ngày 25, thì lấy ngày 25 làm mốc
+              const finalEnd = wEnd > endDateLimit ? endDateLimit : wEnd;
+              dateText = `${i+1}<br><span style="color:#94a3b8">${wStart.getDate()}/${wStart.getMonth()+1}-${finalEnd.getDate()}/${finalEnd.getMonth()+1}</span>`;
+          } else {
+              dateText = i + 1; // Hết tuần thì chỉ hiện số
+          }
+          
+          // Điền vào tất cả các ô tiêu đề có cùng nhóm tuần
+          document.querySelectorAll(`.week-head-${i}`).forEach(el => el.innerHTML = dateText);
+      }
       const tbody = document.getElementById('cham-tiet-tbody');
       const boxTiH = document.getElementById('show-tih');
       const boxTHCS = document.getElementById('show-thcs');
@@ -1546,14 +1589,14 @@ function toggleChamTiet() {
         tbody.innerHTML = '';
         membersData.forEach((member, index) => {
           const d = dataThang[member.__backendId] || {};
-          const w = (key) => d[key] || [0, 0, 0, 0];
+         const w = (key) => d[key] || [0, 0, 0, 0, 0];
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td class="border p-2 sticky-col left-0 bg-white text-slate-400">${index + 1}</td>
             <td class="border p-2 sticky-col left-[40px] bg-white text-left font-bold text-slate-700">${member.name}</td>
-            ${showTiH ? [0,1,2,3].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i]}"></td>`).join('') : ''}
-            ${showTHCS ? [0,1,2,3].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i]}"></td>`).join('') : ''}
-            ${[0,1,2,3].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i]}"></td>`).join('')}
+            ${showTiH ? [0,1,2,3,4].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i] || 0}"></td>`).join('') : ''}
+            ${showTHCS ? [0,1,2,3,4].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i] || 0}"></td>`).join('') : ''}
+            ${[0,1,2,3,4].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i] || 0}"></td>`).join('')}
             <td class="border p-1"><input type="number" class="ct-input-week ct-daythay" style="width:55px" data-id="${member.__backendId}" value="${typeof d.dayThay === 'number' ? d.dayThay : 0}"></td>
             <td class="border p-1"><input type="number" class="ct-input-week ct-pl02" data-id="${member.__backendId}" value="${d.pl02 || 0}"></td>
             <td class="border p-1"><input type="number" class="ct-input-week ct-onthi" data-id="${member.__backendId}" value="${d.onThi || 0}"></td>
