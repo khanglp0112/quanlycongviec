@@ -105,6 +105,7 @@
       <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()"><i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Liên kết</span></button>
       <button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()"><i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Chấm tiết</span></button>
       <button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
+     <button id="btn-archive" onclick="openArchiveModal()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm hover:shadow" style="background:#ffffff;color:#475569;border:1px solid #cbd5e1;"><i data-lucide="archive" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Kho lưu trữ</span></button>
       <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thêm việc</span></button>
     </div>
    </header>
@@ -424,6 +425,39 @@
      </form>
     </div>
    </div>
+   <div id="archive-modal" class="fixed inset-0 hidden items-center justify-center z-[60] transition-opacity" style="background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(5px);">
+    <div class="bg-white rounded-xl shadow-2xl w-11/12 max-w-5xl h-[80vh] flex flex-col transform transition-all premium-fade-up border border-slate-100">
+      <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+        <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 tracking-wide">
+          <i data-lucide="archive" class="w-5 h-5 text-slate-500"></i> KHO LƯU TRỮ CÔNG VIỆC
+        </h2>
+        <button onclick="closeArchiveModal()" class="text-slate-400 hover:text-slate-600 transition-colors bg-white hover:bg-slate-100 p-1.5 rounded-lg shadow-sm border border-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div class="p-4 border-b border-slate-100 bg-white">
+          <div class="relative">
+              <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+              <input type="text" id="archive-search" placeholder="Tra cứu theo tên công việc hoặc giáo viên thực hiện..." class="w-full pl-9 pr-4 py-2 rounded-lg text-sm border border-slate-200 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all bg-slate-50" oninput="renderArchiveList()">
+          </div>
+      </div>
+      <div class="flex-1 overflow-y-auto bg-slate-50/30 p-4 scrollbar-thin">
+        <div class="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-slate-50 border-b border-slate-200 sticky top-0 z-10">
+              <tr>
+                <th class="px-6 py-3 font-bold text-slate-500 text-[11px] uppercase tracking-wider w-1/2">Tên công việc</th>
+                <th class="px-6 py-3 font-bold text-slate-500 text-[11px] uppercase tracking-wider">Người thực hiện</th>
+                <th class="px-6 py-3 font-bold text-slate-500 text-[11px] uppercase tracking-wider">Ngày hoàn thành</th>
+                <th class="px-6 py-3 font-bold text-slate-500 text-[11px] uppercase tracking-wider text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="archive-list-body" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
     <footer class="w-full py-6 mt-auto border-t border-slate-100 flex flex-col items-center justify-center gap-1">
       <p class="text-[11px] font-bold text-slate-400 tracking-wider">© 2026 TỔ TOÁN - TIN IGC TÂY NINH</p>
       <div class="flex items-center gap-1.5">
@@ -1087,7 +1121,7 @@ document.getElementById('btn-timeline').onclick = () => {
     function renderTasks() {
       const filtered = getFiltered();
       const cols = { todo: [], doing: [], done: [] };
-      filtered.forEach(t => { if (cols[t.status]) cols[t.status].push(t); });
+filtered.forEach(t => { if (cols[t.status] && !t.archived) cols[t.status].push(t); });
       
       ['todo', 'doing', 'done'].forEach(status => {
         cols[status].sort((a, b) => {
@@ -1110,10 +1144,11 @@ document.getElementById('btn-timeline').onclick = () => {
           if (existing) { updateCard(existing, t); } else { const card = createCard(t); container.appendChild(card); }
         });
       });
-      document.getElementById('stat-total').textContent = allTasks.length;
-      document.getElementById('stat-todo').textContent = allTasks.filter(t => t.status === 'todo').length;
-      document.getElementById('stat-doing').textContent = allTasks.filter(t => t.status === 'doing').length;
-      document.getElementById('stat-done').textContent = allTasks.filter(t => t.status === 'done').length;
+const activeTasks = allTasks.filter(t => !t.archived);
+      document.getElementById('stat-total').textContent = activeTasks.length;
+      document.getElementById('stat-todo').textContent = activeTasks.filter(t => t.status === 'todo').length;
+      document.getElementById('stat-doing').textContent = activeTasks.filter(t => t.status === 'doing').length;
+      document.getElementById('stat-done').textContent = activeTasks.filter(t => t.status === 'done').length;
       
 const emptyState = document.getElementById('empty-state');
       const isLKOpen = !document.getElementById('lien-ket-view').classList.contains('hidden');
@@ -1222,6 +1257,9 @@ ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
           </div>
          <div class="flex items-center gap-1">
             ${t.status !== 'done' ? `<button onclick="event.stopPropagation(); moveTask('${t.__backendId}','${t.status === 'todo' ? 'doing' : 'done'}')" class="p-1 rounded transition-colors" style="color:#666666;" title="Chuyển trạng thái"><i data-lucide="${t.status === 'todo' ? 'play' : 'check'}" style="width:14px;height:14px;"></i></button>` : ''}
+            ${t.status === 'done' && !t.archived ? `
+                <button onclick="event.stopPropagation(); archiveTaskDirectly('${t.__backendId}')" title="Lưu trữ ngay" class="p-1 rounded text-xs font-medium transition-colors border border-slate-200 bg-white text-slate-400 hover:text-amber-600 hover:border-amber-300 hover:bg-amber-50 mr-1"><i data-lucide="archive" style="width:14px;height:14px;"></i></button>
+            ` : ''}
             <button onclick="event.stopPropagation(); editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
             <button onclick="event.stopPropagation(); duplicateTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
             <button onclick="event.stopPropagation(); showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
@@ -1650,7 +1688,103 @@ const subtasksList = [];
     };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
-// --- BỘ NÃO THỜI GIAN & TỰ ĐỘNG RESET TUẦN ---
+// === HỆ THỐNG KHO LƯU TRỮ CẤP CAO ===
+    function openArchiveModal() {
+        document.getElementById('archive-modal').classList.remove('hidden');
+        document.getElementById('archive-modal').classList.add('flex');
+        renderArchiveList();
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    
+    function closeArchiveModal() {
+        document.getElementById('archive-modal').classList.add('hidden');
+        document.getElementById('archive-modal').classList.remove('flex');
+    }
+
+    function renderArchiveList() {
+        const tbody = document.getElementById('archive-list-body');
+        const searchTxt = document.getElementById('archive-search').value.toLowerCase();
+        
+        let archivedTasks = allTasks.filter(t => t.archived === true);
+        archivedTasks.sort((a,b) => new Date(b.completed_at || 0) - new Date(a.completed_at || 0));
+        
+        const filtered = archivedTasks.filter(t => 
+            (t.title && t.title.toLowerCase().includes(searchTxt)) || 
+            (t.assignee && t.assignee.toLowerCase().includes(searchTxt))
+        );
+
+        if(filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-12 text-center text-slate-400 text-sm italic">Không có dữ liệu trong kho.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = filtered.map(t => {
+            const compDate = t.completed_at ? new Date(t.completed_at).toLocaleDateString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : 'Chưa rõ';
+            const assignees = t.assignee ? t.assignee : 'Trống';
+            return `
+              <tr class="hover:bg-slate-50 transition-colors group">
+                <td class="px-6 py-4 font-semibold text-slate-700">${escHtml(t.title)}</td>
+                <td class="px-6 py-4 text-slate-600"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-medium">${escHtml(assignees)}</span></td>
+                <td class="px-6 py-4 text-slate-500 text-xs font-medium">${compDate}</td>
+                <td class="px-6 py-4 text-right">
+                    <button onclick="restoreTask('${t.__backendId}')" class="opacity-0 group-hover:opacity-100 text-xs font-bold text-blue-600 hover:text-white border border-blue-200 hover:bg-blue-600 px-3 py-1.5 rounded-md transition-all shadow-sm">Khôi phục</button>
+                </td>
+              </tr>
+            `;
+        }).join('');
+    }
+
+    async function restoreTask(id) {
+        if(confirm('Khôi phục công việc này về lại bảng Kanban?')) {
+            await db.collection("CongViec").doc(id).update({ archived: false });
+            const index = allTasks.findIndex(t => t.__backendId === id);
+            if (index !== -1) Object.assign(allTasks[index], { archived: false });
+            renderArchiveList(); 
+            if(typeof renderTasks === 'function') renderTasks();
+        }
+    }
+
+    async function autoArchiveTasks() {
+        const now = new Date();
+        let needsUpdate = false;
+        const batch = db.batch();
+        allTasks.forEach(t => {
+            if (t.status === 'done' && !t.archived && t.completed_at) {
+                const diffDays = (now - new Date(t.completed_at)) / (1000 * 60 * 60 * 24);
+                if (diffDays >= 7) {
+                    batch.update(db.collection("CongViec").doc(t.__backendId), { archived: true });
+                    t.archived = true;
+                    needsUpdate = true;
+                }
+            }
+        });
+        if (needsUpdate) {
+            await batch.commit();
+            if(typeof renderTasks === 'function') renderTasks();
+        }
+    }
+
+    async function archiveTaskDirectly(id) {
+        if (!confirm('Cất công việc này vào Kho lưu trữ ngay lập tức?')) return;
+        const card = document.querySelector(`[data-id="${id}"]`);
+        if (card) {
+            card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.85) translateY(10px)';
+        }
+        setTimeout(async () => {
+            try {
+                await db.collection("CongViec").doc(id).update({ archived: true, completed_at: new Date().toISOString() });
+                const index = allTasks.findIndex(t => t.__backendId === id);
+                if (index !== -1) Object.assign(allTasks[index], { archived: true, completed_at: new Date().toISOString() });
+                if(typeof renderTasks === 'function') renderTasks();
+            } catch (error) {
+                if (card) { card.style.opacity = '1'; card.style.transform = 'none'; }
+                alert("Lỗi khi lưu trữ: " + error.message);
+            }
+        }, 350);
+    }
+   // --- BỘ NÃO THỜI GIAN & TỰ ĐỘNG RESET TUẦN ---
     function getCurrentMonday() {
         let d = new Date();
         let day = d.getDay();
@@ -1689,6 +1823,7 @@ const subtasksList = [];
         });
         membersList = membersData.map(m => ({ name: m.name, color: m.color }));
 await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
+     await autoArchiveTasks(); // Quét dọn các công việc đã xong quá 7 ngày
         const tasksSnapshot = await db.collection("CongViec").get();
         allTasks = [];
         tasksSnapshot.forEach((doc) => { let data = doc.data(); data.__backendId = doc.id; allTasks.push(data); });
