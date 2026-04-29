@@ -36,10 +36,29 @@
     @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.7); } 50% { box-shadow: 0 0 0 8px rgba(167, 139, 250, 0); } }
     .timeline-line { position: absolute; left: 15px; top: 0; width: 2px; height: 100%; background: linear-gradient(to bottom, #38bdf8, transparent); }
     .timeline-date { font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+/* Hiệu ứng màn hình chào */
+    #splash-screen {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: #ffffff; z-index: 9999; display: flex;
+        flex-direction: column; align-items: center; justify-content: center;
+        transition: opacity 0.5s ease, visibility 0.5s;
+    }
+    #splash-screen.hidden-splash { opacity: 0; visibility: hidden; pointer-events: none; }
+    .loading-bar { width: 120px; height: 3px; background: #f1f5f9; border-radius: 10px; margin-top: 20px; overflow: hidden; }
+    .loading-progress { width: 40%; height: 100%; background: #f59e0b; border-radius: 10px; animation: loading 1s infinite ease-in-out; }
+    @keyframes loading { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
   </style>
  </head>
  <body class="h-full">
   <div id="app" class="w-full h-full flex flex-col overflow-auto" style="background: #ffffff;">
+   <div id="splash-screen">
+    <div class="flex flex-col items-center animate-bounce">
+      <img src="LogoToToanTin.png" alt="Logo" class="w-20 h-20 object-contain mb-4">
+      <h2 class="font-display text-2xl font-bold text-slate-800">DÍ DEADLINE</h2>
+      <p class="text-xs font-semibold text-slate-400 tracking-[0.2em] uppercase mt-2">Crafted by Thầy Khang</p>
+    </div>
+    <div class="loading-bar"><div class="loading-progress"></div></div>
+  </div>
    <header class="w-full px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 flex-wrap gap-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-bottom: 2px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
     <div class="flex items-center gap-3">
 <div class="w-9 h-9 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLogoViewer()" title="Phóng to logo">
@@ -373,6 +392,13 @@
      </form>
     </div>
    </div>
+    <footer class="w-full py-6 mt-auto border-t border-slate-100 flex flex-col items-center justify-center gap-1">
+      <p class="text-[11px] font-bold text-slate-400 tracking-wider">© 2026 TỔ TOÁN - TIN IGC TÂY NINH</p>
+      <div class="flex items-center gap-1.5">
+          <span class="text-[10px] font-medium text-slate-300">Phát triển bởi</span>
+          <span class="text-[11px] font-bold text-blue-500 hover:text-blue-600 transition-colors cursor-default">Thầy Khang (KhangLP)</span>
+      </div>
+   </footer>
   </div>
 <div id="logo-viewer-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.85);" onclick="closeLogoViewer()">
     <div class="relative max-w-3xl max-h-[90vh] flex items-center justify-center modal-backdrop fade-in" onclick="event.stopPropagation()">
@@ -1639,7 +1665,12 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
         if (typeof renderMembersList === "function") renderMembersList();
         if (typeof renderTasks === "function") renderTasks();
       } catch (error) { console.error("Lỗi tải dữ liệu:", error); }
-    }
+   // Tự động tắt màn hình chào sau 0.8 giây để tạo độ mượt
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if(splash) splash.classList.add('hidden-splash');
+        }, 800); 
+   }
     loadDataFromFirebase();
 
     function duplicateTask(id) {
