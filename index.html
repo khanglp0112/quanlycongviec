@@ -311,12 +311,25 @@
          <div id="subtasks-container" class="space-y-2 mb-2"></div>
          <button type="button" onclick="addSubtaskInput()" class="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1 font-semibold"><i data-lucide="plus" style="width:14px;height:14px;"></i> Thêm mục con</button>
        </div>
-       <div class="col-span-2">
+     <div class="col-span-4 row-span-2 flex flex-col">
          <label class="block text-xs font-semibold mb-1.5" style="color:#475569;">Phân công (chọn nhiều)</label> 
-         <div id="assignee-list" class="w-full max-h-[84px] overflow-y-auto px-2 py-1.5 rounded-lg text-sm outline-none scrollbar-thin space-y-1 focus:border-blue-500" style="background:#f8fafc;border:1px solid #cbd5e1;"></div>
+         <div id="assignee-list" class="w-full flex-1 min-h-[106px] max-h-[106px] overflow-y-auto px-2 py-1.5 rounded-lg text-sm outline-none scrollbar-thin space-y-1 focus:border-blue-500" style="background:#f8fafc;border:1px solid #cbd5e1;"></div>
        </div>
-       <div class="col-span-2"><label for="inp-priority" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mức ưu tiên</label> <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;"><option value="delegable">Không quan trọng & Không khẩn</option><option value="urgent">Khẩn cấp nhưng Không quan trọng</option><option value="important" selected>Quan trọng nhưng Không khẩn</option><option value="urgent_important">Quan trọng & Khẩn cấp</option></select></div>
-       <div class="col-span-2"><label for="inp-deadline" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Thời hạn (Ngày & Giờ)</label> <input id="inp-deadline" type="datetime-local" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;"></div>
+       
+       <div class="col-span-2">
+         <label for="inp-priority" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mức ưu tiên</label> 
+         <select id="inp-priority" class="w-full px-3 py-2 rounded-lg text-sm outline-none cursor-pointer focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;">
+             <option value="delegable">Không quan trọng & Không khẩn</option>
+             <option value="urgent">Khẩn cấp nhưng Không quan trọng</option>
+             <option value="important" selected>Quan trọng nhưng Không khẩn</option>
+             <option value="urgent_important">Quan trọng & Khẩn cấp</option>
+         </select>
+       </div>
+       
+       <div class="col-span-2">
+         <label for="inp-deadline" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Thời hạn (Ngày & Giờ)</label> 
+         <input id="inp-deadline" type="datetime-local" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;">
+       </div>
        <div class="col-span-2"><label for="inp-estimated-hours" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Giờ dự kiến</label> <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: 2.5"></div>
        <div class="col-span-4 flex items-center gap-2 pt-6"><input id="inp-weekly" type="checkbox" class="w-4 h-4 rounded border-slate-400 bg-white accent-blue-600 cursor-pointer"><label for="inp-weekly" class="text-xs font-semibold cursor-pointer" style="color:#475569;">🔁 Lặp lại hàng tuần</label></div>
        <div class="col-span-6"><label for="inp-supporters" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Nhân sự hỗ trợ</label> <input id="inp-supporters" type="text" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: Minh, Lan, Tuấn"></div>
