@@ -1765,7 +1765,6 @@ const subtasksList = [];
     }
 
     async function archiveTaskDirectly(id) {
-        if (!confirm('Cất công việc này vào Kho lưu trữ ngay lập tức?')) return;
         const card = document.querySelector(`[data-id="${id}"]`);
         if (card) {
             card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
