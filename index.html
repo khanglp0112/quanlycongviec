@@ -36,28 +36,57 @@
     @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.7); } 50% { box-shadow: 0 0 0 8px rgba(167, 139, 250, 0); } }
     .timeline-line { position: absolute; left: 15px; top: 0; width: 2px; height: 100%; background: linear-gradient(to bottom, #38bdf8, transparent); }
     .timeline-date { font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-/* Hiệu ứng màn hình chào */
+/* Hiệu ứng Màn hình chào Premium */
     #splash-screen {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
         background: #ffffff; z-index: 9999; display: flex;
         flex-direction: column; align-items: center; justify-content: center;
-        transition: opacity 0.5s ease, visibility 0.5s;
+        /* Thêm hiệu ứng blur (mờ) khi biến mất để tạo cảm giác tan biến */
+        transition: opacity 0.8s ease, visibility 0.8s, filter 0.8s;
     }
-    #splash-screen.hidden-splash { opacity: 0; visibility: hidden; pointer-events: none; }
-    .loading-bar { width: 120px; height: 3px; background: #f1f5f9; border-radius: 10px; margin-top: 20px; overflow: hidden; }
-    .loading-progress { width: 40%; height: 100%; background: #f59e0b; border-radius: 10px; animation: loading 1s infinite ease-in-out; }
-    @keyframes loading { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+    #splash-screen.hidden-splash { opacity: 0; visibility: hidden; filter: blur(10px); pointer-events: none; }
+    
+    /* Chuyển động trôi lên mượt mà */
+    .premium-fade-up {
+        animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0; transform: translateY(15px);
+    }
+    /* Logo thở nhẹ nhàng với bóng đổ tinh tế */
+    .premium-pulse { animation: subtlePulse 2.5s infinite ease-in-out; }
+    
+    @keyframes fadeUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes subtlePulse {
+        0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 10px rgba(0,0,0,0.05)); }
+        50% { transform: scale(1.03); filter: drop-shadow(0 15px 20px rgba(0,0,0,0.1)); }
+    }
+    
+    /* Sợi chỉ ánh sáng gradient */
+    .ultra-thin-loader {
+        position: absolute; bottom: 50px; width: 120px; height: 1.5px;
+        background: rgba(0,0,0,0.03); overflow: hidden; border-radius: 2px;
+    }
+    .ultra-thin-progress {
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, #3b82f6, #8b5cf6, transparent);
+        animation: sleekScan 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes sleekScan {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
   </style>
  </head>
  <body class="h-full">
   <div id="app" class="w-full h-full flex flex-col overflow-auto" style="background: #ffffff;">
-   <div id="splash-screen">
-    <div class="flex flex-col items-center animate-bounce">
-      <img src="LogoToToanTin.png" alt="Logo" class="w-20 h-20 object-contain mb-4">
-      <h2 class="font-display text-2xl font-bold text-slate-800">DÍ DEADLINE</h2>
-      <p class="text-xs font-semibold text-slate-400 tracking-[0.2em] uppercase mt-2">Crafted by Thầy Khang</p>
+<div id="splash-screen">
+    <div class="flex flex-col items-center premium-fade-up">
+      <img src="LogoToToanTin.png" alt="Logo" class="w-24 h-24 object-contain mb-6 premium-pulse">
+      <h2 class="font-display text-3xl font-bold text-slate-800 tracking-tight">DÍ DEADLINE</h2>
+<p class="text-[10px] font-semibold text-slate-400 tracking-[0.4em] uppercase mt-3">Exclusive Workspace</p>
     </div>
-    <div class="loading-bar"><div class="loading-progress"></div></div>
+    <div class="ultra-thin-loader premium-fade-up" style="animation-delay: 0.3s;"><div class="ultra-thin-progress"></div></div>
   </div>
    <header class="w-full px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 flex-wrap gap-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-bottom: 2px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
     <div class="flex items-center gap-3">
@@ -396,7 +425,7 @@
       <p class="text-[11px] font-bold text-slate-400 tracking-wider">© 2026 TỔ TOÁN - TIN IGC TÂY NINH</p>
       <div class="flex items-center gap-1.5">
           <span class="text-[10px] font-medium text-slate-300">Phát triển bởi</span>
-          <span class="text-[11px] font-bold text-blue-500 hover:text-blue-600 transition-colors cursor-default">Thầy Khang (KhangLP)</span>
+          <span class="text-[11px] font-bold text-blue-500 hover:text-blue-600 transition-colors cursor-default">Thầy Khang</span>
       </div>
    </footer>
   </div>
