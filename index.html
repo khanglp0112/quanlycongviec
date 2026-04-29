@@ -37,21 +37,20 @@
     .timeline-line { position: absolute; left: 15px; top: 0; width: 2px; height: 100%; background: linear-gradient(to bottom, #38bdf8, transparent); }
     .timeline-date { font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
 /* Hiệu ứng Màn hình chào Premium */
+   /* Hiệu ứng Màn hình chào Premium */
     #splash-screen {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #ffffff; z-index: 9999; display: flex;
+        background: #ffffff; /* Nền trắng tuyệt đối để giấu nền logo */
+        z-index: 9999; display: flex;
         flex-direction: column; align-items: center; justify-content: center;
-        /* Thêm hiệu ứng blur (mờ) khi biến mất để tạo cảm giác tan biến */
         transition: opacity 0.8s ease, visibility 0.8s, filter 0.8s;
     }
     #splash-screen.hidden-splash { opacity: 0; visibility: hidden; filter: blur(10px); pointer-events: none; }
     
-    /* Chuyển động trôi lên mượt mà */
     .premium-fade-up {
         animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         opacity: 0; transform: translateY(15px);
     }
-    /* Logo thở nhẹ nhàng với bóng đổ tinh tế */
     .premium-pulse { animation: subtlePulse 2.5s infinite ease-in-out; }
     
     @keyframes fadeUp {
@@ -62,10 +61,11 @@
         50% { transform: scale(1.03); filter: drop-shadow(0 15px 20px rgba(0,0,0,0.1)); }
     }
     
-    /* Sợi chỉ ánh sáng gradient */
+    /* Sợi chỉ ánh sáng gradient đặt ngay dưới chữ */
     .ultra-thin-loader {
-        position: absolute; bottom: 50px; width: 120px; height: 1.5px;
-        background: rgba(0,0,0,0.03); overflow: hidden; border-radius: 2px;
+        width: 120px; height: 1.5px;
+        background: rgba(0,0,0,0.05); overflow: hidden; border-radius: 2px;
+        margin-top: 24px; /* Khoảng cách từ chữ xuống thanh loading */
     }
     .ultra-thin-progress {
         width: 100%; height: 100%;
@@ -84,9 +84,12 @@
     <div class="flex flex-col items-center premium-fade-up">
       <img src="LogoToToanTin.png" alt="Logo" class="w-24 h-24 object-contain mb-6 premium-pulse">
       <h2 class="font-display text-3xl font-bold text-slate-800 tracking-tight">DÍ DEADLINE</h2>
-<p class="text-[10px] font-semibold text-slate-400 tracking-[0.4em] uppercase mt-3">Exclusive Workspace</p>
+      <p class="text-[10px] font-semibold text-slate-400 tracking-[0.4em] uppercase mt-3">Exclusive Workspace</p>
+      
+      <div class="ultra-thin-loader premium-fade-up" style="animation-delay: 0.3s;">
+        <div class="ultra-thin-progress"></div>
+      </div>
     </div>
-    <div class="ultra-thin-loader premium-fade-up" style="animation-delay: 0.3s;"><div class="ultra-thin-progress"></div></div>
   </div>
    <header class="w-full px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 flex-wrap gap-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-bottom: 2px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
     <div class="flex items-center gap-3">
