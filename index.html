@@ -489,6 +489,17 @@
       d.textContent = s || '';
       return d.innerHTML;
     }
+   // Bộ lọc nhận diện Link và giữ nguyên vẹn dấu xuống dòng
+    function linkify(text) {
+        if (!text) return '';
+        let safeText = escHtml(text); // Làm sạch mã độc trước
+        const urlRegex = /(https?:\/\/[^\s]+)/g; // Thuật toán bắt link
+        
+        return safeText.replace(urlRegex, function(url) {
+            // Biến link thành chữ xanh, bấm vào mở tab mới
+            return `<a href="${url}" target="_blank" class="text-blue-600 hover:text-blue-800 underline font-semibold transition-colors" style="word-break: break-all;" onclick="event.stopPropagation()">${url}</a>`;
+        }).replace(/\n/g, '<br>'); // Chuyển dấu Enter thành thẻ <br> để giữ xuống dòng
+    }
 // Mở màn hình xem logo to
     function openLogoViewer() {
         document.getElementById('logo-viewer-modal').classList.remove('hidden');
@@ -1247,7 +1258,7 @@ const emptyState = document.getElementById('empty-state');
           <span class="text-sm font-semibold" style="color:#1a1a1a;word-break:break-word;">${escHtml(t.title)}</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0" style="background:${p.color}20;color:${p.color};">${p.label}</span>
         </div>
-        ${t.description ? `<p class="text-xs mb-2" style="color:#555555;word-break:break-word;">${escHtml(t.description)}</p>` : ''}
+${t.description ? `<p class="text-xs mb-2 leading-relaxed" style="color:#555555;word-break:break-word;">${linkify(t.description)}</p>` : ''}${t.description ? `<p class="text-xs mb-2 leading-relaxed" style="color:#555555;word-break:break-word;">${linkify(t.description)}</p>` : ''}
 ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
         ${t.status === 'done' && t.rating ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#fbbf2420;color:#d97706;">⭐ Đánh giá: ${t.rating}/5</div>` : ''}
         ${t.status === 'done' && t.lessons_learned ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#34d39920;color:#059669;">💡 ${escHtml(t.lessons_learned.substring(0, 40))}${t.lessons_learned.length > 40 ? '...' : ''}</div>` : ''}
@@ -1283,7 +1294,7 @@ function showTaskDetail(task) {
       const labelStyle = 'color:#64748b;font-size:12px;font-weight:700;';
       const valueStyle = 'color:#1e293b;font-size:13px;font-weight:700;margin-left:4px;';
 
-      if (task.description) { html += `<div><span style="${labelStyle}">Mô tả:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;">${escHtml(task.description)}</p></div>`; }
+     if (task.description) { html += `<div><span style="${labelStyle}">Mô tả:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;line-height:1.6;">${linkify(task.description)}</p></div>`; }
       if (task.goal) { html += `<div><span style="${labelStyle}">Mục tiêu:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;">${escHtml(task.goal)}</p></div>`; }
       html += `<div><span style="${labelStyle}">Ưu tiên:</span><span style="background:${p.color}20;color:${p.color};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;margin-left:4px;">${p.label}</span></div>`;
       html += `<div><span style="${labelStyle}">Phân công:</span><span style="${valueStyle}">${escHtml(task.assignee)}</span></div>`;
