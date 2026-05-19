@@ -1447,15 +1447,38 @@ function showTaskDetail(task) {
     }
 
     function openModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('form-error').classList.add('hidden'); }
- function addSubtaskInput(text = '', done = false) {
+let draggedSubtask = null; // Biến toàn cục để nhớ xem đang kéo mục nào
+
+    function addSubtaskInput(text = '', done = false) {
         const container = document.getElementById('subtasks-container');
         const div = document.createElement('div');
-        div.className = 'flex items-center gap-2 subtask-item';
+        // Thêm các class hỗ trợ kéo thả
+        div.className = 'flex items-center gap-2 subtask-item transition-all duration-200 rounded';
+        div.setAttribute('draggable', 'true'); // Cho phép nắm kéo
+        
         div.innerHTML = `
+            <div class="cursor-move text-slate-400 hover:text-slate-600 p-1" title="Nắm để kéo thả đổi thứ tự">
+                <i data-lucide="grip-vertical" style="width:16px;height:16px;"></i>
+            </div>
             <input type="checkbox" class="subtask-cb w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer" ${done ? 'checked' : ''} title="Đã hoàn thành?">
             <input type="text" class="subtask-text flex-1 px-3 py-1.5 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#ffffff;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Nhập việc cần làm..." value="${escHtml(text)}">
             <button type="button" onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-700 p-1"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
         `;
+        
+        // --- XỬ LÝ SỰ KIỆN KÉO THẢ TẠI CHỖ ---
+        div.addEventListener('dragstart', () => {
+            draggedSubtask = div;
+            div.style.opacity = '0.4'; // Mờ đi khi đang bị nắm kéo
+            div.style.background = '#f8fafc';
+        });
+        
+        div.addEventListener('dragend', () => {
+            draggedSubtask = null;
+            div.style.opacity = '1'; // Rõ lại khi thả tay
+            div.style.background = 'transparent';
+        });
+        // ------------------------------------
+
         container.appendChild(div);
         if(typeof lucide !== 'undefined') lucide.createIcons();
     }
@@ -2314,6 +2337,41 @@ function drawLinksTable() {
             grid.appendChild(dayCell);
         }
         if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+   // === THUẬT TOÁN ĐỔI THỨ TỰ SUB-TASK ===
+    const subtasksContainer = document.getElementById('subtasks-container');
+    
+    // Khi di chuột có mang theo item qua vùng chứa
+    subtasksContainer.addEventListener('dragover', e => {
+        e.preventDefault(); // Bắt buộc phải có để cho phép "Drop"
+        if (!draggedSubtask) return;
+        
+        // Tính toán xem đang ở trên hay dưới phần tử nào
+        const afterElement = getDragAfterElement(subtasksContainer, e.clientY);
+        
+        if (afterElement == null) {
+            subtasksContainer.appendChild(draggedSubtask); // Thả vào cuối
+        } else {
+            subtasksContainer.insertBefore(draggedSubtask, afterElement); // Chèn vào giữa
+        }
+    });
+
+    // Hàm tính toán tọa độ thông minh
+    function getDragAfterElement(container, y) {
+        // Lấy tất cả các mục TRỪ mục đang bị nắm kéo (opacity: 0.4)
+        const draggableElements = [...container.querySelectorAll('.subtask-item:not([style*="opacity: 0.4"])')];
+        
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2; // Khoảng cách từ chuột đến tâm của box
+            
+            // Nếu chuột đang nằm nửa trên của box
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
   </script>
  </body>
