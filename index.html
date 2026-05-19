@@ -1258,7 +1258,7 @@ const emptyState = document.getElementById('empty-state');
           <span class="text-sm font-semibold" style="color:#1a1a1a;word-break:break-word;">${escHtml(t.title)}</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0" style="background:${p.color}20;color:${p.color};">${p.label}</span>
         </div>
-${t.description ? `<p class="text-xs mb-2 leading-relaxed" style="color:#555555;word-break:break-word;">${linkify(t.description)}</p>` : ''}${t.description ? `<p class="text-xs mb-2 leading-relaxed" style="color:#555555;word-break:break-word;">${linkify(t.description)}</p>` : ''}
+${t.description ? `<p class="text-xs mb-2 leading-relaxed" style="color:#555555;word-break:break-word;">${linkify(t.description)}</p>` : ''}
 ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
         ${t.status === 'done' && t.rating ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#fbbf2420;color:#d97706;">⭐ Đánh giá: ${t.rating}/5</div>` : ''}
         ${t.status === 'done' && t.lessons_learned ? `<div class="text-[10px] mt-2 px-1.5 py-0.5 rounded" style="background:#34d39920;color:#059669;">💡 ${escHtml(t.lessons_learned.substring(0, 40))}${t.lessons_learned.length > 40 ? '...' : ''}</div>` : ''}
