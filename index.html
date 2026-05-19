@@ -1772,23 +1772,34 @@ const subtasksList = [];
         }
     }
 
-    async function autoArchiveTasks() {
+   async function autoArchiveTasks() {
         const now = new Date();
         let needsUpdate = false;
         const batch = db.batch();
+        let count = 0; // Đếm số lượng để đảm bảo an toàn cho máy chủ Firebase
+
         allTasks.forEach(t => {
-            if (t.status === 'done' && !t.archived && t.completed_at) {
-                const diffDays = (now - new Date(t.completed_at)) / (1000 * 60 * 60 * 24);
+            // Xét các công việc ĐÃ XONG và CHƯA BỊ LƯU TRỮ
+            if (t.status === 'done' && t.archived !== true && count < 450) {
+                
+                // Thuật toán: Nếu không có ngày Hoàn thành -> Lấy ngày Deadline -> Không có cả hai thì gán mốc thời gian cực cũ (năm 2020)
+                const dateString = t.completed_at || t.deadline || '2020-01-01T00:00:00Z';
+                const diffDays = (now - new Date(dateString)) / (1000 * 60 * 60 * 24);
+                
+                // Nếu vượt quá 7 ngày -> Cho vào kho
                 if (diffDays >= 7) {
                     batch.update(db.collection("CongViec").doc(t.__backendId), { archived: true });
-                    t.archived = true;
+                    t.archived = true; // Cập nhật nhãn ngay trên giao diện web
                     needsUpdate = true;
+                    count++;
                 }
             }
         });
+
         if (needsUpdate) {
             await batch.commit();
             if(typeof renderTasks === 'function') renderTasks();
+            console.log("Đã tự động dọn dẹp " + count + " công việc vào kho!");
         }
     }
 
