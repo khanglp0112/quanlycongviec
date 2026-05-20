@@ -1437,17 +1437,20 @@ function showTaskDetail(task) {
         // 2. Tạo bảng thông báo Toast
         const toastContainer = document.getElementById('toast-container');
         const toast = document.createElement('div');
-       // Giao diện màu sáng (Light Theme) đồng bộ với Web
-       // Giao diện Toast hoàn tác nổi bật & sang trọng
-        toast.className = 'bg-white px-5 py-3.5 rounded-xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-4 text-sm transform transition-all duration-300 translate-y-10 opacity-0 pointer-events-auto min-w-[380px] max-w-[450px] border border-slate-200 border-l-[5px] border-l-red-500';
+      // Giao diện Toast hoàn tác với Nút bấm Ép màu cứng (Chống tàng hình)
+        toast.className = 'bg-white px-5 py-3.5 rounded-xl shadow-[0_15px_40px_-10px_rgba(0,0,0,0.2)] flex items-center justify-between gap-4 text-sm transform transition-all duration-300 translate-y-10 opacity-0 pointer-events-auto min-w-[400px] max-w-[480px] border border-slate-200 border-l-[5px] border-l-red-500';
         toast.innerHTML = `
             <div class="flex-1 truncate text-slate-500">Đã xóa <span class="font-bold text-slate-800">"${escHtml(taskToRestore.title)}"</span></div>
-            <div class="flex items-center gap-2.5 border-l border-slate-100 pl-3 shrink-0">
-                <div class="flex items-center justify-center bg-red-50 text-red-600 rounded w-8 h-8 border border-red-100" title="Giây còn lại">
+            <div class="flex items-center gap-3 border-l border-slate-100 pl-4 shrink-0">
+                <div class="flex items-center justify-center bg-red-50 text-red-600 rounded-lg w-8 h-8 border border-red-100" title="Giây còn lại">
                     <span class="text-xs font-bold countdown-sec">15</span>
                 </div>
-                <button onclick="undoDelete('${id}')" class="bg-blue-600 text-white font-bold hover:bg-blue-700 hover:shadow-md px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5"><i data-lucide="rotate-ccw" style="width:14px;height:14px;"></i> Hoàn tác</button>
-                <button onclick="commitDelete('${id}')" class="text-slate-400 hover:text-slate-700 transition-colors p-1" title="Đóng & Xóa ngay"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+                <button onclick="undoDelete('${id}')" style="background-color: #2563eb; color: #ffffff;" class="px-4 py-1.5 rounded-lg font-bold text-sm hover:opacity-80 transition-opacity shadow-sm flex items-center gap-1.5">
+                    <i data-lucide="rotate-ccw" style="width:14px;height:14px; color: #ffffff;"></i> Hoàn tác
+                </button>
+                <button onclick="commitDelete('${id}')" class="text-slate-400 hover:text-slate-700 transition-colors p-1" title="Đóng & Xóa ngay">
+                    <i data-lucide="x" style="width:18px;height:18px;"></i>
+                </button>
             </div>
         `;
         toast.innerHTML = `
