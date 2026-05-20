@@ -341,7 +341,7 @@
     </div>
    </div>
    <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="modal-backdrop w-full max-w-md rounded-2xl p-6 max-h-96 overflow-y-auto" style="background:#ffffff; border:1px solid #e2e8f0;">
+   <div class="modal-backdrop w-full max-w-2xl rounded-2xl p-6 max-h-[90vh] overflow-y-auto scrollbar-thin" style="background:#ffffff; border:1px solid #e2e8f0;">
      <div class="flex items-center justify-between mb-4">
       <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#1e293b;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -1306,32 +1306,46 @@ function showTaskDetail(task) {
       const labelStyle = 'color:#64748b;font-size:12px;font-weight:700;';
       const valueStyle = 'color:#1e293b;font-size:13px;font-weight:700;margin-left:4px;';
 
-     if (task.description) { html += `<div><span style="${labelStyle}">Mô tả:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;line-height:1.6;">${linkify(task.description)}</p></div>`; }
-      if (task.goal) { html += `<div><span style="${labelStyle}">Mục tiêu:</span><p style="color:#1e293b;margin:4px 0 0 0;font-size:13px;font-weight:600;">${escHtml(task.goal)}</p></div>`; }
-      html += `<div><span style="${labelStyle}">Ưu tiên:</span><span style="background:${p.color}20;color:${p.color};padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700;margin-left:4px;">${p.label}</span></div>`;
-      html += `<div><span style="${labelStyle}">Phân công:</span><span style="${valueStyle}">${escHtml(task.assignee)}</span></div>`;
+  if (task.description) { html += `<div class="mb-4"><span style="${labelStyle}">Mô tả chi tiết:</span><p style="color:#1e293b;margin:6px 0 0 0;font-size:14px;line-height:1.6;">${linkify(task.description)}</p></div>`; }
+      if (task.goal) { html += `<div class="mb-4"><span style="${labelStyle}">Mục tiêu:</span><p style="color:#1e293b;margin:6px 0 0 0;font-size:14px;font-weight:600;">${escHtml(task.goal)}</p></div>`; }
+      
+      // BỘ KHUNG LƯỚI 2 CỘT CHO CÁC THÔNG TIN NGẮN
+      html += `<div class="grid grid-cols-2 gap-y-4 gap-x-6 p-4 rounded-xl border border-slate-100 mb-5" style="background:#f8fafc;">`;
+      
+      html += `<div><span style="${labelStyle}">Ưu tiên:</span><br><span class="inline-block mt-1.5" style="background:${p.color}20;color:${p.color};padding:4px 10px;border-radius:6px;font-size:12px;font-weight:700;">${p.label}</span></div>`;
+      html += `<div><span style="${labelStyle}">Phân công cho:</span><br><span style="${valueStyle}; display:inline-block; margin-top:6px; font-size:14px;">${escHtml(task.assignee)}</span></div>`;
+      
       if (task.deadline) { 
           const d = new Date(task.deadline);
           const tStr = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-          html += `<div><span style="${labelStyle}">Thời hạn:</span><span style="${valueStyle}">📅 ${tStr} ngày ${d.toLocaleDateString('vi-VN')}</span></div>`; 
+          html += `<div><span style="${labelStyle}">Thời hạn chót:</span><br><span style="${valueStyle}; display:inline-block; margin-top:6px; font-size:14px;">📅 ${tStr} ngày ${d.toLocaleDateString('vi-VN')}</span></div>`; 
       }
-      if (task.estimated_hours) { html += `<div><span style="${labelStyle}">Giờ dự kiến:</span><span style="${valueStyle}">⏱️ ${task.estimated_hours}h</span></div>`; }
-      if (task.supporters) { html += `<div><span style="${labelStyle}">Hỗ trợ:</span><span style="${valueStyle}">👥 ${escHtml(task.supporters)}</span></div>`; }
+      if (task.estimated_hours) { html += `<div><span style="${labelStyle}">Giờ dự kiến:</span><br><span style="${valueStyle}; display:inline-block; margin-top:6px; font-size:14px;">⏱️ ${task.estimated_hours}h</span></div>`; }
+      if (task.supporters) { html += `<div class="col-span-2"><span style="${labelStyle}">Thành viên hỗ trợ:</span><br><span style="${valueStyle}; display:inline-block; margin-top:6px; font-size:14px;">👥 ${escHtml(task.supporters)}</span></div>`; }
+      
+      html += `</div>`; // Đóng khung lưới
+
+      // KHUNG SUBTASK LÀM RỘNG VÀ THOÁNG HƠN
       if (task.subtasks && task.subtasks.length > 0) { 
-        html += `<div><span style="${labelStyle}">Việc cần làm:</span><div class="mt-1.5 space-y-1.5">`;
+        html += `<div class="mb-4"><span style="${labelStyle}">Danh sách việc cần làm:</span><div class="mt-2 space-y-2">`;
         task.subtasks.forEach((st, idx) => {
-            html += `<label class="flex items-start gap-2 text-[13px] text-slate-700 cursor-pointer hover:bg-slate-50 p-1.5 rounded transition-colors" style="border: 1px solid #e2e8f0;">
-                        <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtask('${task.__backendId}', ${idx}, this.checked)" class="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
-                        <span class="${st.done ? 'line-through text-slate-400' : 'font-semibold'}" style="word-break:break-word;color:#1e293b;">${escHtml(st.text)}</span>
+            html += `<label class="flex items-start gap-3 text-[14px] cursor-pointer hover:bg-slate-50 p-2.5 rounded-lg transition-colors" style="border: 1px solid #e2e8f0; background: #ffffff;">
+                        <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtask('${task.__backendId}', ${idx}, this.checked)" class="mt-0.5 w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
+                        <span class="${st.done ? 'line-through text-slate-400' : 'font-medium text-slate-700'}" style="word-break:break-word;">${escHtml(st.text)}</span>
                      </label>`;
         });
         html += `</div></div>`;
       }
+
+      // KHUNG ĐÁNH GIÁ NẾU ĐÃ HOÀN THÀNH
       if (task.status === 'done') {
-        if (task.rating) { html += `<div><span style="${labelStyle}">Đánh giá:</span><span style="color:#d97706;font-size:13px;margin-left:4px;font-weight:700;">⭐ ${task.rating}/5</span></div>`; }
-        if (task.actual_hours) { html += `<div><span style="${labelStyle}">Giờ thực tế:</span><span style="${valueStyle}">${task.actual_hours}h</span></div>`; }
-        if (task.lessons_learned) { html += `<div><span style="${labelStyle}">Kinh nghiệm:</span><p style="color:#059669;margin:4px 0 0 0;font-size:13px;font-weight:700;">💡 ${escHtml(task.lessons_learned)}</p></div>`; }
+        html += `<div class="grid grid-cols-2 gap-y-4 gap-x-6 p-4 rounded-xl border mt-5 mb-2" style="background:#ecfdf5; border-color:#d1fae5;">`;
+        if (task.rating) { html += `<div><span style="${labelStyle}">Đánh giá:</span><br><span style="color:#d97706;font-size:15px;margin-left:4px;font-weight:700;display:inline-block;margin-top:4px;">⭐ ${task.rating}/5</span></div>`; }
+        if (task.actual_hours) { html += `<div><span style="${labelStyle}">Giờ thực tế:</span><br><span style="${valueStyle};display:inline-block;margin-top:4px;font-size:14px;">${task.actual_hours}h</span></div>`; }
+        if (task.lessons_learned) { html += `<div class="col-span-2"><span style="${labelStyle}">Rút kinh nghiệm:</span><p style="color:#059669;margin:6px 0 0 0;font-size:14px;font-weight:600;">💡 ${escHtml(task.lessons_learned)}</p></div>`; }
+        html += `</div>`;
       }
+      
       document.getElementById('detail-content').innerHTML = html;
       ['todo', 'doing', 'done'].forEach(s => {
         const btn = document.getElementById('detail-status-' + s);
