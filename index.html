@@ -1454,14 +1454,6 @@ toast.className = 'bg-white px-5 py-3.5 rounded-xl shadow-[0_15px_40px_-10px_rgb
                 </button>
             </div>
         `;
-        toast.innerHTML = `
-            <div class="flex-1 truncate">Đã xóa <span class="font-bold text-amber-400">"${escHtml(taskToRestore.title)}"</span></div>
-            <div class="flex items-center gap-4 border-l border-slate-600 pl-4 shrink-0">
-                <span class="text-xs text-slate-400 font-medium countdown-sec w-4 text-center">15</span>
-                <button onclick="undoDelete('${id}')" class="text-white font-bold hover:text-amber-400 transition-colors tracking-wide">Hoàn tác</button>
-                <button onclick="commitDelete('${id}')" class="text-slate-500 hover:text-slate-300 transition-colors p-1" title="Đóng & Xóa ngay"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
-            </div>
-        `;
         toastContainer.appendChild(toast);
         if(typeof lucide !== 'undefined') lucide.createIcons();
 
