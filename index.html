@@ -467,7 +467,7 @@
        <button onclick="if(ctxTaskId) duplicateTask(ctxTaskId)" class="w-full text-left px-4 py-2 hover:bg-slate-50 flex items-center gap-2 text-slate-700 transition-colors"><i data-lucide="copy" style="width:14px;height:14px;"></i> Nhân bản thẻ</button>
        
        <div class="h-px bg-slate-100 my-1"></div>
-       <button onclick="if(ctxTaskId) showDeleteConfirm(ctxTaskId)" class="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600 transition-colors"><i data-lucide="trash-2" style="width:14px;height:14px;"></i> Xóa việc này</button>
+       <button onclick="if(ctxTaskId) deleteTaskWithUndo(ctxTaskId)" class="w-full text-left px-4 py-2 hover:bg-red-50 flex items-center gap-2 text-red-600 transition-colors"><i data-lucide="trash-2" style="width:14px;height:14px;"></i> Xóa việc này</button>
    </div>
     <footer class="w-full py-6 mt-auto border-t border-slate-100 flex flex-col items-center justify-center gap-1">
       <p class="text-[11px] font-bold text-slate-400 tracking-wider">© 2026 TỔ TOÁN - TIN IGC TÂY NINH</p>
@@ -476,6 +476,7 @@
           <span class="text-[11px] font-bold text-blue-500 hover:text-blue-600 transition-colors cursor-default">Thầy Khang</span>
       </div>
    </footer>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
   </div>
 <div id="logo-viewer-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.85);" onclick="closeLogoViewer()">
     <div class="relative max-w-3xl max-h-[90vh] flex items-center justify-center modal-backdrop fade-in" onclick="event.stopPropagation()">
@@ -508,8 +509,10 @@
         
         return safeText.replace(urlRegex, function(url) {
             // Biến link thành chữ xanh, bấm vào mở tab mới
-            return `<a href="${url}" target="_blank" class="text-blue-600 hover:text-blue-800 underline font-semibold transition-colors" style="word-break: break-all;" onclick="event.stopPropagation()">${url}</a>`;
-        }).replace(/\n/g, '<br>'); // Chuyển dấu Enter thành thẻ <br> để giữ xuống dòng
+          return safeText.replace(urlRegex, function(url) {
+            // Biến link thành chữ xanh, mở tab mới KÈM KHÓA BẢO MẬT
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-semibold transition-colors" style="word-break: break-all;" onclick="event.stopPropagation()">${url}</a>`;
+        }).replace(/\n/g, '<br>');
     }
 // Mở màn hình xem logo to
     function openLogoViewer() {
@@ -1290,7 +1293,7 @@ ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
             ` : ''}
             <button onclick="event.stopPropagation(); editTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#38bdf8;color:#ffffff;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'">Sửa</button>
             <button onclick="event.stopPropagation(); duplicateTask('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#10b981;color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'">Chép</button>
-            <button onclick="event.stopPropagation(); showDeleteConfirm('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
+            <button onclick="event.stopPropagation(); deleteTaskWithUndo('${t.__backendId}')" class="px-2 py-1 rounded text-xs font-medium transition-colors" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'">Xoá</button>
           </div>
         </div>
       `;
@@ -1421,61 +1424,83 @@ function showTaskDetail(task) {
       document.getElementById('btn-submit').textContent = 'Cập nhật';
       openModal();
     }
+// === CƠ CHẾ XÓA THÔNG MINH (HOÀN TÁC TRONG 15 GIÂY) ===
+    const pendingDeletes = new Map();
 
-    let deleteConfirmStates = new Map();
-    function showDeleteConfirm(id) {
-      const task = allTasks.find(t => t.__backendId === id);
-      if (!task) return;
-      const card = document.querySelector(`[data-id="${id}"]`);
-      if (!card) return;
-      const deleteBtn = card.querySelector('button[onclick*="showDeleteConfirm"]');
-      if (!deleteBtn) return;
-      const originalHtml = deleteBtn.innerHTML;
-      const originalOnclick = deleteBtn.onclick;
-      deleteBtn.innerHTML = `Chắc chắn?`;
-      deleteBtn.style.background = '#dc2626';
-      deleteBtn.style.fontWeight = '700';
-      deleteBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); confirmDelete(id); };
-      
-      const cancelBtn = document.createElement('button');
-      cancelBtn.type = 'button';
-      cancelBtn.className = 'px-2 py-1 rounded text-xs font-medium transition-colors';
-      cancelBtn.style.background = '#64748b'; cancelBtn.style.color = '#ffffff'; cancelBtn.style.marginRight = '4px';
-      cancelBtn.textContent = 'Không';
-      cancelBtn.onmouseenter = () => { cancelBtn.style.background = '#475569'; };
-      cancelBtn.onmouseleave = () => { cancelBtn.style.background = '#64748b'; };
-      cancelBtn.onclick = (e) => {
-        e.preventDefault(); e.stopPropagation();
-        deleteBtn.innerHTML = originalHtml; deleteBtn.style.background = '#ef4444'; deleteBtn.style.fontWeight = '500';
-        deleteBtn.onclick = () => showDeleteConfirm(id);
-        cancelBtn.remove(); deleteConfirmStates.delete(id);
-      };
-      deleteBtn.parentNode.insertBefore(cancelBtn, deleteBtn);
-      deleteConfirmStates.set(id, { deleteBtn, cancelBtn });
+    function deleteTaskWithUndo(id) {
+        // 1. Tìm công việc và xóa ảo khỏi giao diện ngay lập tức
+        const taskIndex = allTasks.findIndex(t => t.__backendId === id);
+        if (taskIndex === -1) return;
+        const taskToRestore = allTasks[taskIndex];
+        allTasks.splice(taskIndex, 1);
+        renderTasks();
+
+        // 2. Tạo bảng thông báo Toast
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'bg-slate-800 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center justify-between gap-4 text-sm transform transition-all duration-300 translate-y-10 opacity-0 pointer-events-auto min-w-[320px] max-w-[400px] border border-slate-700';
+        toast.innerHTML = `
+            <div class="flex-1 truncate">Đã xóa <span class="font-bold text-amber-400">"${escHtml(taskToRestore.title)}"</span></div>
+            <div class="flex items-center gap-4 border-l border-slate-600 pl-4 shrink-0">
+                <span class="text-xs text-slate-400 font-medium countdown-sec w-4 text-center">15</span>
+                <button onclick="undoDelete('${id}')" class="text-white font-bold hover:text-amber-400 transition-colors tracking-wide">Hoàn tác</button>
+                <button onclick="commitDelete('${id}')" class="text-slate-500 hover:text-slate-300 transition-colors p-1" title="Đóng & Xóa ngay"><i data-lucide="x" style="width:16px;height:16px;"></i></button>
+            </div>
+        `;
+        toastContainer.appendChild(toast);
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+
+        // Hiệu ứng nảy lên
+        requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
+
+        // 3. Khởi động đồng hồ đếm ngược 15s
+        let secondsLeft = 15;
+        const timerEl = toast.querySelector('.countdown-sec');
+        const interval = setInterval(() => {
+            secondsLeft--;
+            if (timerEl) timerEl.textContent = secondsLeft;
+            if (secondsLeft <= 0) commitDelete(id); // Hết giờ thì chốt xóa thực sự
+        }, 1000);
+
+        // Lưu thông tin để chờ xử lý
+        pendingDeletes.set(id, { task: taskToRestore, interval: interval, toast: toast });
     }
 
-    async function confirmDelete(id) {
-      const taskIndex = allTasks.findIndex(t => t.__backendId === id);
-      if (taskIndex === -1) return;
-      const card = document.querySelector(`[data-id="${id}"]`);
-      if (!card) return;
-      const state = deleteConfirmStates.get(id);
-      const deleteBtn = state ? state.deleteBtn : card.querySelector('button[onclick*="confirmDelete"]');
-      const cancelBtn = state ? state.cancelBtn : card.querySelector('button:has-sibling');
-      
-      if (deleteBtn) { deleteBtn.disabled = true; deleteBtn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:4px;animation:spin 1s linear infinite;"></i>Đang xóa...'; }
-      if (cancelBtn) cancelBtn.disabled = true;
-      
-      db.collection("CongViec").doc(id).delete()
-      .then(() => {
-          allTasks.splice(taskIndex, 1); renderTasks(); deleteConfirmStates.delete(id);
-      })
-      .catch((error) => {
-          alert('Lỗi kết nối Firebase khi xóa: ' + error.message);
-          if (deleteBtn) { deleteBtn.disabled = false; deleteBtn.textContent = 'Chắc chắn?'; }
-          if (cancelBtn) cancelBtn.disabled = false;
-          deleteConfirmStates.delete(id);
-      });
+    function undoDelete(id) {
+        const pending = pendingDeletes.get(id);
+        if (!pending) return;
+        
+        // Dừng đếm ngược, trả lại task vào danh sách và render lại
+        clearInterval(pending.interval);
+        allTasks.push(pending.task);
+        renderTasks();
+        
+        // Tắt bảng thông báo
+        hideToast(pending.toast);
+        pendingDeletes.delete(id);
+    }
+
+    function commitDelete(id) {
+        const pending = pendingDeletes.get(id);
+        if (!pending) return;
+        
+        // Tắt đếm ngược & thông báo
+        clearInterval(pending.interval);
+        hideToast(pending.toast);
+        pendingDeletes.delete(id);
+        
+        // Thực thi lệnh chém rớt trên Firebase
+        db.collection("CongViec").doc(id).delete().catch(error => {
+            alert('Lỗi khi xóa trên máy chủ: ' + error.message);
+            allTasks.push(pending.task); // Nếu mạng lỗi không xóa được thì trả lại thẻ
+            renderTasks();
+        });
+    }
+
+    function hideToast(toastEl) {
+        if (!toastEl) return;
+        toastEl.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => toastEl.remove(), 300);
     }
 
     function openModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('form-error').classList.add('hidden'); }
