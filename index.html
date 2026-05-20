@@ -502,14 +502,13 @@
       return d.innerHTML;
     }
    // Bộ lọc nhận diện Link và giữ nguyên vẹn dấu xuống dòng
+// Bộ lọc nhận diện Link và giữ nguyên vẹn dấu xuống dòng
     function linkify(text) {
         if (!text) return '';
         let safeText = escHtml(text); // Làm sạch mã độc trước
         const urlRegex = /(https?:\/\/[^\s]+)/g; // Thuật toán bắt link
         
         return safeText.replace(urlRegex, function(url) {
-            // Biến link thành chữ xanh, bấm vào mở tab mới
-          return safeText.replace(urlRegex, function(url) {
             // Biến link thành chữ xanh, mở tab mới KÈM KHÓA BẢO MẬT
             return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-semibold transition-colors" style="word-break: break-all;" onclick="event.stopPropagation()">${url}</a>`;
         }).replace(/\n/g, '<br>');
