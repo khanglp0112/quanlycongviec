@@ -1145,19 +1145,19 @@ document.getElementById('btn-timeline').onclick = () => {
       });
     }
 
-    function renderTasks() {
+function renderTasks() {
       const filtered = getFiltered();
       const cols = { todo: [], doing: [], done: [] };
-filtered.forEach(t => { if (cols[t.status] && !t.archived) cols[t.status].push(t); });
-      
+      filtered.forEach(t => { if (cols[t.status] && !t.archived) cols[t.status].push(t); });
+
       ['todo', 'doing', 'done'].forEach(status => {
-cols[status].sort((a, b) => {
+        // Thuật toán sắp xếp: Ưu tiên Ghim lên đầu, sau đó sắp xếp theo Deadline
+        cols[status].sort((a, b) => {
           if (a.pinned && !b.pinned) return -1;
           if (!a.pinned && b.pinned) return 1;
           return (a.deadline || '') > (b.deadline || '') ? 1 : -1;
         });
-      
-      ['todo', 'doing', 'done'].forEach(status => {
+
         const container = document.getElementById('col-' + status);
         const countEl = document.getElementById('col-' + status + '-count');
         countEl.textContent = cols[status].length;
@@ -1169,20 +1169,20 @@ cols[status].sort((a, b) => {
           if (existing) { updateCard(existing, t); } else { const card = createCard(t); container.appendChild(card); }
         });
       });
-const activeTasks = allTasks.filter(t => !t.archived);
+
+      const activeTasks = allTasks.filter(t => !t.archived);
       document.getElementById('stat-total').textContent = activeTasks.length;
       document.getElementById('stat-todo').textContent = activeTasks.filter(t => t.status === 'todo').length;
       document.getElementById('stat-doing').textContent = activeTasks.filter(t => t.status === 'doing').length;
       document.getElementById('stat-done').textContent = activeTasks.filter(t => t.status === 'done').length;
-      
-const emptyState = document.getElementById('empty-state');
+
+      const emptyState = document.getElementById('empty-state');
       const isLKOpen = !document.getElementById('lien-ket-view').classList.contains('hidden');
       const isCTOpen = !document.getElementById('cham-tiet-view').classList.contains('hidden');
       const isTLOpen = !document.getElementById('timeline-view').classList.contains('hidden');
 
       if (allTasks.length === 0) {
         document.getElementById('board-view').classList.add('hidden');
-        // Chỉ hiện thông báo "Chưa có việc" nếu tất cả các bảng khác đều đang đóng
         if (!isLKOpen && !isCTOpen && !isTLOpen) {
             emptyState.classList.remove('hidden');
             emptyState.classList.add('flex');
@@ -1197,7 +1197,7 @@ const emptyState = document.getElementById('empty-state');
         emptyState.classList.add('hidden');
         emptyState.classList.remove('flex');
       }
-     if (typeof populateMemberSelects === 'function') populateMemberSelects();
+      if (typeof populateMemberSelects === 'function') populateMemberSelects();
       if (!document.getElementById('working-hours-modal').classList.contains('hidden')) renderWorkingHoursList();
     }
 
