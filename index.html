@@ -341,7 +341,7 @@
     </div>
    </div>
    <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-   <div class="modal-backdrop w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-thin" style="background:#ffffff; border:1px solid #e2e8f0;">
+ <div class="modal-backdrop w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-thin" style="background:#ffffff; border:1px solid #e2e8f0;">
      <div class="flex items-center justify-between mb-4">
       <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#1e293b;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -1298,78 +1298,57 @@ ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
     }
 
 function showTaskDetail(task) {
-      document.getElementById('detail-title').textContent = task.title;
-      const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.important;
-      let html = '';
-      
-      // Định dạng kiểu chữ đậm và rõ nét hơn
-      const labelStyle = 'color:#64748b;font-size:12px;font-weight:700;';
-      const valueStyle = 'color:#1e293b;font-size:13px;font-weight:700;margin-left:4px;';
-// === GIAO DIỆN 2 CỘT TỐI ƯU (ẨN KHỐI KHI RỖNG) ===
-      html += `<div class="flex flex-col md:flex-row gap-8 mt-2">`;
+     document.getElementById('detail-title').textContent = task.title;
+    const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.important;
+    
+    // --- KHỞI TẠO NỘI DUNG CỘT TRÁI (Nội dung) ---
+    let leftCol = "";
+    if (task.description) {
+        leftCol += `<div class="mb-6"><span style="font-size:12px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:6px;margin-bottom:8px;text-transform:uppercase;"><i data-lucide="align-left" style="width:16px;height:16px;"></i> Mô tả chi tiết</span>
+                    <div style="color:#1e293b;font-size:14.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;">${linkify(task.description)}</div></div>`;
+    }
+    if (task.goal) {
+        leftCol += `<div class="mb-6"><span style="font-size:12px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:6px;margin-bottom:8px;text-transform:uppercase;"><i data-lucide="target" style="width:16px;height:16px;"></i> Mục tiêu cần đạt</span>
+                    <div style="color:#0f766e;font-size:14.5px;font-weight:600;background:#f0fdf4;padding:12px 16px;border-radius:8px;border-left:4px solid #10b981;">${escHtml(task.goal)}</div></div>`;
+    }
+    if (task.subtasks && task.subtasks.length > 0) { 
+        leftCol += `<div class="mb-6"><span style="font-size:12px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:6px;margin-bottom:8px;text-transform:uppercase;"><i data-lucide="check-square" style="width:16px;height:16px;"></i> Danh sách việc cần làm</span>
+                    <div class="space-y-2.5">` + task.subtasks.map((st, idx) => `
+                        <label class="flex items-start gap-3 text-[14.5px] cursor-pointer hover:bg-slate-50 p-3 rounded-xl transition-colors group" style="border: 1px solid #e2e8f0; background: #ffffff;">
+                            <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtask('${task.__backendId}', ${idx}, this.checked)" class="mt-0.5 w-4.5 h-4.5 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
+                            <span class="${st.done ? 'line-through text-slate-400' : 'font-medium text-slate-700'}" style="word-break:break-word; line-height: 1.5;">${escHtml(st.text)}</span>
+                        </label>`).join('') + `</div></div>`;
+    }
 
-      // 1. CỘT TRÁI: Chỉ khởi tạo div khi có nội dung
-      let leftCol = "";
-      
-      if (task.description) {
-          leftCol += `<div class="mb-6">
-                      <span style="font-size:12px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:6px;margin-bottom:8px;text-transform:uppercase;"><i data-lucide="align-left" style="width:16px;height:16px;"></i> Mô tả chi tiết</span>
-                      <div style="color:#1e293b;font-size:14.5px;line-height:1.7;white-space:pre-wrap;word-break:break-word;">${linkify(task.description)}</div>
-                   </div>`;
-      }
+    // --- XÂY DỰNG LAYOUT (TỰ ĐỘNG CĂN GIỮA NẾU CỘT TRÁI RỖNG) ---
+    let html = `<div class="flex flex-col md:flex-row gap-8 mt-2 ${!leftCol ? 'justify-center' : ''}">`;
+    if (leftCol) html += `<div class="flex-1 space-y-7 min-w-0">${leftCol}</div>`;
 
-      if (task.goal) {
-          leftCol += `<div class="mb-6">
-                      <span style="font-size:12px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:6px;margin-bottom:8px;text-transform:uppercase;"><i data-lucide="target" style="width:16px;height:16px;"></i> Mục tiêu cần đạt</span>
-                      <div style="color:#0f766e;font-size:14.5px;font-weight:600;background:#f0fdf4;padding:12px 16px;border-radius:8px;border-left:4px solid #10b981;">${escHtml(task.goal)}</div>
-                   </div>`;
-      }
+    // CỘT PHẢI (Thông số)
+    const lbl = 'color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block;';
+    const val = 'color:#1e293b;font-size:14px;font-weight:600;display:flex;align-items:start;gap:8px; line-height: 1.4;';
+    html += `<div class="w-full md:w-[280px] shrink-0 space-y-4"><div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-5">`;
+    html += `<div><span style="${lbl}">Mức độ ưu tiên</span><span class="inline-block mt-1" style="background:${p.color}15;color:${p.color};padding:6px 12px;border-radius:6px;font-size:12px;font-weight:800;">${p.label}</span></div>`;
+    if (task.deadline) { 
+        const d = new Date(task.deadline);
+        html += `<div><span style="${lbl}">Thời hạn chót</span><span style="${val}"><i data-lucide="calendar-clock" style="width:18px;height:18px;color:#ef4444;margin-top:1px;flex-shrink:0;"></i> <span style="color:#ef4444;">${('0' + d.getHours()).slice(-2)}:${('0' + d.getMinutes()).slice(-2)} - ${d.toLocaleDateString('vi-VN')}</span></span></div>`; 
+    }
+    html += `<div><span style="${lbl}">Phân công</span><span style="${val}"><i data-lucide="user-circle" style="width:18px;height:18px;color:#3b82f6;margin-top:1px;flex-shrink:0;"></i><span>${escHtml(task.assignee)}</span></span></div>`;
+    if (task.supporters) html += `<div><span style="${lbl}">Thành viên hỗ trợ</span><span style="${val}"><i data-lucide="users" style="width:18px;height:18px;color:#8b5cf6;margin-top:1px;flex-shrink:0;"></i><span>${escHtml(task.supporters)}</span></span></div>`;
+    if (task.estimated_hours) html += `<div><span style="${lbl}">Giờ dự kiến</span><span style="${val}"><i data-lucide="hourglass" style="width:18px;height:18px;color:#6366f1;margin-top:1px;flex-shrink:0;"></i> ${task.estimated_hours}h</span></div>`;
+    html += `</div></div></div>`; // Đóng layout
 
-      if (task.subtasks && task.subtasks.length > 0) { 
-        leftCol += `<div class="mb-6">
-                    <span style="font-size:12px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:6px;margin-bottom:8px;text-transform:uppercase;"><i data-lucide="check-square" style="width:16px;height:16px;"></i> Danh sách việc cần làm</span>
-                    <div class="space-y-2.5">`;
-        task.subtasks.forEach((st, idx) => {
-            leftCol += `<label class="flex items-start gap-3 text-[14.5px] cursor-pointer hover:bg-slate-50 p-3 rounded-xl transition-colors group" style="border: 1px solid #e2e8f0; background: #ffffff;">
-                        <input type="checkbox" ${st.done ? 'checked' : ''} onchange="toggleSubtask('${task.__backendId}', ${idx}, this.checked)" class="mt-0.5 w-4.5 h-4.5 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
-                        <span class="${st.done ? 'line-through text-slate-400' : 'font-medium text-slate-700'}" style="word-break:break-word; line-height: 1.5;">${escHtml(st.text)}</span>
-                     </label>`;
-        });
-        leftCol += `</div></div>`;
-      }
-
-      // Chỉ thêm cột trái nếu nó không rỗng
-      if (leftCol !== "") {
-          html += `<div class="flex-1 space-y-7 min-w-0">${leftCol}</div>`;
-      }
-
-      // 2. CỘT PHẢI: Thanh Sidebar Thông số
-      const lbl = 'color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block;';
-      const val = 'color:#1e293b;font-size:14px;font-weight:600;display:flex;align-items:start;gap:8px; line-height: 1.4;';
-      
-      html += `<div class="w-full md:w-[280px] shrink-0 space-y-4">`;
-      html += `<div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-5">`;
-      // ... (Phần thông số cũ giữ nguyên bên trong khối cột phải này)
-      html += `<div><span style="${lbl}">Mức độ ưu tiên</span><span class="inline-block mt-1" style="background:${p.color}15;color:${p.color};padding:6px 12px;border-radius:6px;font-size:12px;font-weight:800;">${p.label}</span></div>`;
-      if (task.deadline) { 
-          const d = new Date(task.deadline);
-          const tStr = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-          html += `<div><span style="${lbl}">Thời hạn chót</span><span style="${val}"><i data-lucide="calendar-clock" style="width:18px;height:18px;color:#ef4444;margin-top:1px;flex-shrink-0;"></i> <span style="color:#ef4444;">${tStr} - ${d.toLocaleDateString('vi-VN')}</span></span></div>`; 
-      }
-      html += `<div><span style="${lbl}">Phân công cho</span><span style="${val}"><i data-lucide="user-circle" style="width:18px;height:18px;color:#3b82f6;margin-top:1px;flex-shrink-0;"></i><span>${escHtml(task.assignee)}</span></span></div>`;
-      if (task.supporters) { html += `<div><span style="${lbl}">Thành viên hỗ trợ</span><span style="${val}"><i data-lucide="users" style="width:18px;height:18px;color:#8b5cf6;margin-top:1px;flex-shrink-0;"></i><span>${escHtml(task.supporters)}</span></span></div>`; }
-      if (task.estimated_hours) { html += `<div><span style="${lbl}">Giờ dự kiến</span><span style="${val}"><i data-lucide="hourglass" style="width:18px;height:18px;color:#6366f1;margin-top:1px;flex-shrink-0;"></i> ${task.estimated_hours}h</span></div>`; }
-      html += `</div>`; // Đóng panel thông tin
-      html += `</div></div>`; // Đóng Layout
-      
-      document.getElementById('detail-content').innerHTML = html;
-      ['todo', 'doing', 'done'].forEach(s => {
+    document.getElementById('detail-content').innerHTML = html;
+    ['todo', 'doing', 'done'].forEach(s => {
         const btn = document.getElementById('detail-status-' + s);
-        if (task.status === s) { btn.style.background = STATUS_MAP[s]; btn.style.color = '#ffffff'; btn.style.fontWeight = '700'; }
-        else { btn.style.background = '#f1f5f9'; btn.style.color = '#475569'; btn.style.fontWeight = '600'; }
-        btn.onclick = () => changeStatusAndClose(task.__backendId, s);
-      });
-      document.getElementById('task-detail-modal').classList.remove('hidden');
+        if(btn) {
+            btn.style.background = (task.status === s) ? STATUS_MAP[s] : '#f1f5f9';
+            btn.style.color = (task.status === s) ? '#ffffff' : '#475569';
+            btn.onclick = () => changeStatusAndClose(task.__backendId, s);
+        }
+    });
+    document.getElementById('task-detail-modal').classList.remove('hidden');
+    lucide.createIcons();
     }
 
     function changeStatusAndClose(id, newStatus) {
