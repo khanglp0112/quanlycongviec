@@ -8,6 +8,10 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/theme/eclipse.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/mode/stex/stex.min.js"></script>
   <style>
     .cham-tiet-container { background: #ffffff !important; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .table-responsive { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
@@ -36,6 +40,13 @@
     @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.7); } 50% { box-shadow: 0 0 0 8px rgba(167, 139, 250, 0); } }
     .timeline-line { position: absolute; left: 15px; top: 0; width: 2px; height: 100%; background: linear-gradient(to bottom, #38bdf8, transparent); }
     .timeline-date { font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+   @keyframes sleekScan {
+    .0% { transform: translateX(-100%); }
+    .100% { transform: translateX(100%); }
+    }
+   /* CSS cho CodeMirror */
+    .CodeMirror { height: 100% !important; font-family: 'Consolas', monospace; font-size: 14px; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
+  </style>
 /* Hiệu ứng Màn hình chào Premium */
    /* Hiệu ứng Màn hình chào Premium */
     #splash-screen {
@@ -100,6 +111,8 @@
     </div>
     <div class="flex items-center gap-2 flex-wrap justify-end">
       <button id="btn-members" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thành viên</span></button> 
+     <button id="btn-latex" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm" style="background:#0f172a; color:#ffffff;" onclick="toggleLatexView()"><i data-lucide="code" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Soạn LaTeX</span></button>
+      <div class="w-px h-6 bg-slate-300 mx-1"></div>
       <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Giờ làm</span></button> 
       <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span></button> 
       <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()"><i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Liên kết</span></button>
@@ -234,7 +247,49 @@
         </div>
       </div>
     </div>
+<div id="latex-view" class="hidden fade-in mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
+     <div class="rounded-xl flex flex-col md:flex-row bg-slate-50 w-full overflow-hidden border border-slate-200" style="height: 80vh; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <aside class="w-full md:w-64 bg-white border-r border-slate-200 flex flex-col flex-shrink-0">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h2 class="font-bold text-slate-700 flex items-center gap-2"><i data-lucide="folder-open" style="width:16px;height:16px;color:#f59e0b;"></i> Hồ sơ LaTeX</h2>
+            </div>
+            <div class="p-4 border-b border-slate-100">
+                <button onclick="createNewLatexFile()" class="w-full flex items-center justify-center gap-2 bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"><i data-lucide="file-plus" style="width:16px;height:16px;"></i> Tạo file mới</button>
+            </div>
+            <div id="latex-file-list" class="flex-1 overflow-y-auto p-2 space-y-1 scrollbar-thin">
+                <div class="text-center text-xs text-slate-400 p-4">Đang tải dữ liệu...</div>
+            </div>
+        </aside>
 
+        <main class="flex-1 flex flex-col h-full overflow-hidden">
+            <header class="p-3 bg-white border-b border-slate-200 flex justify-between items-center flex-wrap gap-2 shadow-sm z-10">
+                <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+                    <i data-lucide="file-code" style="width:20px;height:20px;color:#94a3b8;"></i>
+                    <input type="text" id="latex-file-name" class="font-bold text-lg text-slate-800 border border-transparent hover:border-slate-300 focus:border-blue-500 rounded px-2 py-1 outline-none w-full max-w-xs transition-colors bg-transparent" placeholder="Ten_De_Thi.tex">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="latex-status" class="text-xs font-medium text-slate-400 mr-2">Đã sẵn sàng</span>
+                    <button onclick="deleteLatexFile()" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5"><i data-lucide="trash-2" style="width:16px;height:16px;"></i> <span class="hidden sm:inline">Xóa</span></button>
+                    <button onclick="saveLatexFile()" class="px-4 py-1.5 bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm rounded-lg text-sm font-bold transition-colors flex items-center gap-1.5"><i data-lucide="save" style="width:16px;height:16px;"></i> Lưu (Cloud)</button>
+                    <button onclick="compilePdf()" class="px-4 py-1.5 bg-indigo-600 text-white hover:bg-indigo-700 shadow-md rounded-lg text-sm font-bold transition-colors flex items-center gap-1.5"><i data-lucide="play" style="width:16px;height:16px;"></i> Xuất PDF</button>
+                    <button onclick="toggleLatexView()" class="p-1.5 bg-slate-100 text-slate-500 hover:bg-slate-200 rounded-lg transition-colors ml-1"><i data-lucide="x" style="width:18px;height:18px;"></i></button>
+                </div>
+            </header>
+            <div class="flex-1 flex flex-col md:flex-row h-[calc(100%-60px)]">
+                <div class="w-full md:w-1/2 h-1/2 md:h-full border-b md:border-b-0 md:border-r border-slate-200 bg-white p-2">
+                    <div class="h-full w-full rounded-lg overflow-hidden border border-slate-200 shadow-inner"><textarea id="latex-editor-textarea"></textarea></div>
+                </div>
+                <div class="w-full md:w-1/2 h-1/2 md:h-full bg-slate-100 relative flex items-center justify-center p-2">
+                    <div id="pdf-loading" class="hidden absolute inset-0 bg-slate-100/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center rounded-lg">
+                        <i data-lucide="loader" style="width:32px;height:32px;color:#6366f1;animation:spin 1s linear infinite;"></i>
+                        <span class="text-sm font-bold text-slate-600 mt-2">Đang biên dịch trên Server...</span>
+                    </div>
+                    <iframe id="pdf-preview" class="w-full h-full bg-white rounded-lg shadow-sm border border-slate-300"></iframe>
+                </div>
+            </div>
+        </main>
+     </div>
+   </div>
    <div id="board-view" class="flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-0">
      <div class="rounded-xl p-4" style="background:#ffffff;border: 2px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
@@ -1780,6 +1835,156 @@ const subtasksList = [];
     };
     if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
     const db = firebase.firestore();
+   // ==========================================
+    // MODULE: LATEX EDITOR WORKSPACE
+    // ==========================================
+    let latexEditorInstance = null;
+    let currentLatexFileId = null;
+
+    const defaultLatexTemplate = `\\documentclass[12pt,a4paper]{article}
+\\usepackage[utf8]{inputenc}
+\\usepackage[vietnam]{babel}
+\\usepackage{amsmath,amssymb}
+\\usepackage{tkz-euclide}
+\\usepackage{pgfplots}
+\\pgfplotsset{compat=1.18}
+\\usepackage[margin=2cm]{geometry}
+
+\\begin{document}
+\\title{\\textbf{ĐỀ THI MẪU}}
+\\author{Tổ Toán - Tin}
+\\date{\\today}
+\\maketitle
+
+\\section*{Bài 1}
+Nhập nội dung đề thi vào đây...
+
+\\end{document}`;
+
+    function initCodeMirror() {
+        if (!latexEditorInstance) {
+            latexEditorInstance = CodeMirror.fromTextArea(document.getElementById("latex-editor-textarea"), {
+                lineNumbers: true, mode: "text/x-latex", theme: "eclipse", lineWrapping: true
+            });
+        }
+    }
+
+    function toggleLatexView() {
+        const latexView = document.getElementById('latex-view');
+        const viewsToHide = ['board-view', 'cham-tiet-view', 'lien-ket-view', 'timeline-view', 'filter-bar', 'stats-bar', 'empty-state'];
+
+        if (latexView.classList.contains('hidden')) {
+            // Đóng tất cả các tab khác, mở tab LaTeX
+            viewsToHide.forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); });
+            latexView.classList.remove('hidden');
+            
+            initCodeMirror();
+            setTimeout(() => { latexEditorInstance.refresh(); }, 50);
+            
+            loadLatexFileList();
+            if(!currentLatexFileId) createNewLatexFile();
+        } else {
+            // Đóng tab LaTeX, mở lại màn hình chính (Board)
+            latexView.classList.add('hidden');
+            renderTasks(); // Hàm này của bạn sẽ tự xử lý bật lại Filter, Board hoặc Empty-State
+        }
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Gắn lệnh tự động ẩn LaTeX nếu người dùng bấm vào các nút Menu khác
+    document.addEventListener('DOMContentLoaded', () => {
+        ['btn-links', 'btn-show-chamtiet', 'btn-timeline', 'btn-add'].forEach(id => {
+            const btn = document.getElementById(id);
+            if(btn) {
+                btn.addEventListener('click', () => {
+                    const latexView = document.getElementById('latex-view');
+                    if(latexView && !latexView.classList.contains('hidden')) {
+                        latexView.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    });
+
+    function createNewLatexFile() {
+        currentLatexFileId = null;
+        document.getElementById('latex-file-name').value = "De_Thi_Moi_" + Math.floor(Math.random() * 1000) + ".tex";
+        latexEditorInstance.setValue(defaultLatexTemplate);
+        document.getElementById('pdf-preview').src = "";
+        document.getElementById('latex-status').textContent = "Bản nháp mới";
+    }
+
+    async function loadLatexFileList() {
+        const listDiv = document.getElementById('latex-file-list');
+        listDiv.innerHTML = '<div class="text-xs text-slate-400 p-2 text-center">Đang tải...</div>';
+        try {
+            const snapshot = await db.collection("LatexFiles").orderBy("updatedAt", "desc").get();
+            listDiv.innerHTML = '';
+            if (snapshot.empty) {
+                listDiv.innerHTML = '<div class="text-xs text-slate-400 p-2 text-center">Chưa có file nào.</div>';
+                return;
+            }
+            snapshot.forEach(doc => {
+                const btn = document.createElement('button');
+                btn.className = "w-full flex items-center gap-2 text-left p-2 rounded-lg text-sm font-semibold text-slate-700 hover:bg-blue-50 hover:text-blue-700 truncate mb-1 transition-colors";
+                btn.innerHTML = `<i data-lucide="file-text" style="width:16px;height:16px;color:#94a3b8;"></i> <span>${doc.id}</span>`;
+                btn.onclick = () => {
+                    currentLatexFileId = doc.id;
+                    document.getElementById('latex-file-name').value = doc.id;
+                    latexEditorInstance.setValue(doc.data().content);
+                    document.getElementById('latex-status').textContent = "Đã mở file";
+                };
+                listDiv.appendChild(btn);
+            });
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        } catch (e) { listDiv.innerHTML = '<div class="text-xs text-red-500 p-2 text-center">Lỗi tải dữ liệu.</div>'; }
+    }
+
+    async function saveLatexFile() {
+        const nameInput = document.getElementById('latex-file-name').value.trim();
+        if (!nameInput) { alert("Vui lòng nhập tên file!"); return; }
+        let fileName = nameInput.endsWith('.tex') ? nameInput : nameInput + '.tex';
+        const content = latexEditorInstance.getValue();
+        
+        const statusEl = document.getElementById('latex-status');
+        statusEl.textContent = "Đang lưu...";
+        
+        try {
+            await db.collection("LatexFiles").doc(fileName).set({
+                content: content, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            currentLatexFileId = fileName;
+            statusEl.textContent = "Đã lưu thành công ✓";
+            statusEl.className = "text-xs font-bold text-emerald-500 mr-2";
+            setTimeout(() => { statusEl.className = "text-xs font-medium text-slate-400 mr-2"; }, 3000);
+            loadLatexFileList();
+        } catch (e) { alert("Lỗi: " + e.message); statusEl.textContent = "Lỗi lưu file!"; }
+    }
+
+    async function deleteLatexFile() {
+        if (!currentLatexFileId) { alert("Bạn chưa mở file nào trên Cloud để xóa."); return; }
+        if (confirm(`Bạn chắc chắn muốn xóa vĩnh viễn file "${currentLatexFileId}"?`)) {
+            try {
+                await db.collection("LatexFiles").doc(currentLatexFileId).delete();
+                createNewLatexFile(); 
+                loadLatexFileList();
+            } catch(e) { alert("Lỗi khi xóa: " + e.message); }
+        }
+    }
+
+    function compilePdf() {
+        const code = latexEditorInstance.getValue();
+        if (!code.includes('\\begin{document}')) { alert("Mã LaTeX thiếu thẻ \\begin{document}!"); return; }
+        
+        document.getElementById('pdf-loading').classList.remove('hidden');
+        const url = "https://latexonline.cc/compile?text=" + encodeURIComponent(code);
+        const iframe = document.getElementById('pdf-preview');
+        
+        iframe.src = url;
+        iframe.onload = () => document.getElementById('pdf-loading').classList.add('hidden');
+        iframe.onerror = () => { document.getElementById('pdf-loading').classList.add('hidden'); alert("Lỗi máy chủ biên dịch."); };
+    }
+    // ==========================================
 // === HỆ THỐNG KHO LƯU TRỮ CẤP CAO ===
     function openArchiveModal() {
         document.getElementById('archive-modal').classList.remove('hidden');
