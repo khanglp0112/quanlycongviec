@@ -77,6 +77,12 @@
         100% { transform: translateX(100%); }
     }
   </style>
+  <!-- ==================================================================== -->
+  <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
+  <!-- ==================================================================== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.45.0/docxtemplater.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
  </head>
  <body class="h-full">
   <div id="app" class="w-full h-full flex flex-col overflow-auto" style="background: #ffffff;">
@@ -104,6 +110,8 @@
       <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span></button> 
       <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()"><i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Liên kết</span></button>
       <button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()"><i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Chấm tiết</span></button>
+     <!-- Nút mở tính năng Biên bản họp tổ -->
+      <button id="btn-show-bienban" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-white" style="background:#ea580c;" onmouseenter="this.style.background='#c2410c'" onmouseleave="this.style.background='#ea580c'" onclick="toggleBienBan()"><i data-lucide="file-text" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Biên bản họp</span></button>
       <button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
      <button id="btn-archive" onclick="openArchiveModal()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm hover:shadow" style="background:#ffffff;color:#475569;border:1px solid #cbd5e1;"><i data-lucide="archive" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Kho lưu trữ</span></button>
       <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thêm việc</span></button>
@@ -167,6 +175,197 @@
   </div>
 </div>
 <div id="cham-tiet-view" class="hidden fade-in mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
+ <!-- ==================================================================== -->
+<!-- PHẦN 2: GIAO DIỆN KHU VỰC BIÊN BẢN HỌP TỔ CHUYÊN MÔN                  -->
+<!-- ==================================================================== -->
+<div id="bien-ban-view" class="hidden fade-in mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
+  <div class="rounded-xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    
+    <!-- Tiêu đề & Thanh hành động trên Form -->
+    <div class="flex flex-wrap justify-between items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+        <div>
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="file-signature" class="text-orange-600"></i> Biên Bản Họp Tổ Chuyên Môn Toán - Tin
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Hệ thống tạo văn bản hành chính tự động theo phôi IGC Tây Ninh</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="saveBienBan()" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm">
+                <i data-lucide="save" style="width:16px;height:16px;"></i> Lưu biên bản
+            </button>
+            <button onclick="exportWordFromPhoi()" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 transition-colors shadow-sm">
+                <i data-lucide="download" style="width:16px;height:16px;"></i> Tải file Word (.docx)
+            </button>
+            <button onclick="toggleBienBan()" class="px-4 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Khung 1: Thông tin hành chính chung cuộc họp -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+        <input type="hidden" id="inp-bb-id" value="">
+        <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-600 mb-1">Số Biên bản / Quyết định *</label>
+            <input type="text" id="inp-bb-so" placeholder="Ví dụ: 01" class="px-3 py-2 rounded-lg text-sm border border-slate-300 bg-white outline-none focus:border-orange-500">
+        </div>
+        <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-600 mb-1">Họp lần thứ mấy trong tháng? *</label>
+            <input type="number" id="inp-bb-lan" min="1" max="5" value="1" class="px-3 py-2 rounded-lg text-sm border border-slate-300 bg-white outline-none focus:border-orange-500">
+        </div>
+        <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-600 mb-1">Chọn Ngày họp duy nhất *</label>
+            <input type="date" id="inp-bb-ngay" class="px-3 py-2 rounded-lg text-sm border border-slate-300 bg-white outline-none focus:border-orange-500">
+        </div>
+        <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-600 mb-1">Địa điểm tổ chức cuộc họp *</label>
+            <input type="text" id="inp-bb-diadiem" placeholder="Ví dụ: Văn phòng tổ / Phòng họp 1" class="px-3 py-2 rounded-lg text-sm border border-slate-300 bg-white outline-none focus:border-orange-500">
+        </div>
+        <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-600 mb-1">Thời gian Bắt đầu họp *</label>
+            <input type="time" id="inp-bb-gio-bd" value="08:00" class="px-3 py-2 rounded-lg text-sm border border-slate-300 bg-white outline-none focus:border-orange-500">
+        </div>
+        <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-600 mb-1">Thời gian Kết thúc họp *</label>
+            <input type="time" id="inp-bb-gio-kt" value="10:30" class="px-3 py-2 rounded-lg text-sm border border-slate-300 bg-white outline-none focus:border-orange-500">
+        </div>
+    </div>
+
+    <!-- Khung 2: Bảng thành phần tham dự họp tổ động -->
+    <div class="mb-6">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="users-2" class="w-4 h-4 text-slate-500"></i> II. Thành phần tham dự cuộc họp
+            </h3>
+            <div class="flex gap-2">
+                <button type="button" onclick="openQuanLyGiaoVienModal()" class="text-xs bg-slate-100 text-slate-600 border border-slate-300 px-3 py-1.5 rounded-lg font-semibold hover:bg-slate-200 transition-colors flex items-center gap-1">
+                    <i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Đồng bộ danh sách GV
+                </button>
+                <button type="button" onclick="themDongThanhPhien()" class="text-xs bg-orange-50 text-orange-700 border border-orange-200 px-3 py-1.5 rounded-lg font-bold hover:bg-orange-100 transition-colors flex items-center gap-1">
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5"></i> chèn thêm dòng mới
+                </button>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+            <table class="w-full text-sm text-left whitespace-nowrap">
+                <thead class="text-xs uppercase bg-slate-100 text-slate-600 font-bold border-b">
+                    <tr>
+                        <th class="px-4 py-3 text-center w-12">STT</th>
+                        <th class="px-4 py-3 w-72">Họ và Tên Giáo viên</th>
+                        <th class="px-4 py-3 w-56">Chức vụ chuyên môn</th>
+                        <th class="px-4 py-3">Ghi chú trạng thái dự họp</th>
+                        <th class="px-4 py-3 text-center w-16">Xóa</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-bb-thanhphan" class="divide-y divide-slate-100">
+                    <!-- Trình điều khiển Javascript ở phần 3 sẽ tự động render các dòng GV tại đây -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Khung 3: Biên soạn nội dung cuộc họp (Rich Text Editor) -->
+    <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+        <div class="md:col-span-2 flex flex-col">
+            <label class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <i data-lucide="message-square" class="w-4 h-4 text-slate-500"></i> III. Nội dung chi tiết cuộc họp tổ
+            </label>
+            
+            <!-- Thanh công cụ soạn thảo Rich Text Mini -->
+            <div class="flex items-center gap-1 p-1.5 bg-slate-100 border border-slate-300 rounded-t-lg border-b-0 flex-wrap">
+                <button type="button" onclick="execEditorCommand('bold')" class="p-1.5 hover:bg-slate-200 text-slate-700 rounded transition-colors font-bold text-xs border bg-white shadow-sm" title="In đậm (Ctrl+B)">B</button>
+                <button type="button" onclick="execEditorCommand('italic')" class="p-1.5 hover:bg-slate-200 text-slate-700 rounded transition-colors italic text-xs border bg-white shadow-sm" title="In nghiêng (Ctrl+I)">I</button>
+                <button type="button" onclick="execEditorCommand('underline')" class="p-1.5 hover:bg-slate-200 text-slate-700 rounded transition-colors underline text-xs border bg-white shadow-sm" title="Gạch chân (Ctrl+U)">U</button>
+                <div class="w-px h-5 bg-slate-300 mx-1"></div>
+                <button type="button" onclick="execEditorCommand('insertUnorderedList')" class="p-1.5 hover:bg-slate-200 text-slate-700 rounded transition-colors border bg-white shadow-sm flex items-center" title="Danh sách dấu chấm">• Danh sách</button>
+            </div>
+            <!-- Khung ContentEditable để gõ chữ định dạng trực tiếp -->
+            <div id="editor-bb-noidung" contenteditable="true" class="w-full min-h-[250px] max-h-[400px] overflow-y-auto px-4 py-3 bg-white border border-slate-300 rounded-b-lg outline-none focus:border-orange-500 text-sm leading-relaxed scrollbar-thin"></div>
+        </div>
+
+        <!-- Khung 4: Kế thừa chọn Thư ký và Chủ trì ký tên văn bản -->
+        <div class="flex flex-col bg-slate-50 border border-slate-200 rounded-xl p-4 md:mt-7">
+            <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">Xác nhận ban ban hành văn bản</h4>
+            <div class="flex flex-col mb-4">
+                <label class="text-xs font-bold text-slate-600 mb-1.5">Chức danh CHỦ TRÌ cuộc họp *</label>
+                <select id="sel-bb-chutri" class="w-full px-3 py-2 bg-white rounded-lg text-sm border border-slate-300 outline-none focus:border-orange-500 font-semibold text-slate-700"></select>
+            </div>
+            <div class="flex flex-col">
+                <label class="text-xs font-bold text-slate-600 mb-1.5">Chức danh THƯ KÝ ghi chép *</label>
+                <select id="sel-bb-thuky" class="w-full px-3 py-2 bg-white rounded-lg text-sm border border-slate-300 outline-none focus:border-orange-500 font-semibold text-slate-700"></select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Khung 5: Kho dữ liệu lịch sử lưu trữ tra cứu biên bản cũ -->
+    <div class="mt-8 border-t border-slate-100 pt-6">
+        <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+            <i data-lucide="history" class="w-4 h-4 text-slate-500"></i> Lịch sử lưu trữ các phiên họp tổ toán - tin
+        </h3>
+        <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <table class="w-full text-sm text-left whitespace-nowrap bg-white">
+                <thead class="text-xs uppercase bg-slate-50 text-slate-500 font-bold border-b">
+                    <tr>
+                        <th class="px-6 py-3 w-16 text-center">STT</th>
+                        <th class="px-6 py-3">Tiêu đề cuộc họp hành chính</th>
+                        <th class="px-6 py-3 text-center w-40">Ngày họp tổ</th>
+                        <th class="px-6 py-3 w-48">Thư ký phiên họp</th>
+                        <th class="px-6 py-3 text-center w-48">Hành xử dữ liệu</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody-bb-lichsu" class="divide-y divide-slate-100">
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-slate-400 italic">Hệ thống chưa ghi nhận biên bản lưu trữ nào.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Cửa sổ phụ nhỏ (Modal): Thêm giáo viên mới vào bộ lõi hệ thống -->
+<div id="modal-bb-them-gv" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 modal-backdrop">
+        <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-1.5">
+            <i data-lucide="user-plus" class="text-blue-600"></i> Thêm nhân sự mới vào tổ
+        </h3>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Họ và tên đầy đủ *</label>
+                <input type="text" id="inp-modal-gv-ten" placeholder="Ví dụ: Thầy Nguyễn Văn A" class="w-full px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 mb-1">Chức vụ / Phân công chuyên môn</label>
+                <select id="sel-modal-gv-chucvu" class="w-full px-3 py-2 bg-white rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500">
+                    <option value="GV Toán">GV Toán</option>
+                    <option value="GV Tin">GV Tin</option>
+                    <option value="Tổ trưởng">Tổ trưởng</option>
+                    <option value="Tổ phó">Tổ phó</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex gap-2 mt-5">
+            <button onclick="closeThemGVModal()" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">Hủy</button>
+            <button onclick="saveGVMoiTuModal()" class="flex-1 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 transition-colors">Thêm vào tổ</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cửa sổ phụ (Modal): Quản lý danh sách giáo viên mẫu tổng -->
+<div id="modal-bb-ql-gv" class="hidden fixed inset-0 z-[105] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-slate-100 flex flex-col max-h-[80vh]">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
+                <i data-lucide="users" class="text-slate-600"></i> Quản lý danh sách nhân sự tổ
+            </h3>
+            <button onclick="closeQuanLyGiaoVienModal()" class="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div id="list-bb-ql-gv" class="space-y-2 overflow-y-auto pr-1 flex-1 scrollbar-thin">
+            <!-- Danh sách giáo viên kèm nút xóa vĩnh viễn sẽ được render tại đây -->
+        </div>
+    </div>
+</div>
       <div class="cham-tiet-container rounded-xl p-4" style="background:#ffffff; border:1px solid #e2e8f0;">
         <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
             <h2 class="text-xl font-bold text-slate-800">Bảng Tổng Hợp Tiết Dạy Chi Tiết</h2>
@@ -488,6 +687,46 @@
    </div>
   <script>
     const COLORS = ['#f59e0b', '#38bdf8', '#a78bfa', '#f472b6', '#34d399', '#fb923c', '#6ee7b7', '#ec4899', '#14b8a6', '#8b5cf6'];
+   // ====================================================================
+    // BIÊN BẢN HỌP TỔ - CẤU HÌNH DỮ LIỆU GIÁO VIÊN ĐẦY ĐỦ VÀ QUAN HỆ LOGIC
+    // ====================================================================
+    const DANH_SACH_MAC_DINH = [
+        { id: "gv_01", hoTen: "Thầy Phạm Hoài Trung", chucVu: "Tổ trưởng", ghiChuMacDinh: "Chủ trì" },
+        { id: "gv_02", hoTen: "Cô Trần Châu Thanh Ngọc", chucVu: "GV Toán", ghiChuMacDinh: "" },
+        { id: "gv_03", hoTen: "Thầy Lê Phúc Khang", chucVu: "GV Toán", ghiChuMacDinh: "Thư ký" },
+        { id: "gv_04", hoTen: "Thầy Trần Huỳnh Long", chucVu: "GV Toán", ghiChuMacDinh: "" },
+        { id: "gv_05", hoTen: "Thầy Nguyễn Tấn Đạt", chucVu: "GV Toán", ghiChuMacDinh: "Vắng do có tiết" },
+        { id: "gv_06", hoTen: "Cô Trà Thu Cúc", chucVu: "GV Tin", ghiChuMacDinh: "" },
+        { id: "gv_07", hoTen: "Cô Đoàn Thị Kim Oanh", chucVu: "GV Tin", ghiChuMacDinh: "Vắng do có tiết" }
+    ];
+
+    // Khởi tạo và đồng bộ mảng dữ liệu với LocalStorage để giữ dữ liệu an toàn khi F5
+    let DANH_SACH_GIAO_VIEN_FULL = JSON.parse(localStorage.getItem('DanhSachGiaoVienFull'));
+
+    if (!DANH_SACH_GIAO_VIEN_FULL || DANH_SACH_GIAO_VIEN_FULL.length === 0) {
+        DANH_SACH_GIAO_VIEN_FULL = [...DANH_SACH_MAC_DINH];
+        localStorage.setItem('DanhSachGiaoVienFull', JSON.stringify(DANH_SACH_GIAO_VIEN_FULL));
+    }
+
+    // Hàm thêm giáo viên mới trực tiếp từ nút [Thêm...] trong danh sách xổ xuống
+    function themGiaoVienVaoHeThong(hoTenMoi, chucVuMoi) {
+        if (!hoTenMoi.trim()) return false;
+        const gvMoi = {
+            id: "gv_" + Date.now(),
+            hoTen: hoTenMoi.trim(),
+            chucVu: chucVuMoi || "GV Toán",
+            ghiChuMacDinh: ""
+        };
+        DANH_SACH_GIAO_VIEN_FULL.push(gvMoi);
+        localStorage.setItem('DanhSachGiaoVienFull', JSON.stringify(DANH_SACH_GIAO_VIEN_FULL));
+        return true;
+    }
+
+    // Hàm xóa giáo viên ra khỏi danh sách hệ thống khi có nhân sự ngừng công tác
+    function xoaGiaoVienKhoiHeThong(idGiaoVien) {
+        DANH_SACH_GIAO_VIEN_FULL = DANH_SACH_GIAO_VIEN_FULL.filter(gv => gv.id !== idGiaoVien);
+        localStorage.setItem('DanhSachGiaoVienFull', JSON.stringify(DANH_SACH_GIAO_VIEN_FULL));
+    }
     let membersList = [];
     let membersData = [];
     const PRIORITY_MAP = { urgent_important: { label: 'Quan trọng & Khẩn cấp', color: '#ef4444' }, important: { label: 'Quan trọng nhưng Không khẩn', color: '#f59e0b' }, urgent: { label: 'Khẩn cấp nhưng Không quan trọng', color: '#38bdf8' }, delegable: { label: 'Không quan trọng & Không khẩn', color: '#64748b' } };
