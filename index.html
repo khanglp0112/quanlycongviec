@@ -2872,16 +2872,13 @@ try {
             
             const arrayBuffer = await response.arrayBuffer();
             
+// ===================================================
+            // ĐOẠN CODE MỚI ĐÃ ĐƯỢC CHUẨN HÓA VIẾT HOA FIX LỖI TUYỆT ĐỐI:
             // ===================================================
-            // BƯỚC B: NẠP DỮ LIỆU QUA PIZZIP THEO CHUẨN ENGINE AN TOÀN
-            // ===================================================
-            // Dò tìm chính xác hàm dựng của PizZip bất chấp cách đóng gói CDN
-            const PizZipEngine = window.PizZip || (window.pizzip ? window.pizzip.default : null) || window.pizzip;
-            if (!PizZipEngine) {
-                throw new Error("Thư viện PizZip chưa được nạp thành công. Thầy vui lòng kiểm tra lại dòng nhúng ở thẻ head.");
-            }
-
-            // Khởi tạo đối tượng giải nén tệp tin Word nhị phân
+            // Bước B: Gọi thẳng đối tượng PizZip viết hoa từ window (Đã nạp thành công ở dòng 34)
+            const PizZipEngine = window.PizZip;
+            
+            // Tiến hành giải nén cấu trúc tệp tin Word nhị phân
             const zip = new PizZipEngine(arrayBuffer);
             
             // ===================================================
