@@ -2852,7 +2852,14 @@ function toggleBienBan() {
             "Thời gian bắt đầu": gioBD,
             "dd/mm/yyyy": var_fullDate,
             "Địa điểm": diaDiem,
-            "Nội dung họp tổ": noiDungBienDich,
+            "Nội dung họp tổ": noiDungBienDich 
+                ? noiDungBienDich
+                    .replace(/\r\n/g, "\n")       // Chuyển hết ngắt dòng Windows về dạng chuẩn \n
+                    .replace(/\r/g, "\n")         // Chuyển ngắt dòng Mac về dạng chuẩn \n
+                    .split("\n")                  // Tách thành mảng các dòng
+                    .map(line => line.trim())     // Xóa bỏ khoảng trắng thừa ở đầu/cuối mỗi dòng
+                    .join("\n")                   // Nối lại bằng \n sạch để linebreak nhận diện chuẩn
+                : "",
             "Thời gian kết thúc": gioKT,
             "Thư ký": thuKy,
             "Chủ trì": chuTri,
