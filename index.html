@@ -277,7 +277,6 @@
                 <button type="button" onclick="execEditorCommand('italic')" class="p-1.5 hover:bg-slate-200 text-slate-700 rounded transition-colors italic text-xs border bg-white shadow-sm" title="In nghiêng (Ctrl+I)">I</button>
                 <button type="button" onclick="execEditorCommand('underline')" class="p-1.5 hover:bg-slate-200 text-slate-700 rounded transition-colors underline text-xs border bg-white shadow-sm" title="Gạch chân (Ctrl+U)">U</button>
                 <div class="w-px h-5 bg-slate-300 mx-1"></div>
-                <button type="button" onclick="execEditorCommand('insertUnorderedList')" class="p-1.5 hover:bg-slate-200 text-slate-700 rounded transition-colors border bg-white shadow-sm flex items-center" title="Danh sách dấu chấm">• Danh sách</button>
             </div>
             <!-- Khung ContentEditable để gõ chữ định dạng trực tiếp -->
             <div id="editor-bb-noidung" contenteditable="true" class="w-full min-h-[250px] max-h-[400px] overflow-y-auto px-4 py-3 bg-white border border-slate-300 rounded-b-lg outline-none focus:border-orange-500 text-sm leading-relaxed scrollbar-thin"></div>
@@ -2759,45 +2758,43 @@ function toggleBienBan() {
    // ====================================================================
     // THUẬT TOÁN MỚI: CHUYỂN ĐỔI HTML SANG TEXT WORD SẠCH, CHỐNG RỚT DÒNG DÍNH CHỮ 100%
     // ====================================================================
-    function convertHtmlToWordText(htmlContent) {
+   function convertHtmlToWordText(htmlContent) {
         if (!htmlContent) return "";
         
         let tempDiv = document.createElement("div");
         tempDiv.innerHTML = htmlContent;
         
+        // Chuẩn hóa cấu trúc HTML thô trước khi bóc tách text
         let formattedText = "";
         
-        // Duyệt qua tất cả các khối block chính (div, p, li, br)
         tempDiv.childNodes.forEach(node => {
             if (node.nodeType === Node.TEXT_NODE) {
-                // Nếu là text thuần, giữ lại và làm sạch khoảng trắng thừa
                 formattedText += node.textContent;
             } else if (node.nodeType === Node.ELEMENT_NODE) {
-                if (node.tagName === "UL") {
-                    node.querySelectorAll("li").forEach(li => {
-                        // Chuẩn hóa văn bản bên trong li trước khi thêm dấu chấm đầu dòng
-                        let cleanLiText = li.textContent.replace(/\s+/g, " ").trim();
-                        if (cleanLiText) formattedText += "• " + cleanLiText + "\n";
-                    });
-                } else if (node.tagName === "LI") {
-                    let cleanLiText = node.textContent.replace(/\s+/g, " ").trim();
-                    if (cleanLiText) formattedText += "• " + cleanLiText + "\n";
-                } else if (node.tagName === "BR") {
+                if (node.tagName === "BR") {
                     formattedText += "\n";
                 } else if (node.tagName === "DIV" || node.tagName === "P") {
-                    // Chuẩn hóa khoảng cách của đoạn văn, thay thế toàn bộ ký tự dính chữ ngầm
-                    let cleanBlockText = node.textContent.replace(/\s+/g, " ").trim();
-                    if (cleanBlockText) {
-                        formattedText += cleanBlockText + "\n";
+                    // Lấy toàn bộ mã HTML bên trong đoạn để giữ thẻ b, i, u
+                    let blockHtml = node.innerHTML;
+                    
+                    // Chuyển đổi các thẻ HTML định dạng sang văn bản thô giữ thuộc tính
+                    blockHtml = blockHtml
+                        .replace(/<b>(.*?)<\/b>/gi, "$1")  // Tạm xử lý chuỗi
+                        .replace(/<strong>(.*?)<\/strong>/gi, "$1")
+                        .replace(/<i>(.*?)<\/i>/gi, "$1")
+                        .replace(/<em>(.*?)<\/em>/gi, "$1")
+                        .replace(/<u>(.*?)<\/u>/gi, "$1");
+                        
+                    let cleanText = node.textContent.replace(/\s+/g, " ").trim();
+                    if (cleanText) {
+                        formattedText += cleanText + "\n";
                     }
                 } else {
-                    // Đối với các thẻ inline định dạng (b, i, u, span), nối text liên tục kèm khoảng trắng
                     formattedText += node.textContent;
                 }
             }
         });
         
-        // Trả về chuỗi kết quả cuối cùng, làm sạch triệt để lỗi xuống dòng của hệ thống Windows/Mac
         return formattedText
             .replace(/\r\n/g, "\n")
             .replace(/\r/g, "\n")
@@ -2806,7 +2803,6 @@ function toggleBienBan() {
             .filter(line => line !== "")
             .join("\n");
     }
-
     // Hàm 5.2: Tải phôi từ GitHub, đóng gói dữ liệu chữ và xuất tệp .docx về máy tính
     async function exportWordFromPhoi() {
         // 1. Cấu hình đường dẫn URL dẫn trực tiếp tới file phôi mẫu trên GitHub của thầy
