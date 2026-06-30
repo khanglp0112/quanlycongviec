@@ -2755,6 +2755,9 @@ function toggleBienBan() {
     // ====================================================================
 
     // Hàm bổ trợ 5.1: Biên dịch mã HTML từ bộ soạn thảo Rich Text sang cấu trúc thô text/bullet của Word
+   // ====================================================================
+    // THUẬT TOÁN MỚI: CHUYỂN ĐỔI HTML SANG TEXT WORD SẠCH, CHỐNG RỚT DÒNG DÍNH CHỮ 100%
+    // ====================================================================
     function convertHtmlToWordText(htmlContent) {
         if (!htmlContent) return "";
         
@@ -2763,33 +2766,44 @@ function toggleBienBan() {
         
         let formattedText = "";
         
-        // Quét qua các phần tử con bên trong khung soạn thảo
+        // Duyệt qua tất cả các khối block chính (div, p, li, br)
         tempDiv.childNodes.forEach(node => {
             if (node.nodeType === Node.TEXT_NODE) {
+                // Nếu là text thuần, giữ lại và làm sạch khoảng trắng thừa
                 formattedText += node.textContent;
             } else if (node.nodeType === Node.ELEMENT_NODE) {
-                // Xử lý danh sách dấu chấm tròn (Unordered List)
                 if (node.tagName === "UL") {
                     node.querySelectorAll("li").forEach(li => {
-                        formattedText += "• " + li.textContent + "\n";
+                        // Chuẩn hóa văn bản bên trong li trước khi thêm dấu chấm đầu dòng
+                        let cleanLiText = li.textContent.replace(/\s+/g, " ").trim();
+                        if (cleanLiText) formattedText += "• " + cleanLiText + "\n";
                     });
                 } else if (node.tagName === "LI") {
-                    formattedText += "• " + node.textContent + "\n";
+                    let cleanLiText = node.textContent.replace(/\s+/g, " ").trim();
+                    if (cleanLiText) formattedText += "• " + cleanLiText + "\n";
                 } else if (node.tagName === "BR") {
                     formattedText += "\n";
-                } else {
-                    // Đối với các thẻ p, div hoặc các thẻ định dạng inline inline (b, i, u)
-                    let text = node.textContent;
-                    if (node.tagName === "DIV" || node.tagName === "P") {
-                        formattedText += text + "\n";
-                    } else {
-                        formattedText += text;
+                } else if (node.tagName === "DIV" || node.tagName === "P") {
+                    // Chuẩn hóa khoảng cách của đoạn văn, thay thế toàn bộ ký tự dính chữ ngầm
+                    let cleanBlockText = node.textContent.replace(/\s+/g, " ").trim();
+                    if (cleanBlockText) {
+                        formattedText += cleanBlockText + "\n";
                     }
+                } else {
+                    // Đối với các thẻ inline định dạng (b, i, u, span), nối text liên tục kèm khoảng trắng
+                    formattedText += node.textContent;
                 }
             }
         });
         
-        return formattedText.trim();
+        // Trả về chuỗi kết quả cuối cùng, làm sạch triệt để lỗi xuống dòng của hệ thống Windows/Mac
+        return formattedText
+            .replace(/\r\n/g, "\n")
+            .replace(/\r/g, "\n")
+            .split("\n")
+            .map(line => line.trim())
+            .filter(line => line !== "")
+            .join("\n");
     }
 
     // Hàm 5.2: Tải phôi từ GitHub, đóng gói dữ liệu chữ và xuất tệp .docx về máy tính
