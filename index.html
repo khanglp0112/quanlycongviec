@@ -2873,7 +2873,7 @@ function toggleBienBan() {
             const arrayBuffer = await response.arrayBuffer();
             
             // Bước B: Nạp dữ liệu nhị phân vào thư viện PizZip để giải nén cấu trúc file .docx
-            const zip = new PizZip(arrayBuffer);
+            const zip = new JSZip(arrayBuffer);
             
             // Bước C: Khởi tạo bộ máy docxtemplater đọc và phân tích cấu trúc thẻ biến
             const doc = new window.docxtemplater(zip, {
