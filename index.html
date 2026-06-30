@@ -2865,48 +2865,41 @@ function toggleBienBan() {
         if (typeof lucide !== 'undefined') lucide.createIcons();
         btnExport.disabled = true;
 
-        try {
+try {
             // Bước A: Tải tệp tin phôi từ GitHub dưới dạng dữ liệu nhị phân (ArrayBuffer)
             const response = await fetch(PHOI_URL);
             if (!response.ok) throw new Error("Không thể kết nối hoặc tải file phôi từ máy chủ GitHub. Thầy vui lòng kiểm tra lại URL cấu hình.");
             
             const arrayBuffer = await response.arrayBuffer();
             
-// ===================================================
-            // ĐOẠN CODE ĐÃ ĐƯỢC TỐI ƯU HÓA ĐỂ ĐẬP TAN LỖI CONSTRUCTOR:
             // ===================================================
-            // Bước B: Dò tìm chính xác hàm dựng của PizZip trên trình duyệt
-            let PizZipEngine;
-            if (typeof window.PizZip === "function") {
-                PizZipEngine = window.PizZip;
-            } else if (window.PizZip && typeof window.PizZip.default === "function") {
-                PizZipEngine = window.PizZip.default;
-            } else if (typeof PizZip === "function") {
-                PizZipEngine = PizZip;
-            } else {
-                // Nếu tất cả các cách trên đều thất bại, ép hệ thống sử dụng bộ nén JSZip sẵn có cực kỳ an toàn
-                PizZipEngine = function(data) { return new JSZip(data); };
-            }
-
-            // Tiến hành giải nén cấu trúc tệp tin nhị phân .docx một cách trơn tru
-            const zip = new PizZipEngine(arrayBuffer);
+            // BƯỚC B & C: NẠP DỮ LIỆU THEO CHUẨN ASYNC CỦA JSZIP 3.0+
+            // ===================================================
+            // Khởi tạo đối tượng JSZip trống theo chuẩn 3.0
+            const zipEngine = new JSZip();
             
-            // Bước C: Khởi tạo bộ máy docxtemplater đọc và phân tích cấu trúc thẻ biến
-            const doc = new window.docxtemplater(zip, {
+            // Nạp mảng dữ liệu ArrayBuffer chạy ngầm (Giải quyết triệt để lỗi Constructor)
+            const zip = await zipEngine.loadAsync(arrayBuffer);
+            
+            // Bước C: Định vị chính xác bộ máy phân tích cú pháp docxtemplater độc lập
+            const DocxtemplaterEngine = window.Docxtemplater || (window.docxtemplater ? (window.docxtemplater.default || window.docxtemplater) : null);
+            if (!DocxtemplaterEngine) throw new Error("Thư viện docxtemplater chưa được nạp thành công vào hệ thống.");
+
+            const doc = new DocxtemplaterEngine(zip, {
                 paragraphLoop: true,
                 linebreaks: true
             });
 
-            // Bước D: Tiến hành đổ toàn bộ dữ liệu chữ vào các ô trống biến trống tương ứng
+            // Bước D: Tiến hành rải toàn bộ dữ liệu chữ vào các vị trí biến trong file Word
             doc.render(duLieuAnhXa);
 
-            // Bước E: Đóng gói toàn bộ cấu trúc đã đổ chữ thành một tệp tin Blob nhị phân hoàn chỉnh
-            const out = doc.getZip().generate({
+            // Bước E: Đóng gói cấu trúc văn bản thành tệp tin Blob theo chuẩn Async của JSZip 3.0
+            const out = await doc.getZip().generateAsync({
                 type: "blob",
                 mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             });
 
-            // Bước F: Kích hoạt lệnh FileSaver để tải file thành phẩm về ổ cứng máy tính thầy cô
+            // Bước F: Kích hoạt lệnh FileSaver tải file thành phẩm về máy tính thầy cô
             const tenFileTaiVe = `BienBanHopTo_Lan${lanHop}_Thang${var_mm}_${var_yyyy}.docx`;
             window.saveAs(out, tenFileTaiVe);
 
