@@ -2873,15 +2873,20 @@ try {
             const arrayBuffer = await response.arrayBuffer();
             
             // ===================================================
-            // BƯỚC B & C: NẠP DỮ LIỆU THEO CHUẨN ASYNC CỦA JSZIP 3.0+
+            // BƯỚC B: NẠP DỮ LIỆU QUA PIZZIP THEO CHUẨN ENGINE AN TOÀN
             // ===================================================
-            // Khởi tạo đối tượng JSZip trống theo chuẩn 3.0 mới nhất
-            const zipEngine = new JSZip();
+            // Dò tìm chính xác hàm dựng của PizZip bất chấp cách đóng gói CDN
+            const PizZipEngine = window.PizZip || (window.pizzip ? window.pizzip.default : null) || window.pizzip;
+            if (!PizZipEngine) {
+                throw new Error("Thư viện PizZip chưa được nạp thành công. Thầy vui lòng kiểm tra lại dòng nhúng ở thẻ head.");
+            }
+
+            // Khởi tạo đối tượng giải nén tệp tin Word nhị phân
+            const zip = new PizZipEngine(arrayBuffer);
             
-            // Nạp mảng dữ liệu ArrayBuffer chạy ngầm (Giải quyết triệt để lỗi Constructor)
-            const zip = await zipEngine.loadAsync(arrayBuffer);
-            
-            // Bước C: Định vị chính xác bộ máy phân tích cú pháp docxtemplater độc lập
+            // ===================================================
+            // BƯỚC C: KHỞI TẠO BỘ MÁY DOCXTEMPLATER THEO BIẾN CHUẨN
+            // ===================================================
             const DocxtemplaterEngine = window.Docxtemplater || (window.docxtemplater ? (window.docxtemplater.default || window.docxtemplater) : null);
             if (!DocxtemplaterEngine) throw new Error("Thư viện docxtemplater chưa được nạp thành công vào hệ thống.");
 
@@ -2893,8 +2898,8 @@ try {
             // Bước D: Tiến hành rải toàn bộ dữ liệu chữ vào các vị trí biến trong file Word
             doc.render(duLieuAnhXa);
 
-            // Bước E: Đóng gói cấu trúc văn bản thành tệp tin Blob theo chuẩn Async của JSZip 3.0
-            const out = await doc.getZip().generateAsync({
+            // Bước E: Đóng gói cấu trúc văn bản thành tệp tin Blob nhị phân hoàn chỉnh
+            const out = doc.getZip().generate({
                 type: "blob",
                 mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             });
