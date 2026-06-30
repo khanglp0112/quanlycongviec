@@ -81,7 +81,6 @@
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
   <!-- ==================================================================== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <!-- Bổ sung thư viện PizZip để giải quyết triệt để lỗi "PizZip is not defined" -->
  <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.45.0/docxtemplater.js"></script>
@@ -2598,20 +2597,7 @@ function toggleBienBan() {
                 // Trường hợp Thêm mới một biên bản họp
                 const docRef = await db.collection("BienBanHop").add(dataBB);
                 document.getElementById('inp-bb-id').value = docRef.id;
-              // ====================================================================
-// CHÈN ĐOẠN NÀY VÀO CUỐI TIẾN TRÌNH LƯU BIÊN BẢN CỦA THẦY
-// ====================================================================
-Swal.fire({
-    title: 'Đã Lưu Thành Công!',
-    text: 'Biên bản cuộc họp tổ Toán - Tin đã được lưu trữ an toàn vào hệ thống.',
-    icon: 'success',
-    confirmButtonColor: '#ea580c', // Màu cam chuẩn font giao diện của thầy
-    customClass: {
-        popup: 'rounded-2xl shadow-xl border border-slate-100',
-        title: 'font-bold text-slate-800 text-xl',
-        htmlContainer: 'text-slate-600 text-sm font-medium'
-    }
-});
+                alert("Lưu trữ biên bản họp tổ lên đám mây thành công!");
             }
             // Làm tươi (Refresh) lại bảng lịch sử tra cứu phía dưới chân trang
             renderBBLichSuTable();
@@ -2953,28 +2939,10 @@ try {
             const tenFileTaiVe = `BienBanHopTo_Lan${lanHop}_Thang${var_mm}_${var_yyyy}.docx`;
             window.saveAs(out, tenFileTaiVe);
 
-           // ====================================================================
-        // HỘP THOẠI THÔNG BÁO THÀNH CÔNG ĐẸP MẮT (THAY CHO ALERT CŨ)
-        Swal.fire({
-            title: 'Xuất File Thành Công!',
-            text: 'Biên bản họp tổ Toán - Tin đã được đóng gói xong. Thầy vui lòng kiểm tra thư mục Download trên máy tính.',
-            icon: 'success',
-            confirmButtonText: 'Tuyệt vời',
-            confirmButtonColor: '#ea580c'
-        });
-
-    } catch (error) {
-        console.error("Lỗi động cơ xuất Word:", error);
-        
-        // Hiển thị hộp thoại báo lỗi sắc nét
-        Swal.fire({
-            title: 'Gặp Sự Cố Xuất File!',
-            text: 'Hệ thống không thể sinh file hành chính tự động. Thầy vui lòng rà soát lại cú pháp trong file mẫu.',
-            icon: 'error',
-            confirmButtonText: 'Kiểm tra lại',
-            confirmButtonColor: '#ef4444'
-        });
-    }
+            alert("Hệ thống đã xuất file Word thành công! Thầy cô vui lòng kiểm tra thư mục Download trên máy tính.");
+        } catch (error) {
+            console.error("Lỗi động cơ xuất Word: ", error);
+            alert("Gặp sự cố khi sinh file hành chính tự động: " + error.message);
         } finally {
             // Khôi phục lại trạng thái ban đầu cho nút bấm trên giao diện
             btnExport.innerHTML = originalText;
