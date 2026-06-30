@@ -3395,6 +3395,46 @@ function drawLinksTable() {
         renderTasks(); 
         try { await db.collection("CongViec").doc(ctxTaskId).update({ pinned: task.pinned }); } catch(err) { alert("Lỗi mạng!"); }
     }
+   // Đảm bảo đặt hàm này hoàn toàn độc lập ở cuối file script
+    function toggleBienBan() {
+        const board = document.getElementById('board-view');
+        const lkView = document.getElementById('lien-ket-view');
+        const ctView = document.getElementById('cham-tiet-view');
+        const timeline = document.getElementById('timeline-view');
+        const filterBar = document.getElementById('filter-bar');
+        const statsBar = document.getElementById('stats-bar');
+        const emptyState = document.getElementById('empty-state');
+        const bbView = document.getElementById('bien-ban-view');
+
+        if (!bbView) {
+            alert("Không tìm thấy thẻ HTML có id='bien-ban-view'. Thầy vui lòng kiểm tra lại Vị trí chèn 2.2.");
+            return;
+        }
+
+        if (bbView.classList.contains('hidden')) {
+            if (board) board.classList.add('hidden');
+            if (lkView) lkView.classList.add('hidden');
+            if (ctView) ctView.classList.add('hidden');
+            if (timeline) timeline.classList.add('hidden');
+            if (filterBar) filterBar.classList.add('hidden');
+            if (statsBar) statsBar.classList.add('hidden');
+            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
+            
+            bbView.classList.remove('hidden');
+            
+            try {
+                if (typeof renderBBThanhPhanTable === 'function') renderBBThanhPhanTable();
+                if (typeof renderBBLichSuTable === 'function') renderBBLichSuTable();
+            } catch(e) { console.error(e); }
+        } else {
+            bbView.classList.add('hidden');
+            if (filterBar) filterBar.classList.remove('hidden');
+            if (statsBar) statsBar.classList.remove('hidden');
+            if (typeof renderTasks === 'function') renderTasks();
+        }
+
+        try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
+    }
   </script>
  </body>
 </html>
