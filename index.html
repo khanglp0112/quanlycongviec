@@ -2882,12 +2882,26 @@ try {
             }
             const zip = new PizZipEngine(arrayBuffer);
             
-            // Bước C: Gọi hàm dựng Docxtemplater chuẩn từ trình duyệt
-            const DocxtemplaterEngine = window.Docxtemplater || (window.docxtemplater ? (window.docxtemplater.default || window.docxtemplater) : null);
-            if (!DocxtemplaterEngine) {
-                throw new Error("Hệ thống chưa tìm thấy thư viện Docxtemplater. Thầy vui lòng F5 (Reload) lại trang.");
+// ===================================================
+            // BƯỚC C: KHỞI TẠO BỘ MÁY DOCXTEMPLATER BIẾN THỂ AN TOÀN TUYỆT ĐỐI
+            // ===================================================
+            // Giải pháp quét sạch mọi cách đóng gói module (viết hoa, viết thường, hoặc .default)
+            let DocxtemplaterEngine = null;
+
+            if (window.Docxtemplater) {
+                DocxtemplaterEngine = window.Docxtemplater;
+            } else if (window.docxtemplater) {
+                DocxtemplaterEngine = window.docxtemplater.default || window.docxtemplater;
+            } else if (typeof Docxtemplater !== "undefined") {
+                DocxtemplaterEngine = Docxtemplater;
             }
 
+            // Bẫy lỗi phòng vệ cuối cùng nếu thực sự không tìm thấy thư viện trên trình duyệt
+            if (!DocxtemplaterEngine) {
+                throw new Error("Hệ thống chưa tìm thấy thư viện Docxtemplater. Thầy vui lòng kiểm tra lại kết nối mạng internet hoặc đường link nhúng.");
+            }
+
+            // Tiến hành khởi tạo đối tượng đổ phôi Word hành chính
             const doc = new DocxtemplaterEngine(zip, {
                 paragraphLoop: true,
                 linebreaks: true
