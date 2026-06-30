@@ -2873,19 +2873,21 @@ try {
             const arrayBuffer = await response.arrayBuffer();
             
 // ===================================================
-            // ĐOẠN CODE MỚI ĐÃ ĐƯỢC FIX LỖI CONSTRUCTOR TUYỆT ĐỐI:
+            // ĐOẠN CODE ĐÃ ĐƯỢC TỐI ƯU HÓA FIX SẠCH LỖI UNDEFINED:
             // ===================================================
-            // Bước B: Gọi chính xác hàm dựng mặc định nằm bên trong Module PizZip
-            const PizZipEngine = window.PizZip.default || window.PizZip;
+            // Bước B: Kiểm tra và gọi trực tiếp đối tượng PizZip từ window
+            if (typeof window.PizZip === "undefined") {
+                throw new Error("Thư viện PizZip chưa được nạp thành công. Thầy vui lòng kiểm tra lại dòng 34 ở thẻ head.");
+            }
             
-            // Tiến hành giải nén cấu trúc tệp tin Word nhị phân mượt mà
-            const zip = new PizZipEngine(arrayBuffer);
+            // Tiến hành giải nén cấu trúc tệp tin Word nhị phân
+            const zip = new window.PizZip(arrayBuffer);
             
-            // ===================================================
-            // BƯỚC C: KHỞI TẠO BỘ MÁY DOCXTEMPLATER THEO BIẾN CHUẨN
-            // ===================================================
-            const DocxtemplaterEngine = window.Docxtemplater || (window.docxtemplater ? (window.docxtemplater.default || window.docxtemplater) : null);
-            if (!DocxtemplaterEngine) throw new Error("Thư viện docxtemplater chưa được nạp thành công vào hệ thống.");
+            // Bước C: Khởi tạo bộ máy Docxtemplater độc lập an toàn từ cửa sổ window
+            const DocxtemplaterEngine = window.Docxtemplater;
+            if (typeof DocxtemplaterEngine === "undefined") {
+                throw new Error("Thư viện Docxtemplater chưa được nạp thành công. Thầy vui lòng kiểm tra lại dòng 35 ở thẻ head.");
+            }
 
             const doc = new DocxtemplaterEngine(zip, {
                 paragraphLoop: true,
