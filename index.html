@@ -2240,13 +2240,11 @@ function toggleChamTiet() {
         }
     }
 // ====================================================================
- function toggleBienBan() {
+function toggleBienBan() {
         const board = document.getElementById('board-view');
         const lkView = document.getElementById('lien-ket-view');
         const ctView = document.getElementById('cham-tiet-view');
         const timeline = document.getElementById('timeline-view');
-        const filterBar = document.getElementById('filter-bar');
-        const statsBar = document.getElementById('stats-bar');
         const emptyState = document.getElementById('empty-state');
         const bbView = document.getElementById('bien-ban-view');
 
@@ -2255,15 +2253,13 @@ function toggleChamTiet() {
         if (bbView.classList.contains('hidden')) {
             if (board) board.classList.add('hidden');
             if (lkView) lkView.classList.add('hidden');
-            if (ctView) ctView.classList.add('hidden'); // Ẩn chấm tiết dạy nếu đang mở
+            if (ctView) ctView.classList.add('hidden'); 
             if (timeline) timeline.classList.add('hidden');
-            if (filterBar) filterBar.classList.add('hidden');
-            if (statsBar) statsBar.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
             
+            // Hiện thị biên bản họp tổ
             bbView.classList.remove('hidden');
             
-            // Thiết lập mặc định ngày hôm nay cho ô chọn ngày
             const inpNgay = document.getElementById('inp-bb-ngay');
             if (inpNgay && !inpNgay.value) {
                 inpNgay.value = new Date().toISOString().split('T')[0];
@@ -2275,8 +2271,6 @@ function toggleChamTiet() {
             } catch(e) { console.error(e); }
         } else {
             bbView.classList.add('hidden');
-            if (filterBar) filterBar.classList.remove('hidden');
-            if (statsBar) statsBar.classList.remove('hidden');
             if (typeof renderTasks === 'function') renderTasks();
         }
 
