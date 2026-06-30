@@ -2872,8 +2872,24 @@ function toggleBienBan() {
             
             const arrayBuffer = await response.arrayBuffer();
             
-            // Bước B: Nạp dữ liệu nhị phân vào thư viện PizZip để giải nén cấu trúc file .docx
-            const zip = new window.PizZip(arrayBuffer);
+// ===================================================
+            // ĐOẠN CODE ĐÃ ĐƯỢC TỐI ƯU HÓA ĐỂ ĐẬP TAN LỖI CONSTRUCTOR:
+            // ===================================================
+            // Bước B: Dò tìm chính xác hàm dựng của PizZip trên trình duyệt
+            let PizZipEngine;
+            if (typeof window.PizZip === "function") {
+                PizZipEngine = window.PizZip;
+            } else if (window.PizZip && typeof window.PizZip.default === "function") {
+                PizZipEngine = window.PizZip.default;
+            } else if (typeof PizZip === "function") {
+                PizZipEngine = PizZip;
+            } else {
+                // Nếu tất cả các cách trên đều thất bại, ép hệ thống sử dụng bộ nén JSZip sẵn có cực kỳ an toàn
+                PizZipEngine = function(data) { return new JSZip(data); };
+            }
+
+            // Tiến hành giải nén cấu trúc tệp tin nhị phân .docx một cách trơn tru
+            const zip = new PizZipEngine(arrayBuffer);
             
             // Bước C: Khởi tạo bộ máy docxtemplater đọc và phân tích cấu trúc thẻ biến
             const doc = new window.docxtemplater(zip, {
