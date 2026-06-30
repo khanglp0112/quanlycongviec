@@ -2873,12 +2873,12 @@ try {
             const arrayBuffer = await response.arrayBuffer();
             
 // ===================================================
-            // ĐOẠN CODE MỚI ĐÃ ĐƯỢC CHUẨN HÓA VIẾT HOA FIX LỖI TUYỆT ĐỐI:
+            // ĐOẠN CODE MỚI ĐÃ ĐƯỢC FIX LỖI CONSTRUCTOR TUYỆT ĐỐI:
             // ===================================================
-            // Bước B: Gọi thẳng đối tượng PizZip viết hoa từ window (Đã nạp thành công ở dòng 34)
-            const PizZipEngine = window.PizZip;
+            // Bước B: Gọi chính xác hàm dựng mặc định nằm bên trong Module PizZip
+            const PizZipEngine = window.PizZip.default || window.PizZip;
             
-            // Tiến hành giải nén cấu trúc tệp tin Word nhị phân
+            // Tiến hành giải nén cấu trúc tệp tin Word nhị phân mượt mà
             const zip = new PizZipEngine(arrayBuffer);
             
             // ===================================================
