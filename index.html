@@ -174,8 +174,7 @@
     </div>
   </div>
 </div>
-<div id="cham-tiet-view" class="hidden fade-in mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
- <!-- ==================================================================== -->
+    <!-- ==================================================================== -->
 <!-- PHẦN 2: GIAO DIỆN KHU VỰC BIÊN BẢN HỌP TỔ CHUYÊN MÔN                  -->
 <!-- ==================================================================== -->
 <div id="bien-ban-view" class="hidden fade-in mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
@@ -366,6 +365,7 @@
         </div>
     </div>
 </div>
+<div id="cham-tiet-view" class="hidden fade-in mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
       <div class="cham-tiet-container rounded-xl p-4" style="background:#ffffff; border:1px solid #e2e8f0;">
         <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
             <h2 class="text-xl font-bold text-slate-800">Bảng Tổng Hợp Tiết Dạy Chi Tiết</h2>
@@ -2240,7 +2240,48 @@ function toggleChamTiet() {
         }
     }
 // ====================================================================
- 
+ function toggleBienBan() {
+        const board = document.getElementById('board-view');
+        const lkView = document.getElementById('lien-ket-view');
+        const ctView = document.getElementById('cham-tiet-view');
+        const timeline = document.getElementById('timeline-view');
+        const filterBar = document.getElementById('filter-bar');
+        const statsBar = document.getElementById('stats-bar');
+        const emptyState = document.getElementById('empty-state');
+        const bbView = document.getElementById('bien-ban-view');
+
+        if (!bbView) return;
+
+        if (bbView.classList.contains('hidden')) {
+            if (board) board.classList.add('hidden');
+            if (lkView) lkView.classList.add('hidden');
+            if (ctView) ctView.classList.add('hidden'); // Ẩn chấm tiết dạy nếu đang mở
+            if (timeline) timeline.classList.add('hidden');
+            if (filterBar) filterBar.classList.add('hidden');
+            if (statsBar) statsBar.classList.add('hidden');
+            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
+            
+            bbView.classList.remove('hidden');
+            
+            // Thiết lập mặc định ngày hôm nay cho ô chọn ngày
+            const inpNgay = document.getElementById('inp-bb-ngay');
+            if (inpNgay && !inpNgay.value) {
+                inpNgay.value = new Date().toISOString().split('T')[0];
+            }
+            
+            try {
+                if (typeof renderBBThanhPhanTable === 'function') renderBBThanhPhanTable();
+                if (typeof renderBBLichSuTable === 'function') renderBBLichSuTable();
+            } catch(e) { console.error(e); }
+        } else {
+            bbView.classList.add('hidden');
+            if (filterBar) filterBar.classList.remove('hidden');
+            if (statsBar) statsBar.classList.remove('hidden');
+            if (typeof renderTasks === 'function') renderTasks();
+        }
+
+        try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
+    }
     // Hàm điều khiển lệnh định dạng chữ trong thanh Rich Text Editor Mini
     function execEditorCommand(command) {
         document.execCommand(command, false, null);
@@ -3352,46 +3393,6 @@ function drawLinksTable() {
         task.pinned = !task.pinned;
         renderTasks(); 
         try { await db.collection("CongViec").doc(ctxTaskId).update({ pinned: task.pinned }); } catch(err) { alert("Lỗi mạng!"); }
-    }
-   // Đảm bảo đặt hàm này hoàn toàn độc lập ở cuối file script
-    function toggleBienBan() {
-        const board = document.getElementById('board-view');
-        const lkView = document.getElementById('lien-ket-view');
-        const ctView = document.getElementById('cham-tiet-view');
-        const timeline = document.getElementById('timeline-view');
-        const filterBar = document.getElementById('filter-bar');
-        const statsBar = document.getElementById('stats-bar');
-        const emptyState = document.getElementById('empty-state');
-        const bbView = document.getElementById('bien-ban-view');
-
-        if (!bbView) {
-            alert("Không tìm thấy thẻ HTML có id='bien-ban-view'. Thầy vui lòng kiểm tra lại Vị trí chèn 2.2.");
-            return;
-        }
-
-        if (bbView.classList.contains('hidden')) {
-            if (board) board.classList.add('hidden');
-            if (lkView) lkView.classList.add('hidden');
-            if (ctView) ctView.classList.add('hidden');
-            if (timeline) timeline.classList.add('hidden');
-            if (filterBar) filterBar.classList.add('hidden');
-            if (statsBar) statsBar.classList.add('hidden');
-            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
-            
-            bbView.classList.remove('hidden');
-            
-            try {
-                if (typeof renderBBThanhPhanTable === 'function') renderBBThanhPhanTable();
-                if (typeof renderBBLichSuTable === 'function') renderBBLichSuTable();
-            } catch(e) { console.error(e); }
-        } else {
-            bbView.classList.add('hidden');
-            if (filterBar) filterBar.classList.remove('hidden');
-            if (statsBar) statsBar.classList.remove('hidden');
-            if (typeof renderTasks === 'function') renderTasks();
-        }
-
-        try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
     }
   </script>
  </body>
