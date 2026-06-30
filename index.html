@@ -82,8 +82,8 @@
   <!-- ==================================================================== -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <!-- Bổ sung thư viện PizZip để giải quyết triệt để lỗi "PizZip is not defined" -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.4/pizzip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.45.0/docxtemplater.js"></script>
+ <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.min.js"></script>
+  <script src="https://unpkg.com/docxtemplater@3.45.0/dist/docxtemplater.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
  </head>
  <body class="h-full">
@@ -2873,20 +2873,19 @@ try {
             const arrayBuffer = await response.arrayBuffer();
             
 // ===================================================
-            // ĐOẠN CODE ĐÃ ĐƯỢC TỐI ƯU HÓA FIX SẠCH LỖI UNDEFINED:
+            // ĐOẠN CODE KHỞI TẠO ĐÃ ĐƯỢC CHUẨN HÓA KHỚP 100% VỚI CDN MỚI:
             // ===================================================
-            // Bước B: Kiểm tra và gọi trực tiếp đối tượng PizZip từ window
-            if (typeof window.PizZip === "undefined") {
-                throw new Error("Thư viện PizZip chưa được nạp thành công. Thầy vui lòng kiểm tra lại dòng 34 ở thẻ head.");
+            // Bước B: Gọi hàm dựng PizZip chuẩn từ trình duyệt
+            const PizZipEngine = window.PizZip || (window.pizzip ? window.pizzip.default : null);
+            if (!PizZipEngine) {
+                throw new Error("Hệ thống chưa tìm thấy thư viện PizZip. Thầy vui lòng F5 (Reload) lại trang.");
             }
+            const zip = new PizZipEngine(arrayBuffer);
             
-            // Tiến hành giải nén cấu trúc tệp tin Word nhị phân
-            const zip = new window.PizZip(arrayBuffer);
-            
-            // Bước C: Khởi tạo bộ máy Docxtemplater độc lập an toàn từ cửa sổ window
-            const DocxtemplaterEngine = window.Docxtemplater;
-            if (typeof DocxtemplaterEngine === "undefined") {
-                throw new Error("Thư viện Docxtemplater chưa được nạp thành công. Thầy vui lòng kiểm tra lại dòng 35 ở thẻ head.");
+            // Bước C: Gọi hàm dựng Docxtemplater chuẩn từ trình duyệt
+            const DocxtemplaterEngine = window.Docxtemplater || (window.docxtemplater ? (window.docxtemplater.default || window.docxtemplater) : null);
+            if (!DocxtemplaterEngine) {
+                throw new Error("Hệ thống chưa tìm thấy thư viện Docxtemplater. Thầy vui lòng F5 (Reload) lại trang.");
             }
 
             const doc = new DocxtemplaterEngine(zip, {
