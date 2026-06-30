@@ -2240,49 +2240,7 @@ function toggleChamTiet() {
         }
     }
 // ====================================================================
-    // PHẦN 2: LOGIC CHUYỂN ĐỔI GIAO DIỆN & THANH SOẠN THẢO RICH TEXT EDITOR
-    // ====================================================================
-    function toggleBienBan() {
-        const board = document.getElementById('board-view');
-        const lkView = document.getElementById('lien-ket-view');
-        const ctView = document.getElementById('cham-tiet-view');
-        const timeline = document.getElementById('timeline-view');
-        const filterBar = document.getElementById('filter-bar');
-        const statsBar = document.getElementById('stats-bar');
-        const emptyState = document.getElementById('empty-state');
-        const bbView = document.getElementById('bien-ban-view');
-
-        if (!bbView) return;
-        if (bbView.classList.contains('hidden')) {
-            // Ẩn tất cả các tab view khác đi
-            if (board) board.classList.add('hidden');
-            if (lkView) lkView.classList.add('hidden');
-            if (ctView) ctView.classList.add('hidden');
-            if (timeline) timeline.classList.add('hidden');
-            if (filterBar) filterBar.classList.add('hidden');
-            if (statsBar) statsBar.classList.add('hidden');
-            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
-            
-            // Hiển thị Tab Biên bản họp tổ
-            bbView.classList.remove('hidden');
-            
-            // Thiết lập mặc định ngày hôm nay cho ô chọn ngày duy nhất
-            const todayStr = new Date().toISOString().split('T')[0];
-            const inpNgay = document.getElementById('inp-bb-ngay');
-            if(inpNgay && !inpNgay.value) inpNgay.value = todayStr;
-            
-            // Kích hoạt nạp bảng thành phần giáo viên (Sẽ xử lý sâu ở phần 3 & 4)
-            if (typeof renderBBThanhPhanTable === 'function') renderBBThanhPhanTable();
-            if (typeof renderBBLichSuTable === 'function') renderBBLichSuTable();
-        } else {
-            bbView.classList.add('hidden');
-            if (filterBar) filterBar.classList.remove('hidden');
-            if (statsBar) statsBar.classList.remove('hidden');
-            if (typeof renderTasks === 'function') renderTasks();
-        }
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    }
-
+ 
     // Hàm điều khiển lệnh định dạng chữ trong thanh Rich Text Editor Mini
     function execEditorCommand(command) {
         document.execCommand(command, false, null);
