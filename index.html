@@ -824,6 +824,10 @@ function populateMemberSelects() {
           }).join('');
       }
     }
+   // Lệnh mồi đảm bảo danh sách Họ tên đầy đủ luôn được nạp sẵn cho Biên bản họp
+    if (typeof renderBBThanhPhanTable === "function") {
+        setTimeout(() => { renderBBThanhPhanTable(); }, 500);
+    }
     function renderMembersList() {
       const container = document.getElementById('members-list');
       container.innerHTML = membersData.map((m) => `
@@ -2172,6 +2176,8 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
         if (typeof populateMemberSelects === "function") populateMemberSelects();
         if (typeof renderMembersList === "function") renderMembersList();
         if (typeof renderTasks === "function") renderTasks();
+       // Nạp dữ liệu lịch sử các biên bản họp tổ từ Firebase khi vừa mở trang web
+        if (typeof renderBBLichSuTable === "function") renderBBLichSuTable();
       } catch (error) { console.error("Lỗi tải dữ liệu:", error); }
    // Tự động tắt màn hình chào sau 0.8 giây để tạo độ mượt
         setTimeout(() => {
@@ -2233,7 +2239,677 @@ function toggleChamTiet() {
             renderTasks(); // Gọi lại bộ não để phục hồi giao diện chuẩn
         }
     }
+// ====================================================================
+    // PHẦN 2: LOGIC CHUYỂN ĐỔI GIAO DIỆN & THANH SOẠN THẢO RICH TEXT EDITOR
+    // ====================================================================
+    function toggleBienBan() {
+        const board = document.getElementById('board-view');
+        const lkView = document.getElementById('lien-ket-view');
+        const ctView = document.getElementById('cham-tiet-view');
+        const timeline = document.getElementById('timeline-view');
+        const filterBar = document.getElementById('filter-bar');
+        const statsBar = document.getElementById('stats-bar');
+        const emptyState = document.getElementById('empty-state');
+        const bbView = document.getElementById('bien-ban-view');
 
+        if (!bbView) return;
+        if (bbView.classList.contains('hidden')) {
+            // Ẩn tất cả các tab view khác đi
+            if (board) board.classList.add('hidden');
+            if (lkView) lkView.classList.add('hidden');
+            if (ctView) ctView.classList.add('hidden');
+            if (timeline) timeline.classList.add('hidden');
+            if (filterBar) filterBar.classList.add('hidden');
+            if (statsBar) statsBar.classList.add('hidden');
+            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
+            
+            // Hiển thị Tab Biên bản họp tổ
+            bbView.classList.remove('hidden');
+            
+            // Thiết lập mặc định ngày hôm nay cho ô chọn ngày duy nhất
+            const todayStr = new Date().toISOString().split('T')[0];
+            const inpNgay = document.getElementById('inp-bb-ngay');
+            if(inpNgay && !inpNgay.value) inpNgay.value = todayStr;
+            
+            // Kích hoạt nạp bảng thành phần giáo viên (Sẽ xử lý sâu ở phần 3 & 4)
+            if (typeof renderBBThanhPhanTable === 'function') renderBBThanhPhanTable();
+            if (typeof renderBBLichSuTable === 'function') renderBBLichSuTable();
+        } else {
+            bbView.classList.add('hidden');
+            if (filterBar) filterBar.classList.remove('hidden');
+            if (statsBar) statsBar.classList.remove('hidden');
+            if (typeof renderTasks === 'function') renderTasks();
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Hàm điều khiển lệnh định dạng chữ trong thanh Rich Text Editor Mini
+    function execEditorCommand(command) {
+        document.execCommand(command, false, null);
+        document.getElementById('editor-bb-noidung').focus();
+    }
+   // ====================================================================
+    // PHẦN 3: LOGIC XỬ LÝ BẢNG THÀNH PHẦN THAM DỰ ĐỘNG (MỤC II)
+    // ====================================================================
+
+    // Hàm 3.1: Vẽ (Render) lại toàn bộ bảng thành phần tham dự trên Form
+    function renderBBThanhPhanTable() {
+        const tbody = document.getElementById('tbody-bb-thanhphan');
+        if (!tbody) return;
+
+        // Nếu bảng đang trống rỗng (lần đầu mở form), tự động nạp danh sách mặc định lên trước
+        if (tbody.children.length === 0) {
+            tbody.innerHTML = DANH_SACH_GIAO_VIEN_FULL.map((gv, idx) => `
+                <tr class="bb-tp-row border-b hover:bg-slate-50 transition-colors">
+                    <td class="px-4 py-3 text-center font-bold text-slate-400 bb-stt">${idx + 1}</td>
+                    <td class="px-4 py-2">
+                        <select class="w-full px-2 py-1.5 rounded-lg border border-slate-300 outline-none focus:border-orange-500 text-sm font-semibold text-slate-700 bb-sel-gv" onchange="handleBBGiaoVienChange(this)">
+                            ${generateGiaoVienOptions(gv.hoTen)}
+                        </select>
+                    </td>
+                    <td class="px-4 py-2">
+                        <input type="text" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 font-medium text-sm outline-none bb-inp-chucvu" value="${gv.chucVu}" readonly>
+                    </td>
+                    <td class="px-4 py-2">
+                        <input type="text" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white outline-none focus:border-orange-500 text-sm bb-inp-ghichu" value="${gv.ghiChuMacDinh || ''}" placeholder="Nhập ghi chú trạng thái...">
+                    </td>
+                    <td class="px-4 py-2 text-center">
+                        <button type="button" onclick="xoaDongThanhPhan(this)" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all" title="Xóa dòng này">
+                            <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            // Trường hợp bảng đã có dòng (đang sửa), chỉ cập nhật lại danh sách xổ xuống của từng dòng
+            const rows = tbody.querySelectorAll('.bb-tp-row');
+            rows.forEach(row => {
+                const select = row.querySelector('.bb-sel-gv');
+                const currentVal = select.value;
+                select.innerHTML = generateGiaoVienOptions(currentVal);
+            });
+        }
+        
+        // Luôn cập nhật lại danh sách Thư ký & Chủ trì ở cuối
+        updateBBChủTrìThưKýSelects();
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Hàm bổ trợ 3.2: Sinh ra chuỗi HTML danh sách giáo viên kèm tùy chọn [Thêm...]
+    function generateGiaoVienOptions(selectedName) {
+        let html = '<option value="">-- Chọn Giáo viên --</option>';
+        DANH_SACH_GIAO_VIEN_FULL.forEach(gv => {
+            const isSel = gv.hoTen === selectedName ? 'selected' : '';
+            html += `<option value="${gv.hoTen}" data-chucvu="${gv.chucVu}" ${isSel}>${gv.hoTen}</option>`;
+        });
+        html += `<option value="__THEM_MOI__" class="text-blue-600 font-bold">➕ [Thêm giáo viên mới...]</option>`;
+        return html;
+    }
+
+    // Hàm 3.3: Lắng nghe sự kiện thay đổi tên trên từng dòng
+    function handleBBGiaoVienChange(selectEl) {
+        const row = selectEl.closest('tr');
+        const chucVuInput = row.querySelector('.bb-inp-chucvu');
+        
+        if (selectEl.value === '__THEM_MOI__') {
+            // Lưu lại tham chiếu ô select vừa bấm để lát nữa điền tên sau khi thêm mới
+            window.activeBBSelectEl = selectEl;
+            selectEl.value = ""; // Trả tạm về rỗng
+            chucVuInput.value = "";
+            document.getElementById('inp-modal-gv-ten').value = "";
+            document.getElementById('modal-bb-them-gv').classList.remove('hidden');
+            return;
+        }
+
+        // Tự động điền chức vụ tương ứng khi chọn tên giáo viên
+        const selectedOption = selectEl.options[selectEl.selectedIndex];
+        const cv = selectedOption.getAttribute('data-chucvu') || '';
+        chucVuInput.value = cv;
+
+        // Đồng bộ danh sách Chủ trì / Thư ký ở cuối form
+        updateBBChủTrìThưKýSelects();
+    }
+
+    // Hàm 3.4: Chèn thêm một dòng trống mới vào bảng thành phần
+    function themDongThanhPhien() {
+        const tbody = document.getElementById('tbody-bb-thanhphan');
+        if (!tbody) return;
+
+        const nextSTT = tbody.children.length + 1;
+        const tr = document.createElement('tr');
+        tr.className = 'bb-tp-row border-b hover:bg-slate-50 transition-colors';
+        tr.innerHTML = `
+            <td class="px-4 py-3 text-center font-bold text-slate-400 bb-stt">${nextSTT}</td>
+            <td class="px-4 py-2">
+                <select class="w-full px-2 py-1.5 rounded-lg border border-slate-300 outline-none focus:border-orange-500 text-sm font-semibold text-slate-700 bb-sel-gv" onchange="handleBBGiaoVienChange(this)">
+                    ${generateGiaoVienOptions('')}
+                </select>
+            </td>
+            <td class="px-4 py-2">
+                <input type="text" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 font-medium text-sm outline-none bb-inp-chucvu" value="" readonly>
+            </td>
+            <td class="px-4 py-2">
+                <input type="text" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white outline-none focus:border-orange-500 text-sm bb-inp-ghichu" value="" placeholder="Nhập ghi chú trạng thái...">
+            </td>
+            <td class="px-4 py-2 text-center">
+                <button type="button" onclick="xoaDongThanhPhan(this)" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all" title="Xóa dòng này">
+                    <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    // Hàm 3.5: Xóa một dòng bất kỳ trên bảng và sắp xếp lại Số thứ tự STT
+    function xoaDongThanhPhan(buttonEl) {
+        const row = buttonEl.closest('tr');
+        const tbody = row.parentElement;
+        row.remove();
+
+        // Cập nhật lại toàn bộ số thứ tự STT từ trên xuống dưới
+        const rows = tbody.querySelectorAll('.bb-tp-row');
+        rows.forEach((r, idx) => {
+            r.querySelector('.bb-stt').textContent = idx + 1;
+        });
+
+        updateBBChủTrìThưKýSelects();
+    }
+
+    // Hàm 3.6: Đồng bộ danh sách tên ở bảng Mục II xuống ô chọn Chủ trì & Thư ký ký tên
+    function updateBBChủTrìThưKýSelects() {
+        const selChuTri = document.getElementById('sel-bb-chutri');
+        const selThuKy = document.getElementById('sel-bb-thuky');
+        if (!selChuTri || !selThuKy) return;
+
+        // Lưu lại tên đang được chọn trước đó để không bị mất dữ liệu khi vẽ lại danh sách
+        const oldChuTri = selChuTri.value;
+        const oldThuKy = selThuKy.value;
+
+        // Gom tất cả các tên giáo viên thực tế đã được chọn ở bảng thành phần
+        const selectedGVs = [];
+        document.querySelectorAll('.bb-sel-gv').forEach(select => {
+            if (select.value) selectedGVs.push(select.value);
+        });
+
+        // Tạo chuỗi HTML tùy chọn danh sách lọc sạch
+        let htmlOptions = '<option value="">-- Chọn Nhân sự --</option>';
+        selectedGVs.forEach(name => {
+            htmlOptions += `<option value="${name}">${name}</option>`;
+        });
+
+        selChuTri.innerHTML = htmlOptions;
+        selThuKy.innerHTML = htmlOptions;
+
+        // Phục hồi lại tên cũ nếu tên đó vẫn còn tồn tại trong danh sách
+        if (selectedGVs.includes(oldChuTri)) selChuTri.value = oldChuTri;
+        else {
+            // Mẹo tự động bắt Thầy Trung làm chủ trì mặc định nếu có tên trong bảng
+            const hasTrung = selectedGVs.find(n => n.includes("Hoài Trung"));
+            if(hasTrung) selChuTri.value = hasTrung;
+        }
+
+        if (selectedGVs.includes(oldThuKy)) selThuKy.value = oldThuKy;
+        else {
+            // Mẹo tự động bắt Thầy Khang làm thư ký mặc định nếu có tên trong bảng
+            const hasKhang = selectedGVs.find(n => n.includes("Phúc Khang"));
+            if(hasKhang) selThuKy.value = hasKhang;
+        }
+    }
+
+    // Hàm 3.7: Xử lý đóng/mở Modal Thêm giáo viên mới
+    function closeThemGVModal() {
+        document.getElementById('modal-bb-them-gv').classList.add('hidden');
+    }
+
+    function saveGVMoiTuModal() {
+        const tenMoi = document.getElementById('inp-modal-gv-ten').value.trim();
+        const chucVuMoi = document.getElementById('sel-modal-gv-chucvu').value;
+
+        if (!tenMoi) { alert("Vui lòng gõ đầy đủ họ và tên giáo viên."); return; }
+
+        // Gọi hàm lõi ở phần 1 để đẩy vào bộ nhớ LocalStorage
+        const thanhCong = themGiaoVienVaoHeThong(tenMoi, chucVuMoi);
+        if (thanhCong) {
+            // Nạp tên vừa tạo vào đúng ô select giáo viên đang kích hoạt dòng đó
+            if (window.activeBBSelectEl) {
+                const select = window.activeBBSelectEl;
+                select.innerHTML = generateGiaoVienOptions(tenMoi);
+                select.value = tenMoi;
+                const row = select.closest('tr');
+                row.querySelector('.bb-inp-chucvu').value = chucVuMoi;
+                window.activeBBSelectEl = null;
+            }
+            
+            // Vẽ lại toàn bộ các ô select khác trên bảng để cập nhật đồng bộ tên mới này
+            document.querySelectorAll('.bb-sel-gv').forEach(sel => {
+                if (sel !== window.activeBBSelectEl) {
+                    const temp = sel.value;
+                    sel.innerHTML = generateGiaoVienOptions(temp);
+                }
+            });
+
+            updateBBChủTrìThưKýSelects();
+            closeThemGVModal();
+        }
+    }
+
+    // Hàm 3.8: Xử lý đóng/mở và vận hành Modal Quản lý danh sách gốc (Xóa giáo viên cũ)
+    function openQuanLyGiaoVienModal() {
+        const container = document.getElementById('list-bb-ql-gv');
+        if (!container) return;
+
+        container.innerHTML = DANH_SACH_GIAO_VIEN_FULL.map(gv => `
+            <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50/50">
+                <div class="flex flex-col">
+                    <span class="text-sm font-bold text-slate-700">${escHtml(gv.hoTen)}</span>
+                    <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">${gv.chucVu}</span>
+                </div>
+                <button type="button" onclick="handleBBXoaGVKhoiHeThong('${gv.id}')" class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors" title="Xóa vĩnh viễn khỏi danh sách mẫu">
+                    <i data-lucide="user-minus" style="width:16px;height:16px;"></i>
+                </button>
+            </div>
+        `).join('');
+
+        document.getElementById('modal-bb-ql-gv').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closeQuanLyGiaoVienModal() {
+        document.getElementById('modal-bb-ql-gv').classList.add('hidden');
+    }
+
+    function handleBBXoaGVKhoiHeThong(gvId) {
+        const gvTarget = DANH_SACH_GIAO_VIEN_FULL.find(g => g.id === gvId);
+        if (!gvTarget) return;
+
+        if (confirm(`Thầy có chắc chắn muốn xóa thầy cô "${gvTarget.hoTen}" ra khỏi danh sách hệ thống? (Thao tác này giúp dọn sạch danh sách khi nhân sự chuyển công tác)`)) {
+            // Gọi hàm lõi ở Phần 1 để xóa khỏi bộ nhớ thiết bị
+            xoaGiaoVienKhoiHeThong(gvId);
+            
+            // Vẽ lại dữ liệu cho bảng và cập nhật lại Modal
+            openQuanLyGiaoVienModal();
+            document.querySelectorAll('.bb-sel-gv').forEach(sel => {
+                const currentVal = sel.value;
+                // Nếu dòng nào đang chọn trúng giáo viên vừa bị xóa, đưa dòng đó về trạng thái trống
+                sel.innerHTML = generateGiaoVienOptions(currentVal === gvTarget.hoTen ? '' : currentVal);
+                if (currentVal === gvTarget.hoTen) {
+                    sel.closest('tr').querySelector('.bb-inp-chucvu').value = '';
+                }
+            });
+            updateBBChủTrìThưKýSelects();
+        }
+    }
+   // ====================================================================
+    // PHẦN 4: THIẾT LẬP KẾT NỐI FIREBASE FIRESTORE & QUẢN LÝ LỊCH SỬ
+    // ====================================================================
+
+    // Hàm 4.1: Đẩy toàn bộ dữ liệu chữ của biên bản họp tổ lên Cloud Firebase
+    async function saveBienBan() {
+        const id = document.getElementById('inp-bb-id').value;
+        const soBB = document.getElementById('inp-bb-so').value.trim();
+        const lanHop = document.getElementById('inp-bb-lan').value.trim();
+        const ngayHop = document.getElementById('inp-bb-ngay').value;
+        const diaDiem = document.getElementById('inp-bb-diadiem').value.trim();
+        const gioBD = document.getElementById('inp-bb-gio-bd').value;
+        const gioKT = document.getElementById('inp-bb-gio-kt').value;
+        const noiDungHtml = document.getElementById('editor-bb-noidung').innerHTML;
+        const chuTri = document.getElementById('sel-bb-chutri').value;
+        const thuKy = document.getElementById('sel-bb-thuky').value;
+
+        // Bẫy lỗi kiểm tra điều kiện nhập bắt buộc
+        if (!soBB || !ngayHop || !diaDiem || !chuTri || !thuKy) {
+            alert("Thầy vui lòng điền đầy đủ các thông tin bắt buộc: Số biên bản, Ngày họp, Địa điểm, Chủ trì và Thư ký.");
+            return;
+        }
+
+        // Đóng gói mảng dữ liệu từ bảng thành phần động mục II
+        const thanhPhanThamDu = [];
+        document.querySelectorAll('.bb-tp-row').forEach(row => {
+            const ten = row.querySelector('.bb-sel-gv').value;
+            const chucVu = row.querySelector('.bb-inp-chucvu').value;
+            const ghiChu = row.querySelector('.bb-inp-ghichu').value.trim();
+            if (ten) {
+                thanhPhanThamDu.push({ hoTen: ten, chucVu: chucVu, ghiChu: ghiChu });
+            }
+        });
+
+        // Tạo tiêu đề trực quan để hiển thị ở bảng lịch sử tra cứu
+        const parts = ngayHop.split('-');
+        const tieuDeHienThi = `Biên bản họp Tổ lần ${lanHop} - Tháng ${parts[1]}/${parts[0]}`;
+
+        const dataBB = {
+            soBB: soBB,
+            lanHop: parseInt(lanHop) || 1,
+            ngayHop: ngayHop,
+            diaDiem: diaDiem,
+            gioBD: gioBD,
+            gioKT: gioKT,
+            noiDung: noiDungHtml, // Lưu định dạng HTML của bộ Rich Text
+            chuTri: chuTri,
+            thuKy: thuKy,
+            thanhPhan: thanhPhanThamDu,
+            tieuDe: tieuDeHienThi,
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            if (id) {
+                // Trường hợp đang Sửa đổi một biên bản sẵn có
+                await db.collection("BienBanHop").doc(id).update(dataBB);
+                alert("Cập nhật biên bản họp tổ thành công!");
+            } else {
+                // Trường hợp Thêm mới một biên bản họp
+                const docRef = await db.collection("BienBanHop").add(dataBB);
+                document.getElementById('inp-bb-id').value = docRef.id;
+                alert("Lưu trữ biên bản họp tổ lên đám mây thành công!");
+            }
+            // Làm tươi (Refresh) lại bảng lịch sử tra cứu phía dưới chân trang
+            renderBBLichSuTable();
+        } catch (error) {
+            console.error("Lỗi Firebase Firestore: ", error);
+            alert("Đã xảy ra sự cố kết nối dữ liệu: " + error.message);
+        }
+    }
+
+    // Hàm 4.2: Lấy dữ liệu từ Cloud Firebase về vẽ lên bảng lịch sử tra cứu
+    async function renderBBLichSuTable() {
+        const tbody = document.getElementById('tbody-bb-lichsu');
+        if (!tbody) return;
+
+        try {
+            // Quét dữ liệu sắp xếp theo ngày họp mới nhất
+            const snapshot = await db.collection("BienBanHop").orderBy("ngayHop", "desc").get();
+            
+            if (snapshot.empty) {
+                tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400 italic">Hệ thống chưa ghi nhận biên bản lưu trữ nào trong học kỳ này.</td></tr>`;
+                return;
+            }
+
+            let html = "";
+            let stt = 1;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const bbId = doc.id;
+                
+                // Định dạng hiển thị ngày theo chuẩn vi-VN (dd/mm/yyyy)
+                let dateDisplay = "-";
+                if (data.ngayHop) {
+                    const p = data.ngayHop.split('-');
+                    dateDisplay = `${p[2]}/${p[1]}/${p[0]}`;
+                }
+
+                html += `
+                  <tr class="hover:bg-slate-50 transition-colors group border-b">
+                    <td class="px-6 py-4 font-bold text-slate-400 text-center">${stt++}</td>
+                    <td class="px-6 py-4 font-semibold text-slate-700 max-w-xs truncate" title="${escHtml(data.tieuDe)}">${escHtml(data.tieuDe)}</td>
+                    <td class="px-6 py-4 text-center text-slate-500 font-medium text-xs">${dateDisplay}</td>
+                    <td class="px-6 py-4 text-slate-600"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-semibold">${escHtml(data.thuKy)}</span></td>
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                            <button onclick="loadBienBanCuToForm('${bbId}')" class="text-xs bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 px-2.5 py-1.5 rounded-lg font-bold transition-all shadow-sm">Xem lại / Sửa</button>
+                            <button onclick="deleteBienBan('${bbId}', '${escHtml(data.tieuDe)}')" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all" title="Xóa biên bản này">
+                                <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                            </button>
+                        </div>
+                    </td>
+                  </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        } catch (error) {
+            console.error("Lỗi đồng bộ lịch sử: ", error);
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-medium">Không thể nạp lịch sử do lỗi: ${error.message}</td></tr>`;
+        }
+    }
+
+    // Hàm 4.3: Nạp ngược toàn bộ dữ liệu chữ cũ từ Firebase lên lại Form nhập liệu
+    async function loadBienBanCuToForm(id) {
+        try {
+            const doc = await db.collection("BienBanHop").doc(id).get();
+            if (!doc.exists) { alert("Dữ liệu biên bản này không tồn tại hoặc đã bị xóa trước đó."); return; }
+            
+            const data = doc.data();
+            
+            // 1. Điền các ô hành chính căn bản
+            document.getElementById('inp-bb-id').value = id;
+            document.getElementById('inp-bb-so').value = data.soBB || "";
+            document.getElementById('inp-bb-lan').value = data.lanHop || 1;
+            document.getElementById('inp-bb-ngay').value = data.ngayHop || "";
+            document.getElementById('inp-bb-diadiem').value = data.diaDiem || "";
+            document.getElementById('inp-bb-gio-bd').value = data.gioBD || "08:00";
+            document.getElementById('inp-bb-gio-kt').value = data.gioKT || "10:30";
+            
+            // 2. Điền nội dung Rich Text vào khung soạn thảo văn bản lớn
+            document.getElementById('editor-bb-noidung').innerHTML = data.noiDung || "";
+
+            // 3. Khôi phục và tái cấu trúc lại bảng thành phần động mục II
+            const tbody = document.getElementById('tbody-bb-thanhphan');
+            tbody.innerHTML = ""; // Xóa sạch bộ khung cũ
+            
+            if (data.thanhPhan && data.thanhPhan.length > 0) {
+                data.thanhPhan.forEach((item, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'bb-tp-row border-b hover:bg-slate-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 text-center font-bold text-slate-400 bb-stt">${idx + 1}</td>
+                        <td class="px-4 py-2">
+                            <select class="w-full px-2 py-1.5 rounded-lg border border-slate-300 outline-none focus:border-orange-500 text-sm font-semibold text-slate-700 bb-sel-gv" onchange="handleBBGiaoVienChange(this)">
+                                ${generateGiaoVienOptions(item.hoTen)}
+                            </select>
+                        </td>
+                        <td class="px-4 py-2">
+                            <input type="text" class="w-full px-2 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-600 font-medium text-sm outline-none bb-inp-chucvu" value="${item.chucVu}" readonly>
+                        </td>
+                        <td class="px-4 py-2">
+                            <input type="text" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white outline-none focus:border-orange-500 text-sm bb-inp-ghichu" value="${item.ghiChu || ''}">
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            <button type="button" onclick="xoaDongThanhPhan(this)" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all">
+                                <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            // 4. Đồng bộ danh sách xổ xuống của Chủ trì & Thư ký rồi khóa cứng tên cũ
+            updateBBChủTrìThưKýSelects();
+            document.getElementById('sel-bb-chutri').value = data.chuTri || "";
+            document.getElementById('sel-bb-thuky').value = data.thuKy || "";
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            
+            // Cuộn trang mượt mà lên đầu Form để thầy cô dễ quan sát và chỉnh sửa
+            document.getElementById('bien-ban-view').scrollIntoView({ behavior: 'smooth' });
+        } catch (error) {
+            alert("Lỗi nạp dữ liệu từ máy chủ đám mây: " + error.message);
+        }
+    }
+
+    // Hàm 4.4: Xóa vĩnh viễn một bản ghi biên bản họp cũ khỏi Cloud Firebase Firestore
+    async function deleteBienBan(id, tenBB) {
+        if (!confirm(`Thầy có chắc chắn muốn xóa vĩnh viễn dữ liệu đám mây của "${tenBB}" không?\nHành động này không thể khôi phục lại.`)) {
+            return;
+        }
+
+        try {
+            await db.collection("BienBanHop").doc(id).delete();
+            
+            // Nếu biên bản vừa xóa đang mở trên form nhập liệu, dọn sạch form luôn
+            const idHienTai = document.getElementById('inp-bb-id').value;
+            if (idHienTai === id) {
+                document.getElementById('inp-bb-id').value = "";
+                document.getElementById('inp-bb-so').value = "";
+                document.getElementById('editor-bb-noidung').innerHTML = "";
+                document.getElementById('tbody-bb-thanhphan').innerHTML = "";
+                renderBBThanhPhanTable();
+            }
+            
+            // Vẽ lại bảng lịch sử để cập nhật mất dòng vừa xóa
+            renderBBLichSuTable();
+        } catch (error) {
+            alert("Gặp sự cố khi thực hiện lệnh xóa dữ liệu: " + error.message);
+        }
+    }
+   // ====================================================================
+    // PHẦN 5: BỘ MÁY XUẤT FILE WORD TỰ ĐỘNG TỪ PHÔI GITHUB (DOCXTEMPLATER)
+    // ====================================================================
+
+    // Hàm bổ trợ 5.1: Biên dịch mã HTML từ bộ soạn thảo Rich Text sang cấu trúc thô text/bullet của Word
+    function convertHtmlToWordText(htmlContent) {
+        if (!htmlContent) return "";
+        
+        let tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlContent;
+        
+        let formattedText = "";
+        
+        // Quét qua các phần tử con bên trong khung soạn thảo
+        tempDiv.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                formattedText += node.textContent;
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                // Xử lý danh sách dấu chấm tròn (Unordered List)
+                if (node.tagName === "UL") {
+                    node.querySelectorAll("li").forEach(li => {
+                        formattedText += "• " + li.textContent + "\n";
+                    });
+                } else if (node.tagName === "LI") {
+                    formattedText += "• " + node.textContent + "\n";
+                } else if (node.tagName === "BR") {
+                    formattedText += "\n";
+                } else {
+                    // Đối với các thẻ p, div hoặc các thẻ định dạng inline inline (b, i, u)
+                    let text = node.textContent;
+                    if (node.tagName === "DIV" || node.tagName === "P") {
+                        formattedText += text + "\n";
+                    } else {
+                        formattedText += text;
+                    }
+                }
+            }
+        });
+        
+        return formattedText.trim();
+    }
+
+    // Hàm 5.2: Tải phôi từ GitHub, đóng gói dữ liệu chữ và xuất tệp .docx về máy tính
+    async function exportWordFromPhoi() {
+        // 1. Cấu hình đường dẫn URL dẫn trực tiếp tới file phôi mẫu trên GitHub của thầy
+        // THẦY LƯU Ý: Hãy thay link dưới đây bằng link Raw thực tế file phôi của thầy trên GitHub
+        const PHOI_URL = "https://raw.githubusercontent.com/khanglp0112/quanlycongviec/refs/heads/main/File_mau_BBHT.docx";
+
+        // 2. Thu thập dữ liệu chữ hiện có từ form nhập liệu trên giao diện web
+        const soBB = document.getElementById('inp-bb-so').value.trim() || "……";
+        const lanHop = document.getElementById('inp-bb-lan').value.trim() || "…";
+        const ngayHopVal = document.getElementById('inp-bb-ngay').value;
+        const diaDiem = document.getElementById('inp-bb-diadiem').value.trim() || "………………";
+        const gioBD = document.getElementById('inp-bb-gio-bd').value || "……h……";
+        const gioKT = document.getElementById('inp-bb-gio-kt').value || "……h……";
+        const noiDungHtml = document.getElementById('editor-bb-noidung').innerHTML;
+        const chuTri = document.getElementById('sel-bb-chutri').value || "……………………";
+        const thuKy = document.getElementById('sel-bb-thuky').value || "……………………";
+
+        // Bẫy lỗi nếu thầy chưa chọn ngày họp duy nhất
+        if (!ngayHopVal) {
+            alert("Thầy vui lòng chọn Ngày diễn ra cuộc họp trước khi bấm xuất file Word.");
+            return;
+        }
+
+        // 3. Thuật toán gộp và bóc tách Ngày/Tháng/Năm thông minh từ 1 ô Input duy nhất
+        const dateParts = ngayHopVal.split('-'); // Cấu trúc: [yyyy, mm, dd]
+        const var_dd = dateParts[2];
+        const var_mm = dateParts[1];
+        const var_yyyy = dateParts[0];
+        const var_fullDate = `${var_dd}/${var_mm}/${var_yyyy}`; // Định dạng: dd/mm/yyyy
+
+        // 4. Bóc tách dữ liệu từ bảng thành phần tham dự động mục II để tạo cấu trúc dòng
+        const mangThanhPhan = [];
+        let indexSTT = 1;
+        document.querySelectorAll('.bb-tp-row').forEach(row => {
+            const ten = row.querySelector('.bb-sel-gv').value;
+            const chucVu = row.querySelector('.bb-inp-chucvu').value;
+            const ghiChu = row.querySelector('.bb-inp-ghichu').value.trim();
+            if (ten) {
+                mangThanhPhan.push({
+                    STT: String(indexSTT++).padStart(2, '0'), // Dạng số chuẩn hành chính: 01, 02...
+                    "HỌ VÀ TÊN": ten,
+                    "CHỨC VỤ": chucVu,
+                    "GHI CHÚ": ghiChu || ""
+                });
+            }
+        });
+
+        // 5. Chuyển đổi cấu trúc Rich Text của khung nội dung chi tiết
+        const noiDungBienDich = convertHtmlToWordText(noiDungHtml);
+
+        // Đóng gói tất cả các biến vào một đối tượng JSON ánh xạ chính xác với thẻ biến trong file Word
+        const duLieuAnhXa = {
+            "dd": var_dd,
+            "mm": var_mm,
+            "yyyy": var_yyyy,
+            "Lần": lanHop,
+            "Thời gian bắt đầu": gioBD,
+            "dd/mm/yyyy": var_fullDate,
+            "Địa điểm": diaDiem,
+            "Nội dung họp tổ": noiDungBienDich,
+            "Thời gian kết thúc": gioKT,
+            "Thư ký": thuKy,
+            "Chủ trì": chuTri,
+            "thanhPhan": mangThanhPhan // Mảng chứa dữ liệu bảng lặp động mục II
+        };
+
+        // Kích hoạt thông báo trạng thái xử lý ngầm trên nút bấm
+        const btnExport = document.querySelector('button[onclick="exportWordFromPhoi()"]');
+        const originalText = btnExport.innerHTML;
+        btnExport.innerHTML = '<i data-lucide="loader" class="animate-spin" style="width:16px;height:16px;display:inline-block;margin-right:6px;"></i> Đang đóng gói file...';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        btnExport.disabled = true;
+
+        try {
+            // Bước A: Tải tệp tin phôi từ GitHub dưới dạng dữ liệu nhị phân (ArrayBuffer)
+            const response = await fetch(PHOI_URL);
+            if (!response.ok) throw new Error("Không thể kết nối hoặc tải file phôi từ máy chủ GitHub. Thầy vui lòng kiểm tra lại URL cấu hình.");
+            
+            const arrayBuffer = await response.arrayBuffer();
+            
+            // Bước B: Nạp dữ liệu nhị phân vào thư viện PizZip để giải nén cấu trúc file .docx
+            const zip = new PizZip(arrayBuffer);
+            
+            // Bước C: Khởi tạo bộ máy docxtemplater đọc và phân tích cấu trúc thẻ biến
+            const doc = new window.docxtemplater(zip, {
+                paragraphLoop: true,
+                linebreaks: true
+            });
+
+            // Bước D: Tiến hành đổ toàn bộ dữ liệu chữ vào các ô trống biến trống tương ứng
+            doc.render(duLieuAnhXa);
+
+            // Bước E: Đóng gói toàn bộ cấu trúc đã đổ chữ thành một tệp tin Blob nhị phân hoàn chỉnh
+            const out = doc.getZip().generate({
+                type: "blob",
+                mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            });
+
+            // Bước F: Kích hoạt lệnh FileSaver để tải file thành phẩm về ổ cứng máy tính thầy cô
+            const tenFileTaiVe = `BienBanHopTo_Lan${lanHop}_Thang${var_mm}_${var_yyyy}.docx`;
+            window.saveAs(out, tenFileTaiVe);
+
+            alert("Hệ thống đã xuất file Word thành công! Thầy cô vui lòng kiểm tra thư mục Download trên máy tính.");
+        } catch (error) {
+            console.error("Lỗi động cơ xuất Word: ", error);
+            alert("Gặp sự cố khi sinh file hành chính tự động: " + error.message);
+        } finally {
+            // Khôi phục lại trạng thái ban đầu cho nút bấm trên giao diện
+            btnExport.innerHTML = originalText;
+            btnExport.disabled = false;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    }
     async function renderChamTietTable() {
      // --- TỰ ĐỘNG TÍNH NGÀY TRÊN TIÊU ĐỀ TUẦN ---
       const parts = currentChamTietMonth.split('-');
