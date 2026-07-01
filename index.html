@@ -781,7 +781,73 @@ function closeSystemSuccess() {
     box.classList.remove('scale-100');
     box.classList.add('scale-95');
 }
+// ====================================================================
+// BỘ ĐIỀU KHIỂN HIỆU ỨNG TRƯỢT MƯỢT MÀ CHO KHUNG XEM NHANH (QUICK-VIEW)
+// ====================================================================
+async function openQuickView(id) {
+    const panel = document.getElementById('sys-quickview-panel');
+    const box = document.getElementById('sys-quickview-box');
+    const content = document.getElementById('sys-quickview-content');
+    
+    content.innerHTML = '<div class="text-center py-12 text-slate-400 italic">⏳ Đang đọc dữ liệu biên bản họp tổ...</div>';
+    
+    // Kích hoạt mờ nền trước
+    panel.classList.remove('invisible', 'opacity-0');
+    // Đẩy khung trượt ra từ bên phải sau 50ms để tạo hoạt ảnh mượt
+    setTimeout(() => { box.classList.remove('translate-x-full'); }, 50);
 
+    try {
+        const doc = await db.collection("BienBanHop").doc(id).get();
+        if (!doc.exists) { content.innerHTML = '<div class="text-center py-12 text-red-500 font-medium">⚠️ Dữ liệu không tồn tại.</div>'; return; }
+        
+        const data = doc.data();
+        let dateDisplay = "-";
+        if (data.ngayHop) { const p = data.ngayHop.split('-'); dateDisplay = `${p[2]}/${p[1]}/${p[0]}`; }
+
+        // Thiết lập cấu trúc hiển thị sạch như một trang tài liệu hành chính thu nhỏ
+        content.innerHTML = `
+            <div class="border-b border-slate-100 pb-4">
+                <h1 class="text-xl font-bold text-slate-800 font-display">${escHtml(data.tieuDe)}</h1>
+                <p class="text-xs text-slate-400 mt-1">Số: ${escHtml(data.soBB || '……')} | Ngày họp: ${dateDisplay} | Thời gian: ${data.gioBD || '…'} - ${data.gioKT || '…'}</p>
+                <p class="text-xs text-slate-400 mt-0.5">Địa điểm: ${escHtml(data.diaDiem)}</p>
+            </div>
+            
+            <div>
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">👥 Thành phần tham dự</h4>
+                <div class="text-xs text-slate-600 bg-slate-50 rounded-xl p-3.5 leading-relaxed">
+                    ${data.thanhPhan && data.thanhPhan.length > 0 
+                        ? data.thanhPhan.map((gv, i) => `<b>${i+1}. ${escHtml(gv.hoTen)}</b> (${escHtml(gv.chucVu)}) ${gv.ghiChu ? ` - <i>${escHtml(gv.ghiChu)}</i>` : ''}`).join('<br>')
+                        : 'Không có thông tin thành phần.'}
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">📝 Nội dung cuộc họp tổ chi tiết</h4>
+                <div class="text-sm text-slate-700 leading-relaxed border border-slate-100 rounded-xl p-4 bg-white" style="word-break: break-word;">
+                    ${data.noiDung || '<span class="text-slate-400 italic">Nội dung trống.</span>'}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4 text-xs">
+                <div><span class="text-slate-400 block mb-1">Chủ trì cuộc họp:</span><b class="text-slate-700 font-bold">${escHtml(data.chuTri)}</b></div>
+                <div><span class="text-slate-400 block mb-1">Thư ký ghi chép:</span><b class="text-slate-700 font-bold">${escHtml(data.thuKy)}</b></div>
+            </div>
+        `;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    } catch (error) {
+        content.innerHTML = `<div class="text-center py-12 text-red-500 font-medium">⚠️ Lỗi: ${error.message}</div>`;
+    }
+}
+
+function closeQuickView() {
+    const panel = document.getElementById('sys-quickview-panel');
+    const box = document.getElementById('sys-quickview-box');
+    
+    // Rút khung trượt về bên phải trước
+    box.classList.add('translate-x-full');
+    // Sau khi ẩn xong (300ms) thì tắt hẳn lớp nền mờ
+    setTimeout(() => { panel.classList.add('invisible', 'opacity-0'); }, 300);
+}
 // Bắt sự kiện click nút đóng cho hộp thoại thành công
 document.addEventListener("DOMContentLoaded", () => {
     const btnSuccessClose = document.getElementById('btn-success-close');
@@ -2708,22 +2774,28 @@ const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
                     dateDisplay = `${p[2]}/${p[1]}/${p[0]}`;
                 }
 
-                html += `
-                  <tr class="hover:bg-slate-50 transition-colors group border-b">
-                    <td class="px-6 py-4 font-bold text-slate-400 text-center">${stt++}</td>
-                    <td class="px-6 py-4 font-semibold text-slate-700 max-w-xs truncate" title="${escHtml(data.tieuDe)}">${escHtml(data.tieuDe)}</td>
-                    <td class="px-6 py-4 text-center text-slate-500 font-medium text-xs">${dateDisplay}</td>
-                    <td class="px-6 py-4 text-slate-600"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-semibold">${escHtml(data.thuKy)}</span></td>
-                    <td class="px-6 py-4 text-center">
-                        <div class="flex items-center justify-center gap-1.5">
-                            <button onclick="loadBienBanCuToForm('${bbId}')" class="text-xs bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 px-2.5 py-1.5 rounded-lg font-bold transition-all shadow-sm">Xem lại / Sửa</button>
-                            <button onclick="deleteBienBan('${bbId}', '${escHtml(data.tieuDe)}')" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all" title="Xóa biên bản này">
-                                <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
-                            </button>
-                        </div>
-                    </td>
-                  </tr>
-                `;
+                // TÌM ĐOẠN ĐẦU RA HTML NÀY VÀ THÊM NÚT CON MẮT VÀO GIỮA KHỐI DIV (Khoảng dòng 373 đến 382)
+html += `
+  <tr class="hover:bg-slate-50 transition-colors group border-b">
+    <td class="px-6 py-4 font-bold text-slate-400 text-center">${stt++}</td>
+    <td class="px-6 py-4 font-semibold text-slate-700 max-w-xs truncate" title="${escHtml(data.tieuDe)}">${escHtml(data.tieuDe)}</td>
+    <td class="px-6 py-4 text-center text-slate-500 font-medium text-xs">${dateDisplay}</td>
+    <td class="px-6 py-4 text-slate-600"><span class="bg-slate-100 text-slate-600 px-2 py-1 rounded text-xs font-semibold">${escHtml(data.thuKy)}</span></td>
+    <td class="px-6 py-4 text-center">
+        <div class="flex items-center justify-center gap-1.5">
+            <!-- NÚT MỚI: Hình con mắt dùng icon eye của Lucide để kích hoạt QuickView -->
+            <button onclick="openQuickView('${bbId}')" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg font-bold transition-all shadow-sm flex items-center justify-center" title="Xem nhanh biên bản">
+                <i data-lucide="eye" style="width:16px;height:16px;"></i>
+            </button>
+            
+            <button onclick="loadBienBanCuToForm('${bbId}')" class="text-xs bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200 px-2.5 py-1.5 rounded-lg font-bold transition-all shadow-sm">Xem lại / Sửa</button>
+            <button onclick="deleteBienBan('${bbId}', '${escHtml(data.tieuDe)}')" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all" title="Xóa biên bản này">
+                <i data-lucide="trash-2" style="width:16px;height:16px;"></i>
+            </button>
+        </div>
+    </td>
+  </tr>
+`;
             });
 
             tbody.innerHTML = html;
@@ -3573,6 +3645,25 @@ function deleteLienKet(id) {
             <h3 class="text-lg font-bold text-slate-800 mb-2" id="sys-success-title">Thành công!</h3>
             <p class="text-sm text-slate-500 leading-relaxed px-2" id="sys-success-desc">Dữ liệu biên bản họp tổ đã được đồng bộ an toàn lên đám mây Firebase.</p>
             <button id="btn-success-close" class="mt-6 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-colors">Tuyệt vời</button>
+        </div>
+    </div>
+</div>
+   <!-- QUICK-VIEW MINUTES SLIDE-OVER PANEL -->
+<div id="sys-quickview-panel" class="fixed inset-0 z-[120] invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/30 flex justify-end">
+    <!-- Khung nội dung trượt từ phải qua -->
+    <div id="sys-quickview-box" class="bg-white w-full max-w-xl h-full shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-out border-l border-slate-100">
+        <!-- Header Panel -->
+        <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center shrink-0">
+            <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 tracking-wide">
+                <i data-lucide="eye" class="w-5 h-5 text-blue-600"></i> XEM NHANH BIÊN BẢN
+            </h2>
+            <button onclick="closeQuickView()" class="text-slate-400 hover:text-slate-600 transition-colors bg-white hover:bg-slate-100 p-1.5 rounded-lg shadow-sm border border-slate-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <!-- Vùng hiển thị văn bản sạch -->
+        <div class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin bg-white" id="sys-quickview-content">
+            <!-- Dữ liệu thô từ Firebase sẽ được render tại đây -->
         </div>
     </div>
 </div>
