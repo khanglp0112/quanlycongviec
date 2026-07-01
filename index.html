@@ -829,9 +829,8 @@ function closeFormGuardModal() {
     }
     guardNavigationTarget = null;
 }
-
 // ====================================================================
-// VÁ LỖI CHÍNH XÁC: ĐIỀU HƯỚNG THEO NHÃN CHỮ CỨNG - ĐỒNG BỘ DATABASE 100%
+// VÁ LỖI CHE KHUẤT UI: ÉP TRIỆT TIÊU HIỂN THỊ ĐỂ GIẢI PHÓNG MÀN HÌNH CHỦ
 // ====================================================================
 document.addEventListener("DOMContentLoaded", () => {
     const confirmBtn = document.getElementById('sys-guard-confirm-btn');
@@ -843,20 +842,20 @@ document.addEventListener("DOMContentLoaded", () => {
             // 1. Ép cờ an toàn vào thuộc tính để vượt qua bộ chặn check dirty
             if (editor) editor.setAttribute('data-saved', 'true'); 
             
-            // 2. Ẩn lập tức phân hệ biên bản để dọn sạch không gian nền
-            if (bbView) bbView.classList.add('hidden');
+            // 2. SỬA LỖI CHE KHUẤT: Ép display none cứng bằng style để xóa sổ màn hình trắng
+            if (bbView) {
+                bbView.classList.add('hidden');
+                bbView.style.display = 'none'; // Triệt tiêu vùng nền trắng đè hiển thị hụt
+            }
             
             // 3. Tắt hộp thoại cảnh báo Form Guard
             closeFormGuardModal();
 
-            // 4. TRIỂN KHAI Ý TƯỞNG CLICK 2 LẦN CỦA THẦY KHANG
+            // 4. Luồng xử lý kích hoạt chu kỳ kép Toggle dứt khoát của thầy
             if (typeof guardNavigationTarget === 'function') {
-                // Kích hoạt lần 1: Đóng chu kỳ cũ và thiết lập trạng thái ẩn
                 guardNavigationTarget(); 
-                
-                // Đợi 10 mili-giây (nháy mắt) để DOM cập nhật, sau đó tự động kích hoạt lần 2
                 setTimeout(() => {
-                    guardNavigationTarget(); // Kích hoạt lần 2: Ép bung hiển thị và nạp dữ liệu Firebase chuẩn đét
+                    guardNavigationTarget(); 
                 }, 10);
             }
             
@@ -864,7 +863,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Khối code lắng nghe input đổi chữ phía dưới của thầy giữ nguyên vẹn 100%
+    // Giữ nguyên vẹn đoạn lắng nghe input thay đổi chữ phía dưới của thầy
     const editor = document.getElementById('editor-bb-noidung');
     if (editor) {
         editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
@@ -2522,7 +2521,7 @@ if (isFormDirty()) {
             if (inpNgay && !inpNgay.value) {
                 inpNgay.value = new Date().toISOString().split('T')[0];
             }
-            
+            bbView.style.display = '';
             try {
                 if (typeof renderBBThanhPhanTable === 'function') renderBBThanhPhanTable();
                 if (typeof renderBBLichSuTable === 'function') renderBBLichSuTable();
