@@ -829,19 +829,54 @@ document.addEventListener("DOMContentLoaded", () => {
             const editor = document.getElementById('editor-bb-noidung');
             const bbView = document.getElementById('bien-ban-view');
             
-            // 1. Ép cờ đã lưu để vượt qua bộ chặn check dirty an toàn
+            // 1. Ép cờ an toàn để vượt qua bộ lọc check dirty
             if (editor) editor.setAttribute('data-saved', 'true'); 
             
-            // 2. Ẩn ngay phân hệ biên bản để giải phóng màn hình trước khi gọi tab mới
-            if (bbView) bbView.classList.add('hidden');
-            
-            // 3. Đóng hộp thoại cảnh báo
+            // 2. Tắt hộp thoại cảnh báo ngay
             closeFormGuardModal();
-            
-            // 4. Kích hoạt lệnh điều hướng sang tab vừa chọn lập tức
-            if (typeof guardNavigationTarget === 'function') {
-                guardNavigationTarget();
+
+            // 3. Xử lý điều hướng dứt khoát, loại bỏ cơ chế Toggle đảo chiều gây trắng trang
+            if (guardNavigationTarget) {
+                // Định danh xem thầy cô đang muốn chuyển sang Tab nào dựa vào tên hàm chờ
+                const targetName = guardNavigationTarget.name;
+                
+                // Thu gom tất cả các phân hệ giao diện hiện có của thầy
+                const board = document.getElementById('board-view');
+                const chamTiet = document.getElementById('cham-tiet-view');
+                const lkView = document.getElementById('lien-ket-view');
+                const timeline = document.getElementById('timeline-view');
+                const filterBar = document.getElementById('filter-bar');
+                const statsBar = document.getElementById('stats-bar');
+
+                // Ẩn sạch sẽ phân hệ biên bản và các khu vực liên quan
+                if (bbView) bbView.classList.add('hidden');
+                if (filterBar) filterBar.classList.add('hidden');
+                if (statsBar) statsBar.classList.add('hidden');
+                if (board) board.classList.add('hidden');
+                if (chamTiet) chamTiet.classList.add('hidden');
+                if (lkView) lkView.classList.add('hidden');
+                if (timeline) timeline.classList.add('hidden');
+
+                // Ép hiển thị ĐÚNG VÀ DUY NHẤT phân hệ mục tiêu, không sợ bị toggle ngược
+                if (targetName === 'toggleChamTiet' && chamTiet) {
+                    chamTiet.classList.remove('hidden');
+                    if (typeof renderChamTietTable === 'function') renderChamTietTable();
+                } else if (targetName === 'toggleLienKet' && lkView) {
+                    lkView.classList.remove('hidden');
+                    if (typeof renderLienKet === 'function') renderLienKet();
+                } else if (targetName === 'toggleBienBan') {
+                    // Nếu bấm đóng/hủy biên bản, ép hệ thống quay về hiển thị bảng Kanban nền tảng
+                    if (board) board.classList.remove('hidden');
+                    if (filterBar) filterBar.classList.remove('hidden');
+                    if (statsBar) statsBar.classList.remove('hidden');
+                    if (typeof renderTasks === 'function') renderTasks();
+                } else {
+                    // Phương án dự phòng chạy hàm gốc nếu không khớp định danh tên
+                    guardNavigationTarget();
+                }
             }
+            
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         });
     }
 
