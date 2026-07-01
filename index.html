@@ -776,6 +776,9 @@ function closeSystemSuccess() {
     box.classList.remove('scale-100');
     box.classList.add('scale-95');
 }
+// ====================================================================
+// BỘ ĐIỀU KHIỂN BẢO VỆ BIÊN BẢN CHƯA LƯU AN TOÀN TUYỆT ĐỐI (FORM GUARD)
+// ====================================================================
 let guardNavigationTarget = null; // Lưu hành động kế tiếp cần thực hiện nếu thoát
 let bypassFormGuard = false;       // Cờ hiệu cho phép bỏ qua bộ chặn để chuyển tab
 
@@ -822,37 +825,37 @@ function closeFormGuardModal() {
     guardNavigationTarget = null;
 }
 
-// Xử lý luồng đồng bộ dứt khoát khi bấm nút "Rời đi & Bỏ qua"
-document.addEventListener("DOMContentLoaded", () => {
-    const confirmBtn = document.getElementById('sys-guard-confirm-btn');
-    if (confirmBtn) {
-        confirmBtn.addEventListener('click', () => {
-            const bbView = document.getElementById('bien-ban-view');
-            
-            // 1. Tắt ngay hộp thoại cảnh báo Form Guard
-            closeFormGuardModal();
+// Luồng xử lý kích hoạt đồng bộ dứt khoát khi bấm nút "Rời đi & Bỏ qua"
+// Đã bọc và đóng gói thẻ đóng mở chuẩn xác, triệt tiêu lỗi SyntaxError
+const confirmBtnElement = document.getElementById('sys-guard-confirm-btn');
+if (confirmBtnElement) {
+    confirmBtnElement.onclick = () => {
+        const bbView = document.getElementById('bien-ban-view');
+        
+        // 1. Tắt ngay hộp thoại cảnh báo Form Guard
+        closeFormGuardModal();
 
-            // 2. Kích hoạt luồng chuyển tab đích an toàn thông qua biến cờ hiệu
-            if (typeof guardNavigationTarget === 'function') {
-                // Kích hoạt cờ cho phép đi thẳng qua hàm check dirty
-                bypassFormGuard = true; 
-                
-                // Ẩn hẳn phân hệ biên bản để dọn dẹp sạch giao diện nền đè
-                if (bbView) {
-                    bbView.classList.add('hidden');
-                    bbView.style.display = 'none';
-                }
-                
-                // Thực thi duy nhất 1 lần hàm toggle mục tiêu để tải dữ liệu Firebase gốc
-                guardNavigationTarget(); 
-                
-                // Đóng cờ trả về trạng thái bảo vệ nghiêm ngặt ban đầu
-                bypassFormGuard = false; 
+        // 2. Kích hoạt luồng chuyển tab đích an toàn thông qua biến cờ hiệu
+        if (typeof guardNavigationTarget === 'function') {
+            // Kích hoạt cờ cho phép đi thẳng qua hàm check dirty
+            bypassFormGuard = true; 
+            
+            // Ẩn hẳn phân hệ biên bản để dọn dẹp sạch giao diện nền đè
+            if (bbView) {
+                bbView.classList.add('hidden');
+                bbView.style.display = 'none';
             }
             
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        });
-    }
+            // Thực thi duy nhất 1 lần hàm toggle mục tiêu để tải dữ liệu Firebase gốc
+            guardNavigationTarget(); 
+            
+            // Đóng cờ trả về trạng thái bảo vệ nghiêm ngặt ban đầu
+            bypassFormGuard = false; 
+        }
+        
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    };
+}
 async function openQuickView(id) {
     const panel = document.getElementById('sys-quickview-panel');
     const box = document.getElementById('sys-quickview-box');
