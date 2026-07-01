@@ -843,22 +843,28 @@ document.addEventListener("DOMContentLoaded", () => {
             // 1. Ép cờ an toàn vào thuộc tính để vượt qua bộ chặn check dirty
             if (editor) editor.setAttribute('data-saved', 'true'); 
             
-            // 2. Ẩn lập tức phân hệ biên bản để dọn màn hình, tránh đè tab gây trắng trang
+            // 2. Ẩn lập tức phân hệ biên bản để dọn sạch không gian nền
             if (bbView) bbView.classList.add('hidden');
             
             // 3. Tắt hộp thoại cảnh báo Form Guard
             closeFormGuardModal();
 
-            // 4. THỰC THI CHUYỂN TAB: Gọi trực tiếp hàm toggle đích để nạp dữ liệu Firebase
+            // 4. TRIỂN KHAI Ý TƯỞNG CLICK 2 LẦN CỦA THẦY KHANG
             if (typeof guardNavigationTarget === 'function') {
+                // Kích hoạt lần 1: Đóng chu kỳ cũ và thiết lập trạng thái ẩn
                 guardNavigationTarget(); 
+                
+                // Đợi 10 mili-giây (nháy mắt) để DOM cập nhật, sau đó tự động kích hoạt lần 2
+                setTimeout(() => {
+                    guardNavigationTarget(); // Kích hoạt lần 2: Ép bung hiển thị và nạp dữ liệu Firebase chuẩn đét
+                }, 10);
             }
             
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     }
 
-    // Giữ nguyên đoạn lắng nghe input của thầy
+    // Khối code lắng nghe input đổi chữ phía dưới của thầy giữ nguyên vẹn 100%
     const editor = document.getElementById('editor-bb-noidung');
     if (editor) {
         editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
