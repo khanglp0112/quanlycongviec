@@ -786,15 +786,25 @@ function closeSystemSuccess() {
 // ====================================================================
 let guardNavigationTarget = null; // Lưu hành động kế tiếp cần thực hiện nếu thoát
 
+// ====================================================================
+// BỘ ĐIỀU KHIỂN BẢO VỆ DỮ LIỆU CHƯA LƯU AN TOÀN TUYỆT ĐỐI (FORM GUARD)
+// ====================================================================
+let guardNavigationTarget = null; // Lưu trữ tham chiếu hàm đích đến
+let bypassFormGuard = false;       // Cờ hiệu cho phép bỏ qua bộ chặn để chuyển tab
+
 // Hàm kiểm tra xem biểu mẫu biên bản họp tổ có đang gõ dở hay không
 function isFormDirty() {
+    // Nếu cờ bỏ qua đang bật, cho phép đi thẳng, không chặn
+    if (bypassFormGuard) return false;
+
     const editor = document.getElementById('editor-bb-noidung');
-    // Chỉ kiểm tra bẫy nếu phân hệ Biên bản đang mở trên màn hình (không ẩn)
     const bbView = document.getElementById('bien-ban-view');
+    
+    // Chỉ bẫy chặn nếu phân hệ Biên bản đang hiển thị trên màn hình
     if (bbView && !bbView.classList.contains('hidden') && editor) {
         const content = editor.innerHTML.trim();
-        // Nếu editor có dữ liệu thực tế và chưa được gắn cờ đã lưu an toàn
-        if (content !== "" && content !== "<p><br></p>" && content !== "<br>" && !editor.hasAttribute('data-saved')) {
+        // Nếu editor có dữ liệu thực tế (khác trống)
+        if (content !== "" && content !== "<p><br></p>" && content !== "<br>") {
             return true;
         }
     }
@@ -804,67 +814,47 @@ function isFormDirty() {
 function triggerFormGuard(targetCallback) {
     const modal = document.getElementById('sys-guard-modal');
     const box = document.getElementById('sys-guard-box');
-    guardNavigationTarget = targetCallback;
+    guardNavigationTarget = targetCallback; // Ghi nhớ hàm đích (Ví dụ: toggleChamTiet)
     
-    modal.classList.remove('invisible', 'opacity-0');
-    box.classList.remove('scale-95');
-    box.classList.add('scale-100');
+    if (modal && box) {
+        modal.classList.remove('invisible', 'opacity-0');
+        box.classList.remove('scale-95');
+        box.classList.add('scale-100');
+    }
 }
 
 function closeFormGuardModal() {
     const modal = document.getElementById('sys-guard-modal');
     const box = document.getElementById('sys-guard-box');
     
-    modal.classList.add('invisible', 'opacity-0');
-    box.classList.remove('scale-100');
-    box.classList.add('scale-95');
+    if (modal && box) {
+        modal.classList.add('invisible', 'opacity-0');
+        box.classList.remove('scale-100');
+        box.classList.add('scale-95');
+    }
     guardNavigationTarget = null;
 }
 
-// ====================================================================
-// KHÔI PHỤC & TỐI ƯU CƠ CHẾ CALLBACK: ĐIỀU HƯỚNG DỨT KHOÁT, SẠCH LỖI 100%
-// ====================================================================
+// Xử lý sự kiện khi người dùng chấp nhận "Rời đi & Bỏ qua"
 document.addEventListener("DOMContentLoaded", () => {
     const confirmBtn = document.getElementById('sys-guard-confirm-btn');
     if (confirmBtn) {
         confirmBtn.addEventListener('click', () => {
-            const editor = document.getElementById('editor-bb-noidung');
-            const bbView = document.getElementById('bien-ban-view');
-            
-            // 1. Ép cờ an toàn để vượt qua bộ lọc check dirty
-            if (editor) editor.setAttribute('data-saved', 'true'); 
-            
-            // 2. Ẩn lập tức phân hệ biên bản để giải phóng màn hình
-            if (bbView) bbView.classList.add('hidden');
-            
-            // 3. Tắt hộp thoại cảnh báo Form Guard
+            // 1. Tắt hộp thoại cảnh báo trước
             closeFormGuardModal();
             
-            // 4. PHÒNG VỆ TRẮNG TRANG: Nếu đích đến là một hàm đóng tab (toggleBienBan), 
-            // ta ép hiển thị lại toàn bộ bộ lọc và bảng Kanban nền tảng.
-            if (guardNavigationTarget && guardNavigationTarget.name === 'toggleBienBan') {
-                const board = document.getElementById('board-view');
-                const filterBar = document.getElementById('filter-bar');
-                const statsBar = document.getElementById('stats-bar');
-                
-                if (board) board.classList.remove('hidden');
-                if (filterBar) filterBar.classList.remove('hidden');
-                if (statsBar) statsBar.classList.remove('hidden');
-            }
-
-            // 5. KÍCH HOẠT LẠI HÀM LOGIC GỐC ĐỂ NẠP DỮ LIỆU TAB MỚI TRƠN TRU
+            // 2. Kích hoạt hành động chuyển tab đích dứt khoát
             if (typeof guardNavigationTarget === 'function') {
+                // Bật cờ cho phép đi qua bộ chặn
+                bypassFormGuard = true; 
+                
+                // Thực thi hàm chuyển tab gốc (Hệ thống tự dọn dẹp view cũ và nạp view mới)
                 guardNavigationTarget(); 
+                
+                // Tắt cờ trả về trạng thái bảo vệ ban đầu sau khi điều hướng xong
+                bypassFormGuard = false; 
             }
-            
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         });
-    }
-
-    // Giữ nguyên đoạn lắng nghe input của thầy bên dưới
-    const editor = document.getElementById('editor-bb-noidung');
-    if (editor) {
-        editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
     }
 });
 
@@ -2494,7 +2484,7 @@ if (isFormDirty()) {
 // ====================================================================
 function toggleBienBan() {
 if (isFormDirty()) {
-    triggerFormGuard(toggleLienKet);
+    triggerFormGuard(toggleBienBan);
     return;
 }
         const board = document.getElementById('board-view');
@@ -3336,7 +3326,7 @@ try {
 
 function toggleLienKet() {
 if (isFormDirty()) {
-    triggerFormGuard('LIEN_KET');
+    triggerFormGuard(toggleLienKet);
     return;
 }
         const board = document.getElementById('board-view');
