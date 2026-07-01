@@ -1356,7 +1356,7 @@ document.getElementById('btn-timeline').onclick = () => {
     };
 
     document.getElementById('btn-close-timeline').onclick = () => {
-     updateActiveMenuUI('board');
+      updateActiveMenuUI('board');
       document.getElementById('timeline-view').classList.add('hidden');
       document.getElementById('board-view').classList.remove('hidden');
       document.getElementById('filter-bar').classList.remove('hidden');
@@ -2430,44 +2430,52 @@ function toggleChamTiet() {
             renderTasks(); // Gọi lại bộ não để phục hồi giao diện chuẩn
         }
     }
-// ====================================================================
 function toggleBienBan() {
- updateActiveMenuUI(bbView.classList.contains('hidden') ? 'bienban' : 'board');
-        const board = document.getElementById('board-view');
-        const lkView = document.getElementById('lien-ket-view');
-        const ctView = document.getElementById('cham-tiet-view');
-        const timeline = document.getElementById('timeline-view');
-        const emptyState = document.getElementById('empty-state');
-        const bbView = document.getElementById('bien-ban-view');
+    const board = document.getElementById('board-view');
+    const lkView = document.getElementById('lien-ket-view');
+    const ctView = document.getElementById('cham-tiet-view');
+    const timeline = document.getElementById('timeline-view');
+    const emptyState = document.getElementById('empty-state');
+    const filterBar = document.getElementById('filter-bar');
+    const statsBar = document.getElementById('stats-bar');
+    const bbView = document.getElementById('bien-ban-view');
 
-        if (!bbView) return;
+    if (!bbView) return;
 
-        if (bbView.classList.contains('hidden')) {
-            if (board) board.classList.add('hidden');
-            if (lkView) lkView.classList.add('hidden');
-            if (ctView) ctView.classList.add('hidden'); 
-            if (timeline) timeline.classList.add('hidden');
-            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
-            
-            // Hiện thị biên bản họp tổ
-            bbView.classList.remove('hidden');
-            
-            const inpNgay = document.getElementById('inp-bb-ngay');
-            if (inpNgay && !inpNgay.value) {
-                inpNgay.value = new Date().toISOString().split('T')[0];
-            }
-            bbView.style.display = '';
-            try {
-                if (typeof renderBBThanhPhanTable === 'function') renderBBThanhPhanTable();
-                if (typeof renderBBLichSuTable === 'function') renderBBLichSuTable();
-            } catch(e) { console.error(e); }
-        } else {
-            bbView.classList.add('hidden');
-            if (typeof renderTasks === 'function') renderTasks();
+    if (bbView.classList.contains('hidden')) {
+        // Đồng bộ màu sắc Menu sang phân hệ Biên Bản
+        updateActiveMenuUI('bienban');
+
+        if (board) board.classList.add('hidden');
+        if (lkView) lkView.classList.add('hidden');
+        if (ctView) ctView.classList.add('hidden'); 
+        if (timeline) timeline.classList.add('hidden');
+        if (filterBar) filterBar.classList.add('hidden');
+        if (statsBar) statsBar.classList.add('hidden');
+        if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
+        
+        // Hiển thị phân hệ biên bản họp tổ
+        bbView.classList.remove('hidden');
+        
+        const inpNgay = document.getElementById('inp-bb-ngay');
+        if (inpNgay && !inpNgay.value) {
+            inpNgay.value = new Date().toISOString().split('T')[0];
         }
-
-        try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
+        bbView.style.display = '';
+        try {
+            if (typeof renderBBThanhPhanTable === 'function') renderBBThanhPhanTable();
+            if (typeof renderBBLichSuTable === 'function') renderBBLichSuTable();
+        } catch(e) { console.error(e); }
+    } else {
+        // Nếu đang mở mà bấm lại nút Biên bản thì thu ẩn và quay về Bảng việc
+        bbView.classList.add('hidden');
+        if (filterBar) filterBar.classList.remove('hidden');
+        if (statsBar) statsBar.classList.remove('hidden');
+        toggleBoard(); 
     }
+
+    try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
+}
     // Hàm điều khiển lệnh định dạng chữ trong thanh Rich Text Editor Mini
     function execEditorCommand(command) {
         document.execCommand(command, false, null);
