@@ -3207,48 +3207,62 @@ function toggleLienKet() {
         } catch (e) { alert("Lỗi: " + e.message); }
     }
 
-    async function renderLienKet() {
-        const tbody = document.getElementById('ds-lien-ket');
-        if (!tbody) return;
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400">Đang tải...</td></tr>';
-        try {
-            const snapshot = await db.collection("LienKetNhanh").get();
-            currentLinks = [];
-            snapshot.forEach(doc => { 
-              const d = doc.data(); d.id = doc.id; 
-              if (d.order === undefined) d.order = d.created_at ? d.created_at.toMillis() : Date.now();
-              currentLinks.push(d); 
-            });
-currentLinks.sort((a, b) => a.order - b.order);
-            
-// --- TỰ ĐỘNG GOM HASHTAG VÀO BỘ LỌC (HỖ TRỢ DẤU CÁCH) ---
-            const tags = new Set();
-            currentLinks.forEach(link => {
-                if (link.moTa) {
-                    // Quét tìm từ dấu # đến trước dấu phẩy (hoặc hết câu)
-                    const found = link.moTa.match(/(#[^,]+)/g); 
-                    if (found) found.forEach(t => tags.add(t.trim()));
-                }
-            });
-            const selectTag = document.getElementById('filter-lk-tag');
-            if (selectTag) {
-                const currentVal = selectTag.value;
-                selectTag.innerHTML = '<option value="all">Tất cả liên kết</option>' + 
-                    Array.from(tags).map(t => `<option value="${t}">${t}</option>`).join('');
-                if (tags.has(currentVal)) selectTag.value = currentVal; // Giữ nguyên lựa chọn hiện tại nếu có
-            }
-            // --------------------------------------
-            
-            drawLinksTable();
-        } catch (e) { console.error(e); }
+// ====================================================================
+// THUẬT TOÁN MỚI: CẬP NHẬT LINK NGẦM KHÔNG GÂY CHỚP NHÁY GIAO DIỆN
+// ====================================================================
+async function renderLienKet() {
+    const tbody = document.getElementById('ds-lien-ket');
+    if (!tbody) return;
+    
+    // Chỉ hiện chữ Đang tải nếu hiện tại bảng đang trống rỗng hoàn toàn (lần đầu mở tab)
+    if (tbody.children.length === 0 || tbody.innerHTML.includes("Không có dữ liệu")) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400 font-medium">⏳ Đang tải danh sách liên kết...</td></tr>';
     }
+    
+    try {
+        const snapshot = await db.collection("LienKetNhanh").get();
+        currentLinks = [];
+        snapshot.forEach(doc => { 
+            const d = doc.data(); d.id = doc.id; 
+            if (d.order === undefined) d.order = d.created_at ? d.created_at.toMillis() : Date.now();
+            currentLinks.push(d); 
+        });
+        currentLinks.sort((a, b) => a.order - b.order);
+        
+        // Tự động gom hashtag vào bộ lọc
+        const tags = new Set();
+        currentLinks.forEach(link => {
+            if (link.moTa) {
+                const found = link.moTa.match(/(#[^,]+)/g); 
+                if (found) found.forEach(t => tags.add(t.trim()));
+            }
+        });
+        const selectTag = document.getElementById('filter-lk-tag');
+        if (selectTag) {
+            const currentVal = selectTag.value;
+            selectTag.innerHTML = '<option value="all">Tất cả liên kết</option>' + 
+                Array.from(tags).map(t => `<option value="${t}">${t}</option>`).join('');
+            if (tags.has(currentVal)) selectTag.value = currentVal;
+        }
+        
+        // Vẽ đè dữ liệu mới lên bảng (Xử lý êm, không giật màn hình)
+        drawLinksTable();
+    } catch (e) { 
+        console.error(e); 
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-red-500 font-medium">⚠️ Lỗi tải dữ liệu liên kết.</td></tr>';
+    }
+}
 function drawLinksTable() {
         const tbody = document.getElementById('ds-lien-ket');
         tbody.innerHTML = '';
         
         // --- LẤY GIÁ TRỊ TỪ BỘ LỌC ---
         const filterTag = document.getElementById('filter-lk-tag') ? document.getElementById('filter-lk-tag').value : 'all';
-
+        const checkActiveLinks = currentLinks.filter(data => filterTag === 'all' || (data.moTa && data.moTa.includes(filterTag)));
+    if (checkActiveLinks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400 italic">Thư mục trống hoặc không tìm thấy liên kết phù hợp với nhãn dán.</td></tr>';
+        return;
+    }
         currentLinks.forEach((data, index) => {
             // --- KIỂM TRA ĐIỀU KIỆN LỌC ---
             if (filterTag !== 'all') {
