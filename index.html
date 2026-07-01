@@ -779,21 +779,18 @@ function closeSystemSuccess() {
 // ====================================================================
 // BỘ ĐIỀU KHIỂN BẢO VỆ BIÊN BẢN CHƯA LƯU AN TOÀN TUYỆT ĐỐI (FORM GUARD)
 // ====================================================================
-let guardNavigationTarget = null; // Lưu hành động kế tiếp cần thực hiện nếu thoát
-let bypassFormGuard = false;       // Cờ hiệu cho phép bỏ qua bộ chặn để chuyển tab
+// ====================================================================
+// BỘ ĐIỀU KHIỂN BẢO VỆ BIÊN BẢN CHƯA LƯU AN TOÀN TUYỆT ĐỐI (FORM GUARD)
+// ====================================================================
+let guardNavigationTarget = null; // Lưu trữ đối tượng hàm mục tiêu kế tiếp
 
-// Hàm kiểm tra xem biểu mẫu biên bản họp tổ có đang gõ dở hay không
 function isFormDirty() {
-    // Nếu cờ bỏ qua đang bật, cho phép đi thẳng dứt khoát, không chặn
-    if (bypassFormGuard) return false;
-
     const editor = document.getElementById('editor-bb-noidung');
     const bbView = document.getElementById('bien-ban-view');
     
-    // Chỉ bẫy chặn nếu phân hệ Biên bản đang hiển thị trên màn hình
+    // Chỉ kích hoạt bộ chặn bảo vệ nếu phân hệ Biên bản đang mở và có chữ gõ dở
     if (bbView && !bbView.classList.contains('hidden') && editor) {
         const content = editor.innerHTML.trim();
-        // Nếu editor có dữ liệu thực tế (khác trống)
         if (content !== "" && content !== "<p><br></p>" && content !== "<br>") {
             return true;
         }
@@ -804,7 +801,7 @@ function isFormDirty() {
 function triggerFormGuard(targetCallback) {
     const modal = document.getElementById('sys-guard-modal');
     const box = document.getElementById('sys-guard-box');
-    guardNavigationTarget = targetCallback; // Ghi nhớ hàm đích (Ví dụ: toggleChamTiet)
+    guardNavigationTarget = targetCallback; // Ghi nhớ trực tiếp đối tượng hàm gốc (Ví dụ: toggleChamTiet)
     
     if (modal && box) {
         modal.classList.remove('invisible', 'opacity-0');
@@ -825,36 +822,32 @@ function closeFormGuardModal() {
     guardNavigationTarget = null;
 }
 
-// ====================================================================
-// VÁ LỖI TRIỆT ĐỂ: LUỒNG ĐIỀU HƯỚNG CALLBACK DỨT KHOÁT - ĐỒNG BỘ DATABASE 100%
-// ====================================================================
+// Luồng xử lý điều hướng thông minh khi thầy cô bấm "Rời đi & Bỏ qua"
 const confirmBtnElement = document.getElementById('sys-guard-confirm-btn');
 if (confirmBtnElement) {
     confirmBtnElement.onclick = () => {
         const bbView = document.getElementById('bien-ban-view');
-        const editor = document.getElementById('editor-bb-noidung');
         
-        // 1. Bật cờ an toàn găm trực tiếp vào thuộc tính của DOM để bypass qua bộ chặn check dirty
-        if (editor) editor.setAttribute('data-saved', 'true');
-
-        // 2. Ẩn lập tức phân hệ biên bản để dọn sạch không gian hiển thị, chống đè tab gây trắng màn hình
-        if (bbView) {
-            bbView.classList.add('hidden');
-            bbView.style.display = 'none'; // Triệt tiêu vùng nền trắng đè hiển thị hụt
-        }
-        
-        // 3. Tắt ngay hộp thoại cảnh báo Form Guard
+        // 1. Tắt ngay hộp thoại cảnh báo Form Guard
         closeFormGuardModal();
 
-        // 4. THỰC THI CHUYỂN TAB: Gọi trực tiếp hàm toggle đích đã lưu trong hàng đợi để nạp dữ liệu Firebase
+        // 2. MẸO PHÒNG VỆ TRẮNG TRANG: Tạm thời đổi ID phân hệ để vượt qua hàm check dirty
+        if (bbView) {
+            bbView.id = 'bien-ban-view-temp-bypass';
+        }
+
+        // 3. THỰC THI CHUYỂN TAB: Gọi lại chính hàm toggle mục tiêu bằng tham chiếu gốc
         if (typeof guardNavigationTarget === 'function') {
             guardNavigationTarget(); 
         }
-        
-        // 5. HOÀN TRẢ TRẠNG THÁI: Gỡ bỏ cờ tạm sau khi điều hướng hoàn tất để tiếp tục bảo vệ ở phiên gõ sau
-        setTimeout(() => {
-            if (editor) editor.removeAttribute('data-saved');
-        }, 100);
+
+        // 4. HOÀN TRẢ TRẠNG THÁI: Trả lại ID chuẩn và ép đóng ẩn hẳn tab biên bản họp tổ
+        const bbViewTemp = document.getElementById('bien-ban-view-temp-bypass');
+        if (bbViewTemp) {
+            bbViewTemp.id = 'bien-ban-view';
+            bbViewTemp.classList.add('hidden'); 
+            bbViewTemp.style.display = 'none'; // Triệt tiêu lớp màn trắng đè
+        }
         
         if (typeof lucide !== 'undefined') lucide.createIcons();
     };
