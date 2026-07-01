@@ -828,29 +828,54 @@ function closeFormGuardModal() {
 // Luồng xử lý kích hoạt đồng bộ dứt khoát khi bấm nút "Rời đi & Bỏ qua"
 // Đã bọc và đóng gói thẻ đóng mở chuẩn xác, triệt tiêu lỗi SyntaxError
 const confirmBtnElement = document.getElementById('sys-guard-confirm-btn');
+// ====================================================================
+// VÁ LỖI NÚT RỜI ĐI: ĐIỀU HƯỚNG THEO NHÃN CHỮ CỨNG - ĐỒNG BỘ DATABASE 100%
+// ====================================================================
+const confirmBtnElement = document.getElementById('sys-guard-confirm-btn');
 if (confirmBtnElement) {
     confirmBtnElement.onclick = () => {
         const bbView = document.getElementById('bien-ban-view');
         
-        // 1. Tắt ngay hộp thoại cảnh báo Form Guard
+        // 1. Tắt ngay hộp thoại cảnh báo Form Guard lập tức
         closeFormGuardModal();
 
-        // 2. Kích hoạt luồng chuyển tab đích an toàn thông qua biến cờ hiệu
-        if (typeof guardNavigationTarget === 'function') {
-            // Kích hoạt cờ cho phép đi thẳng qua hàm check dirty
-            bypassFormGuard = true; 
-            
-            // Ẩn hẳn phân hệ biên bản để dọn dẹp sạch giao diện nền đè
+        // 2. Thực hiện điều phối hiển thị cưỡng chế dựa trên nhãn định danh chữ cứng
+        if (guardNavigationTarget) {
+            const board = document.getElementById('board-view');
+            const chamTiet = document.getElementById('cham-tiet-view');
+            const lkView = document.getElementById('lien-ket-view');
+            const timeline = document.getElementById('timeline-view');
+            const filterBar = document.getElementById('filter-bar');
+            const statsBar = document.getElementById('stats-bar');
+
+            // Ẩn sạch sẽ phân hệ biên bản hiện tại cùng toàn bộ các phân hệ khác để giải phóng màn hình
             if (bbView) {
                 bbView.classList.add('hidden');
-                bbView.style.display = 'none';
+                bbView.style.display = 'none'; // Triệt tiêu vùng nền trắng đè hiển thị hụt
             }
-            
-            // Thực thi duy nhất 1 lần hàm toggle mục tiêu để tải dữ liệu Firebase gốc
-            guardNavigationTarget(); 
-            
-            // Đóng cờ trả về trạng thái bảo vệ nghiêm ngặt ban đầu
-            bypassFormGuard = false; 
+            if (board) board.classList.add('hidden');
+            if (chamTiet) chamTiet.classList.add('hidden');
+            if (lkView) lkView.classList.add('hidden');
+            if (timeline) timeline.classList.add('hidden');
+            if (filterBar) filterBar.classList.add('hidden');
+            if (statsBar) statsBar.classList.add('hidden');
+
+            // Rẽ nhánh dứt khoát để hiển thị và nạp dữ liệu Firebase chuẩn xác
+            if (guardNavigationTarget === 'OPEN_CHAM_TIET' && chamTiet) {
+                chamTiet.classList.remove('hidden');
+                if (typeof renderChamTietTable === 'function') renderChamTietTable(); // Đồng bộ bảng tiết dạy từ đám mây
+            } 
+            else if (guardNavigationTarget === 'OPEN_LIEN_KET' && lkView) {
+                lkView.classList.remove('hidden');
+                if (typeof renderLienKet === 'function') renderLienKet(); // Đồng bộ mục lục link từ đám mây
+            } 
+            else if (guardNavigationTarget === 'CLOSE_BIEN_BAN') {
+                // Trường hợp bấm nút ĐÓNG trên form: Trả về hiển thị bảng Kanban nền tảng công việc
+                if (board) board.classList.remove('hidden');
+                if (filterBar) filterBar.classList.remove('hidden');
+                if (statsBar) statsBar.classList.remove('hidden');
+                if (typeof renderTasks === 'function') renderTasks();
+            }
         }
         
         if (typeof lucide !== 'undefined') lucide.createIcons();
