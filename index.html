@@ -3317,10 +3317,24 @@ function drawLinksTable() {
         if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    async function deleteLienKet(id) {
-        if (!confirm("Xóa liên kết này?")) return;
-        await db.collection("LienKetNhanh").doc(id).delete(); renderLienKet();
-    }
+// ====================================================================
+// CẬP NHẬT: XÓA LIÊN KẾT QUA HỘP THOẠI XÁC NHẬN CUSTOM MƯỢT MÀ
+// ====================================================================
+function deleteLienKet(id) {
+    showSystemConfirm(
+        "Gỡ bỏ liên kết nhanh?", 
+        "Hệ thống sẽ tiến hành xóa vĩnh viễn liên kết này khỏi bảng mục lục dùng chung của Tổ Toán - Tin.",
+        async () => {
+            try {
+                await db.collection("LienKetNhanh").doc(id).delete();
+                // Tự động làm tươi lại danh sách liên kết trên màn hình
+                if (typeof renderLienKet === "function") renderLienKet();
+            } catch (error) {
+                alert("Gặp sự cố khi thực hiện lệnh xóa dữ liệu: " + error.message);
+            }
+        }
+    );
+}
     // --- EXPORT EXCEL ---
     document.getElementById('btn-export-excel').addEventListener('click', function() {
         const danhSachCanXuat = typeof getFiltered === 'function' ? getFiltered() : allTasks;
