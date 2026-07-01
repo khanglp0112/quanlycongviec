@@ -109,7 +109,18 @@
     <div class="flex items-center gap-2 flex-wrap justify-end">
       <button id="btn-members" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thành viên</span></button> 
       <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Giờ làm</span></button> 
-      <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span></button> 
+      <button id="btn-timeline" class="btn-flat-elegant" onclick="
+    document.getElementById('timeline-view').classList.remove('hidden');
+    document.getElementById('board-view').classList.add('hidden');
+    document.getElementById('cham-tiet-view').classList.add('hidden');
+    document.getElementById('lien-ket-view').classList.add('hidden');
+    document.getElementById('bien-ban-view').classList.add('hidden');
+    document.getElementById('filter-bar').classList.add('hidden');
+    document.getElementById('stats-bar').classList.add('hidden');
+    renderTimeline();
+">
+    <i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span>
+</button>
       <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()"><i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Liên kết</span></button>
       <button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()"><i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Chấm tiết</span></button>
       <button id="btn-show-bienban" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-white" style="background:#ea580c;" onmouseenter="this.style.background='#c2410c'" onmouseleave="this.style.background='#ea580c'" onclick="toggleBienBan()"><i data-lucide="file-text" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Biên bản họp</span></button>
