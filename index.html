@@ -1335,7 +1335,7 @@ document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('filter-bar').classList.add('hidden');
       document.getElementById('stats-bar').classList.add('hidden');
       document.getElementById('timeline-view').classList.remove('hidden');
-      
+      document.getElementById('bien-ban-view').classList.add('hidden');
       // Mặc định luôn mở chế độ hiện tại khi quay lại Timeline
       if (typeof timelineMode !== 'undefined' && timelineMode === 'calendar') renderCalendar(); 
       else renderTimeline();
