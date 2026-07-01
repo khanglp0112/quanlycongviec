@@ -781,6 +781,68 @@ function closeSystemSuccess() {
     box.classList.remove('scale-100');
     box.classList.add('scale-95');
 }
+   // ====================================================================
+// BỘ KIỂM SOÁT BẢO VỆ BIÊN BẢN CHƯA LƯU (FORM GUARD INTERCEPTOR)
+// ====================================================================
+let guardNavigationTarget = null; // Lưu hành động kế tiếp cần thực hiện nếu thoát
+
+// Hàm kiểm tra xem biểu mẫu biên bản họp tổ có đang gõ dở hay không
+function isFormDirty() {
+    const editor = document.getElementById('editor-bb-noidung');
+    // Chỉ kiểm tra bẫy nếu phân hệ Biên bản đang mở trên màn hình (không ẩn)
+    const bbView = document.getElementById('bien-ban-view');
+    if (bbView && !bbView.classList.contains('hidden') && editor) {
+        const content = editor.innerHTML.trim();
+        // Nếu editor có dữ liệu thực tế và chưa được gắn cờ đã lưu an toàn
+        if (content !== "" && content !== "<p><br></p>" && content !== "<br>" && !editor.hasAttribute('data-saved')) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function triggerFormGuard(targetCallback) {
+    const modal = document.getElementById('sys-guard-modal');
+    const box = document.getElementById('sys-guard-box');
+    guardNavigationTarget = targetCallback;
+    
+    modal.classList.remove('invisible', 'opacity-0');
+    box.classList.remove('scale-95');
+    box.classList.add('scale-100');
+}
+
+function closeFormGuardModal() {
+    const modal = document.getElementById('sys-guard-modal');
+    const box = document.getElementById('sys-guard-box');
+    
+    modal.classList.add('invisible', 'opacity-0');
+    box.classList.remove('scale-100');
+    box.classList.add('scale-95');
+    guardNavigationTarget = null;
+}
+
+// Khi quyết định bỏ qua dữ liệu cũ để chuyển hướng tab hoặc đóng form
+document.addEventListener("DOMContentLoaded", () => {
+    const confirmBtn = document.getElementById('sys-guard-confirm-btn');
+    if (confirmBtn) {
+        confirmBtn.addEventListener('click', () => {
+            const editor = document.getElementById('editor-bb-noidung');
+            if (editor) editor.setAttribute('data-saved', 'true'); // Ép qua bộ lọc
+            closeFormGuardModal();
+            if (typeof guardNavigationTarget === 'function') guardNavigationTarget();
+        });
+    }
+
+    // Lắng nghe sự kiện gõ phím để tự động gỡ cờ an toàn khi có thay đổi mới
+    const editor = document.getElementById('editor-bb-noidung');
+    if (editor) {
+        editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
+    }
+});
+
+// 💡 MẸO ĐỒNG BỘ: Thầy tìm hàm saveBienBan(), tại khối xử lý thành công (try {}) sau khi 
+// hiện showSystemSuccess, thầy gõ thêm dòng này để hệ thống biết đã lưu an toàn:
+// document.getElementById('editor-bb-noidung').setAttribute('data-saved', 'true');
 // ====================================================================
 // BỘ ĐIỀU KHIỂN HOẠT ẢNH MÔ PHỎNG 100% MODAL XEM CHI TIẾT KANBAN
 // ====================================================================
@@ -2379,6 +2441,10 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
     }
 
 function toggleChamTiet() {
+ if (isFormDirty()) {
+        triggerFormGuard(() => { toggleChamTiet(); }); // Chạy lại chính hàm này khi bấm rời đi
+        return;
+    }
         const board = document.getElementById('board-view');
         const chamTiet = document.getElementById('cham-tiet-view');
         const lkView = document.getElementById('lien-ket-view');
@@ -2406,6 +2472,15 @@ function toggleChamTiet() {
     }
 // ====================================================================
 function toggleBienBan() {
+ if (isFormDirty()) {
+        triggerFormGuard(() => { 
+            // Nội dung chạy tiếp nếu bấm Rời đi (Gỡ bỏ view biên bản để về Kanban)
+            const bbView = document.getElementById('bien-ban-view');
+            if (bbView) bbView.classList.add('hidden');
+            if (typeof renderTasks === 'function') renderTasks();
+        });
+        return; // Dừng chạy đoạn code phía dưới
+    }
         const board = document.getElementById('board-view');
         const lkView = document.getElementById('lien-ket-view');
         const ctView = document.getElementById('cham-tiet-view');
@@ -3244,6 +3319,10 @@ try {
     let dragStartIndex = -1;
 
 function toggleLienKet() {
+ if (isFormDirty()) {
+        triggerFormGuard(() => { toggleLienKet(); }); // Chạy lại chính hàm này khi bấm rời đi
+        return;
+    }
         const board = document.getElementById('board-view');
         const lkView = document.getElementById('lien-ket-view');
         const ctView = document.getElementById('cham-tiet-view');
@@ -3661,6 +3740,23 @@ function deleteLienKet(id) {
         </div>
     </div>
 </div>
+   <div id="sys-guard-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300 border border-slate-100" id="sys-guard-box">
+        <div class="px-6 pt-6 pb-4 flex flex-col items-center text-center">
+            <div class="p-3 bg-amber-50 text-amber-500 rounded-full mb-3 border border-amber-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <h3 class="text-base font-bold text-slate-800 mb-1">Dữ liệu chưa được lưu!</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">Nội dung biên bản đang soạn thảo chưa được đồng bộ lên Firebase. Thầy cô có chắc chắn muốn rời đi và chấp nhận hủy bỏ các thay đổi này không?</p>
+        </div>
+        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-2">
+            <button onclick="closeFormGuardModal()" class="flex-1 py-2 text-xs font-semibold text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl shadow-sm transition-all">Quay lại gõ tiếp</button>
+            <button id="sys-guard-confirm-btn" class="flex-1 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md shadow-amber-500/10 transition-all">Rời đi & Bỏ qua</button>
+        </div>
+    </div>
+</div>
    <div id="sys-success-modal" class="fixed inset-0 z-50 flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300" id="sys-success-box">
         <div class="px-6 py-8 flex flex-col items-center text-center">
@@ -3691,7 +3787,6 @@ function deleteLienKet(id) {
             <div id="sys-quickview-content" class="bg-white w-full max-w-[210mm] min-h-[297mm] shadow-[0_10px_30px_rgba(0,0,0,0.15)] rounded-sm p-8 sm:p-12 text-slate-800 leading-relaxed relative border border-slate-300" style="font-family: 'Times New Roman', Times, serif;">
                 </div>
         </div>
-
     </div>
 </div>
  </body>
