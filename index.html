@@ -753,25 +753,41 @@ function closeSystemConfirm() {
     box.classList.add('scale-95');
     modalConfirmCallback = null;
 }
+// ====================================================================
+// CẬP NHẬT: HÀM ĐIỀU KHIỂN HOẠT ẢNH MƯỢT MÀ CHO HỘP THOẠI THÀNH CÔNG
+// ====================================================================
 function showSystemSuccess(title, desc) {
     const modal = document.getElementById('sys-success-modal');
     const box = document.getElementById('sys-success-box');
     
+    // Gán dữ liệu văn bản
     document.getElementById('sys-success-title').innerText = title;
     document.getElementById('sys-success-desc').innerText = desc;
     
-    modal.classList.remove('invisible', 'opacity-0');
-    box.classList.remove('scale-95');
-    box.classList.add('scale-100');
+    // Mở khóa tương tác và làm mờ nền trước
+    modal.classList.remove('pointer-events-none');
+    modal.classList.add('opacity-100');
+    
+    // Tạo độ trễ hiệu ứng 50ms để hộp thoại nảy lên đồng bộ, không bị khựng
+    setTimeout(() => {
+        box.classList.remove('scale-95');
+        box.classList.add('scale-100');
+    }, 50);
 }
 
 function closeSystemSuccess() {
     const modal = document.getElementById('sys-success-modal');
     const box = document.getElementById('sys-success-box');
     
-    modal.classList.add('invisible', 'opacity-0');
+    // Thu nhỏ hộp thoại trước
     box.classList.remove('scale-100');
     box.classList.add('scale-95');
+    
+    // Đợi hộp thoại thu nhỏ xong (300ms) thì ẩn hẳn lớp nền và khóa tương tác
+    setTimeout(() => {
+        modal.classList.add('pointer-events-none');
+        modal.classList.remove('opacity-100');
+    }, 300);
 }
 
 // Bắt sự kiện click nút đóng cho hộp thoại thành công
@@ -3526,7 +3542,7 @@ function drawLinksTable() {
         </div>
     </div>
 </div>
-   <div id="sys-success-modal" class="fixed inset-0 z-50 flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
+   <div id="sys-success-modal" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-500 backdrop-blur-sm bg-slate-900/40 p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300" id="sys-success-box">
         <div class="px-6 py-8 flex flex-col items-center text-center">
             <div class="p-3 bg-emerald-100 text-emerald-600 rounded-full mb-4 animate-bounce">
