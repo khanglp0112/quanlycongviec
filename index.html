@@ -831,37 +831,54 @@ document.addEventListener("DOMContentLoaded", () => {
             const editor = document.getElementById('editor-bb-noidung');
             const bbView = document.getElementById('bien-ban-view');
             
-            // 1. Ép cờ an toàn để vượt qua bộ lọc check dirty
+            // 1. Ép cờ an toàn găm vào dữ liệu để bypass bộ chặn check dirty
             if (editor) editor.setAttribute('data-saved', 'true'); 
             
-            // 2. Ẩn lập tức phân hệ biên bản để giải phóng màn hình
-            if (bbView) bbView.classList.add('hidden');
-            
-            // 3. Tắt hộp thoại cảnh báo Form Guard
+            // 2. Tắt hộp thoại cảnh báo Form Guard lập tức
             closeFormGuardModal();
-            
-            // 4. PHÒNG VỆ TRẮNG TRANG: Nếu đích đến là một hàm đóng tab (toggleBienBan), 
-            // ta ép hiển thị lại toàn bộ bộ lọc và bảng Kanban nền tảng.
-            if (guardNavigationTarget && guardNavigationTarget.name === 'toggleBienBan') {
+
+            // 3. ĐIỀU PHỐI PHÂN HỆ MỤC TIÊU - Giải quyết triệt để lỗi mất thuộc tính .name của hàm
+            if (guardNavigationTarget) {
                 const board = document.getElementById('board-view');
+                const chamTiet = document.getElementById('cham-tiet-view');
+                const lkView = document.getElementById('lien-ket-view');
+                const timeline = document.getElementById('timeline-view');
                 const filterBar = document.getElementById('filter-bar');
                 const statsBar = document.getElementById('stats-bar');
-                
-                if (board) board.classList.remove('hidden');
-                if (filterBar) filterBar.classList.remove('hidden');
-                if (statsBar) statsBar.classList.remove('hidden');
-            }
 
-            // 5. KÍCH HOẠT LẠI HÀM LOGIC GỐC ĐỂ NẠP DỮ LIỆU TAB MỚI TRƠN TRU
-            if (typeof guardNavigationTarget === 'function') {
-                guardNavigationTarget(); 
+                // Dọn dẹp ẩn toàn bộ các phân hệ giao diện hiện hành
+                if (bbView) bbView.classList.add('hidden');
+                if (board) board.classList.add('hidden');
+                if (chamTiet) chamTiet.classList.add('hidden');
+                if (lkView) lkView.classList.add('hidden');
+                if (timeline) timeline.classList.add('hidden');
+                if (filterBar) filterBar.classList.add('hidden');
+                if (statsBar) statsBar.classList.add('hidden');
+
+                // Kiểm tra chuỗi định danh truyền vào để mở đúng duy nhất tab mục tiêu
+                if (guardNavigationTarget === 'OPEN_CHAM_TIET' && chamTiet) {
+                    chamTiet.classList.remove('hidden');
+                    if (typeof renderChamTietTable === 'function') renderChamTietTable();
+                } else if (guardNavigationTarget === 'OPEN_LIEN_KET' && lkView) {
+                    lkView.classList.remove('hidden');
+                    if (typeof renderLienKet === 'function') renderLienKet();
+                } else if (guardNavigationTarget === 'CLOSE_BIEN_BAN') {
+                    // Nếu bấm nút Đóng biên bản, ép hệ thống quay về hiển thị bảng Kanban nền tảng
+                    if (board) board.classList.remove('hidden');
+                    if (filterBar) filterBar.classList.remove('hidden');
+                    if (statsBar) statsBar.classList.remove('hidden');
+                    if (typeof renderTasks === 'function') renderTasks();
+                } else if (typeof guardNavigationTarget === 'function') {
+                    // Cơ chế dự phòng nếu tham chiếu là một hàm thực thi trực tiếp
+                    guardNavigationTarget();
+                }
             }
             
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     }
 
-    // Giữ nguyên đoạn lắng nghe input của thầy bên dưới
+    // Giữ nguyên đoạn lắng nghe gõ phím 'input' bên dưới của thầy
     const editor = document.getElementById('editor-bb-noidung');
     if (editor) {
         editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
@@ -2461,7 +2478,7 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
 
 function toggleChamTiet() {
 if (isFormDirty()) {
-        triggerFormGuard(toggleChamTiet); 
+        triggerFormGuard('OPEN_CHAM_TIET'); 
         return;
     }
         const board = document.getElementById('board-view');
@@ -2494,7 +2511,7 @@ if (isFormDirty()) {
 // ====================================================================
 function toggleBienBan() {
 if (isFormDirty()) {
-    triggerFormGuard(toggleLienKet);
+    triggerFormGuard('CLOSE_BIEN_BAN');
     return;
 }
         const board = document.getElementById('board-view');
@@ -3336,7 +3353,7 @@ try {
 
 function toggleLienKet() {
 if (isFormDirty()) {
-    triggerFormGuard('LIEN_KET');
+    triggerFormGuard('OPEN_LIEN_KET');
     return;
 }
         const board = document.getElementById('board-view');
