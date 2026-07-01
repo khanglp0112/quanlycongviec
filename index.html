@@ -611,26 +611,32 @@
     </div>
    </div>
    <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="modal-backdrop w-full max-w-md rounded-2xl p-6" style="background:#1e293b; border:1px solid #334155;">
+    <div class="w-full max-w-md rounded-2xl p-6 modal-backdrop" style="background:#1e293b; border:1px solid #334155;">
      <div class="flex items-center justify-between mb-5">
-      <h2 class="font-display text-lg font-bold" style="color:#f8fafc;">Quản lý thành viên</h2><button id="btn-members-close" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <h2 class="font-display text-lg font-bold" style="color:#f8fafc;">Quản lý thành viên</h2>
+      <button id="btn-members-close-custom" onclick="document.getElementById('members-modal').classList.add('hidden')" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-f8fafc"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin"></div>
-     <button id="btn-add-member" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
+     <button type="button" onclick="openAddMember()" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors bg-amber-500 text-slate-900 hover:bg-amber-400"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
     </div>
    </div>
+
    <div id="edit-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="modal-backdrop w-full max-w-xs rounded-2xl p-6" style="background:#1e293b; border:1px solid #334155;">
+    <div class="w-full max-w-xs rounded-2xl p-6 modal-backdrop" style="background:#1e293b; border:1px solid #334155;">
      <div class="flex items-center justify-between mb-4">
-      <h2 class="font-display text-lg font-bold" style="color:#f8fafc;" id="edit-member-title">Sửa thành viên</h2><button id="btn-edit-member-close" class="p-1 rounded-lg transition-colors" style="color:#94a3b8;" onmouseenter="this.style.color='#f8fafc'" onmouseleave="this.style.color='#94a3b8'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <h2 class="font-display text-lg font-bold" style="color:#f8fafc;" id="edit-member-title">Sửa thành viên</h2>
+      <button type="button" onclick="document.getElementById('edit-member-modal').classList.add('hidden')" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-f8fafc"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <form id="member-form" class="space-y-4">
-      <div><label for="inp-member-name" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tên thành viên</label> <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tên"></div>
+      <div>
+        <label for="inp-member-name" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tên thành viên</label> 
+        <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tên">
+      </div>
       <input type="hidden" id="inp-member-index" value="">
       <div id="member-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#7f1d1d;color:#fca5a5;"></div>
       <div class="flex gap-2">
         <button type="button" id="btn-member-delete" class="flex-1 py-2 rounded-lg text-sm font-medium" style="background:#7f1d1d;color:#fca5a5;display:none;">Xoá</button> 
-        <button type="submit" id="btn-member-save" class="flex-1 py-2 rounded-lg text-sm font-semibold" style="background:#f59e0b;color:#0f172a;">Lưu</button>
+        <button type="submit" id="btn-member-save" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-amber-500 text-slate-900">Lưu</button>
       </div>
      </form>
     </div>
@@ -1337,10 +1343,14 @@ if (currentDate !== dateStr) {
       document.getElementById('edit-member-modal').classList.remove('hidden');
     }
 
-    document.getElementById('btn-members').onclick = () => {
-      renderMembersList();
-      document.getElementById('members-modal').classList.remove('hidden');
-    };
+    // Kích hoạt mở Modal Thành viên phẳng
+    const btnMembersHeader = document.getElementById('btn-members');
+    if (btnMembersHeader) {
+        btnMembersHeader.onclick = () => {
+            if (typeof renderMembersList === 'function') renderMembersList();
+            document.getElementById('members-modal').classList.remove('hidden');
+        };
+    }
 
 document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('board-view').classList.add('hidden');
