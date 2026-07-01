@@ -865,6 +865,25 @@ function closeQuickView() {
     box.classList.remove('scale-100');
     box.classList.add('scale-95');
 }
+   // ====================================================================
+// BỘ BẢO VỆ CHỐNG MẤT DỮ LIỆU KHI TẮT TAB TRÌNH DUYỆT (BEFOREUNLOAD)
+// ====================================================================
+window.addEventListener('beforeunload', (event) => {
+    const editor = document.getElementById('editor-bb-noidung');
+    const bbView = document.getElementById('bien-ban-view');
+    
+    // Chỉ kích hoạt bộ chặn của trình duyệt nếu phân hệ Biên bản đang mở
+    if (bbView && !bbView.classList.contains('hidden') && editor) {
+        const content = editor.innerHTML.trim();
+        
+        // Nếu editor đang có chữ gõ dở (chưa lưu)
+        if (content !== "" && content !== "<p><br></p>" && content !== "<br>") {
+            // Cưỡng chế trình duyệt hiển thị hộp thoại cảnh báo hệ thống
+            event.preventDefault();
+            event.returnValue = ''; 
+        }
+    }
+});
 // Bắt sự kiện click nút đóng cho hộp thoại thành công
 document.addEventListener("DOMContentLoaded", () => {
     const btnSuccessClose = document.getElementById('btn-success-close');
