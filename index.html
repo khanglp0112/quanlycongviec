@@ -831,23 +831,37 @@ document.addEventListener("DOMContentLoaded", () => {
             const editor = document.getElementById('editor-bb-noidung');
             const bbView = document.getElementById('bien-ban-view');
             
-            // 1. Ép cờ an toàn găm vào thuộc tính dữ liệu để bypass qua bộ chặn check dirty
+            // 1. Ép cờ an toàn để vượt qua bộ lọc check dirty
             if (editor) editor.setAttribute('data-saved', 'true'); 
             
-            // 2. Ẩn lập tức phân hệ biên bản để dọn dẹp màn hình trước
+            // 2. Ẩn lập tức phân hệ biên bản để giải phóng màn hình
             if (bbView) bbView.classList.add('hidden');
             
             // 3. Tắt hộp thoại cảnh báo Form Guard
             closeFormGuardModal();
             
-            // 4. KÍCH HOẠT LẠI HÀM LOGIC GỐC: Hệ thống tự dọn dẹp và nạp dữ liệu chuẩn xác
+            // 4. PHÒNG VỆ TRẮNG TRANG: Nếu đích đến là một hàm đóng tab (toggleBienBan), 
+            // ta ép hiển thị lại toàn bộ bộ lọc và bảng Kanban nền tảng.
+            if (guardNavigationTarget && guardNavigationTarget.name === 'toggleBienBan') {
+                const board = document.getElementById('board-view');
+                const filterBar = document.getElementById('filter-bar');
+                const statsBar = document.getElementById('stats-bar');
+                
+                if (board) board.classList.remove('hidden');
+                if (filterBar) filterBar.classList.remove('hidden');
+                if (statsBar) statsBar.classList.remove('hidden');
+            }
+
+            // 5. KÍCH HOẠT LẠI HÀM LOGIC GỐC ĐỂ NẠP DỮ LIỆU TAB MỚI TRƠN TRU
             if (typeof guardNavigationTarget === 'function') {
                 guardNavigationTarget(); 
             }
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     }
 
-    // Đoạn lắng nghe sự kiện nhập liệu 'input' phía dưới của thầy giữ nguyên vẹn
+    // Giữ nguyên đoạn lắng nghe input của thầy bên dưới
     const editor = document.getElementById('editor-bb-noidung');
     if (editor) {
         editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
