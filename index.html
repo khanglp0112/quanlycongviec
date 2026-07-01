@@ -2538,6 +2538,7 @@ function toggleBienBan() {
     // Hàm 4.1: Đẩy toàn bộ dữ liệu chữ của biên bản họp tổ lên Cloud Firebase
     async function saveBienBan() {
         const id = document.getElementById('inp-bb-id').value;
+        const soBB = document.getElementById('inp-bb-so').value.trim();
         const lanHop = document.getElementById('inp-bb-lan').value.trim();
         const ngayHop = document.getElementById('inp-bb-ngay').value;
         const diaDiem = document.getElementById('inp-bb-diadiem').value.trim();
