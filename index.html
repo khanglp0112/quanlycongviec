@@ -821,9 +821,8 @@ function closeFormGuardModal() {
     guardNavigationTarget = null;
 }
 
-// Khi quyết định bỏ qua dữ liệu cũ để chuyển hướng tab hoặc đóng form
 // ====================================================================
-// CHUẨN HÓA SỬA LỖI NÚT RỜI ĐI: ĐIỀU HƯỚNG THEO TARGET ID CHUẨN 100%
+// KHÔI PHỤC & TỐI ƯU CƠ CHẾ CALLBACK: ĐIỀU HƯỚNG DỨT KHOÁT, SẠCH LỖI 100%
 // ====================================================================
 document.addEventListener("DOMContentLoaded", () => {
     const confirmBtn = document.getElementById('sys-guard-confirm-btn');
@@ -832,55 +831,23 @@ document.addEventListener("DOMContentLoaded", () => {
             const editor = document.getElementById('editor-bb-noidung');
             const bbView = document.getElementById('bien-ban-view');
             
-            // 1. Ép cờ an toàn để vượt qua bộ chặn check dirty
+            // 1. Ép cờ an toàn găm vào thuộc tính dữ liệu để bypass qua bộ chặn check dirty
             if (editor) editor.setAttribute('data-saved', 'true'); 
             
-            // 2. Tắt hộp thoại cảnh báo ngay lập tức
-            closeFormGuardModal();
-
-            // 3. Thực thi chuyển đổi giao diện dựa trên đích đến cụ thể
-            if (guardNavigationTarget) {
-                // Thu gom tất cả các phân hệ giao diện của thầy để quản lý tập trung
-                const board = document.getElementById('board-view');
-                const chamTiet = document.getElementById('cham-tiet-view');
-                const lkView = document.getElementById('lien-ket-view');
-                const timeline = document.getElementById('timeline-view');
-                const filterBar = document.getElementById('filter-bar');
-                const statsBar = document.getElementById('stats-bar');
-
-                // Ẩn sạch sẽ phân hệ biên bản hiện tại cùng các thanh lọc phụ trợ
-                if (bbView) bbView.classList.add('hidden');
-                if (filterBar) filterBar.classList.add('hidden');
-                if (statsBar) statsBar.classList.add('hidden');
-                if (board) board.classList.add('hidden');
-                if (chamTiet) chamTiet.classList.add('hidden');
-                if (lkView) lkView.classList.add('hidden');
-                if (timeline) timeline.classList.add('hidden');
-
-                // Kiểm tra trực tiếp chuỗi text đích đến để kích hoạt phân hệ chính xác
-                if (guardNavigationTarget === 'CHAM_TIET' && chamTiet) {
-                    chamTiet.classList.remove('hidden');
-                    if (typeof renderChamTietTable === 'function') renderChamTietTable();
-                } else if (guardNavigationTarget === 'LIEN_KET' && lkView) {
-                    lkView.classList.remove('hidden');
-                    if (typeof renderLienKet === 'function') renderLienKet();
-                } else if (guardNavigationTarget === 'DONG_BIEN_BAN') {
-                    // Trường hợp bấm nút ĐÓNG trên form: Cho quay về bảng Kanban nền tảng công việc
-                    if (board) board.classList.remove('hidden');
-                    if (filterBar) filterBar.classList.remove('hidden');
-                    if (statsBar) statsBar.classList.remove('hidden');
-                    if (typeof renderTasks === 'function') renderTasks();
-                } else if (typeof guardNavigationTarget === 'function') {
-                    // Dự phòng chạy hàm callback nếu có cấu trúc mở rộng khác
-                    guardNavigationTarget();
-                }
-            }
+            // 2. Ẩn lập tức phân hệ biên bản để dọn dẹp màn hình trước
+            if (bbView) bbView.classList.add('hidden');
             
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            // 3. Tắt hộp thoại cảnh báo Form Guard
+            closeFormGuardModal();
+            
+            // 4. KÍCH HOẠT LẠI HÀM LOGIC GỐC: Hệ thống tự dọn dẹp và nạp dữ liệu chuẩn xác
+            if (typeof guardNavigationTarget === 'function') {
+                guardNavigationTarget(); 
+            }
         });
     }
 
-    // Giữ nguyên đoạn lắng nghe sự kiện input đổi cờ cũ của thầy bên dưới
+    // Đoạn lắng nghe sự kiện nhập liệu 'input' phía dưới của thầy giữ nguyên vẹn
     const editor = document.getElementById('editor-bb-noidung');
     if (editor) {
         editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
@@ -2480,9 +2447,9 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
 
 function toggleChamTiet() {
 if (isFormDirty()) {
-    triggerFormGuard('CHAM_TIET'); 
-    return;
-}
+        triggerFormGuard(toggleChamTiet); 
+        return;
+    }
         const board = document.getElementById('board-view');
         const chamTiet = document.getElementById('cham-tiet-view');
         const lkView = document.getElementById('lien-ket-view');
@@ -2513,7 +2480,7 @@ if (isFormDirty()) {
 // ====================================================================
 function toggleBienBan() {
 if (isFormDirty()) {
-    triggerFormGuard('DONG_BIEN_BAN');
+    triggerFormGuard(toggleLienKet);
     return;
 }
         const board = document.getElementById('board-view');
