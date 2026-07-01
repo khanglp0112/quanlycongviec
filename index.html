@@ -2559,15 +2559,21 @@ function toggleBienBan() {
         }
 
         // Đóng gói mảng dữ liệu từ bảng thành phần động mục II
-        const thanhPhanThamDu = [];
-        document.querySelectorAll('.bb-tp-row').forEach(row => {
-            const ten = row.querySelector('.bb-sel-gv').value;
-            const chucVu = row.querySelector('.bb-inp-chucvu').value;
-            const ghiChu = row.querySelector('.bb-inp-ghichu').value.trim();
-            if (ten) {
-                thanhPhanThamDu.push({ hoTen: ten, chucVu: chucVu, ghiChu: ghiChu });
-            }
-        });
+const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
+        const thanhPhanThamDu = rows.map(row => {
+            const selectGv = row.getElementsByClassName('bb-sel-gv')[0];
+            const ten = selectGv ? selectGv.value : '';
+            if (!ten) return null;
+
+            const chucVuInput = row.getElementsByClassName('bb-inp-chucvu')[0];
+            const ghiChuInput = row.getElementsByClassName('bb-inp-ghichu')[0];
+
+            return {
+                hoTen: ten,
+                chucVu: chucVuInput ? chucVuInput.value : '',
+                ghiChu: ghiChuInput ? ghiChuInput.value.trim() : ''
+            };
+        }).filter(item => item !== null);
 
         // Tạo tiêu đề trực quan để hiển thị ở bảng lịch sử tra cứu
         const parts = ngayHop.split('-');
