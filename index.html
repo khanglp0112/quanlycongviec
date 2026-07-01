@@ -801,84 +801,85 @@ function isFormDirty() {
     return false;
 }
 
-function triggerFormGuard(targetCallback) {
+// ====================================================================
+// BỘ ĐIỀU KHIỂN ĐIỀU HƯỚNG DỨT KHOÁT TUYỆT ĐỐI - FIX SẠCH LỖI TRẮNG TAB
+// ====================================================================
+let guardNavigationTarget = null; // Biến ghi nhớ nhãn chữ cứng đích đến
+
+function triggerFormGuard(targetLabel) {
     const modal = document.getElementById('sys-guard-modal');
     const box = document.getElementById('sys-guard-box');
-    guardNavigationTarget = targetCallback;
+    guardNavigationTarget = targetLabel; // Ghi nhớ nhãn ví dụ: 'OPEN_CHAM_TIET'
     
-    modal.classList.remove('invisible', 'opacity-0');
-    box.classList.remove('scale-95');
-    box.classList.add('scale-100');
+    if (modal && box) {
+        modal.classList.remove('invisible', 'opacity-0');
+        box.classList.remove('scale-95');
+        box.classList.add('scale-100');
+    }
 }
 
 function closeFormGuardModal() {
     const modal = document.getElementById('sys-guard-modal');
     const box = document.getElementById('sys-guard-box');
     
-    modal.classList.add('invisible', 'opacity-0');
-    box.classList.remove('scale-100');
-    box.classList.add('scale-95');
+    if (modal && box) {
+        modal.classList.add('invisible', 'opacity-0');
+        box.classList.remove('scale-100');
+        box.classList.add('scale-95');
+    }
     guardNavigationTarget = null;
 }
 
-// ====================================================================
-// KHÔI PHỤC & TỐI ƯU CƠ CHẾ CALLBACK: ĐIỀU HƯỚNG DỨT KHOÁT, SẠCH LỖI 100%
-// ====================================================================
-document.addEventListener("DOMContentLoaded", () => {
-    const confirmBtn = document.getElementById('sys-guard-confirm-btn');
-    if (confirmBtn) {
-        confirmBtn.addEventListener('click', () => {
-            const editor = document.getElementById('editor-bb-noidung');
-            const bbView = document.getElementById('bien-ban-view');
-            
-            // 1. Ép cờ an toàn găm vào dữ liệu để bypass bộ chặn check dirty
-            if (editor) editor.setAttribute('data-saved', 'true'); 
-            
-            // 2. Tắt hộp thoại cảnh báo Form Guard lập tức
-            closeFormGuardModal();
+// Hàm thực thi lõi được gọi trực tiếp từ thuộc tính onclick của nút bấm
+function executeGuardNavigation() {
+    const editor = document.getElementById('editor-bb-noidung');
+    const bbView = document.getElementById('bien-ban-view');
+    
+    // 1. Bật cờ an toàn găm cứng vào DOM để vượt qua bộ lọc check dirty
+    if (editor) editor.setAttribute('data-saved', 'true'); 
+    
+    // 2. Thu gọn và ẩn ngay hộp thoại cảnh báo
+    closeFormGuardModal();
 
-            // 3. ĐIỀU PHỐI PHÂN HỆ MỤC TIÊU - Giải quyết triệt để lỗi mất thuộc tính .name của hàm
-            if (guardNavigationTarget) {
-                const board = document.getElementById('board-view');
-                const chamTiet = document.getElementById('cham-tiet-view');
-                const lkView = document.getElementById('lien-ket-view');
-                const timeline = document.getElementById('timeline-view');
-                const filterBar = document.getElementById('filter-bar');
-                const statsBar = document.getElementById('stats-bar');
+    // 3. ĐIỀU PHỐI HIỂN THỊ CƯỠNG CHẾ: Ép ẩn/hiện chính xác, triệt tiêu lỗi trắng trang
+    if (guardNavigationTarget) {
+        const board = document.getElementById('board-view');
+        const chamTiet = document.getElementById('cham-tiet-view');
+        const lkView = document.getElementById('lien-ket-view');
+        const timeline = document.getElementById('timeline-view');
+        const filterBar = document.getElementById('filter-bar');
+        const statsBar = document.getElementById('stats-bar');
 
-                // Dọn dẹp ẩn toàn bộ các phân hệ giao diện hiện hành
-                if (bbView) bbView.classList.add('hidden');
-                if (board) board.classList.add('hidden');
-                if (chamTiet) chamTiet.classList.add('hidden');
-                if (lkView) lkView.classList.add('hidden');
-                if (timeline) timeline.classList.add('hidden');
-                if (filterBar) filterBar.classList.add('hidden');
-                if (statsBar) statsBar.classList.add('hidden');
+        // Ẩn sạch sẽ phân hệ biên bản hiện tại cùng toàn bộ các phân hệ khác
+        if (bbView) bbView.classList.add('hidden');
+        if (board) board.classList.add('hidden');
+        if (chamTiet) chamTiet.classList.add('hidden');
+        if (lkView) lkView.classList.add('hidden');
+        if (timeline) timeline.classList.add('hidden');
+        if (filterBar) filterBar.classList.add('hidden');
+        if (statsBar) statsBar.classList.add('hidden');
 
-                // Kiểm tra chuỗi định danh truyền vào để mở đúng duy nhất tab mục tiêu
-                if (guardNavigationTarget === 'OPEN_CHAM_TIET' && chamTiet) {
-                    chamTiet.classList.remove('hidden');
-                    if (typeof renderChamTietTable === 'function') renderChamTietTable();
-                } else if (guardNavigationTarget === 'OPEN_LIEN_KET' && lkView) {
-                    lkView.classList.remove('hidden');
-                    if (typeof renderLienKet === 'function') renderLienKet();
-                } else if (guardNavigationTarget === 'CLOSE_BIEN_BAN') {
-                    // Nếu bấm nút Đóng biên bản, ép hệ thống quay về hiển thị bảng Kanban nền tảng
-                    if (board) board.classList.remove('hidden');
-                    if (filterBar) filterBar.classList.remove('hidden');
-                    if (statsBar) statsBar.classList.remove('hidden');
-                    if (typeof renderTasks === 'function') renderTasks();
-                } else if (typeof guardNavigationTarget === 'function') {
-                    // Cơ chế dự phòng nếu tham chiếu là một hàm thực thi trực tiếp
-                    guardNavigationTarget();
-                }
-            }
-            
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        });
+        // Rẽ nhánh dứt khoát dựa trên nhãn chữ cứng được truyền từ nút bấm ban đầu
+        if (guardNavigationTarget === 'OPEN_CHAM_TIET' && chamTiet) {
+            chamTiet.classList.remove('hidden');
+            if (typeof renderChamTietTable === 'function') renderChamTietTable();
+        } else if (guardNavigationTarget === 'OPEN_LIEN_KET' && lkView) {
+            lkView.classList.remove('hidden');
+            if (typeof renderLienKet === 'function') renderLienKet();
+        } else if (guardNavigationTarget === 'CLOSE_BIEN_BAN') {
+            // Trường hợp bấm nút ĐÓNG trên form: Trả về hiển thị bảng Kanban và thanh lọc gốc
+            if (board) board.classList.remove('hidden');
+            if (filterBar) filterBar.classList.remove('hidden');
+            if (statsBar) statsBar.classList.remove('hidden');
+            if (typeof renderTasks === 'function') renderTasks();
+        }
     }
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
 
-    // Giữ nguyên đoạn lắng nghe gõ phím 'input' bên dưới của thầy
+// Thiết lập lắng nghe sự kiện gõ phím để gỡ bỏ cờ khi có thay đổi mới
+document.addEventListener("DOMContentLoaded", () => {
     const editor = document.getElementById('editor-bb-noidung');
     if (editor) {
         editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
@@ -3788,7 +3789,7 @@ function deleteLienKet(id) {
         </div>
         <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-2">
             <button onclick="closeFormGuardModal()" class="flex-1 py-2 text-xs font-semibold text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl shadow-sm transition-all">Quay lại gõ tiếp</button>
-            <button id="sys-guard-confirm-btn" class="flex-1 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md shadow-amber-500/10 transition-all">Rời đi & Bỏ qua</button>
+            <button onclick="executeGuardNavigation()" class="flex-1 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md shadow-amber-500/10 transition-all">Rời đi & Bỏ qua</button>
         </div>
     </div>
 </div>
