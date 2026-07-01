@@ -76,6 +76,33 @@
         0% { transform: translateX(-100%); }
         100% { transform: translateX(100%); }
     }
+   /* Hiệu ứng kính mờ tối ưu hóa phần cứng, chống lag tuyệt đối */
+.glass-header {
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    will-change: backdrop-filter;
+    transform: translateZ(0);
+}
+.dark-glass-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9));
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+/* Làm mịn thanh cuộn để giao diện tinh tế hơn */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
   </style>
   <!-- ==================================================================== -->
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
@@ -99,26 +126,47 @@
       </div>
     </div>
   </div>
-   <header class="w-full px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 flex-wrap gap-4" style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-bottom: 2px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+  <!-- ==================================================================== -->
+<!-- KHỐI HEADER MỚI: PHONG CÁCH KÍNH MỜ (GLASSMORPHISM) SANG TRỌNG     -->
+<!-- ==================================================================== -->
+<header class="sticky top-0 z-50 glass-header border-b border-slate-200/50 px-6 py-4 shadow-sm transition-all duration-300 flex items-center justify-between flex-shrink-0 flex-wrap gap-4">
+    
+    <!-- KHỐI LOGO CŨ CỦA THẦY: Giữ nguyên vẹn 100% không mất một ký tự -->
     <div class="flex items-center gap-3">
-<div class="w-9 h-9 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLogoViewer()" title="Phóng to logo">
-      <img src="LogoToToanTin.png" alt="Logo Tổ" class="w-full h-full object-contain">
-     </div>
-     <h1 id="app-title" class="font-display text-lg sm:text-xl font-bold" style="color: #1a1a1a;">Quản lý công việc nhóm</h1>
+        <div class="w-9 h-9 flex items-center justify-center flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity" onclick="openLogoViewer()" title="Phóng to logo">
+            <img src="LogoToToanTin.png" alt="Logo Tổ" class="w-full h-full object-contain">
+        </div>
+        <h1 id="app-title" class="font-display text-lg sm:text-xl font-bold" style="color: #1a1a1a;">Quản lý công việc nhóm</h1>
     </div>
+
+    <!-- KHỐI THÀNH VIÊN & HÀNH ĐỘNG PHỤ: Các nút quản trị bổ trợ -->
     <div class="flex items-center gap-2 flex-wrap justify-end">
-      <button id="btn-members" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thành viên</span></button> 
-      <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Giờ làm</span></button> 
-      <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span></button> 
-      <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()"><i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Liên kết</span></button>
-      <button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()"><i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Chấm tiết</span></button>
-     <!-- Nút mở tính năng Biên bản họp tổ -->
-      <button id="btn-show-bienban" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-white" style="background:#ea580c;" onmouseenter="this.style.background='#c2410c'" onmouseleave="this.style.background='#ea580c'" onclick="toggleBienBan()"><i data-lucide="file-text" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Biên bản họp</span></button>
-      <button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
-     <button id="btn-archive" onclick="openArchiveModal()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm hover:shadow" style="background:#ffffff;color:#475569;border:1px solid #cbd5e1;"><i data-lucide="archive" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Kho lưu trữ</span></button>
-      <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thêm việc</span></button>
+        <button id="btn-members" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="users" style="width:14px;height:14px;"></i><span class="hidden xl:inline">Thành viên</span></button> 
+        <button id="btn-working-hours" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:14px;height:14px;"></i><span class="hidden xl:inline">Giờ làm</span></button> 
+        <button id="btn-export-excel" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:14px;height:14px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
+        <button id="btn-archive" onclick="openArchiveModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shadow-sm hover:shadow" style="background:#ffffff;color:#475569;border:1px solid #cbd5e1;"><i data-lucide="archive" style="width:14px;height:14px;"></i><span class="hidden xl:inline">Kho lưu trữ</span></button>
+        <button id="btn-add" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:14px;height:14px;"></i><span class="hidden xl:inline">Thêm việc</span></button>
+
+        <!-- KHAY VIÊN NHỘNG ĐIỀU HƯỚNG TAB CHÍNH (Gom cụm phân hệ gọn gàng) -->
+        <nav class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/60 ml-2 shadow-inner">
+            <button onclick="toggleBoard()" id="btn-tab-board" class="px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 bg-white text-indigo-600 shadow-sm border border-slate-200/50 flex items-center gap-1">
+                <i class="inline-block w-3.5 h-3.5" data-lucide="layout-dashboard"></i> Bảng Việc
+            </button>
+            <button id="btn-timeline" class="px-3 py-1.5 text-xs font-medium text-slate-600 rounded-lg transition-all duration-200 hover:text-slate-900 flex items-center gap-1">
+                <i class="inline-block w-3.5 h-3.5" data-lucide="calendar-range"></i> Timeline
+            </button>
+            <button onclick="toggleLienKet()" id="btn-tab-lienket" class="px-3 py-1.5 text-xs font-medium text-slate-600 rounded-lg transition-all duration-200 hover:text-slate-900 flex items-center gap-1">
+                <i class="inline-block w-3.5 h-3.5" data-lucide="link"></i> Liên kết
+            </button>
+            <button onclick="toggleChamTiet()" id="btn-tab-chamtiet" class="px-3 py-1.5 text-xs font-medium text-slate-600 rounded-lg transition-all duration-200 hover:text-slate-900 flex items-center gap-1">
+                <i class="inline-block w-3.5 h-3.5" data-lucide="calculator"></i> Chấm tiết
+            </button>
+            <button onclick="toggleBienBan()" id="btn-tab-bienban" class="px-3 py-1.5 text-xs font-medium text-slate-600 rounded-lg transition-all duration-200 hover:text-slate-900 flex items-center gap-1">
+                <i class="inline-block w-3.5 h-3.5" data-lucide="file-text"></i> Biên bản
+            </button>
+        </nav>
     </div>
-   </header>
+</header>
 
    <div class="w-full px-4 sm:px-6 py-3 flex flex-wrap gap-2 items-center flex-shrink-0" style="background:#f5f5f5; border-bottom:1px solid #e5e5e5;">
     <div id="filter-bar" class="w-full px-4 sm:px-6 py-3 flex flex-wrap gap-2 items-center flex-shrink-0" style="background:#f5f5f5; border-bottom:1px solid #e5e5e5;">
@@ -1342,6 +1390,7 @@ document.getElementById('btn-timeline').onclick = () => {
     };
 
     document.getElementById('btn-close-timeline').onclick = () => {
+     updateActiveTabUI('board');
       document.getElementById('timeline-view').classList.add('hidden');
       document.getElementById('board-view').classList.remove('hidden');
       document.getElementById('filter-bar').classList.remove('hidden');
@@ -2387,6 +2436,7 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
     }
 
 function toggleChamTiet() {
+        updateActiveTabUI(document.getElementById('cham-tiet-view').classList.contains('hidden') ? 'chamtiet' : 'board');
         const board = document.getElementById('board-view');
         const chamTiet = document.getElementById('cham-tiet-view');
         const lkView = document.getElementById('lien-ket-view');
@@ -2416,6 +2466,7 @@ function toggleChamTiet() {
     }
 // ====================================================================
 function toggleBienBan() {
+        updateActiveTabUI(document.getElementById('cham-tiet-view').classList.contains('hidden') ? 'chamtiet' : 'board');
         const board = document.getElementById('board-view');
         const lkView = document.getElementById('lien-ket-view');
         const ctView = document.getElementById('cham-tiet-view');
@@ -3254,6 +3305,7 @@ try {
     let dragStartIndex = -1;
 
 function toggleLienKet() {
+        updateActiveTabUI(document.getElementById('lien-ket-view').classList.contains('hidden') ? 'lienket' : 'board');
         const board = document.getElementById('board-view');
         const lkView = document.getElementById('lien-ket-view');
         const ctView = document.getElementById('cham-tiet-view');
@@ -3649,6 +3701,29 @@ function deleteLienKet(id) {
         renderTasks(); 
         try { await db.collection("CongViec").doc(ctxTaskId).update({ pinned: task.pinned }); } catch(err) { alert("Lỗi mạng!"); }
     }
+   // ====================================================================
+// BỘ ĐIỀU PHỐI ĐẢO MÀU TAB VIÊN NHỘNG TỐI ƯU DUNG LƯỢNG TUYỆT ĐỐI
+// ====================================================================
+function updateActiveTabUI(activeId) {
+    ['board', 'timeline', 'lienket', 'chamtiet', 'bienban'].forEach(id => {
+        const btn = document.getElementById(`btn-tab-${id}`);
+        if (btn) btn.className = `px-3 py-1.5 text-xs rounded-lg transition-all duration-200 flex items-center gap-1 ${id === activeId ? 'font-semibold bg-white text-indigo-600 shadow-sm border border-slate-200/50' : 'font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50/50'}`;
+    });
+}
+
+function toggleBoard() {
+    updateActiveTabUI('board');
+    ['cham-tiet-view', 'bien-ban-view', 'lien-ket-view', 'timeline-view'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+    ['filter-bar', 'stats-bar', 'board-view'].forEach(id => document.getElementById(id)?.classList.remove('hidden'));
+    if (typeof renderTasks === 'function') renderTasks();
+}
+
+function toggleTimelineFromMenu() {
+    updateActiveTabUI('timeline');
+    ['board-view', 'cham-tiet-view', 'lien-ket-view', 'bien-ban-view', 'filter-bar', 'stats-bar'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+    document.getElementById('timeline-view')?.classList.remove('hidden');
+    if (typeof timelineMode !== 'undefined' && timelineMode === 'calendar') renderCalendar(); else renderTimeline();
+}
   </script>
    <!-- SYSTEM CONFIRM MODAL FOR BIEN BAN -->
 <div id="sys-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
