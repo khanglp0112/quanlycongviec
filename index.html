@@ -753,7 +753,32 @@ function closeSystemConfirm() {
     box.classList.add('scale-95');
     modalConfirmCallback = null;
 }
+function showSystemSuccess(title, desc) {
+    const modal = document.getElementById('sys-success-modal');
+    const box = document.getElementById('sys-success-box');
+    
+    document.getElementById('sys-success-title').innerText = title;
+    document.getElementById('sys-success-desc').innerText = desc;
+    
+    modal.classList.remove('invisible', 'opacity-0');
+    box.classList.remove('scale-95');
+    box.classList.add('scale-100');
+}
 
+function closeSystemSuccess() {
+    const modal = document.getElementById('sys-success-modal');
+    const box = document.getElementById('sys-success-box');
+    
+    modal.classList.add('invisible', 'opacity-0');
+    box.classList.remove('scale-100');
+    box.classList.add('scale-95');
+}
+
+// Bắt sự kiện click nút đóng cho hộp thoại thành công
+document.addEventListener("DOMContentLoaded", () => {
+    const btnSuccessClose = document.getElementById('btn-success-close');
+    if (btnSuccessClose) btnSuccessClose.addEventListener('click', closeSystemSuccess);
+});
 // Lắng nghe sự kiện click từ các nút bấm trong hộp thoại
 document.addEventListener("DOMContentLoaded", () => {
     const btnCancel = document.getElementById('btn-modal-cancel');
@@ -2630,22 +2655,22 @@ const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
         };
 
         try {
-            if (id) {
-                // Trường hợp đang Sửa đổi một biên bản sẵn có
-                await db.collection("BienBanHop").doc(id).update(dataBB);
-                alert("Cập nhật biên bản họp tổ thành công!");
-            } else {
-                // Trường hợp Thêm mới một biên bản họp
-                const docRef = await db.collection("BienBanHop").add(dataBB);
-                document.getElementById('inp-bb-id').value = docRef.id;
-                alert("Lưu trữ biên bản họp tổ lên đám mây thành công!");
-            }
-            // Làm tươi (Refresh) lại bảng lịch sử tra cứu phía dưới chân trang
-            renderBBLichSuTable();
-        } catch (error) {
-            console.error("Lỗi Firebase Firestore: ", error);
-            alert("Đã xảy ra sự cố kết nối dữ liệu: " + error.message);
+        if (id) {
+            await db.collection("BienBanHop").doc(id).update(dataBB);
+            // THAY THẾ ALERT BẰNG HỘP THOẠI HOÀN HẢO MỚI
+            showSystemSuccess("Cập nhật thành công", "Hệ thống đã ghi nhận toàn bộ chỉnh sửa và cập nhật lại biên bản họp tổ trên dữ liệu đám mây.");
+        } else {
+            const docRef = await db.collection("BienBanHop").add(dataBB);
+            document.getElementById('inp-bb-id').value = docRef.id;
+            // THAY THẾ ALERT BẰNG HỘP THOẠI HOÀN HẢO MỚI
+            showSystemSuccess("Lưu trữ thành công", "Biên bản họp tổ Toán - Tin đã được đóng gói và đồng bộ an toàn lên hệ thống cơ sở dữ liệu Firebase.");
         }
+        
+        if (typeof renderBBLichSuTable === "function") renderBBLichSuTable();
+    } catch (error) {
+        console.error("Lỗi Firebase Firestore: ", error);
+        alert("Đã xảy ra sự cố kết nối dữ liệu: " + error.message);
+    }
     }
 
     // Hàm 4.2: Lấy dữ liệu từ Cloud Firebase về vẽ lên bảng lịch sử tra cứu
@@ -3498,6 +3523,20 @@ function drawLinksTable() {
         <div class="px-6 py-3 bg-slate-50 flex justify-end gap-2 border-t border-slate-100">
             <button id="btn-modal-cancel" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors">Hủy bỏ</button>
             <button id="btn-modal-confirm" class="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-600/20 transition-colors">Đồng ý xóa</button>
+        </div>
+    </div>
+</div>
+   <div id="sys-success-modal" class="fixed inset-0 z-50 flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300" id="sys-success-box">
+        <div class="px-6 py-8 flex flex-col items-center text-center">
+            <div class="p-3 bg-emerald-100 text-emerald-600 rounded-full mb-4 animate-bounce">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-2" id="sys-success-title">Thành công!</h3>
+            <p class="text-sm text-slate-500 leading-relaxed px-2" id="sys-success-desc">Dữ liệu biên bản họp tổ đã được đồng bộ an toàn lên đám mây Firebase.</p>
+            <button id="btn-success-close" class="mt-6 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-colors">Tuyệt vời</button>
         </div>
     </div>
 </div>
