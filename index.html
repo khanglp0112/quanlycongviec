@@ -753,12 +753,7 @@ function closeSystemConfirm() {
     box.classList.add('scale-95');
     modalConfirmCallback = null;
 }
-// ====================================================================
-// CẬP NHẬT: HÀM ĐIỀU KHIỂN HOẠT ẢNH MƯỢT MÀ CHO HỘP THOẠI THÀNH CÔNG
-// ====================================================================
-// ====================================================================
-// ĐỒNG BỘ TUYỆT ĐỐI: CƠ CHẾ HOẠT ẢNH Y HỆT HỘP THOẠI XÓA BIÊN BẢN
-// ====================================================================
+
 function showSystemSuccess(title, desc) {
     const modal = document.getElementById('sys-success-modal');
     const box = document.getElementById('sys-success-box');
@@ -781,15 +776,12 @@ function closeSystemSuccess() {
     box.classList.remove('scale-100');
     box.classList.add('scale-95');
 }
-   // ====================================================================
-// BỘ KIỂM SOÁT BẢO VỆ BIÊN BẢN CHƯA LƯU (FORM GUARD INTERCEPTOR)
-// ====================================================================
 let guardNavigationTarget = null; // Lưu hành động kế tiếp cần thực hiện nếu thoát
 let bypassFormGuard = false;       // Cờ hiệu cho phép bỏ qua bộ chặn để chuyển tab
 
 // Hàm kiểm tra xem biểu mẫu biên bản họp tổ có đang gõ dở hay không
 function isFormDirty() {
-    // Nếu cờ bỏ qua đang bật, cho phép đi thẳng, không chặn
+    // Nếu cờ bỏ qua đang bật, cho phép đi thẳng dứt khoát, không chặn
     if (bypassFormGuard) return false;
 
     const editor = document.getElementById('editor-bb-noidung');
@@ -829,46 +821,38 @@ function closeFormGuardModal() {
     }
     guardNavigationTarget = null;
 }
-// ====================================================================
-// VÁ LỖI CHE KHUẤT UI: ÉP TRIỆT TIÊU HIỂN THỊ ĐỂ GIẢI PHÓNG MÀN HÌNH CHỦ
-// ====================================================================
+
+// Xử lý luồng đồng bộ dứt khoát khi bấm nút "Rời đi & Bỏ qua"
 document.addEventListener("DOMContentLoaded", () => {
     const confirmBtn = document.getElementById('sys-guard-confirm-btn');
     if (confirmBtn) {
         confirmBtn.addEventListener('click', () => {
-            const editor = document.getElementById('editor-bb-noidung');
             const bbView = document.getElementById('bien-ban-view');
             
-            // 1. Ép cờ an toàn vào thuộc tính để vượt qua bộ chặn check dirty
-            if (editor) editor.setAttribute('data-saved', 'true'); 
-            
-            // 2. SỬA LỖI CHE KHUẤT: Ép display none cứng bằng style để xóa sổ màn hình trắng
-            if (bbView) {
-                bbView.classList.add('hidden');
-                bbView.style.display = 'none'; // Triệt tiêu vùng nền trắng đè hiển thị hụt
-            }
-            
-            // 3. Tắt hộp thoại cảnh báo Form Guard
+            // 1. Tắt ngay hộp thoại cảnh báo Form Guard
             closeFormGuardModal();
 
-            // 4. Luồng xử lý kích hoạt chu kỳ kép Toggle dứt khoát của thầy
+            // 2. Kích hoạt luồng chuyển tab đích an toàn thông qua biến cờ hiệu
             if (typeof guardNavigationTarget === 'function') {
+                // Kích hoạt cờ cho phép đi thẳng qua hàm check dirty
+                bypassFormGuard = true; 
+                
+                // Ẩn hẳn phân hệ biên bản để dọn dẹp sạch giao diện nền đè
+                if (bbView) {
+                    bbView.classList.add('hidden');
+                    bbView.style.display = 'none';
+                }
+                
+                // Thực thi duy nhất 1 lần hàm toggle mục tiêu để tải dữ liệu Firebase gốc
                 guardNavigationTarget(); 
-                setTimeout(() => {
-                    guardNavigationTarget(); 
-                }, 10);
+                
+                // Đóng cờ trả về trạng thái bảo vệ nghiêm ngặt ban đầu
+                bypassFormGuard = false; 
             }
             
             if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     }
-
-    // Giữ nguyên vẹn đoạn lắng nghe input thay đổi chữ phía dưới của thầy
-    const editor = document.getElementById('editor-bb-noidung');
-    if (editor) {
-        editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
-    }
-});
 async function openQuickView(id) {
     const panel = document.getElementById('sys-quickview-panel');
     const box = document.getElementById('sys-quickview-box');
