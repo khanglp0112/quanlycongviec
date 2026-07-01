@@ -205,6 +205,10 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
         <input type="hidden" id="inp-bb-id" value="">
         <div class="flex flex-col">
+            <label class="text-xs font-bold text-slate-600 mb-1">Số Biên bản / Quyết định *</label>
+            <input type="text" id="inp-bb-so" placeholder="Ví dụ: 01" class="px-3 py-2 rounded-lg text-sm border border-slate-300 bg-white outline-none focus:border-orange-500">
+        </div>
+        <div class="flex flex-col">
             <label class="text-xs font-bold text-slate-600 mb-1">Họp lần thứ mấy trong tháng? *</label>
             <input type="number" id="inp-bb-lan" min="1" max="5" value="1" class="px-3 py-2 rounded-lg text-sm border border-slate-300 bg-white outline-none focus:border-orange-500">
         </div>
@@ -2549,7 +2553,7 @@ function toggleBienBan() {
         const thuKy = document.getElementById('sel-bb-thuky').value;
 
         // Bẫy lỗi kiểm tra điều kiện nhập bắt buộc
-        if (!ngayHop || !diaDiem || !chuTri || !thuKy) {
+        if (!soBB || !ngayHop || !diaDiem || !chuTri || !thuKy) {
             alert("Thầy vui lòng điền đầy đủ các thông tin bắt buộc: Số biên bản, Ngày họp, Địa điểm, Chủ trì và Thư ký.");
             return;
         }
@@ -2576,6 +2580,7 @@ const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
         const tieuDeHienThi = `Biên bản họp Tổ lần ${lanHop} - Tháng ${parts[1]}/${parts[0]}`;
 
         const dataBB = {
+            soBB: soBB,
             lanHop: parseInt(lanHop) || 1,
             ngayHop: ngayHop,
             diaDiem: diaDiem,
@@ -2671,6 +2676,7 @@ const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
             
             // 1. Điền các ô hành chính căn bản
             document.getElementById('inp-bb-id').value = id;
+            document.getElementById('inp-bb-so').value = data.soBB || "";
             document.getElementById('inp-bb-lan').value = data.lanHop || 1;
             document.getElementById('inp-bb-ngay').value = data.ngayHop || "";
             document.getElementById('inp-bb-diadiem').value = data.diaDiem || "";
@@ -2811,6 +2817,7 @@ const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
         const PHOI_URL = "https://raw.githubusercontent.com/khanglp0112/quanlycongviec/main/File_mau_BBHT.docx?v=" + Date.now();
 
         // 2. Thu thập dữ liệu chữ hiện có từ form nhập liệu trên giao diện web
+        const soBB = document.getElementById('inp-bb-so').value.trim() || "……";
         const lanHop = document.getElementById('inp-bb-lan').value.trim() || "…";
         const ngayHopVal = document.getElementById('inp-bb-ngay').value;
         const diaDiem = document.getElementById('inp-bb-diadiem').value.trim() || "………………";
