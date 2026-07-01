@@ -835,29 +835,62 @@ function closeFormGuardModal() {
     guardNavigationTarget = null;
 }
 
-// Xử lý sự kiện khi người dùng chấp nhận "Rời đi & Bỏ qua"
+// ====================================================================
+// VÁ LỖI CHÍNH XÁC: ĐIỀU HƯỚNG THEO NHÃN CHỮ CỨNG - ĐỒNG BỘ DATABASE 100%
+// ====================================================================
 document.addEventListener("DOMContentLoaded", () => {
     const confirmBtn = document.getElementById('sys-guard-confirm-btn');
     if (confirmBtn) {
         confirmBtn.addEventListener('click', () => {
-            // 1. Tắt hộp thoại cảnh báo trước
-            closeFormGuardModal();
+            const bbView = document.getElementById('bien-ban-view');
             
-            // 2. Kích hoạt hành động chuyển tab đích dứt khoát
-            if (typeof guardNavigationTarget === 'function') {
-                // Bật cờ cho phép đi qua bộ chặn
-                bypassFormGuard = true; 
-                
-                // Thực thi hàm chuyển tab gốc (Hệ thống tự dọn dẹp view cũ và nạp view mới)
-                guardNavigationTarget(); 
-                
-                // Tắt cờ trả về trạng thái bảo vệ ban đầu sau khi điều hướng xong
-                bypassFormGuard = false; 
+            // 1. Đóng hộp thoại cảnh báo Form Guard lập tức
+            closeFormGuardModal();
+
+            // 2. Thực hiện điều hướng cưỡng chế dứt khoát và nạp dữ liệu Firebase chuẩn
+            if (guardNavigationTarget) {
+                const board = document.getElementById('board-view');
+                const chamTiet = document.getElementById('cham-tiet-view');
+                const lkView = document.getElementById('lien-ket-view');
+                const timeline = document.getElementById('timeline-view');
+                const filterBar = document.getElementById('filter-bar');
+                const statsBar = document.getElementById('stats-bar');
+
+                // Ẩn sạch sẽ phân hệ biên bản hiện tại cùng toàn bộ các phân hệ khác để giải phóng RAM trình duyệt
+                if (bbView) bbView.classList.add('hidden');
+                if (board) board.classList.add('hidden');
+                if (chamTiet) chamTiet.classList.add('hidden');
+                if (lkView) lkView.classList.add('hidden');
+                if (timeline) timeline.classList.add('hidden');
+                if (filterBar) filterBar.classList.add('hidden');
+                if (statsBar) statsBar.classList.add('hidden');
+
+                // Mở bung tab mới và gọi lệnh nạp dữ liệu Firestore tương ứng
+                if (guardNavigationTarget === 'OPEN_CHAM_TIET' && chamTiet) {
+                    chamTiet.classList.remove('hidden');
+                    if (typeof renderChamTietTable === 'function') renderChamTietTable(); // Gọi đồng bộ bảng tiết dạy
+                } else if (guardNavigationTarget === 'OPEN_LIEN_KET' && lkView) {
+                    lkView.classList.remove('hidden');
+                    if (typeof renderLienKet === 'function') renderLienKet(); // Gọi đồng bộ bảng link
+                } else if (guardNavigationTarget === 'CLOSE_BIEN_BAN') {
+                    // Quay về màn hình Kanban mặc định
+                    if (board) board.classList.remove('hidden');
+                    if (filterBar) filterBar.classList.remove('hidden');
+                    if (statsBar) statsBar.classList.remove('hidden');
+                    if (typeof renderTasks === 'function') renderTasks();
+                }
             }
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     }
-});
 
+    // Đoạn code editor.addEventListener('input', ...) phía dưới của thầy giữ nguyên vẹn 100%
+    const editor = document.getElementById('editor-bb-noidung');
+    if (editor) {
+        editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
+    }
+});
 async function openQuickView(id) {
     const panel = document.getElementById('sys-quickview-panel');
     const box = document.getElementById('sys-quickview-box');
@@ -2451,7 +2484,7 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
 
 function toggleChamTiet() {
 if (isFormDirty()) {
-        triggerFormGuard(toggleChamTiet); 
+        triggerFormGuard('OPEN_CHAM_TIET'); 
         return;
     }
         const board = document.getElementById('board-view');
@@ -2484,7 +2517,7 @@ if (isFormDirty()) {
 // ====================================================================
 function toggleBienBan() {
 if (isFormDirty()) {
-    triggerFormGuard(toggleBienBan);
+    triggerFormGuard('CLOSE_BIEN_BAN');
     return;
 }
         const board = document.getElementById('board-view');
@@ -3326,7 +3359,7 @@ try {
 
 function toggleLienKet() {
 if (isFormDirty()) {
-    triggerFormGuard(toggleLienKet);
+    triggerFormGuard('OPEN_LIEN_KET');
     return;
 }
         const board = document.getElementById('board-view');
