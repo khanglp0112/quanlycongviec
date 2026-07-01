@@ -779,16 +779,13 @@ function closeSystemSuccess() {
 // ====================================================================
 // BỘ ĐIỀU KHIỂN BẢO VỆ BIÊN BẢN CHƯA LƯU AN TOÀN TUYỆT ĐỐI (FORM GUARD)
 // ====================================================================
-// ====================================================================
-// BỘ ĐIỀU KHIỂN BẢO VỆ BIÊN BẢN CHƯA LƯU AN TOÀN TUYỆT ĐỐI (FORM GUARD)
-// ====================================================================
-let guardNavigationTarget = null; // Lưu trữ đối tượng hàm mục tiêu kế tiếp
+let guardNavigationTarget = null; // Lưu hành động kế tiếp cần thực hiện nếu thoát
 
 function isFormDirty() {
     const editor = document.getElementById('editor-bb-noidung');
     const bbView = document.getElementById('bien-ban-view');
     
-    // Chỉ kích hoạt bộ chặn bảo vệ nếu phân hệ Biên bản đang mở và có chữ gõ dở
+    // Chỉ bẫy chặn nếu phân hệ Biên bản đang mở hiển thị và editor có chữ gõ dở
     if (bbView && !bbView.classList.contains('hidden') && editor) {
         const content = editor.innerHTML.trim();
         if (content !== "" && content !== "<p><br></p>" && content !== "<br>") {
@@ -801,7 +798,7 @@ function isFormDirty() {
 function triggerFormGuard(targetCallback) {
     const modal = document.getElementById('sys-guard-modal');
     const box = document.getElementById('sys-guard-box');
-    guardNavigationTarget = targetCallback; // Ghi nhớ trực tiếp đối tượng hàm gốc (Ví dụ: toggleChamTiet)
+    guardNavigationTarget = targetCallback; // Ghi nhớ hàm đích (Ví dụ: toggleChamTiet)
     
     if (modal && box) {
         modal.classList.remove('invisible', 'opacity-0');
@@ -822,35 +819,32 @@ function closeFormGuardModal() {
     guardNavigationTarget = null;
 }
 
-// Luồng xử lý điều hướng thông minh khi thầy cô bấm "Rời đi & Bỏ qua"
-const confirmBtnElement = document.getElementById('sys-guard-confirm-btn');
-if (confirmBtnElement) {
-    confirmBtnElement.onclick = () => {
-        const bbView = document.getElementById('bien-ban-view');
+// HÀM TOÀN CỤC MỚI: Kích hoạt trực tiếp từ HTML, giải quyết triệt để lỗi đơ nút và trắng trang
+function executeGuardConfirm() {
+    const bbView = document.getElementById('bien-ban-view');
+    const editor = document.getElementById('editor-bb-noidung');
+    
+    // 1. Tắt ngay hộp thoại cảnh báo Form Guard
+    closeFormGuardModal();
+
+    // 2. Ép ẩn dứt khoát phân hệ biên bản và lớp màn nền trắng để chống lỗi đè giao diện trắng trang
+    if (bbView) {
+        bbView.classList.add('hidden');
+        bbView.style.display = 'none';
+    }
+
+    // 3. THỰC THI ĐIỀU HƯỚNG: Gọi hàm toggle mục tiêu bằng tham chiếu gốc để nạp dữ liệu Firebase chuẩn
+    if (typeof guardNavigationTarget === 'function') {
+        // Tạm thời đánh lừa bộ check dirty bằng cách cấy cờ đã lưu
+        if (editor) editor.setAttribute('data-saved', 'true');
         
-        // 1. Tắt ngay hộp thoại cảnh báo Form Guard
-        closeFormGuardModal();
-
-        // 2. MẸO PHÒNG VỆ TRẮNG TRANG: Tạm thời đổi ID phân hệ để vượt qua hàm check dirty
-        if (bbView) {
-            bbView.id = 'bien-ban-view-temp-bypass';
-        }
-
-        // 3. THỰC THI CHUYỂN TAB: Gọi lại chính hàm toggle mục tiêu bằng tham chiếu gốc
-        if (typeof guardNavigationTarget === 'function') {
-            guardNavigationTarget(); 
-        }
-
-        // 4. HOÀN TRẢ TRẠNG THÁI: Trả lại ID chuẩn và ép đóng ẩn hẳn tab biên bản họp tổ
-        const bbViewTemp = document.getElementById('bien-ban-view-temp-bypass');
-        if (bbViewTemp) {
-            bbViewTemp.id = 'bien-ban-view';
-            bbViewTemp.classList.add('hidden'); 
-            bbViewTemp.style.display = 'none'; // Triệt tiêu lớp màn trắng đè
-        }
+        guardNavigationTarget(); 
         
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    };
+        // Trả lại trạng thái an toàn sau khi đã chuyển tab xong
+        if (editor) editor.removeAttribute('data-saved');
+    }
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 async function openQuickView(id) {
     const panel = document.getElementById('sys-quickview-panel');
@@ -3753,10 +3747,10 @@ function deleteLienKet(id) {
             <h3 class="text-base font-bold text-slate-800 mb-1">Dữ liệu chưa được lưu!</h3>
             <p class="text-xs text-slate-500 leading-relaxed">Nội dung biên bản đang soạn thảo chưa được đồng bộ lên Firebase. Thầy cô có chắc chắn muốn rời đi và chấp nhận hủy bỏ các thay đổi này không?</p>
         </div>
-        <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-2">
-            <button onclick="closeFormGuardModal()" class="flex-1 py-2 text-xs font-semibold text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl shadow-sm transition-all">Quay lại gõ tiếp</button>
-            <button id="sys-guard-confirm-btn" class="flex-1 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md shadow-amber-500/10 transition-all">Rời đi & Bỏ qua</button>
-        </div>
+<div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex gap-2">
+    <button onclick="closeFormGuardModal()" class="flex-1 py-2 text-xs font-semibold text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl shadow-sm transition-all">Quay lại gõ tiếp</button>
+    <button id="sys-guard-confirm-btn" onclick="executeGuardConfirm()" class="flex-1 py-2 text-xs font-semibold text-white bg-amber-500 hover:bg-amber-600 rounded-xl shadow-md shadow-amber-500/10 transition-all">Rời đi & Bỏ qua</button>
+</div>
     </div>
 </div>
    <div id="sys-success-modal" class="fixed inset-0 z-50 flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
