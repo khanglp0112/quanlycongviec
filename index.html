@@ -2452,7 +2452,8 @@ function toggleChamTiet() {
         const filterBar = document.getElementById('filter-bar');
         const statsBar = document.getElementById('stats-bar');
         const emptyState = document.getElementById('empty-state');
-
+        const bbView = document.getElementById('bien-ban-view');
+ 
         if (chamTiet.classList.contains('hidden')) {
             if (board) board.classList.add('hidden');
             if (lkView) lkView.classList.add('hidden');
@@ -2460,7 +2461,8 @@ function toggleChamTiet() {
             if (filterBar) filterBar.classList.add('hidden');
             if (statsBar) statsBar.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
-            
+            if (bbView) bbView.classList.add('hidden');
+         
             chamTiet.classList.remove('hidden');
             renderChamTietTable();
         } else {
@@ -3330,7 +3332,8 @@ function toggleLienKet() {
         const filterBar = document.getElementById('filter-bar');
         const statsBar = document.getElementById('stats-bar');
         const emptyState = document.getElementById('empty-state');
-
+        const bbView = document.getElementById('bien-ban-view');
+ 
         if (!lkView) return;
         if (lkView.classList.contains('hidden')) {
             if (board) board.classList.add('hidden');
@@ -3339,7 +3342,8 @@ function toggleLienKet() {
             if (filterBar) filterBar.classList.add('hidden');
             if (statsBar) statsBar.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
-            
+            if (bbView) bbView.classList.add('hidden');
+         
             lkView.classList.remove('hidden');
             renderLienKet();
         } else {
