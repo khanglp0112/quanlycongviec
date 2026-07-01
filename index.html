@@ -822,6 +822,9 @@ function closeFormGuardModal() {
 }
 
 // Khi quyết định bỏ qua dữ liệu cũ để chuyển hướng tab hoặc đóng form
+// ====================================================================
+// CHUẨN HÓA SỬA LỖI NÚT RỜI ĐI: ĐIỀU HƯỚNG THEO TARGET ID CHUẨN 100%
+// ====================================================================
 document.addEventListener("DOMContentLoaded", () => {
     const confirmBtn = document.getElementById('sys-guard-confirm-btn');
     if (confirmBtn) {
@@ -829,18 +832,15 @@ document.addEventListener("DOMContentLoaded", () => {
             const editor = document.getElementById('editor-bb-noidung');
             const bbView = document.getElementById('bien-ban-view');
             
-            // 1. Ép cờ an toàn để vượt qua bộ lọc check dirty
+            // 1. Ép cờ an toàn để vượt qua bộ chặn check dirty
             if (editor) editor.setAttribute('data-saved', 'true'); 
             
-            // 2. Tắt hộp thoại cảnh báo ngay
+            // 2. Tắt hộp thoại cảnh báo ngay lập tức
             closeFormGuardModal();
 
-            // 3. Xử lý điều hướng dứt khoát, loại bỏ cơ chế Toggle đảo chiều gây trắng trang
+            // 3. Thực thi chuyển đổi giao diện dựa trên đích đến cụ thể
             if (guardNavigationTarget) {
-                // Định danh xem thầy cô đang muốn chuyển sang Tab nào dựa vào tên hàm chờ
-                const targetName = guardNavigationTarget.name;
-                
-                // Thu gom tất cả các phân hệ giao diện hiện có của thầy
+                // Thu gom tất cả các phân hệ giao diện của thầy để quản lý tập trung
                 const board = document.getElementById('board-view');
                 const chamTiet = document.getElementById('cham-tiet-view');
                 const lkView = document.getElementById('lien-ket-view');
@@ -848,7 +848,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const filterBar = document.getElementById('filter-bar');
                 const statsBar = document.getElementById('stats-bar');
 
-                // Ẩn sạch sẽ phân hệ biên bản và các khu vực liên quan
+                // Ẩn sạch sẽ phân hệ biên bản hiện tại cùng các thanh lọc phụ trợ
                 if (bbView) bbView.classList.add('hidden');
                 if (filterBar) filterBar.classList.add('hidden');
                 if (statsBar) statsBar.classList.add('hidden');
@@ -857,30 +857,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (lkView) lkView.classList.add('hidden');
                 if (timeline) timeline.classList.add('hidden');
 
-                // Ép hiển thị ĐÚNG VÀ DUY NHẤT phân hệ mục tiêu, không sợ bị toggle ngược
-                if (targetName === 'toggleChamTiet' && chamTiet) {
+                // Kiểm tra trực tiếp chuỗi text đích đến để kích hoạt phân hệ chính xác
+                if (guardNavigationTarget === 'CHAM_TIET' && chamTiet) {
                     chamTiet.classList.remove('hidden');
                     if (typeof renderChamTietTable === 'function') renderChamTietTable();
-                } else if (targetName === 'toggleLienKet' && lkView) {
+                } else if (guardNavigationTarget === 'LIEN_KET' && lkView) {
                     lkView.classList.remove('hidden');
                     if (typeof renderLienKet === 'function') renderLienKet();
-                } else if (targetName === 'toggleBienBan') {
-                    // Nếu bấm đóng/hủy biên bản, ép hệ thống quay về hiển thị bảng Kanban nền tảng
+                } else if (guardNavigationTarget === 'DONG_BIEN_BAN') {
+                    // Trường hợp bấm nút ĐÓNG trên form: Cho quay về bảng Kanban nền tảng công việc
                     if (board) board.classList.remove('hidden');
                     if (filterBar) filterBar.classList.remove('hidden');
                     if (statsBar) statsBar.classList.remove('hidden');
                     if (typeof renderTasks === 'function') renderTasks();
-                } else {
-                    // Phương án dự phòng chạy hàm gốc nếu không khớp định danh tên
+                } else if (typeof guardNavigationTarget === 'function') {
+                    // Dự phòng chạy hàm callback nếu có cấu trúc mở rộng khác
                     guardNavigationTarget();
                 }
             }
             
-            if(typeof lucide !== 'undefined') lucide.createIcons();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         });
     }
 
-    // Lắng nghe sự kiện gõ phím để tự động gỡ cờ an toàn khi có thay đổi mới
+    // Giữ nguyên đoạn lắng nghe sự kiện input đổi cờ cũ của thầy bên dưới
     const editor = document.getElementById('editor-bb-noidung');
     if (editor) {
         editor.addEventListener('input', () => { editor.removeAttribute('data-saved'); });
@@ -2479,10 +2479,10 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
     }
 
 function toggleChamTiet() {
- if (isFormDirty()) {
-        triggerFormGuard(() => { toggleChamTiet(); }); // Chạy lại chính hàm này khi bấm rời đi
-        return;
-    }
+if (isFormDirty()) {
+    triggerFormGuard('CHAM_TIET'); 
+    return;
+}
         const board = document.getElementById('board-view');
         const chamTiet = document.getElementById('cham-tiet-view');
         const lkView = document.getElementById('lien-ket-view');
@@ -2512,15 +2512,10 @@ function toggleChamTiet() {
     }
 // ====================================================================
 function toggleBienBan() {
- if (isFormDirty()) {
-        triggerFormGuard(() => { 
-            // Nội dung chạy tiếp nếu bấm Rời đi (Gỡ bỏ view biên bản để về Kanban)
-            const bbView = document.getElementById('bien-ban-view');
-            if (bbView) bbView.classList.add('hidden');
-            if (typeof renderTasks === 'function') renderTasks();
-        });
-        return; // Dừng chạy đoạn code phía dưới
-    }
+if (isFormDirty()) {
+    triggerFormGuard('DONG_BIEN_BAN');
+    return;
+}
         const board = document.getElementById('board-view');
         const lkView = document.getElementById('lien-ket-view');
         const ctView = document.getElementById('cham-tiet-view');
@@ -3359,10 +3354,10 @@ try {
     let dragStartIndex = -1;
 
 function toggleLienKet() {
- if (isFormDirty()) {
-        triggerFormGuard(() => { toggleLienKet(); }); // Chạy lại chính hàm này khi bấm rời đi
-        return;
-    }
+if (isFormDirty()) {
+    triggerFormGuard('LIEN_KET');
+    return;
+}
         const board = document.getElementById('board-view');
         const lkView = document.getElementById('lien-ket-view');
         const ctView = document.getElementById('cham-tiet-view');
