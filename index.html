@@ -779,13 +779,13 @@ function closeSystemSuccess() {
 // ====================================================================
 // BỘ ĐIỀU KHIỂN BẢO VỆ BIÊN BẢN CHƯA LƯU AN TOÀN TUYỆT ĐỐI (FORM GUARD)
 // ====================================================================
-let guardNavigationTarget = null; // Lưu hành động kế tiếp cần thực hiện nếu thoát
+let guardNavigationTarget = null; // Ghi nhớ đối tượng hàm đích cần chuyển đến
 
 function isFormDirty() {
     const editor = document.getElementById('editor-bb-noidung');
     const bbView = document.getElementById('bien-ban-view');
     
-    // Chỉ bẫy chặn nếu phân hệ Biên bản đang mở hiển thị và editor có chữ gõ dở
+    // Chỉ kích hoạt bộ chặn nếu phân hệ Biên bản đang hiển thị và có dữ liệu gõ dở
     if (bbView && !bbView.classList.contains('hidden') && editor) {
         const content = editor.innerHTML.trim();
         if (content !== "" && content !== "<p><br></p>" && content !== "<br>") {
@@ -798,7 +798,7 @@ function isFormDirty() {
 function triggerFormGuard(targetCallback) {
     const modal = document.getElementById('sys-guard-modal');
     const box = document.getElementById('sys-guard-box');
-    guardNavigationTarget = targetCallback; // Ghi nhớ hàm đích (Ví dụ: toggleChamTiet)
+    guardNavigationTarget = targetCallback; // Ghi nhớ trực tiếp đối tượng hàm (Ví dụ: toggleChamTiet)
     
     if (modal && box) {
         modal.classList.remove('invisible', 'opacity-0');
@@ -819,29 +819,47 @@ function closeFormGuardModal() {
     guardNavigationTarget = null;
 }
 
-// HÀM TOÀN CỤC MỚI: Kích hoạt trực tiếp từ HTML, giải quyết triệt để lỗi đơ nút và trắng trang
+// HÀM TOÀN CỤC MỚI: Bẻ gãy chu kỳ toggle lệch pha, giải phóng không gian hiển thị dứt khoát
 function executeGuardConfirm() {
+    const board = document.getElementById('board-view');
+    const chamTiet = document.getElementById('cham-tiet-view');
+    const lkView = document.getElementById('lien-ket-view');
+    const timeline = document.getElementById('timeline-view');
+    const filterBar = document.getElementById('filter-bar');
+    const statsBar = document.getElementById('stats-bar');
+    const emptyState = document.getElementById('empty-state');
     const bbView = document.getElementById('bien-ban-view');
-    const editor = document.getElementById('editor-bb-noidung');
-    
+
     // 1. Tắt ngay hộp thoại cảnh báo Form Guard
     closeFormGuardModal();
 
-    // 2. Ép ẩn dứt khoát phân hệ biên bản và lớp màn nền trắng để chống lỗi đè giao diện trắng trang
+    // 2. ÉP ẨN TRIỆT ĐỂ: Thu dọn sạch sẽ phân hệ biên bản cũ cùng tấm nền trắng che khuất
     if (bbView) {
         bbView.classList.add('hidden');
-        bbView.style.display = 'none';
+        bbView.style.display = 'none'; 
     }
+    if (board) board.classList.add('hidden');
+    if (chamTiet) chamTiet.classList.add('hidden');
+    if (lkView) lkView.classList.add('hidden');
+    if (timeline) timeline.classList.add('hidden');
+    if (filterBar) filterBar.classList.add('hidden');
+    if (statsBar) statsBar.classList.add('hidden');
+    if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
 
-    // 3. THỰC THI ĐIỀU HƯỚNG: Gọi hàm toggle mục tiêu bằng tham chiếu gốc để nạp dữ liệu Firebase chuẩn
-    if (typeof guardNavigationTarget === 'function') {
-        // Tạm thời đánh lừa bộ check dirty bằng cách cấy cờ đã lưu
-        if (editor) editor.setAttribute('data-saved', 'true');
-        
-        guardNavigationTarget(); 
-        
-        // Trả lại trạng thái an toàn sau khi đã chuyển tab xong
-        if (editor) editor.removeAttribute('data-saved');
+    // 3. ĐIỀU HƯỚNG CƯỠNG CHẾ: So sánh đối tượng hàm để mở bung tab mới & nạp database chuẩn xác
+    if (guardNavigationTarget === toggleChamTiet && chamTiet) {
+        chamTiet.classList.remove('hidden');
+        if (typeof renderChamTietTable === 'function') renderChamTietTable(); // Nạp dữ liệu tiết dạy từ Firebase
+    } 
+    else if (guardNavigationTarget === toggleLienKet && lkView) {
+        lkView.classList.remove('hidden');
+        if (typeof renderLienKet === 'function') renderLienKet(); // Nạp danh mục link từ Firebase
+    } 
+    else if (guardNavigationTarget === toggleBienBan) {
+        // Trường hợp bấm nút Đóng/Hủy trên form: Khôi phục thanh lọc và bảng làm việc Kanban nền tảng
+        if (filterBar) filterBar.classList.remove('hidden');
+        if (statsBar) statsBar.classList.remove('hidden');
+        if (typeof renderTasks === 'function') renderTasks();
     }
     
     if (typeof lucide !== 'undefined') lucide.createIcons();
