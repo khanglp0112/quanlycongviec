@@ -784,96 +784,94 @@ function closeSystemSuccess() {
 // ====================================================================
 // BỘ ĐIỀU KHIỂN HOẠT ẢNH MÔ PHỎNG 100% MODAL XEM CHI TIẾT KANBAN
 // ====================================================================
+// ====================================================================
+// BỘ ĐIỀU KHIỂN ĐỔ KHUÔN VĂN BẢN TRANG GIẤY A4 PDF PREVIEW SẠCH ĐẸP
+// ====================================================================
 async function openQuickView(id) {
     const panel = document.getElementById('sys-quickview-panel');
     const box = document.getElementById('sys-quickview-box');
     const content = document.getElementById('sys-quickview-content');
     
-    content.innerHTML = '<div class="text-center py-12 text-slate-400 italic">⏳ Đang đọc dữ liệu biên bản họp tổ...</div>';
+    content.innerHTML = '<div class="text-center py-24 text-slate-400 italic font-sans text-sm">⏳ Đang nạp phôi văn bản từ dữ liệu đám mây...</div>';
     
-    // Bật hiển thị màng nền mờ và kích hoạt hiệu ứng nảy lên ở trung tâm màn hình
+    // Hiện lớp màng và nảy nhẹ khung xám lên
     panel.classList.remove('invisible', 'opacity-0');
     box.classList.remove('scale-95');
     box.classList.add('scale-100');
 
     try {
         const doc = await db.collection("BienBanHop").doc(id).get();
-        if (!doc.exists) { content.innerHTML = '<div class="text-center py-12 text-red-500 font-medium">⚠️ Dữ liệu không tồn tại trên hệ thống.</div>'; return; }
+        if (!doc.exists) { content.innerHTML = '<div class="text-center py-24 text-red-500 font-sans font-medium">⚠️ Tài liệu không tồn tại.</div>'; return; }
         
         const data = doc.data();
-        let dateDisplay = "-";
-        if (data.ngayHop) { const p = data.ngayHop.split('-'); dateDisplay = `${p[2]}/${p[1]}/${p[0]}`; }
+        let dateDisplay = "……/……/2026";
+        if (data.ngayHop) { const p = data.ngayHop.split('-'); dateDisplay = `ngày ${p[2]} tháng ${p[1]} năm ${p[0]}`; }
 
-        // Layout chia cột thông minh tự động co giãn y hệt cấu trúc hàm showTaskDetail của thầy
+        // Đổ khuôn chữ font-serif như văn bản in ấn thực tế
         content.innerHTML = `
-            <div class="flex flex-col md:flex-row gap-8 mt-2">
-                <div class="flex-1 space-y-6 min-w-0">
-                    <div>
-                        <span class="text-xs font-bold text-slate-400 flex items-center gap-1.5 mb-2 uppercase tracking-wider">
-                            <i data-lucide="file-text" class="w-4 h-4"></i> Tiêu đề phiên họp hành chính
-                        </span>
-                        <h1 class="text-xl font-bold text-slate-800 font-display leading-tight">${escHtml(data.tieuDe)}</h1>
-                        <p class="text-xs text-slate-400 mt-1">Mã định danh dữ liệu đám mây: <span class="font-mono bg-slate-50 px-1 py-0.5 rounded text-slate-500">${id}</span></p>
-                    </div>
-
-                    <div>
-                        <span class="text-xs font-bold text-slate-400 flex items-center gap-1.5 mb-2 uppercase tracking-wider">
-                            <i data-lucide="message-square" class="w-4 h-4"></i> Nội dung cuộc họp tổ chi tiết
-                        </span>
-                        <div class="text-sm text-slate-700 leading-relaxed border border-slate-200 rounded-xl p-4 bg-white shadow-sm scrollbar-thin" style="word-break: break-word;">
-                            ${data.noiDung || '<span class="text-slate-400 italic">Nội dung trống.</span>'}
-                        </div>
-                    </div>
+            <div class="flex justify-between items-start text-center text-xs font-sans font-bold text-slate-700 mb-8 border-b border-slate-100 pb-4">
+                <div>
+                    <p class="uppercase">HỆ THỐNG GIÁO DỤC IGC</p>
+                    <p class="uppercase underline underline-offset-4">TRƯỜNG THCS - THPT IGC TÂY NINH</p>
                 </div>
+                <div>
+                    <p class="uppercase">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                    <p class="underline underline-offset-4">Độc lập - Tự do - Hạnh phúc</p>
+                </div>
+            </div>
 
-                <div class="w-full md:w-[280px] shrink-0 space-y-4">
-                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
-                        <div>
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Thời gian & Địa điểm</span>
-                            <span class="text-xs font-semibold text-slate-700 flex items-start gap-2 leading-relaxed">
-                                <i data-lucide="calendar" class="w-4 h-4 text-blue-600 shrink-0 mt-0.5"></i>
-                                <span>Ngày họp: ${dateDisplay}<br>Thời gian: ${data.gioBD || '…'} - ${data.gioKT || '…'}</span>
-                            </span>
-                            <span class="text-xs font-semibold text-slate-700 flex items-start gap-2 leading-relaxed mt-2">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-orange-600 shrink-0 mt-0.5"></i>
-                                <span>${escHtml(data.diaDiem)}</span>
-                            </span>
-                        </div>
+            <div class="text-center my-6 font-sans">
+                <h1 class="text-lg font-bold text-slate-900 uppercase tracking-tight">${escHtml(data.tieuDe)}</h1>
+                <p class="text-xs italic text-slate-500 mt-1">Tây Ninh, ${dateDisplay}</p>
+            </div>
 
-                        <div>
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Ban ban hành văn bản</span>
-                            <span class="text-xs font-semibold text-slate-700 flex items-center gap-2">
-                                <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i> Chủ trì: ${escHtml(data.chuTri)}
-                            </span>
-                            <span class="text-xs font-semibold text-slate-700 flex items-center gap-2 mt-1.5">
-                                <i data-lucide="pen-tool" class="w-4 h-4 text-purple-600"></i> Thư ký: ${escHtml(data.thuKy)}
-                            </span>
-                        </div>
+            <div class="text-sm space-y-1.5 mb-6">
+                <p><b>1. Thời gian bắt đầu:</b> ${data.gioBD || '……h……'} - <b>Kết thúc:</b> ${data.gioKT || '……h……'}</p>
+                <p><b>2. Địa điểm họp tổ:</b> ${escHtml(data.diaDiem)}</p>
+                <p><b>3. Chủ trì cuộc họp:</b> ${escHtml(data.chuTri)} | <b>Thư ký ghi chép:</b> ${escHtml(data.thuKy)}</p>
+            </div>
 
-                        <div>
-                            <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">👥 Thành phần dự họp (${data.thanhPhan ? data.thanhPhan.length : 0} GV)</span>
-                            <div class="text-[11px] text-slate-600 max-h-[160px] overflow-y-auto scrollbar-thin space-y-1 bg-white border border-slate-200 p-2.5 rounded-xl">
-                                ${data.thanhPhan && data.thanhPhan.length > 0 
-                                    ? data.thanhPhan.map((gv, i) => `<div class="truncate border-b border-slate-50 pb-1 last:border-0"><b>${i+1}. ${escHtml(gv.hoTen)}</b><br><span class="text-slate-400 text-[10px]">${escHtml(gv.chucVu)} ${gv.ghiChu ? `(${escHtml(gv.ghiChu)})` : ''}</span></div>`).join('')
-                                    : '<div class="text-slate-400 italic">Trống.</div>'}
-                            </div>
-                        </div>
-                    </div>
+            <div class="text-sm mb-6">
+                <p class="font-bold mb-1">II. THÀNH PHẦN THAM DỰ CUỘC HỌP:</p>
+                <div class="pl-4 space-y-1 text-slate-700">
+                    ${data.thanhPhan && data.thanhPhan.length > 0 
+                        ? data.thanhPhan.map((gv, i) => `<p>${i+1}. Ông/Bà: <b>${escHtml(gv.hoTen)}</b> - Chức vụ: ${escHtml(gv.chucVu)} ${gv.ghiChu ? `<i>(${escHtml(gv.ghiChu)})</i>` : ''}</p>`).join('')
+                        : '<p class="italic text-slate-400">Không ghi nhận danh sách.</p>'}
+                </div>
+            </div>
+
+            <div class="text-sm mb-12">
+                <p class="font-bold mb-2">III. NỘI DUNG CHI TIẾT PHIÊN HỌP TỔ CHUYÊN MÔN:</p>
+                <div class="pl-4 text-slate-800 leading-relaxed space-y-2 rich-text-preview" style="word-break: break-word;">
+                    ${data.noiDung || '<p class="slate-400 italic">Nội dung trống.</p>'}
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 text-center text-sm font-sans mt-12 pt-6 border-t border-slate-100">
+                <div>
+                    <p class="font-bold uppercase">THƯ KÝ PHIÊN HỌP</p>
+                    <p class="text-xs text-slate-400 italic mt-0.5">(Ký và ghi rõ họ tên)</p>
+                    <p class="mt-16 font-bold text-slate-700">${escHtml(data.thuKy)}</p>
+                </div>
+                <div>
+                    <p class="font-bold uppercase">CHỦ TRÌ CUỘC HỌP</p>
+                    <p class="text-xs text-slate-400 italic mt-0.5">(Ký và ghi rõ họ tên)</p>
+                    <p class="mt-16 font-bold text-slate-700">${escHtml(data.chuTri)}</p>
                 </div>
             </div>
         `;
         if (typeof lucide !== 'undefined') lucide.createIcons();
     } catch (error) {
-        content.innerHTML = `<div class="text-center py-12 text-red-500 font-medium">⚠️ Lỗi kết nối đám mây: ${error.message}</div>`;
+        content.innerHTML = `<div class="text-center py-24 text-red-500 font-sans font-medium">⚠️ Lỗi đồng bộ đám mây: ${error.message}</div>`;
     }
 }
 
+// SỬA LỖI: Thêm classList đầy đủ để ẩn hộp thoại chuẩn xác khi click nút x
 function closeQuickView() {
     const panel = document.getElementById('sys-quickview-panel');
     const box = document.getElementById('sys-quickview-box');
     
-    // Đóng đồng bộ hiệu ứng mờ dần và thu nhỏ về tâm
-    panel.add('invisible', 'opacity-0');
+    panel.classList.add('invisible', 'opacity-0');
     box.classList.remove('scale-100');
     box.classList.add('scale-95');
 }
@@ -3677,18 +3675,23 @@ function deleteLienKet(id) {
         </div>
     </div>
 </div>
-<div id="sys-quickview-panel" class="fixed inset-0 z-[120] flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
-    <div id="sys-quickview-box" class="modal-backdrop bg-white w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-thin flex flex-col shadow-2xl border border-slate-100 transform scale-95 transition-all duration-300">
-        <div class="flex items-center justify-between mb-4 shrink-0 border-b border-slate-100 pb-3">
-            <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2" id="sys-quickview-title-header">
-                <i data-lucide="eye" class="text-blue-600 w-5 h-5"></i> Chi tiết biên bản họp tổ
+<div id="sys-quickview-panel" class="fixed inset-0 z-[120] flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/50 p-4">
+    <div id="sys-quickview-box" class="bg-slate-100 w-full max-w-4xl rounded-2xl h-[90vh] flex flex-col shadow-2xl border border-slate-200 transform scale-95 transition-all duration-300 overflow-hidden">
+        
+        <div class="px-6 py-3.5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
+            <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2 tracking-wide">
+                <i data-lucide="file-text" class="text-blue-600 w-4 h-4"></i> XEM TRƯỚC VĂN BẢN (PDF PREVIEW)
             </h2>
-            <button onclick="closeQuickView()" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
+            <button onclick="closeQuickView()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
-        <div id="sys-quickview-content" class="space-y-4 min-h-0 flex-1">
-            </div>
+
+        <div class="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-200 flex justify-center scrollbar-thin min-h-0">
+            <div id="sys-quickview-content" class="bg-white w-full max-w-[210mm] min-h-[297mm] shadow-[0_10px_30px_rgba(0,0,0,0.15)] rounded-sm p-8 sm:p-12 text-slate-800 font-serif leading-relaxed relative border border-slate-300">
+                </div>
+        </div>
+
     </div>
 </div>
  </body>
