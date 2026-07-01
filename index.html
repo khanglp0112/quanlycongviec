@@ -725,6 +725,47 @@
         DANH_SACH_GIAO_VIEN_FULL = DANH_SACH_GIAO_VIEN_FULL.filter(gv => gv.id !== idGiaoVien);
         localStorage.setItem('DanhSachGiaoVienFull', JSON.stringify(DANH_SACH_GIAO_VIEN_FULL));
     }
+   // ====================================================================
+// BƯỚC 2: BỘ NÃO ĐIỀU KHIỂN HỘP THOẠI XÁC NHẬN TÙY BIẾN
+// ====================================================================
+let modalConfirmCallback = null;
+
+function showSystemConfirm(title, desc, onConfirm) {
+    const modal = document.getElementById('sys-confirm-modal');
+    const box = document.getElementById('sys-modal-box');
+    
+    document.getElementById('sys-modal-title').innerText = title;
+    document.getElementById('sys-modal-desc').innerText = desc;
+    
+    modalConfirmCallback = onConfirm;
+    
+    modal.classList.remove('invisible', 'opacity-0');
+    box.classList.remove('scale-95');
+    box.classList.add('scale-100');
+}
+
+function closeSystemConfirm() {
+    const modal = document.getElementById('sys-confirm-modal');
+    const box = document.getElementById('sys-modal-box');
+    
+    modal.classList.add('invisible', 'opacity-0');
+    box.classList.remove('scale-100');
+    box.classList.add('scale-95');
+    modalConfirmCallback = null;
+}
+
+// Lắng nghe sự kiện click từ các nút bấm trong hộp thoại
+document.addEventListener("DOMContentLoaded", () => {
+    const btnCancel = document.getElementById('btn-modal-cancel');
+    const btnConfirm = document.getElementById('btn-modal-confirm');
+    if (btnCancel) btnCancel.addEventListener('click', closeSystemConfirm);
+    if (btnConfirm) {
+        btnConfirm.addEventListener('click', () => {
+            if (typeof modalConfirmCallback === 'function') modalConfirmCallback();
+            closeSystemConfirm();
+        });
+    }
+});
     let membersList = [];
     let membersData = [];
     const PRIORITY_MAP = { urgent_important: { label: 'Quan trọng & Khẩn cấp', color: '#ef4444' }, important: { label: 'Quan trọng nhưng Không khẩn', color: '#f59e0b' }, urgent: { label: 'Khẩn cấp nhưng Không quan trọng', color: '#38bdf8' }, delegable: { label: 'Không quan trọng & Không khẩn', color: '#64748b' } };
@@ -2726,29 +2767,33 @@ const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
     }
 
     // Hàm 4.4: Xóa vĩnh viễn một bản ghi biên bản họp cũ khỏi Cloud Firebase Firestore
-    async function deleteBienBan(id, tenBB) {
-        if (!confirm(`Thầy có chắc chắn muốn xóa vĩnh viễn dữ liệu đám mây của "${tenBB}" không?\nHành động này không thể khôi phục lại.`)) {
-            return;
-        }
-
-        try {
-            await db.collection("BienBanHop").doc(id).delete();
-            
-            // Nếu biên bản vừa xóa đang mở trên form nhập liệu, dọn sạch form luôn
-            const idHienTai = document.getElementById('inp-bb-id').value;
-            if (idHienTai === id) {
-                document.getElementById('inp-bb-id').value = "";
-                document.getElementById('editor-bb-noidung').innerHTML = "";
-                document.getElementById('tbody-bb-thanhphan').innerHTML = "";
-                renderBBThanhPhanTable();
+// ====================================================================
+// BƯỚC 3: HÀM XÓA BIÊN BẢN ĐÃ TÍCH HỢP HỘP THOẠI XÁC NHẬN CUSTOM
+// ====================================================================
+function deleteBienBan(id, tenBB) {
+    showSystemConfirm(
+        "Xóa biên bản họp tổ?", 
+        `Hệ thống sẽ gỡ bỏ vĩnh viễn dữ liệu của "${tenBB}" khỏi đám mây Firebase. Các thầy cô trong tổ Toán - Tin sẽ không thể tra cứu nội dung cuộc họp này nữa.`,
+        async () => {
+            try {
+                await db.collection("BienBanHop").doc(id).delete();
+                
+                // Nếu biên bản vừa xóa đang mở trên form, dọn sạch form luôn
+                if (document.getElementById('inp-bb-id').value === id) {
+                    document.getElementById('inp-bb-id').value = "";
+                    document.getElementById('editor-bb-noidung').innerHTML = "";
+                    document.getElementById('tbody-bb-thanhphan').innerHTML = "";
+                    if (typeof renderBBThanhPhanTable === "function") renderBBThanhPhanTable();
+                }
+                
+                // Làm tươi lại bảng lịch sử tra cứu
+                if (typeof renderBBLichSuTable === "function") renderBBLichSuTable();
+            } catch (error) {
+                alert("Gặp sự cố khi thực hiện lệnh xóa dữ liệu: " + error.message);
             }
-            
-            // Vẽ lại bảng lịch sử để cập nhật mất dòng vừa xóa
-            renderBBLichSuTable();
-        } catch (error) {
-            alert("Gặp sự cố khi thực hiện lệnh xóa dữ liệu: " + error.message);
         }
-    }
+    );
+}
    // ====================================================================
     // PHẦN 5: BỘ MÁY XUẤT FILE WORD TỰ ĐỘNG TỪ PHÔI GITHUB (DOCXTEMPLATER)
     // ====================================================================
@@ -3433,5 +3478,28 @@ function drawLinksTable() {
         try { await db.collection("CongViec").doc(ctxTaskId).update({ pinned: task.pinned }); } catch(err) { alert("Lỗi mạng!"); }
     }
   </script>
+   <!-- SYSTEM CONFIRM MODAL FOR BIEN BAN -->
+<div id="sys-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform scale-95 transition-all duration-300" id="sys-modal-box">
+        <!-- Header cảnh báo -->
+        <div class="bg-rose-50 px-6 py-4 border-b border-rose-100 flex items-center gap-3">
+            <div class="p-2 bg-rose-100 text-rose-600 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-4v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </div>
+            <h3 class="text-base font-bold text-slate-800" id="sys-modal-title">Xác nhận hành động</h3>
+        </div>
+        <!-- Nội dung thông báo -->
+        <div class="px-6 py-4">
+            <p class="text-sm text-slate-600 leading-relaxed" id="sys-modal-desc">Bạn có chắc chắn muốn thực hiện hành động xóa này không? Dữ liệu sẽ không thể khôi phục.</p>
+        </div>
+        <!-- Hàng nút bấm thao tác -->
+        <div class="px-6 py-3 bg-slate-50 flex justify-end gap-2 border-t border-slate-100">
+            <button id="btn-modal-cancel" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-200 rounded-xl transition-colors">Hủy bỏ</button>
+            <button id="btn-modal-confirm" class="px-4 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-md shadow-rose-600/20 transition-colors">Đồng ý xóa</button>
+        </div>
+    </div>
+</div>
  </body>
 </html>
