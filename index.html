@@ -827,9 +827,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (confirmBtn) {
         confirmBtn.addEventListener('click', () => {
             const editor = document.getElementById('editor-bb-noidung');
-            if (editor) editor.setAttribute('data-saved', 'true'); // Ép qua bộ lọc
+            const bbView = document.getElementById('bien-ban-view');
+            
+            // 1. Ép cờ đã lưu để vượt qua bộ chặn check dirty an toàn
+            if (editor) editor.setAttribute('data-saved', 'true'); 
+            
+            // 2. Ẩn ngay phân hệ biên bản để giải phóng màn hình trước khi gọi tab mới
+            if (bbView) bbView.classList.add('hidden');
+            
+            // 3. Đóng hộp thoại cảnh báo
             closeFormGuardModal();
-            if (typeof guardNavigationTarget === 'function') guardNavigationTarget();
+            
+            // 4. Kích hoạt lệnh điều hướng sang tab vừa chọn lập tức
+            if (typeof guardNavigationTarget === 'function') {
+                guardNavigationTarget();
+            }
         });
     }
 
@@ -840,15 +852,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// 💡 MẸO ĐỒNG BỘ: Thầy tìm hàm saveBienBan(), tại khối xử lý thành công (try {}) sau khi 
-// hiện showSystemSuccess, thầy gõ thêm dòng này để hệ thống biết đã lưu an toàn:
-// document.getElementById('editor-bb-noidung').setAttribute('data-saved', 'true');
-// ====================================================================
-// BỘ ĐIỀU KHIỂN HOẠT ẢNH MÔ PHỎNG 100% MODAL XEM CHI TIẾT KANBAN
-// ====================================================================
-// ====================================================================
-// BỘ ĐIỀU KHIỂN ĐỔ KHUÔN VĂN BẢN TRANG GIẤY A4 PDF PREVIEW SẠCH ĐẸP
-// ====================================================================
 async function openQuickView(id) {
     const panel = document.getElementById('sys-quickview-panel');
     const box = document.getElementById('sys-quickview-box');
