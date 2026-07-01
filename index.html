@@ -610,11 +610,11 @@
      </form>
     </div>
    </div>
-   <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
+  <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
     <div class="w-full max-w-md rounded-2xl p-6 modal-backdrop" style="background:#1e293b; border:1px solid #334155;">
      <div class="flex items-center justify-between mb-5">
       <h2 class="font-display text-lg font-bold" style="color:#f8fafc;">Quản lý thành viên</h2>
-      <button id="btn-members-close-custom" onclick="document.getElementById('members-modal').classList.add('hidden')" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-f8fafc"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <button type="button" onclick="document.getElementById('members-modal').classList.add('hidden')" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-f8fafc"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin"></div>
      <button type="button" onclick="openAddMember()" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors bg-amber-500 text-slate-900 hover:bg-amber-400"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
@@ -627,18 +627,18 @@
       <h2 class="font-display text-lg font-bold" style="color:#f8fafc;" id="edit-member-title">Sửa thành viên</h2>
       <button type="button" onclick="document.getElementById('edit-member-modal').classList.add('hidden')" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-f8fafc"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
-     <form id="member-form" class="space-y-4">
+     <div class="space-y-4">
       <div>
         <label for="inp-member-name" class="block text-xs font-medium mb-1.5" style="color:#94a3b8;">Tên thành viên</label> 
-        <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tên">
+        <input id="inp-member-name" type="text" class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#0f172a;color:#e2e8f0;border:1px solid #334155;" placeholder="Nhập tên">
       </div>
       <input type="hidden" id="inp-member-index" value="">
       <div id="member-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#7f1d1d;color:#fca5a5;"></div>
       <div class="flex gap-2">
         <button type="button" id="btn-member-delete" class="flex-1 py-2 rounded-lg text-sm font-medium" style="background:#7f1d1d;color:#fca5a5;display:none;">Xoá</button> 
-        <button type="submit" id="btn-member-save" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-amber-500 text-slate-900">Lưu</button>
+        <button type="button" id="btn-member-save" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-amber-500 text-slate-900">Lưu</button>
       </div>
-     </form>
+     </div>
     </div>
    </div>
    <div id="archive-modal" class="fixed inset-0 hidden items-center justify-center z-[60] transition-opacity" style="background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(5px);">
@@ -1478,59 +1478,69 @@ document.getElementById('btn-timeline').onclick = () => {
       }
     };
 
-    document.getElementById('member-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('inp-member-name').value.trim();
-      if (!name) return;
-      const memberId = document.getElementById('inp-member-index').value;
-      const errorEl = document.getElementById('member-form-error');
-      const btn = document.getElementById('btn-member-save');
-      const isDuplicate = membersData.some((m) => m.name.toLowerCase() === name.toLowerCase() && m.__backendId !== memberId);
-      if (isDuplicate) { errorEl.textContent = 'Tên thành viên đã tồn tại.'; errorEl.classList.remove('hidden'); return; }
-      
-      btn.disabled = true;
-      errorEl.classList.add('hidden');
-      
-      if (!memberId) {
-        const mauSac = COLORS[membersData.length % COLORS.length];
-        db.collection("ThanhVien").add({
-            Ten: name, ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then((docRef) => {
-            membersData.push({ __backendId: docRef.id, name: name, color: mauSac });
-            membersList.push({ name: name, color: mauSac });
-            renderMembersList(); populateMemberSelects();
-            document.getElementById("inp-member-name").value = "";
-            btn.textContent = "Lưu"; btn.disabled = false;
-            document.getElementById('edit-member-modal').classList.add('hidden');
-        })
-        .catch(error => { alert("Lỗi thêm: " + error.message); btn.disabled = false; });
-      } else {
-        const oldMember = membersData.find(m => m.__backendId === memberId);
-        const oldName = oldMember ? oldMember.name : null;
-        db.collection("ThanhVien").doc(memberId).update({ Ten: name })
-        .then(() => {
-            if (oldMember) oldMember.name = name;
-            membersList = membersData.map(x => ({ name: x.name, color: x.color }));
-            renderMembersList(); populateMemberSelects(); renderTasks();
-            document.getElementById("inp-member-name").value = "";
-            btn.textContent = "Lưu"; btn.disabled = false;
-            document.getElementById('edit-member-modal').classList.add('hidden');
+    // XỬ LÝ LƯU/THÊM THÀNH VIÊN QUA SỰ KIỆN CLICK - CHỐNG F5 TRÌNH DUYỆT ĐỘNG
+    const btnSaveMemberCustom = document.getElementById('btn-member-save');
+    if (btnSaveMemberCustom) {
+        btnSaveMemberCustom.onclick = async function(e) {
+            if (e) e.preventDefault();
+            const name = document.getElementById('inp-member-name').value.trim();
+            if (!name) return;
+            const memberId = document.getElementById('inp-member-index').value;
+            const errorEl = document.getElementById('member-form-error');
             
-            // Update tasks with old name
-            allTasks.forEach(t => {
-                let needsUpdate = false;
-                if (t.assignee === oldName) { t.assignee = name; needsUpdate = true; }
-                if (t.supporters && t.supporters.includes(oldName)) {
-                    t.supporters = t.supporters.split(',').map(s => s.trim() === oldName ? name : s.trim()).join(', ');
-                    needsUpdate = true;
-                }
-                if (needsUpdate) db.collection("CongViec").doc(t.__backendId).update(t);
-            });
-        })
-        .catch(error => { alert("Lỗi sửa: " + error.message); btn.disabled = false; });
-      }
-    });
+            const isDuplicate = membersData.some((m) => m.name.toLowerCase() === name.toLowerCase() && m.__backendId !== memberId);
+            if (isDuplicate) { 
+                errorEl.textContent = 'Tên thành viên đã tồn tại.'; 
+                errorEl.classList.remove('hidden'); 
+                return; 
+            }
+            
+            btnSaveMemberCustom.disabled = true;
+            if (errorEl) errorEl.classList.add('hidden');
+            
+            if (!memberId) {
+                const mauSac = COLORS[membersData.length % COLORS.length];
+                db.collection("ThanhVien").add({
+                    Ten: name, ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
+                })
+                .then((docRef) => {
+                    membersData.push({ __backendId: docRef.id, name: name, color: mauSac });
+                    membersList.push({ name: name, color: mauSac });
+                    if (typeof renderMembersList === 'function') renderMembersList(); 
+                    if (typeof populateMemberSelects === 'function') populateMemberSelects();
+                    document.getElementById("inp-member-name").value = "";
+                    btnSaveMemberCustom.disabled = false;
+                    document.getElementById('edit-member-modal').classList.add('hidden');
+                })
+                .catch(error => { alert("Lỗi thêm: " + error.message); btnSaveMemberCustom.disabled = false; });
+            } else {
+                const oldMember = membersData.find(m => m.__backendId === memberId);
+                const oldName = oldMember ? oldMember.name : null;
+                db.collection("ThanhVien").doc(memberId).update({ Ten: name })
+                .then(() => {
+                    if (oldMember) oldMember.name = name;
+                    membersList = membersData.map(x => ({ name: x.name, color: x.color }));
+                    if (typeof renderMembersList === 'function') renderMembersList(); 
+                    if (typeof populateMemberSelects === 'function') populateMemberSelects(); 
+                    if (typeof renderTasks === 'function') renderTasks();
+                    document.getElementById("inp-member-name").value = "";
+                    btnSaveMemberCustom.disabled = false;
+                    document.getElementById('edit-member-modal').classList.add('hidden');
+                    
+                    allTasks.forEach(t => {
+                        let needsUpdate = false;
+                        if (t.assignee === oldName) { t.assignee = name; needsUpdate = true; }
+                        if (t.supporters && t.supporters.includes(oldName)) {
+                            t.supporters = t.supporters.split(',').map(s => s.trim() === oldName ? name : s.trim()).join(', ');
+                            needsUpdate = true;
+                        }
+                        if (needsUpdate) db.collection("CongViec").doc(t.__backendId).update(t);
+                    });
+                })
+                .catch(error => { alert("Lỗi sửa: " + error.message); btnSaveMemberCustom.disabled = false; });
+            }
+        };
+    }
 
     document.getElementById('hours-form').addEventListener('submit', function(e) {
       e.preventDefault();
