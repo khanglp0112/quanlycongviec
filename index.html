@@ -125,13 +125,13 @@
     </div>
 </header>
 
-<div id="wrapper-filters" class="hidden opacity-0 max-h-0 overflow-hidden transition-all duration-300 ease-out w-full px-4 sm:px-6 absolute left-0 right-0 z-30 shadow-lg flex flex-col gap-1 border-b border-slate-200/60 pb-3 pt-2" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(16px); top: 73px;">
+<div id="wrapper-filters" class="hidden opacity-0 max-h-0 overflow-hidden transition-all duration-300 ease-in-out w-full px-4 sm:px-6 flex flex-col gap-1 border-b border-slate-200/60 pb-0 pt-0" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px);">
     
     <div id="stats-bar" class="w-full py-2 flex gap-3 flex-wrap flex-shrink-0">
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(248, 250, 252, 0.6); color:#475569;"><span style="color:#f59e0b;" id="stat-total" class="font-black">0</span>Tổng việc</div>
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(248, 250, 252, 0.6); color:#475569;"><span style="color:#38bdf8;" id="stat-todo" class="font-black">0</span>Chờ làm</div>
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(248, 250, 252, 0.6); color:#475569;"><span style="color:#a78bfa;" id="stat-doing" class="font-black">0</span>Đang làm</div>
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(248, 250, 252, 0.6); color:#475569;"><span style="color:#34d399;" id="stat-done" class="font-black">0</span>Hoàn thành</div>
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#f59e0b;" id="stat-total" class="font-black">0</span>Tổng việc</div>
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#38bdf8;" id="stat-todo" class="font-black">0</span>Chờ làm</div>
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#a78bfa;" id="stat-doing" class="font-black">0</span>Đang làm</div>
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#34d399;" id="stat-done" class="font-black">0</span>Hoàn thành</div>
     </div>
 
     <div id="filter-bar" class="w-full py-2 flex flex-wrap gap-2 items-center flex-shrink-0 border-t border-slate-200/40 mt-1">
@@ -444,7 +444,7 @@
       </div>
 </div>
 
-   <div id="board-view" class="flex-1 w-full px-4 sm:px-6 pt-5 pb-6 overflow-auto">
+  <div id="board-view" class="flex-1 w-full px-4 sm:px-6 pt-5 pb-6 overflow-auto transition-all duration-300 ease-in-out">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 min-h-0">
      
      <div class="rounded-2xl p-4 border border-slate-200/60 shadow-sm flex flex-col transition-all" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px);">
@@ -3688,10 +3688,12 @@ function deleteLienKet(id) {
         const btn = document.getElementById('btn-toggle-filters');
         
         if (wrapper.classList.contains('hidden')) {
-            // Mở bộ lọc lơ lửng mượt mà
+            // Mở bộ lọc: Hiện ra và nâng max-height để đẩy bảng dưới xuống
             wrapper.classList.remove('hidden');
             setTimeout(() => { 
-                wrapper.style.maxHeight = '300px'; // Nới rộng không gian lên 300px để hiện đủ cả 2 thanh
+                wrapper.style.maxHeight = '250px'; 
+                wrapper.style.paddingTop = '8px';
+                wrapper.style.paddingBottom = '12px';
                 wrapper.classList.remove('opacity-0');
                 wrapper.classList.add('opacity-100');
             }, 10);
@@ -3700,10 +3702,12 @@ function deleteLienKet(id) {
             btn.style.color = '#2563eb';
             btn.style.borderColor = '#93c5fd';
         } else {
-            // Đóng bộ lọc dứt khoát và mượt
+            // Đóng bộ lọc: Thu gọn chiều cao và biến mất mượt mà
             wrapper.classList.remove('opacity-100');
             wrapper.classList.add('opacity-0');
             wrapper.style.maxHeight = '0';
+            wrapper.style.paddingTop = '0';
+            wrapper.style.paddingBottom = '0';
             setTimeout(() => { wrapper.classList.add('hidden'); }, 300);
             
             btn.style.background = 'rgba(255, 255, 255, 0.6)';
