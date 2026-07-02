@@ -596,26 +596,32 @@
      </form>
     </div>
    </div>
-   <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.4);">
-    <div class="modal-backdrop w-full max-w-md rounded-2xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+ <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.4);">
+    <div class="w-full max-w-md rounded-2xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
      <div class="flex items-center justify-between mb-5">
-      <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;">Quản lý thành viên</h2><button id="btn-members-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#0f172a'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;">Quản lý thành viên</h2>
+      <button id="btn-members-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#0f172a'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
-     <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin"></div>
+     <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin" style="background:#ffffff; color:#1a1a1a;"></div>
      <button id="btn-add-member" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
     </div>
    </div>
+
    <div id="edit-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.4);">
-    <div class="modal-backdrop w-full max-w-xs rounded-2xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+    <div class="w-full max-w-xs rounded-2xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
      <div class="flex items-center justify-between mb-4">
-      <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;" id="edit-member-title">Sửa thành viên</h2><button id="btn-edit-member-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#0f172a'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;" id="edit-member-title">Sửa thành viên</h2>
+      <button id="btn-edit-member-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#0f172a'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <form id="member-form" class="space-y-4">
-      <div><label for="inp-member-name" class="block text-xs font-medium mb-1.5" style="color:#475569;">Tên thành viên</label> <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Nhập tên">
+      <div>
+        <label for="inp-member-name" class="block text-xs font-medium mb-1.5" style="color:#475569;">Tên thành viên</label>
+        <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none border border-slate-200" style="background:#f8fafc;color:#1e293b;" placeholder="Nhập tên">
+      </div>
       <input type="hidden" id="inp-member-index" value="">
       <div id="member-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#fef2f2;color:#b91c1c;"></div>
       <div class="flex gap-2">
-        <button type="button" id="btn-member-delete" class="flex-1 py-2 rounded-lg text-sm font-medium" style="background:#fee2e2;color:#b91c1c;">Xoá</button> 
+        <button type="button" id="btn-member-delete" class="flex-1 py-2 rounded-lg text-sm font-medium" style="background:#fee2e2;color:#b91c1c;">Xoá</button>
         <button type="submit" id="btn-member-save" class="flex-1 py-2 rounded-lg text-sm font-semibold" style="background:#f59e0b;color:#0f172a;">Lưu</button>
       </div>
      </form>
