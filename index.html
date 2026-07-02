@@ -596,32 +596,32 @@
      </form>
     </div>
    </div>
- <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.4);">
-    <div class="w-full max-w-md rounded-2xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+ <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="w-full max-w-md rounded-2xl p-6 transform transition-all border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-5">
       <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;">Quản lý thành viên</h2>
-      <button id="btn-members-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#0f172a'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <button id="btn-members-close" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-slate-700"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
-     <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin" style="background:#ffffff; color:#1a1a1a;"></div>
-     <button id="btn-add-member" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b;color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
+     <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin rounded-lg p-1" style="background: rgba(248, 250, 252, 0.5);"></div>
+     <button id="btn-add-member" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm" style="background:#f59e0b;color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
     </div>
    </div>
 
-   <div id="edit-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.4);">
-    <div class="w-full max-w-xs rounded-2xl p-6" style="background:#ffffff; border:1px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+   <div id="edit-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="w-full max-w-xs rounded-2xl p-6 transform transition-all border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;" id="edit-member-title">Sửa thành viên</h2>
-      <button id="btn-edit-member-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#0f172a'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <button id="btn-edit-member-close" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-slate-700"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <form id="member-form" class="space-y-4">
       <div>
-        <label for="inp-member-name" class="block text-xs font-medium mb-1.5" style="color:#475569;">Tên thành viên</label>
-        <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none border border-slate-200" style="background:#f8fafc;color:#1e293b;" placeholder="Nhập tên">
+        <label for="inp-member-name" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Tên thành viên</label> 
+        <input id="inp-member-name" type="text" required class="w-full px-3 py-2 rounded-lg text-sm outline-none border border-slate-200" style="background: rgba(248, 250, 252, 0.7); color:#1e293b;" placeholder="Nhập tên">
       </div>
       <input type="hidden" id="inp-member-index" value="">
-      <div id="member-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#fef2f2;color:#b91c1c;"></div>
+      <div id="member-form-error" class="hidden text-xs font-medium px-3 py-2 rounded-lg" style="background:#fee2e2;color:#b91c1c;"></div>
       <div class="flex gap-2">
-        <button type="button" id="btn-member-delete" class="flex-1 py-2 rounded-lg text-sm font-medium" style="background:#fee2e2;color:#b91c1c;">Xoá</button>
+        <button type="button" id="btn-member-delete" class="flex-1 py-2 rounded-lg text-sm font-medium" style="background:#fee2e2;color:#b91c1c;display:none;">Xoá</button> 
         <button type="submit" id="btn-member-save" class="flex-1 py-2 rounded-lg text-sm font-semibold" style="background:#f59e0b;color:#0f172a;">Lưu</button>
       </div>
      </form>
@@ -1009,14 +1009,14 @@ function populateMemberSelects() {
     function renderMembersList() {
       const container = document.getElementById('members-list');
       container.innerHTML = membersData.map((m) => `
-        <div class="flex items-center justify-between p-3 rounded-lg" style="background:#0f172a;border:1px solid #334155;">
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-100" style="background: rgba(255, 255, 255, 0.8);">
           <div class="flex items-center gap-2">
             <div class="avatar" style="background:${m.color};width:28px;height:28px;font-size:12px;">${m.name.charAt(0).toUpperCase()}</div>
-            <span style="color:#e2e8f0;font-size:14px;font-weight:500;">${escHtml(m.name)}</span>
+            <span style="color:#1a1a1a;font-size:14px;font-weight:600;">${escHtml(m.name)}</span>
           </div>
           <div class="flex gap-2">
-            <button type="button" onclick="editMember('${m.__backendId}')" class="p-2 rounded-lg transition-all" style="background:#38bdf8;color:#0f172a;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'" title="Sửa tên"><i data-lucide="edit-2" style="width:18px;height:18px;"></i></button>
-            <button type="button" onclick="showMemberDeleteConfirm('${m.__backendId}')" class="p-2 rounded-lg transition-all" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'" title="Xóa thành viên"><i data-lucide="trash-2" style="width:18px;height:18px;"></i></button>
+            <button type="button" onclick="editMember('${m.__backendId}')" class="p-2 rounded-lg transition-all" style="background:#38bdf8;color:#0f172a;" onmouseenter="this.style.background='#0ea5e9'" onmouseleave="this.style.background='#38bdf8'" title="Sửa tên"><i data-lucide="edit-2" style="width:16px;height:16px;"></i></button>
+            <button type="button" onclick="showMemberDeleteConfirm('${m.__backendId}')" class="p-2 rounded-lg transition-all" style="background:#ef4444;color:#ffffff;" onmouseenter="this.style.background='#dc2626'" onmouseleave="this.style.background='#ef4444'" title="Xóa thành viên"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
           </div>
         </div>
       `).join('');
