@@ -438,25 +438,35 @@
 </div>
 
    <div id="board-view" class="flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-0">
-     <div class="rounded-xl p-4" style="background:#ffffff;border: 2px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-      <div class="flex items-center gap-2 mb-3">
-       <div class="w-2.5 h-2.5 rounded-full" style="background:#38bdf8;"></div><span class="text-sm font-semibold" style="color:#1a1a1a;">Chờ làm</span><span id="col-todo-count" class="text-xs px-2 py-0.5 rounded-full ml-auto" style="background:#e5e5e5;color:#666666;">0</span>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 min-h-0">
+     
+     <div class="rounded-2xl p-4 border border-slate-200/60 shadow-sm flex flex-col transition-all" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px);">
+      <div class="flex items-center gap-2 mb-4 shrink-0">
+       <div class="w-2.5 h-2.5 rounded-full animate-pulse" style="background:#38bdf8;"></div>
+       <span class="text-sm font-bold text-slate-800">Chờ làm</span>
+       <span id="col-todo-count" class="text-xs px-2 py-0.5 rounded-full ml-auto font-bold bg-slate-200/60 text-slate-600">0</span>
       </div>
-      <div id="col-todo" class="space-y-2 scrollbar-thin" style="max-height: 500px; overflow-y: auto;"></div>
+      <div id="col-todo" class="space-y-3 scrollbar-thin overflow-y-auto pr-1 flex-1" style="max-height: calc(100vh - 290px);"></div>
      </div>
-     <div class="rounded-xl p-4" style="background:#ffffff;border: 2px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-      <div class="flex items-center gap-2 mb-3">
-       <div class="w-2.5 h-2.5 rounded-full" style="background:#a78bfa;"></div><span class="text-sm font-semibold" style="color:#1a1a1a;">Đang làm</span><span id="col-doing-count" class="text-xs px-2 py-0.5 rounded-full ml-auto" style="background:#f0f0f0;color:#555555;">0</span>
+
+     <div class="rounded-2xl p-4 border border-slate-200/60 shadow-sm flex flex-col transition-all" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px);">
+      <div class="flex items-center gap-2 mb-4 shrink-0">
+       <div class="w-2.5 h-2.5 rounded-full animate-pulse" style="background:#a78bfa;"></div>
+       <span class="text-sm font-bold text-slate-800">Đang làm</span>
+       <span id="col-doing-count" class="text-xs px-2 py-0.5 rounded-full ml-auto font-bold bg-purple-100/60 text-purple-700">0</span>
       </div>
-      <div id="col-doing" class="space-y-2 scrollbar-thin" style="max-height: 500px; overflow-y: auto;"></div>
+      <div id="col-doing" class="space-y-3 scrollbar-thin overflow-y-auto pr-1 flex-1" style="max-height: calc(100vh - 290px);"></div>
      </div>
-     <div class="rounded-xl p-4" style="background:#ffffff;border: 2px solid #e8e8e8; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-      <div class="flex items-center gap-2 mb-3">
-       <div class="w-2.5 h-2.5 rounded-full" style="background:#34d399;"></div><span class="text-sm font-semibold" style="color:#1a1a1a;">Hoàn thành</span><span id="col-done-count" class="text-xs px-2 py-0.5 rounded-full ml-auto" style="background:#f0f0f0;color:#555555;">0</span>
+
+     <div class="rounded-2xl p-4 border border-slate-200/60 shadow-sm flex flex-col transition-all" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(8px);">
+      <div class="flex items-center gap-2 mb-4 shrink-0">
+       <div class="w-2.5 h-2.5 rounded-full" style="background:#34d399;"></div>
+       <span class="text-sm font-bold text-slate-800">Hoàn thành</span>
+       <span id="col-done-count" class="text-xs px-2 py-0.5 rounded-full ml-auto font-bold bg-emerald-100/60 text-emerald-700">0</span>
       </div>
-      <div id="col-done" class="space-y-2 scrollbar-thin" style="max-height: 500px; overflow-y: auto;"></div>
+      <div id="col-done" class="space-y-3 scrollbar-thin overflow-y-auto pr-1 flex-1" style="max-height: calc(100vh - 290px);"></div>
      </div>
+
     </div>
    </div>
 
@@ -1632,10 +1642,10 @@ function renderTasks() {
 
     function createCard(t) {
       const div = document.createElement('div');
-      div.className = 'task-card rounded-xl p-3 fade-in cursor-pointer';
-      div.style.background = '#ffffff';
-      div.style.border = '2px solid #e8e8e8';
-      div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+      div.className = 'task-card rounded-xl p-3.5 fade-in cursor-pointer transition-all duration-200';
+      div.style.background = 'rgba(255, 255, 255, 0.9)';
+      div.style.border = '1px solid #e2e8f0';
+      div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)';
       div.dataset.id = t.__backendId;
       div.addEventListener('click', () => showTaskDetail(t));
       div.addEventListener('contextmenu', (e) => showContextMenu(e, t.__backendId));
