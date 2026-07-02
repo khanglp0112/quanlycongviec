@@ -477,12 +477,14 @@
     </div>
    </div>
 
-<div id="timeline-view" class="hidden flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
-    <div class="max-w-5xl mx-auto">
+<div id="timeline-view" class="hidden flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto mt-5">
+    <div class="max-w-5xl mx-auto rounded-xl p-6 border border-slate-200 shadow-sm" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);">
      <div class="mb-6 flex items-center justify-between flex-wrap gap-4">
       <div class="flex items-center gap-4">
-        <h2 id="timeline-title" class="text-xl font-bold text-slate-800">📅 Trục thời gian</h2>
-        <div class="flex bg-slate-200 p-1 rounded-lg">
+        <h2 id="timeline-title" class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="calendar-days" class="text-blue-600 w-5 h-5"></i> Trục thời gian
+        </h2>
+        <div class="flex p-1 rounded-lg border border-slate-100" style="background: rgba(248, 250, 252, 0.6);">
           <button id="view-mode-vertical" onclick="switchTimelineMode('vertical')" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all shadow-sm bg-white text-blue-600">Dạng dọc</button>
           <button id="view-mode-calendar" onclick="switchTimelineMode('calendar')" class="px-3 py-1.5 rounded-md text-xs font-bold transition-all text-slate-600 hover:text-slate-800">Dạng lịch</button>
         </div>
@@ -490,29 +492,29 @@
       <button id="btn-close-timeline" class="p-2 rounded-lg transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
 
-     <div id="timeline-filters" class="flex gap-2 mb-6">
-        <button id="timeline-filter-all" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#f59e0b;color:#0f172a;" onclick="filterTimelineBy('all')">Tất cả</button> 
-        <button id="timeline-filter-todo" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('todo')">Chờ làm</button> 
-        <button id="timeline-filter-doing" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('doing')">Đang làm</button> 
-        <button id="timeline-filter-done" class="px-4 py-2 rounded-lg text-sm font-medium transition-colors" style="background:#e5e5e5;color:#1a1a1a;" onclick="filterTimelineBy('done')">Hoàn thành</button>
+     <div id="timeline-filters" class="flex flex-wrap gap-2 mb-6 p-2 rounded-lg border border-slate-100/50" style="background: rgba(248, 250, 252, 0.4);">
+        <button id="timeline-filter-all" class="px-4 py-2 rounded-lg text-sm font-bold transition-colors shadow-sm" style="background:#f59e0b;color:#0f172a;" onclick="filterTimelineBy('all')">Tất cả</button> 
+        <button id="timeline-filter-todo" class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-slate-200/60 text-slate-600" style="background: rgba(255, 255, 255, 0.6);" onclick="filterTimelineBy('todo')">Chờ làm</button> 
+        <button id="timeline-filter-doing" class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-slate-200/60 text-slate-600" style="background: rgba(255, 255, 255, 0.6);" onclick="filterTimelineBy('doing')">Đang làm</button> 
+        <button id="timeline-filter-done" class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-slate-200/60 text-slate-600" style="background: rgba(255, 255, 255, 0.6);" onclick="filterTimelineBy('done')">Hoàn thành</button>
      </div>
 
-     <div id="timeline-vertical-container" class="space-y-6 relative"></div>
+     <div id="timeline-vertical-container" class="space-y-6 relative pl-2"></div>
 
-     <div id="timeline-calendar-container" class="hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+     <div id="timeline-calendar-container" class="hidden bg-white/60 p-4 rounded-xl border border-slate-200/60 shadow-sm">
         <div class="flex items-center gap-3 mb-4 justify-center">
             <button onclick="changeMonth(-1)" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600"><i data-lucide="chevron-left"></i></button>
-            <h3 id="calendar-month-year" class="text-sm font-bold text-slate-700 min-w-[140px] text-center"></h3>
+            <h3 id="calendar-month-year" class="text-sm font-black text-slate-700 min-w-[140px] text-center"></h3>
             <button onclick="changeMonth(1)" class="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600"><i data-lucide="chevron-right"></i></button>
         </div>
         <div class="grid grid-cols-7 gap-px bg-slate-200 border border-slate-200 rounded-lg overflow-hidden" id="calendar-grid">
-            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T2</div>
-            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T3</div>
-            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T4</div>
-            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T5</div>
-            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T6</div>
-            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-slate-500">T7</div>
-            <div class="bg-slate-50 py-2 text-center text-[10px] font-bold text-red-500">CN</div>
+            <div class="bg-slate-50/80 py-2 text-center text-[10px] font-bold text-slate-500">T2</div>
+            <div class="bg-slate-50/80 py-2 text-center text-[10px] font-bold text-slate-500">T3</div>
+            <div class="bg-slate-50/80 py-2 text-center text-[10px] font-bold text-slate-500">T4</div>
+            <div class="bg-slate-50/80 py-2 text-center text-[10px] font-bold text-slate-500">T5</div>
+            <div class="bg-slate-50/80 py-2 text-center text-[10px] font-bold text-slate-500">T6</div>
+            <div class="bg-slate-50/80 py-2 text-center text-[10px] font-bold text-slate-500">T7</div>
+            <div class="bg-slate-50/80 py-2 text-center text-[10px] font-bold text-red-500">CN</div>
         </div>
      </div>
     </div>
@@ -1253,21 +1255,23 @@ function renderWorkingHoursList() {
       updateHoursSummary();
     });
 
-   function filterTimelineBy(status) {
+  function filterTimelineBy(status) {
       timelineFilter = status;
       ['all', 'todo', 'doing', 'done'].forEach(s => {
         const btn = document.getElementById('timeline-filter-' + s);
         if (s === status) {
           btn.style.background = '#f59e0b';
           btn.style.color = '#0f172a';
-          btn.style.fontWeight = '600';
+          btn.style.fontWeight = '700';
+          btn.style.borderColor = '#f59e0b';
         } else {
-          btn.style.background = '#e5e5e5';
-          btn.style.color = '#1a1a1a';
+          // Trả về dạng nút kính mờ trong suốt nhẹ mảnh khảnh
+          btn.style.background = 'rgba(255, 255, 255, 0.6)';
+          btn.style.color = '#475569';
           btn.style.fontWeight = '500';
+          btn.style.borderColor = '#e2e8f0';
         }
       });
-      // Vẽ lại Dọc hay Lịch tùy theo trạng thái đang chọn
       if (typeof timelineMode !== 'undefined' && timelineMode === 'calendar') renderCalendar();
       else renderTimeline();
     }
