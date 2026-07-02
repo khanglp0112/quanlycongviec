@@ -320,8 +320,8 @@
 </div>
 
 <!-- Cửa sổ phụ nhỏ (Modal): Thêm giáo viên mới vào bộ lõi hệ thống -->
-<div id="modal-bb-them-gv" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 modal-backdrop">
+<div id="modal-bb-them-gv" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="rounded-2xl p-6 w-full max-w-sm border border-slate-200 transform transition-all" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
         <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-1.5">
             <i data-lucide="user-plus" class="text-blue-600"></i> Thêm nhân sự mới vào tổ
         </h3>
@@ -349,8 +349,8 @@
 </div>
 
 <!-- Cửa sổ phụ (Modal): Quản lý danh sách giáo viên mẫu tổng -->
-<div id="modal-bb-ql-gv" class="hidden fixed inset-0 z-[105] flex items-center justify-center p-4" style="background:rgba(0,0,0,0.5);">
-    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md border border-slate-100 flex flex-col max-h-[80vh]">
+<div id="modal-bb-ql-gv" class="hidden fixed inset-0 z-[105] flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="rounded-2xl p-6 w-full max-w-md border border-slate-200 flex flex-col max-h-[80vh] transform transition-all" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
                 <i data-lucide="users" class="text-slate-600"></i> Quản lý danh sách nhân sự tổ
@@ -2673,7 +2673,7 @@ function toggleBienBan() {
         if (!container) return;
 
         container.innerHTML = DANH_SACH_GIAO_VIEN_FULL.map(gv => `
-            <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-slate-50/50">
+            <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-100" style="background: rgba(248, 250, 252, 0.6);">
                 <div class="flex flex-col">
                     <span class="text-sm font-bold text-slate-700">${escHtml(gv.hoTen)}</span>
                     <span class="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">${gv.chucVu}</span>
