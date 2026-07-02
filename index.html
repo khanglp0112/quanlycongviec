@@ -127,14 +127,15 @@
 
 <div id="wrapper-filters" class="hidden opacity-0 max-h-0 overflow-hidden transition-all duration-300 ease-in-out w-full px-4 sm:px-6 flex flex-col gap-1 border-b border-slate-200/60 pb-0 pt-0" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px);">
     
-    <div id="stats-bar" class="w-full py-2 flex gap-3 flex-wrap flex-shrink-0">
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#f59e0b;" id="stat-total" class="font-black">0</span>Tổng việc</div>
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#38bdf8;" id="stat-todo" class="font-black">0</span>Chờ làm</div>
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#a78bfa;" id="stat-doing" class="font-black">0</span>Đang làm</div>
-        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#34d399;" id="stat-done" class="font-black">0</span>Hoàn thành</div>
+    <div id="stats-bar" class="w-full py-1 flex gap-2 flex-wrap flex-shrink-0 items-center">
+        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Thống kê:</span>
+        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-bold border border-slate-200/40" style="background: rgba(255, 255, 255, 0.5); color:#475569;"><span style="color:#f59e0b;" id="stat-total" class="font-black">0</span>Tổng việc</div>
+        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-bold border border-slate-200/40" style="background: rgba(255, 255, 255, 0.5); color:#475569;"><span style="color:#38bdf8;" id="stat-todo" class="font-black">0</span>Chờ làm</div>
+        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-bold border border-slate-200/40" style="background: rgba(255, 255, 255, 0.5); color:#475569;"><span style="color:#a78bfa;" id="stat-doing" class="font-black">0</span>Đang làm</div>
+        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-bold border border-slate-200/40" style="background: rgba(255, 255, 255, 0.5); color:#475569;"><span style="color:#34d399;" id="stat-done" class="font-black">0</span>Hoàn thành</div>
     </div>
 
-    <div id="filter-bar" class="w-full py-2 flex flex-wrap gap-2 items-center flex-shrink-0 border-t border-slate-200/40 mt-1">
+    <div id="filter-bar" class="w-full py-2 flex flex-wrap gap-2 items-center flex-shrink-0 border-t border-slate-200/40 mt-0.5">
         <div class="flex items-center gap-2 mr-2"><i data-lucide="filter" style="width:14px;height:14px;color:#475569;"></i><span class="text-xs font-bold text-slate-600">Lọc nhanh:</span></div>
         <select id="filter-status" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 outline-none cursor-pointer font-medium" style="background: rgba(255, 255, 255, 0.85); color:#1a1a1a;"><option value="all">Tất cả trạng thái</option><option value="todo">Chờ làm</option><option value="doing">Đang làm</option><option value="done">Hoàn thành</option></select> 
         <select id="filter-assignee" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 outline-none cursor-pointer font-medium" style="background: rgba(255, 255, 255, 0.85); color:#1a1a1a;"><option value="all">Tất cả thành viên</option></select> 
