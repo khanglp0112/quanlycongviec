@@ -501,16 +501,16 @@
     <p class="text-sm" style="color:#64748b;">Nhấn "Thêm việc" để bắt đầu phân công</p>
    </div>
 
-<div id="working-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="w-full max-w-4xl rounded-2xl p-6 flex flex-col" style="background:#ffffff; border:1px solid #e2e8f0; max-height:90vh;">
+<div id="working-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="w-full max-w-4xl rounded-2xl p-6 flex flex-col border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-5 flex-shrink-0">
       <h2 class="font-display text-lg font-bold" style="color:#1e293b;">Quản lý giờ làm việc</h2><button id="btn-working-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
      <div id="working-hours-list" class="space-y-3 overflow-y-auto scrollbar-thin flex-1 pr-2"></div>
     </div>
    </div>
-   <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6); overflow-y:auto;">
-    <div class="modal-backdrop w-full max-w-4xl rounded-2xl p-6 my-4" style="background:#ffffff; border:1px solid #e2e8f0; max-height:90vh; overflow-y:auto;">
+  <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300" style="overflow-y:auto;">
+    <div class="w-full max-w-4xl rounded-2xl p-6 my-4 border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 class="font-display text-lg font-bold" style="color:#1e293b;" id="edit-hours-title">Quản lý giờ làm việc</h2><button id="btn-edit-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -536,8 +536,8 @@
      </form>
     </div>
    </div>
-   <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
- <div class="modal-backdrop w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-thin" style="background:#ffffff; border:1px solid #e2e8f0;">
+   <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-thin border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#1e293b;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -545,8 +545,8 @@
      <div class="grid grid-cols-3 gap-2"><button id="detail-status-todo" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Chờ làm</button> <button id="detail-status-doing" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Đang làm</button> <button id="detail-status-done" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Hoàn thành</button></div>
     </div>
    </div>
-   <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,0.6);">
-    <div class="modal-backdrop w-full max-w-2xl rounded-2xl p-6 overflow-y-auto" style="background:#ffffff; border:1px solid #e2e8f0; max-height: 90vh;">
+  <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="w-full max-w-2xl rounded-2xl p-6 overflow-y-auto border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height: 90vh; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-5">
       <h2 id="modal-title" class="font-display text-lg font-bold" style="color:#1e293b;">Thêm công việc</h2><button id="btn-modal-close" class="p-1 rounded-lg transition-colors flex-shrink-0" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
