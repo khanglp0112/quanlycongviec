@@ -125,9 +125,9 @@
     </div>
 </header>
 
-   <div id="wrapper-filters" class="hidden max-h-0 overflow-hidden transition-all duration-300 ease-in-out w-full px-4 sm:px-6 py-2 border-b border-slate-200/60" style="background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px);">
+ <div id="wrapper-filters" class="hidden opacity-0 max-h-0 overflow-hidden transition-all duration-300 ease-out w-full px-4 sm:px-6 py-2 border-b border-slate-200/60 absolute left-0 right-0 z-30 shadow-lg" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); top: 73px;">
     
-    <div id="filter-bar" class="w-full py-2 flex flex-wrap gap-2 items-center flex-shrink-0">
+    <div id="filter-bar" class="w-full py-1.5 flex flex-wrap gap-2 items-center flex-shrink-0">
         <div class="flex items-center gap-2 mr-2"><i data-lucide="filter" style="width:14px;height:14px;color:#475569;"></i><span class="text-xs font-bold text-slate-600">Lọc nhanh:</span></div>
         <select id="filter-status" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 outline-none cursor-pointer font-medium" style="background: rgba(255, 255, 255, 0.85); color:#1a1a1a;"><option value="all">Tất cả trạng thái</option><option value="todo">Chờ làm</option><option value="doing">Đang làm</option><option value="done">Hoàn thành</option></select> 
         <select id="filter-assignee" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 outline-none cursor-pointer font-medium" style="background: rgba(255, 255, 255, 0.85); color:#1a1a1a;"><option value="all">Tất cả thành viên</option></select> 
@@ -135,11 +135,11 @@
         <select id="filter-month" class="text-xs px-3 py-1.5 rounded-lg border border-slate-200 outline-none cursor-pointer font-medium" style="background: rgba(255, 255, 255, 0.85); color:#1a1a1a;"><option value="all">Tất cả các tháng</option><option value="1">Tháng 1</option><option value="2">Tháng 2</option><option value="3">Tháng 3</option><option value="4">Tháng 4</option><option value="5">Tháng 5</option><option value="6">Tháng 6</option><option value="7">Tháng 7</option><option value="8">Tháng 8</option><option value="9">Tháng 9</option><option value="10">Tháng 10</option><option value="11">Tháng 11</option><option value="12">Tháng 12</option></select>
     </div>
 
-    <div id="stats-bar" class="w-full py-2 flex gap-3 flex-wrap flex-shrink-0 border-t border-slate-200/40 mt-1">
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#f59e0b;" id="stat-total" class="font-black">0</span>Tổng việc</div>
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#38bdf8;" id="stat-todo" class="font-black">0</span>Chờ làm</div>
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#a78bfa;" id="stat-doing" class="font-black">0</span>Đang làm</div>
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#34d399;" id="stat-done" class="font-black">0</span>Hoàn thành</div>
+    <div id="stats-bar" class="w-full py-1.5 flex gap-3 flex-wrap flex-shrink-0 border-t border-slate-200/40 mt-1">
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#f59e0b;" id="stat-total" class="font-black">0</span>Tổng việc</div>
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#38bdf8;" id="stat-todo" class="font-black">0</span>Chờ làm</div>
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#a78bfa;" id="stat-doing" class="font-black">0</span>Đang làm</div>
+        <div class="flex items-center gap-2 px-3 py-1 rounded-lg text-xs font-bold" style="background: rgba(255, 255, 255, 0.6); color:#475569;"><span style="color:#34d399;" id="stat-done" class="font-black">0</span>Hoàn thành</div>
     </div>
 </div>
 <div id="lien-ket-view" class="hidden fade-in mt-5 mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
@@ -3688,20 +3688,24 @@ function deleteLienKet(id) {
         const btn = document.getElementById('btn-toggle-filters');
         
         if (wrapper.classList.contains('hidden')) {
-            // Mở thanh bộ lọc trượt xuống
+            // Mở bộ lọc lơ lửng mượt mà
             wrapper.classList.remove('hidden');
-            setTimeout(() => { wrapper.style.maxHeight = '150px'; }, 10);
+            setTimeout(() => { 
+                wrapper.style.maxHeight = '200px'; 
+                wrapper.classList.remove('opacity-0');
+                wrapper.classList.add('opacity-100');
+            }, 10);
             
-            // Ép hiệu ứng kính mờ xanh dương cao cấp khi đang mở lọc
             btn.style.background = 'rgba(59, 130, 246, 0.15)';
             btn.style.color = '#2563eb';
             btn.style.borderColor = '#93c5fd';
         } else {
-            // Thu gọn thanh bộ lọc
+            // Đóng bộ lọc dứt khoát và mượt
+            wrapper.classList.remove('opacity-100');
+            wrapper.classList.add('opacity-0');
             wrapper.style.maxHeight = '0';
             setTimeout(() => { wrapper.classList.add('hidden'); }, 300);
             
-            // Trả nút bấm về trạng thái kính mờ trắng dịu nhẹ ban đầu
             btn.style.background = 'rgba(255, 255, 255, 0.6)';
             btn.style.color = '#475569';
             btn.style.borderColor = '#e2e8f0';
