@@ -363,73 +363,75 @@
     </div>
 </div>
 <div id="cham-tiet-view" class="hidden fade-in mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
-      <div class="cham-tiet-container rounded-xl p-4" style="background:#ffffff; border:1px solid #e2e8f0;">
+      <!-- Khối bọc ngoài phong cách kính mờ xuyên thấu -->
+      <div class="rounded-xl p-6 border border-slate-200 shadow-sm" style="background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px);">
         <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
             <h2 class="text-xl font-bold text-slate-800">Bảng Tổng Hợp Tiết Dạy Chi Tiết</h2>
             <div class="flex items-center gap-3">
-                <input type="month" id="inp-cham-tiet-month" class="px-3 py-1.5 rounded-lg text-sm border border-slate-300 outline-none">
-                <button onclick="saveChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white hover:bg-blue-700">Lưu dữ liệu</button>
-                <button onclick="toggleChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700">Đóng</button>
+                <input type="month" id="inp-cham-tiet-month" class="px-3 py-1.5 rounded-lg text-sm border border-slate-200 outline-none focus:border-blue-500" style="background: rgba(248, 250, 252, 0.7);">
+                <button onclick="saveChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-600/10 transition-colors">Lưu dữ liệu</button>
+                <button onclick="toggleChamTiet()" class="px-5 py-2 rounded-lg text-sm font-bold bg-slate-200 text-slate-700 hover:bg-slate-300 transition-colors">Đóng</button>
             </div>
         </div>
 
-        <div class="flex gap-4 mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200">
+        <!-- Khung chọn cấp học kính mờ nhẹ -->
+        <div class="flex gap-4 mb-4 p-3 rounded-lg border border-slate-100" style="background: rgba(248, 250, 252, 0.5);">
             <span class="text-sm font-bold text-slate-700">Hiển thị cấp học:</span>
-            <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-tih" checked onchange="renderChamTietTable()"> Tiểu học</label>
-            <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600"><input type="checkbox" id="show-thcs" checked onchange="renderChamTietTable()"> THCS/THPT</label>
+            <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600 font-medium"><input type="checkbox" id="show-tih" checked onchange="renderChamTietTable()" class="rounded border-slate-300 accent-blue-600"> Tiểu học</label>
+            <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600 font-medium"><input type="checkbox" id="show-thcs" checked onchange="renderChamTietTable()" class="rounded border-slate-300 accent-blue-600"> THCS/THPT</label>
         </div>
 
-        <div class="table-responsive border rounded-lg overflow-auto" style="max-height: 75vh;">
-          <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap">
+        <div class="table-responsive border border-slate-200 rounded-lg overflow-auto shadow-sm" style="max-height: 75vh;">
+          <table class="ct-table w-full text-xs text-center border-collapse whitespace-nowrap bg-white/70">
           <thead class="sticky top-0 z-20">
-                <tr class="bg-slate-100 text-slate-700">
-                    <th class="border p-2 sticky-col left-0 bg-slate-100" rowspan="3">STT</th>
-                    <th class="border p-2 sticky-col bg-slate-100" style="left:40px;" rowspan="3">Họ Tên</th>
-                    <th id="head-tih" class="border p-2 bg-emerald-50" colspan="5">Tiết TKB TiH</th>
-                    <th id="head-thcs" class="border p-2 bg-emerald-50" colspan="5">Tiết TKB THCS-PT</th>
-                    <th class="border p-2 bg-amber-50" colspan="5">Số tiết vắng</th>
-                    <th class="border p-2 bg-amber-50" rowspan="3">Dạy thay</th>
-                    <th class="border p-2 bg-orange-50" rowspan="3">PL02</th>
-                    <th class="border p-2 bg-orange-50" rowspan="3">Ôn thi/CLB</th>
-                    <th class="border p-2 bg-orange-50" rowspan="3">Coi thi</th>
-                    <th class="border p-2 bg-orange-50" rowspan="3">Khác</th>
-                    <th class="border p-2 bg-green-600 text-white" rowspan="3">TỔNG</th>
-                    <th class="border p-2 bg-yellow-100 text-yellow-900" rowspan="3">Định mức</th>
-                    <th class="border p-2 bg-blue-600 text-white" rowspan="3">VƯỢT</th>
-                    <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">After School</th>
-                    <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD Khối 12</th>
-                    <th class="border p-2 bg-sky-50 text-sky-800" rowspan="3">BD 1:1/17</th>
+                <tr class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                    <th class="border-b border-r border-slate-200 p-2 sticky-col left-0 bg-slate-50" rowspan="3">STT</th>
+                    <th class="border-b border-r border-slate-200 p-2 sticky-col bg-slate-50" style="left:40px;" rowspan="3">Họ Tên</th>
+                    <th id="head-tih" class="border-b border-r border-slate-200 p-2 text-emerald-700 font-bold" style="background: rgba(16, 185, 129, 0.1);" colspan="5">Tiết TKB TiH</th>
+                    <th id="head-thcs" class="border-b border-r border-slate-200 p-2 text-emerald-700 font-bold" style="background: rgba(16, 185, 129, 0.1);" colspan="5">Tiết TKB THCS-PT</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-amber-700 font-bold" style="background: rgba(245, 158, 11, 0.1);" colspan="5">Số tiết vắng</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-amber-700 font-bold" style="background: rgba(245, 158, 11, 0.1);" rowspan="3">Dạy thay</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-orange-700 font-bold" style="background: rgba(234, 88, 12, 0.1);" rowspan="3">PL02</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-orange-700 font-bold" style="background: rgba(234, 88, 12, 0.1);" rowspan="3">Ôn thi/CLB</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-orange-700 font-bold" style="background: rgba(234, 88, 12, 0.1);" rowspan="3">Coi thi</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-orange-700 font-bold" style="background: rgba(234, 88, 12, 0.1);" rowspan="3">Khác</th>
+                    <th class="border-b border-r border-slate-200 p-2 bg-green-600 text-white font-bold" rowspan="3">TỔNG</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-yellow-800 font-bold" style="background: rgba(234, 179, 8, 0.15);" rowspan="3">Định mức</th>
+                    <th class="border-b border-r border-slate-200 p-2 bg-blue-600 text-white font-bold" rowspan="3">VƯỢT</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-sky-700 font-bold" style="background: rgba(14, 165, 233, 0.1);" rowspan="3">After School</th>
+                    <th class="border-b border-r border-slate-200 p-2 text-sky-700 font-bold" style="background: rgba(14, 165, 233, 0.1);" rowspan="3">BD Khối 12</th>
+                    <th class="border-b border-slate-200 p-2 text-sky-700 font-bold" style="background: rgba(14, 165, 233, 0.1);" rowspan="3">BD 1:1/17</th>
                 </tr>
-                <tr class="bg-slate-100">
-                    <th id="sub-tih" colspan="5" class="border p-1 text-[10px]">Tuần</th>
-                    <th id="sub-thcs" colspan="5" class="border p-1 text-[10px]">Tuần</th>
-                    <th colspan="5" class="border p-1 text-[10px]">Tuần</th>
+                <tr class="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                    <th id="sub-tih" colspan="5" class="border-r border-slate-200 p-1 text-[10px]">Tuần</th>
+                    <th id="sub-thcs" colspan="5" class="border-r border-slate-200 p-1 text-[10px]">Tuần</th>
+                    <th colspan="5" class="border-r border-slate-200 p-1 text-[10px]">Tuần</th>
                 </tr>
-             <tr class="bg-slate-50" id="week-dates-row">
-    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-0">1</th>
-    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-1">2</th>
-    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-2">3</th>
-    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-3">4</th>
-    <th class="border p-1 w-12 tih-col text-[9px] leading-tight week-head-4">5</th>
-    
-    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-0">1</th>
-    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-1">2</th>
-    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-2">3</th>
-    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-3">4</th>
-    <th class="border p-1 w-12 thcs-col text-[9px] leading-tight week-head-4">5</th>
-    
-    <th class="border p-1 w-12 text-[9px] leading-tight week-head-0">1</th>
-    <th class="border p-1 w-12 text-[9px] leading-tight week-head-1">2</th>
-    <th class="border p-1 w-12 text-[9px] leading-tight week-head-2">3</th>
-    <th class="border p-1 w-12 text-[9px] leading-tight week-head-3">4</th>
-    <th class="border p-1 w-12 text-[9px] leading-tight week-head-4">5</th>
-</tr>
+             <tr class="bg-slate-50/80 text-slate-400 font-bold border-b border-slate-200" id="week-dates-row">
+                <th class="border-r border-slate-200 p-1 w-12 tih-col text-[9px] leading-tight week-head-0">1</th>
+                <th class="border-r border-slate-200 p-1 w-12 tih-col text-[9px] leading-tight week-head-1">2</th>
+                <th class="border-r border-slate-200 p-1 w-12 tih-col text-[9px] leading-tight week-head-2">3</th>
+                <th class="border-r border-slate-200 p-1 w-12 tih-col text-[9px] leading-tight week-head-3">4</th>
+                <th class="border-r border-slate-200 p-1 w-12 tih-col text-[9px] leading-tight week-head-4">5</th>
+                
+                <th class="border-r border-slate-200 p-1 w-12 thcs-col text-[9px] leading-tight week-head-0">1</th>
+                <th class="border-r border-slate-200 p-1 w-12 thcs-col text-[9px] leading-tight week-head-1">2</th>
+                <th class="border-r border-slate-200 p-1 w-12 thcs-col text-[9px] leading-tight week-head-2">3</th>
+                <th class="border-r border-slate-200 p-1 w-12 thcs-col text-[9px] leading-tight week-head-3">4</th>
+                <th class="border-r border-slate-200 p-1 w-12 thcs-col text-[9px] leading-tight week-head-4">5</th>
+                
+                <th class="border-r border-slate-200 p-1 w-12 text-[9px] leading-tight week-head-0">1</th>
+                <th class="border-r border-slate-200 p-1 w-12 text-[9px] leading-tight week-head-1">2</th>
+                <th class="border-r border-slate-200 p-1 w-12 text-[9px] leading-tight week-head-2">3</th>
+                <th class="border-r border-slate-200 p-1 w-12 text-[9px] leading-tight week-head-3">4</th>
+                <th class="border-r border-slate-200 p-1 w-12 text-[9px] leading-tight week-head-4">5</th>
+            </tr>
             </thead>
-            <tbody id="cham-tiet-tbody"></tbody>
+            <tbody id="cham-tiet-tbody" class="divide-y divide-slate-200"></tbody>
           </table>
         </div>
       </div>
-    </div>
+</div>
 
    <div id="board-view" class="flex-1 w-full px-4 sm:px-6 pb-6 overflow-auto">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 min-h-0">
@@ -3195,24 +3197,25 @@ try {
           const d = dataThang[member.__backendId] || {};
          const w = (key) => d[key] || [0, 0, 0, 0, 0];
           const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="border p-2 sticky-col left-0 bg-white text-slate-400">${index + 1}</td>
-            <td class="border p-2 sticky-col left-[40px] bg-white text-left font-bold text-slate-700">${member.name}</td>
-            ${showTiH ? [0,1,2,3,4].map(i => `<td class="border p-1 tih-col"><input type="number" class="ct-input-week ct-tih" data-id="${member.__backendId}" value="${w('tih')[i] || 0}"></td>`).join('') : ''}
-            ${showTHCS ? [0,1,2,3,4].map(i => `<td class="border p-1 thcs-col"><input type="number" class="ct-input-week ct-thcs" data-id="${member.__backendId}" value="${w('thcs')[i] || 0}"></td>`).join('') : ''}
-            ${[0,1,2,3,4].map(i => `<td class="border p-1"><input type="number" class="ct-input-week ct-vang" data-id="${member.__backendId}" value="${w('vang')[i] || 0}"></td>`).join('')}
-            <td class="border p-1"><input type="number" class="ct-input-week ct-daythay" style="width:55px" data-id="${member.__backendId}" value="${typeof d.dayThay === 'number' ? d.dayThay : 0}"></td>
-            <td class="border p-1"><input type="number" class="ct-input-week ct-pl02" data-id="${member.__backendId}" value="${d.pl02 || 0}"></td>
-            <td class="border p-1"><input type="number" class="ct-input-week ct-onthi" data-id="${member.__backendId}" value="${d.onThi || 0}"></td>
-            <td class="border p-1"><input type="number" class="ct-input-week ct-coithi" data-id="${member.__backendId}" value="${d.coiThi || 0}"></td>
-            <td class="border p-1"><input type="number" class="ct-input-week ct-khac" data-id="${member.__backendId}" value="${d.khac || 0}"></td>
-            <td class="border p-2 font-bold text-green-700 bg-green-50 ct-tong" id="tong-${member.__backendId}">0</td>
-            <td class="border p-1 bg-yellow-50"><input type="number" class="ct-input-week ct-dinhmuc" data-id="${member.__backendId}" value="${d.dinhMuc || 80}"></td>
-            <td class="border p-2 font-bold text-blue-700 bg-blue-50 ct-vuot" id="vuot-${member.__backendId}">0</td>
-            <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-after" data-id="${member.__backendId}" value="${d.afterSchool || 0}"></td>
-            <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-bd12" data-id="${member.__backendId}" value="${d.bd12 || 0}"></td>
-            <td class="border p-1 bg-sky-50"><input type="number" class="ct-input-week ct-bd11" data-id="${member.__backendId}" value="${d.bd11 || 0}"></td>
-          `;
+          // Thầy tìm đoạn tr.innerHTML cũ và sửa thành đoạn này để làm mịn ô nhập liệu:
+tr.innerHTML = `
+  <td class="border p-2 sticky-col left-0 bg-white/90 text-slate-400 border-slate-200">${index + 1}</td>
+  <td class="border p-2 sticky-col left-[40px] bg-white/90 text-left font-bold text-slate-700 border-slate-200">${member.name}</td>
+  ${showTiH ? [0,1,2,3,4].map(i => `<td class="border p-1 border-slate-200 tih-col"><input type="number" class="ct-input-week ct-tih border border-slate-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-100 outline-none transition-all" data-id="${member.__backendId}" value="${w('tih')[i] || 0}" style="background: rgba(248, 250, 252, 0.5);"></td>`).join('') : ''}
+  ${showTHCS ? [0,1,2,3,4].map(i => `<td class="border p-1 border-slate-200 thcs-col"><input type="number" class="ct-input-week ct-thcs border border-slate-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-100 outline-none transition-all" data-id="${member.__backendId}" value="${w('thcs')[i] || 0}" style="background: rgba(248, 250, 252, 0.5);"></td>`).join('') : ''}
+  ${[0,1,2,3,4].map(i => `<td class="border p-1 border-slate-200"><input type="number" class="ct-input-week ct-vang border border-slate-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-100 outline-none transition-all" data-id="${member.__backendId}" value="${w('vang')[i] || 0}" style="background: rgba(254, 242, 242, 0.5); color: #b91c1c;"></td>`).join('')}
+  <td class="border p-1 border-slate-200"><input type="number" class="ct-input-week ct-daythay border border-slate-200 rounded focus:border-blue-500 outline-none" style="width:55px; background: rgba(254, 253, 246, 0.6);" data-id="${member.__backendId}" value="${typeof d.dayThay === 'number' ? d.dayThay : 0}"></td>
+  <td class="border p-1 border-slate-200"><input type="number" class="ct-input-week ct-pl02 border border-slate-200 rounded focus:border-blue-500 outline-none" data-id="${member.__backendId}" value="${d.pl02 || 0}" style="background: rgba(248, 250, 252, 0.5);"></td>
+  <td class="border p-1 border-slate-200"><input type="number" class="ct-input-week ct-onthi border border-slate-200 rounded focus:border-blue-500 outline-none" data-id="${member.__backendId}" value="${d.onThi || 0}" style="background: rgba(248, 250, 252, 0.5);"></td>
+  <td class="border p-1 border-slate-200"><input type="number" class="ct-input-week ct-coithi border border-slate-200 rounded focus:border-blue-500 outline-none" data-id="${member.__backendId}" value="${d.coiThi || 0}" style="background: rgba(248, 250, 252, 0.5);"></td>
+  <td class="border p-1 border-slate-200"><input type="number" class="ct-input-week ct-khac border border-slate-200 rounded focus:border-blue-500 outline-none" data-id="${member.__backendId}" value="${d.khac || 0}" style="background: rgba(248, 250, 252, 0.5);"></td>
+  <td class="border p-2 font-bold text-green-700 bg-green-50/60 border-slate-200 ct-tong" id="tong-${member.__backendId}">0</td>
+  <td class="border p-1 bg-yellow-50/40 border-slate-200"><input type="number" class="ct-input-week ct-dinhmuc border border-slate-200 rounded focus:border-blue-500 outline-none font-semibold" data-id="${member.__backendId}" value="${d.dinhMuc || 80}" style="background: transparent;"></td>
+  <td class="border p-2 font-bold text-blue-700 bg-blue-50/60 border-slate-200 ct-vuot" id="vuot-${member.__backendId}">0</td>
+  <td class="border p-1 bg-sky-50/30 border-slate-200"><input type="number" class="ct-input-week ct-after border border-slate-200 rounded focus:border-blue-500 outline-none" data-id="${member.__backendId}" value="${d.afterSchool || 0}" style="background: transparent;"></td>
+  <td class="border p-1 bg-sky-50/30 border-slate-200"><input type="number" class="ct-input-week ct-bd12 border border-slate-200 rounded focus:border-blue-500 outline-none" data-id="${member.__backendId}" value="${d.bd12 || 0}" style="background: transparent;"></td>
+  <td class="border p-1 bg-sky-50/30 border-slate-200"><input type="number" class="ct-input-week ct-bd11 border border-slate-200 rounded focus:border-blue-500 outline-none" data-id="${member.__backendId}" value="${d.bd11 || 0}" style="background: transparent;"></td>
+`;
           tbody.appendChild(tr);
         });
         document.querySelectorAll('.ct-input-week').forEach(input => { input.addEventListener('input', () => calcRow(input.getAttribute('data-id'))); });
