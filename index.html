@@ -125,7 +125,7 @@
     </div>
 </header>
 
- <div id="wrapper-filters" class="hidden opacity-0 max-h-0 overflow-hidden transition-all duration-300 ease-out w-full px-4 sm:px-6 py-2 border-b border-slate-200/60 absolute left-0 right-0 z-30 shadow-lg" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); top: 73px;">
+<div id="wrapper-filters" class="hidden opacity-0 max-h-0 overflow-hidden transition-all duration-300 ease-out w-full px-4 sm:px-6 py-2 border-b border-slate-200/60 absolute left-0 right-0 z-30 shadow-lg flex flex-col" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); top: 73px;">
     
     <div id="filter-bar" class="w-full py-1.5 flex flex-wrap gap-2 items-center flex-shrink-0">
         <div class="flex items-center gap-2 mr-2"><i data-lucide="filter" style="width:14px;height:14px;color:#475569;"></i><span class="text-xs font-bold text-slate-600">Lọc nhanh:</span></div>
@@ -3691,7 +3691,7 @@ function deleteLienKet(id) {
             // Mở bộ lọc lơ lửng mượt mà
             wrapper.classList.remove('hidden');
             setTimeout(() => { 
-                wrapper.style.maxHeight = '200px'; 
+                wrapper.style.maxHeight = '300px'; // Nới rộng không gian lên 300px để hiện đủ cả 2 thanh
                 wrapper.classList.remove('opacity-0');
                 wrapper.classList.add('opacity-100');
             }, 10);
