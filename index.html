@@ -26,8 +26,17 @@
     .modal-backdrop { animation: backdropIn 0.2s ease; }
     @keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
     .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: #fff; flex-shrink: 0; }
-    .scrollbar-thin::-webkit-scrollbar { width: 4px; }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    /* Định hình toàn bộ hệ thống thanh cuộn mượt và bo góc tròn */
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.03); border-radius: 99px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; transition: background 0.2s; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* Áp dụng bo góc thanh cuộn cho toàn bộ trình duyệt, các bảng ma trận nhập liệu và các thẻ div cuộn */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.02); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     input, textarea, select { font-family: 'Geist', sans-serif; }
     .timeline-item { position: relative; padding-left: 40px; margin-bottom: 24px; }
     .timeline-item::before { content: ''; position: absolute; left: 8px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: #38bdf8; border: 3px solid #1e293b; }
