@@ -677,7 +677,10 @@
     <div class="w-full max-w-md rounded-2xl p-6 transform transition-all border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-5">
       <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;">Quản lý thành viên</h2>
-      <button id="btn-members-close" onclick="document.getElementById('members-modal').classList.add('hidden'); document.getElementById('member-modal').classList.remove('show');" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-slate-700"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+<!-- ĐÃ VÁ LỖI ĐỒNG BỘ TÊN ID MEMBERS-MODAL VÀ ÉP LỆNH ĐÓNG PHẲNG DỨT ĐIỂM -->
+      <button id="btn-members-close" onclick="event.stopPropagation(); document.getElementById('members-modal').classList.add('hidden');" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-slate-700">
+        <i data-lucide="x" style="width:20px;height:20px;"></i>
+      </button>
      </div>
      <div id="members-list" class="space-y-2 mb-4 max-h-64 overflow-y-auto scrollbar-thin rounded-lg p-1" style="background: rgba(248, 250, 252, 0.5);"></div>
      <button id="btn-add-member" class="w-full py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm" style="background:#f59e0b;color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;display:inline;margin-right:6px;"></i>Thêm thành viên</button>
