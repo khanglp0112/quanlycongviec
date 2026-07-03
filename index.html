@@ -570,7 +570,18 @@
      
      <div class="flex items-center justify-between mb-3 flex-shrink-0">
        <div>
-         <h2 class="font-display text-xl font-bold tracking-tight" style="color:#0f172a;">Phân bổ Định mức & Quỹ giờ</h2>
+         <div class="flex items-center gap-3">
+           <h2 class="font-display text-xl font-bold tracking-tight" style="color:#0f172a;">Phân bổ Định mức & Quỹ giờ</h2>
+           <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200/40 ml-1">
+             <button type="button" onclick="changeWorkingHoursWeek(-1)" class="p-1 rounded-md hover:bg-white text-slate-500 hover:text-slate-800 transition-all select-none" title="Tuần trước">
+               <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+             </button>
+             <span id="wh-current-week-lbl" class="text-[10px] font-bold text-slate-600 px-1 font-mono">Tuần này</span>
+             <button type="button" onclick="changeWorkingHoursWeek(1)" class="p-1 rounded-md hover:bg-white text-slate-500 hover:text-slate-800 transition-all select-none" title="Tuần sau">
+               <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+             </button>
+           </div>
+         </div>
          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Phân tích mật độ công việc và cân bằng năng suất tuần</p>
        </div>
        <button id="btn-working-hours-close" class="p-1.5 rounded-lg transition-colors text-slate-400 hover:text-slate-700 hover:bg-slate-100">
@@ -1216,9 +1227,30 @@ function getWorkingDaysList(startDateStr, endDateStr) {
 // PHẦN 2: THIẾT KẾ MẪU THẺ GIÁO VIÊN PHẲNG MỚI (IN TRONG HÀM JAVASCRIPT)
 // =========================================================================
 function renderWorkingHoursList() {
+  // Khởi tạo một biến toàn cục lưu trữ độ lệch tuần riêng biệt cho bảng Giờ làm
+if (typeof window.whWeekOffset === 'undefined') {
+  window.whWeekOffset = 0; 
+}
+
+function renderWorkingHoursList() {
   const container = document.getElementById('working-hours-list');
-  const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
-  const currentMonday = new Date(currentMonStr);
+  
+  // Tính toán ngày Thứ 2 dựa theo độ lệch tuần độc lập trong modal
+  const baseMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
+  const currentMonday = new Date(baseMonStr);
+  currentMonday.setDate(currentMonday.getDate() + (window.whWeekOffset * 7));
+  
+  const nextMonday = new Date(currentMonday);
+  nextMonday.setDate(currentMonday.getDate() + 7);
+
+  // Cập nhật nhãn văn bản hiển thị trên nút chuyển tuần phụ
+  const lbl = document.getElementById('wh-current-week-lbl');
+  if (lbl) {
+    if (window.whWeekOffset === 0) lbl.innerText = "Tuần này";
+    else if (window.whWeekOffset === -1) lbl.innerText = "Tuần trước";
+    else if (window.whWeekOffset === 1) lbl.innerText = "Tuần sau";
+    else lbl.innerText = (window.whWeekOffset > 0 ? "+" : "") + window.whWeekOffset + " tuần";
+  }
   const nextMonday = new Date(currentMonday);
   nextMonday.setDate(currentMonday.getDate() + 7);
 
@@ -2439,6 +2471,17 @@ document.getElementById('btn-add').onclick = () => {
       renderTasks(); // Để hệ thống tự quét xem nên hiện Bảng hay hiện "Chưa có việc"
       closeModal(); openModal(); 
     };
+ // =========================================================================
+// PHẦN 3 PHỤ: HÀM TĂNG/GIẢM TUẦN ĐỘC LẬP CHỈ TRONG BẢNG GIỜ LÀM VIỆC
+// =========================================================================
+function changeWorkingHoursWeek(direction) {
+  if (typeof window.whWeekOffset === 'undefined') {
+    window.whWeekOffset = 0;
+  }
+  window.whWeekOffset += direction;
+  renderWorkingHoursList();
+}
+// =========================================================================
     document.getElementById('btn-modal-close').onclick = closeModal;
     document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 
