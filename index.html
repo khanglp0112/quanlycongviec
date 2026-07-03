@@ -1227,31 +1227,13 @@ function getWorkingDaysList(startDateStr, endDateStr) {
 // PHẦN 2: THIẾT KẾ MẪU THẺ GIÁO VIÊN PHẲNG MỚI (IN TRONG HÀM JAVASCRIPT)
 // =========================================================================
 function renderWorkingHoursList() {
-  // Khởi tạo một biến toàn cục lưu trữ độ lệch tuần riêng biệt cho bảng Giờ làm
-if (typeof window.whWeekOffset === 'undefined') {
-  window.whWeekOffset = 0; 
-}
-
-function renderWorkingHoursList() {
   const container = document.getElementById('working-hours-list');
-  
-  // Tính toán ngày Thứ 2 dựa theo độ lệch tuần độc lập trong modal
-  const baseMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
-  const currentMonday = new Date(baseMonStr);
-  currentMonday.setDate(currentMonday.getDate() + (window.whWeekOffset * 7));
-  
+  const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
+  const currentMonday = new Date(currentMonStr);
   const nextMonday = new Date(currentMonday);
   nextMonday.setDate(currentMonday.getDate() + 7);
 
-  // Cập nhật nhãn văn bản hiển thị trên nút chuyển tuần phụ
-  const lbl = document.getElementById('wh-current-week-lbl');
-  if (lbl) {
-    if (window.whWeekOffset === 0) lbl.innerText = "Tuần này";
-    else if (window.whWeekOffset === -1) lbl.innerText = "Tuần trước";
-    else if (window.whWeekOffset === 1) lbl.innerText = "Tuần sau";
-    else lbl.innerText = (window.whWeekOffset > 0 ? "+" : "") + window.whWeekOffset + " tuần";
-  }
-  // Đảm bảo vùng chứa dữ liệu được làm sạch trước khi nạp
+  // [Toàn bộ đoạn code map dữ liệu phía dưới giữ nguyên 100%...]
   container.innerHTML = '';
 
   // Vòng lặp quét qua từng giáo viên để định danh và đổ thông số chính xác 100%
@@ -2471,13 +2453,33 @@ document.getElementById('btn-add').onclick = () => {
  // =========================================================================
 // PHẦN 3 PHỤ: HÀM TĂNG/GIẢM TUẦN ĐỘC LẬP CHỈ TRONG BẢNG GIỜ LÀM VIỆC
 // =========================================================================
+// =========================================================================
+// HÀM ĐỔI TUẦN ĐỘC LẬP: DÙNG CODE CŨ - ĐIỀU CHỈNH TRỰC TIẾP TRÊN HÀM HỆ THỐNG
+// =========================================================================
 function changeWorkingHoursWeek(direction) {
-  if (typeof window.whWeekOffset === 'undefined') {
-    window.whWeekOffset = 0;
+  // 1. Lấy chuỗi ngày Thứ 2 hiện tại của hệ thống (Ví dụ: "2026-04-13")
+  const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
+  const tempDate = new Date(currentMonStr);
+  
+  // 2. Tịnh tiến ngày đi +7 hoặc -7 ngày trực tiếp dựa vào nút bấm
+  tempDate.setDate(tempDate.getDate() + (direction * 7));
+  const newMonStr = tempDate.toISOString().split('T')[0];
+  
+  // 3. Ghi đè mốc ngày mới này vào ô Input chọn tuần (hoặc biến lưu trữ toàn cục) của thầy
+  const weekInput = document.getElementById('current-week-input') || document.getElementById('week-select');
+  if (weekInput) {
+    weekInput.value = newMonStr;
+    // Kích hoạt sự kiện change của hệ thống để đồng bộ số liệu cũ của thầy
+    if (typeof changeWeek === 'function') {
+      changeWeek(0); 
+    } else {
+      renderWorkingHoursList();
+    }
+  } else {
+    renderWorkingHoursList();
   }
-  window.whWeekOffset += direction;
-  renderWorkingHoursList();
 }
+// =========================================================================
 // =========================================================================
     document.getElementById('btn-modal-close').onclick = closeModal;
     document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
