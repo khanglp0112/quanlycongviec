@@ -2262,12 +2262,19 @@ document.getElementById('btn-add').onclick = () => {
     document.getElementById('btn-modal-close').onclick = closeModal;
     document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 // KHÔI PHỤC LỆNH ĐÓNG BẰNG DẤU X CHO BẢNG QUẢN LÝ GIỜ LÀM/THÀNH VIÊN
-    const btnWorkingHoursClose = document.getElementById('btn-working-hours-close');
-    if (btnWorkingHoursClose) {
-        btnWorkingHoursClose.onclick = () => {
-            const whModal = document.getElementById('working-hours-modal');
-            if (whModal) whModal.classList.remove('show');
-        };
+    const memberModal = document.getElementById('member-modal');
+    if (memberModal) {
+        // Bấm ra màng nền ngoài thì đóng bảng thành viên
+        memberModal.addEventListener('click', e => { if (e.target === e.currentTarget) memberModal.classList.remove('show'); });
+        
+        // Bấm vào đúng nút dấu X (#btn-member-close) để đóng bảng thành viên
+        const btnMemberClose = document.getElementById('btn-member-close');
+        if (btnMemberClose) {
+            btnMemberClose.onclick = (e) => {
+                e.preventDefault();
+                memberModal.classList.remove('show');
+            };
+        }
     }
     document.querySelectorAll('.rating-btn').forEach(btn => {
       btn.addEventListener('click', (e) => { e.preventDefault(); const rating = btn.getAttribute('data-rating'); document.getElementById('inp-rating').value = rating; updateRatingButtons(); });
