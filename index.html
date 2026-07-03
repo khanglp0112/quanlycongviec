@@ -8,52 +8,10 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
-  <style>
-   /* Ép toàn bộ các phân khu cuộn chạy ở tần số quét cao nhất 120Hz */
-    html, body, .overflow-y-auto, .overflow-auto, #assignee-list, #task-form, .table-responsive {
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-        content-visibility: auto; /* Chỉ render các phần tử khi cuộn tới, giải phóng bộ nhớ */
-        contain-intrinsic-size: auto 100px;
-        transform: translateZ(0); /* Kích hoạt chế độ tăng tốc phần cứng 3D Layers */
-        will-change: scroll-position, transform;
-    }
-
-    /* Khóa hoạt cảnh mượt 120 khung hình/giây (120 FPS) cho các Form Modal */
-    .modal-backdrop-smooth, .modal-box-smooth {
-        backface-visibility: hidden;
-        perspective: 1000px;
-        will-change: transform, opacity;
-    }
-   /* --- HOẠT CẢNH MỞ MODAL MỀM MẠI --- */
-    /* Lớp nền mờ (Backdrop) */
-    .modal-backdrop-smooth {
-        position: fixed; inset: 0; z-index: 50;
-        background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);
-        display: flex; align-items: center; justify-content: center; p: 4px;
-        opacity: 0; pointer-events: none;
-        transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .modal-backdrop-smooth.show {
-        opacity: 1; pointer-events: auto;
-    }
-
-    /* Khung nội dung bên trong (Hộp thoại) - Tạo hiệu ứng nảy nhẹ và mờ sang rõ */
-    .modal-box-smooth {
-        transform: scale(0.92) translateY(10px);
-        opacity: 0;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
-    }
-    .modal-backdrop-smooth.show .modal-box-smooth {
-        transform: scale(1) translateY(0);
-        opacity: 1;
-    }
-    /* Tối ưu hóa hiệu ứng kính mờ khi cuộn để chống lag giật trên Chrome/Edge */
-    [style*="backdrop-filter"] {
-        will-change: backdrop-filter;
-        transform: translateZ(0);
-        backface-visibility: hidden;
-    }
+<style>
+    /* =========================================================================
+       1. CẤU HÌNH GIAO DIỆN GỐC (KANBAN, CHẤM TIẾT, BIÊN BẢN, TIMELINE)
+       ========================================================================= */
     .cham-tiet-container { background: #ffffff !important; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .table-responsive { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
     .sticky-col { position: sticky; left: 0; background: #f8fafc; z-index: 10; border-right: 2px solid #e2e8f0 !important; }
@@ -62,74 +20,98 @@
     .ct-input-week { width: 45px; text-align: center; border: 1px solid #cbd5e1; border-radius: 4px; padding: 2px; font-size: 12px; }
     .ct-input-week:focus { border-color: #3b82f6; outline: none; background: #eff6ff; }
     * { box-sizing: border-box; }
-    body { font-family: 'Geist', sans-serif; margin: 0; }
+    body { margin: 0; }
+    input, textarea, select { font-family: 'Geist', sans-serif; }
     .font-display { font-family: 'Newsreader', serif; }
+    
+    /* Thẻ công việc Kanban */
     .task-card { transition: transform 0.2s, box-shadow 0.2s; }
     .task-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .modal-backdrop { animation: backdropIn 0.2s ease; }
-    @keyframes backdropIn { from { opacity: 0; } to { opacity: 1; } }
     .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: #fff; flex-shrink: 0; }
-    /* Định hình toàn bộ hệ thống thanh cuộn mượt và bo góc tròn */
-    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
-    .scrollbar-thin::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.03); border-radius: 99px; }
-    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; transition: background 0.2s; }
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-    /* Áp dụng bo góc thanh cuộn cho toàn bộ trình duyệt, các bảng ma trận nhập liệu và các thẻ div cuộn */
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.02); border-radius: 99px; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    input, textarea, select { font-family: 'Geist', sans-serif; }
+    
+    /* Trục thời gian Timeline */
     .timeline-item { position: relative; padding-left: 40px; margin-bottom: 24px; }
     .timeline-item::before { content: ''; position: absolute; left: 8px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: #38bdf8; border: 3px solid #1e293b; }
     .timeline-item.done::before { background: #34d399; }
     .timeline-item.doing::before { background: #a78bfa; animation: pulse 2s infinite; }
     @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.7); } 50% { box-shadow: 0 0 0 8px rgba(167, 139, 250, 0); } }
-    .timeline-line { position: absolute; left: 15px; top: 0; width: 2px; height: 100%; background: linear-gradient(to bottom, #38bdf8, transparent); }
+    .timeline-line { position: absolute; left: 15px; top: 0; width: 2px; height: 100%; background: military; background: linear-gradient(to bottom, #38bdf8, transparent); }
     .timeline-date { font-size: 12px; font-weight: 600; color: #94a3b8; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-/* Hiệu ứng Màn hình chào Premium */
-   /* Hiệu ứng Màn hình chào Premium */
+
+    /* Thanh cuộn bo tròn Flat mượt mà */
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.03); border-radius: 99px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; transition: background 0.2s; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.02); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+    /* =========================================================================
+       2. MÀN HÌNH CHÀO (SPLASH SCREEN) & HIỆU ỨNG TẢI DỮ LIỆU
+       ========================================================================= */
     #splash-screen {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: #ffffff; /* Nền trắng tuyệt đối để giấu nền logo */
-        z-index: 9999; display: flex;
+        background: #ffffff; z-index: 9999; display: flex;
         flex-direction: column; align-items: center; justify-content: center;
         transition: opacity 0.8s ease, visibility 0.8s, filter 0.8s;
     }
     #splash-screen.hidden-splash { opacity: 0; visibility: hidden; filter: blur(10px); pointer-events: none; }
-    
-    .premium-fade-up {
-        animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        opacity: 0; transform: translateY(15px);
-    }
+    .premium-fade-up { animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; transform: translateY(15px); }
     .premium-pulse { animation: subtlePulse 2.5s infinite ease-in-out; }
-    
-    @keyframes fadeUp {
-        to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
     @keyframes subtlePulse {
         0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 10px rgba(0,0,0,0.05)); }
         50% { transform: scale(1.03); filter: drop-shadow(0 15px 20px rgba(0,0,0,0.1)); }
     }
-    
-    /* Sợi chỉ ánh sáng gradient đặt ngay dưới chữ */
-    .ultra-thin-loader {
-        width: 120px; height: 1.5px;
-        background: rgba(0,0,0,0.05); overflow: hidden; border-radius: 2px;
-        margin-top: 24px; /* Khoảng cách từ chữ xuống thanh loading */
+    .ultra-thin-loader { width: 120px; height: 1.5px; background: rgba(0,0,0,0.05); overflow: hidden; border-radius: 2px; margin-top: 24px; }
+    .ultra-thin-progress { width: 100%; height: 100%; background: linear-gradient(90deg, transparent, #3b82f6, #8b5cf6, transparent); animation: sleekScan 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+    @keyframes sleekScan { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    /* =========================================================================
+       3. TĂNG TỐC PHẦN CỨNG ĐỒ HỌA (GPU) & KHÓA LUỒNG QUÉT 120HZ
+       ========================================================================= */
+    html, body, .overflow-y-auto, .overflow-auto, #assignee-list, #task-form, .table-responsive {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        content-visibility: auto;
+        contain-intrinsic-size: auto 100px;
+        transform: translateZ(0); /* Ép luồng xử lý đồ họa kích hoạt 3D Layers */
+        will-change: scroll-position, transform;
     }
-    .ultra-thin-progress {
-        width: 100%; height: 100%;
-        background: linear-gradient(90deg, transparent, #3b82f6, #8b5cf6, transparent);
-        animation: sleekScan 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+
+    /* =========================================================================
+       4. HỆ THỐNG HOẠT CẢNH MỞ FORM MODAL BẢN CUỘN PHẲNG TRÊN BACKDROP (CHỐNG LAG)
+       ========================================================================= */
+    .modal-backdrop-smooth {
+        position: fixed; inset: 0; z-index: 50;
+        background: rgba(15, 23, 42, 0.35); backdrop-filter: blur(8px);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        
+        /* Đưa toàn bộ trục cuộn ra màng nền ngoài để giải phóng 100% tài nguyên CPU/GPU */
+        overflow-y: auto !important; 
+        padding: 40px 16px;
     }
-    @keyframes sleekScan {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
+    .modal-backdrop-smooth.show { opacity: 1; pointer-events: auto; }
+
+    .modal-box-smooth {
+        transform: scale(0.93) translateY(12px);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        
+        /* Triệt tiêu cuộn tầng trong để tránh xung đột đứng màn hình */
+        overflow: visible !important; 
+        margin: auto;
+        will-change: transform, opacity;
+        backface-visibility: hidden;
     }
+    .modal-backdrop-smooth.show .modal-box-smooth { transform: scale(1) translateY(0); opacity: 1; }
+  </style>
   </style>
   <!-- ==================================================================== -->
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
