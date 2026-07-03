@@ -9,13 +9,29 @@
 <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
   <style>
-   /* Tăng tốc phần cứng bằng GPU cho toàn bộ các khu vực có thanh cuộn */
-    .overflow-y-auto, .overflow-auto, #assignee-list, #task-form, .table-responsive {
-        webkit-overflow-scrolling: touch;
-        will-change: transform, scroll-position;
-        transform: translateZ(0); /* Ép trình duyệt dùng card đồ họa để xử lý cuộn */
+   /* --- HOẠT CẢNH MỞ MODAL MỀM MẠI --- */
+    /* Lớp nền mờ (Backdrop) */
+    .modal-backdrop-smooth {
+        position: fixed; inset: 0; z-index: 50;
+        background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);
+        display: flex; align-items: center; justify-content: center; p: 4px;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-backdrop-smooth.show {
+        opacity: 1; pointer-events: auto;
     }
 
+    /* Khung nội dung bên trong (Hộp thoại) - Tạo hiệu ứng nảy nhẹ và mờ sang rõ */
+    .modal-box-smooth {
+        transform: scale(0.92) translateY(10px);
+        opacity: 0;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+    }
+    .modal-backdrop-smooth.show .modal-box-smooth {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
     /* Tối ưu hóa hiệu ứng kính mờ khi cuộn để chống lag giật trên Chrome/Edge */
     [style*="backdrop-filter"] {
         will-change: backdrop-filter;
@@ -549,8 +565,8 @@
     <p class="text-sm" style="color:#64748b;">Nhấn "Thêm việc" để bắt đầu phân công</p>
    </div>
 
-<div id="working-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
-  <div class="w-full max-w-4xl rounded-2xl p-6 flex flex-col border border-slate-200 overflow-hidden scrollbar-thin" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+<div id="working-hours-modal" class="modal-backdrop-smooth">
+  <div class="modal-box-smooth w-full max-w-4xl rounded-2xl p-6 flex flex-col border border-slate-200 overflow-hidden scrollbar-thin shadow-2xl" style="background: rgba(255, 255, 255, 0.85); max-height:90vh;">
      <div class="flex items-center justify-between mb-5 flex-shrink-0">
       <h2 class="font-display text-lg font-bold" style="color:#1e293b;">Quản lý giờ làm việc</h2><button id="btn-working-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -593,8 +609,8 @@
      <div class="grid grid-cols-3 gap-2"><button id="detail-status-todo" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Chờ làm</button> <button id="detail-status-doing" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Đang làm</button> <button id="detail-status-done" class="py-2 rounded-lg text-xs font-medium transition-colors" style="background:#f1f5f9;color:#475569;">Hoàn thành</button></div>
     </div>
    </div>
-  <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
-  <div class="w-full max-w-2xl rounded-2xl p-6 overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height: 90vh; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+<div id="modal" class="modal-backdrop-smooth">
+  <div class="modal-box-smooth w-full max-w-2xl rounded-2xl p-6 overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200 shadow-2xl" style="background: rgba(255, 255, 255, 0.85); max-height: 90vh;">
      <div class="flex items-center justify-between mb-5">
       <h2 id="modal-title" class="font-display text-lg font-bold" style="color:#1e293b;">Thêm công việc</h2><button id="btn-modal-close" class="p-1 rounded-lg transition-colors flex-shrink-0" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -1580,11 +1596,11 @@ document.getElementById('btn-timeline').onclick = () => {
     }
 
     document.getElementById('btn-working-hours').onclick = () => {
-      renderWorkingHoursList();
-      document.getElementById('working-hours-modal').classList.remove('hidden');
-    };
+    renderWorkingHoursList();
+    document.getElementById('working-hours-modal').classList.add('show');
+};
 
-    document.getElementById('btn-members-close').onclick = () => { document.getElementById('members-modal').classList.add('hidden'); };
+   document.getElementById('btn-working-hours-close').onclick = () => { document.getElementById('working-hours-modal').classList.remove('show'); };
     document.getElementById('members-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('members-modal').classList.add('hidden'); } });
 
     document.getElementById('btn-working-hours-close').onclick = () => { document.getElementById('working-hours-modal').classList.add('hidden'); };
@@ -2126,8 +2142,9 @@ toast.className = 'bg-white px-5 py-3.5 rounded-xl shadow-[0_15px_40px_-10px_rgb
         toastEl.classList.add('translate-y-10', 'opacity-0');
         setTimeout(() => toastEl.remove(), 300);
     }
-
-    function openModal() { document.getElementById('modal').classList.remove('hidden'); document.getElementById('form-error').classList.add('hidden'); }
+function openModal() { 
+    document.getElementById('modal').classList.add('show'); 
+    document.getElementById('form-error').classList.add('hidden');
 let draggedSubtask = null; // Biến toàn cục để nhớ xem đang kéo mục nào
 
     function addSubtaskInput(text = '', done = false) {
@@ -2174,7 +2191,7 @@ let draggedSubtask = null; // Biến toàn cục để nhớ xem đang kéo mụ
         }
     } 
    function closeModal() {
-  document.getElementById('modal').classList.add('hidden');
+  document.getElementById('modal').classList.remove('show');
   document.getElementById('task-form').reset();
   document.getElementById('inp-edit-id').value = '';
   document.getElementById('inp-status').value = 'todo';
