@@ -83,7 +83,14 @@
         flex-direction: column; align-items: center; justify-content: center;
         transition: opacity 0.8s ease, visibility 0.8s, filter 0.8s;
     }
-    #splash-screen.hidden-splash { opacity: 0; visibility: hidden; filter: blur(10px); pointer-events: none; }
+/* Tinh chỉnh lớp ẩn màn hình chào sang hiệu ứng kính mờ lướt đi */
+    #splash-screen.hidden-splash { 
+        opacity: 0; 
+        visibility: hidden; 
+        background: rgba(255, 255, 255, 0.2); /* Chuyển sang nền trong suốt nhẹ */
+        backdrop-filter: blur(20px); /* Đẩy mạnh độ mờ khi lướt đi */
+        pointer-events: none; 
+    }
     
     .premium-fade-up {
         animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
