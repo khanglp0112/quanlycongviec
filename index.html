@@ -2464,30 +2464,39 @@ document.getElementById('btn-add').onclick = () => {
 // =========================================================================
 // HÀM ĐỔI TUẦN ĐỘC LẬP: DÙNG CODE CŨ - ĐIỀU CHỈNH TRỰC TIẾP TRÊN HÀM HỆ THỐNG
 // =========================================================================
+// =========================================================================
+// BẢN VÁ LỖI NÚT BẤM: ÉP ĐỔI MỐC NGÀY HỆ THỐNG VÀO HÀM RENDER CŨ
+// =========================================================================
 function changeWorkingHoursWeek(direction) {
-  // 1. Lấy chuỗi ngày Thứ 2 hiện tại của hệ thống (Ví dụ: "2026-04-13")
-  const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
-  const tempDate = new Date(currentMonStr);
+  // 1. Lấy chuỗi ngày Thứ 2 hiện tại từ hàm hệ thống của thầy
+  let currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
+  let tempDate = new Date(currentMonStr);
   
-  // 2. Tịnh tiến ngày đi +7 hoặc -7 ngày trực tiếp dựa vào nút bấm
+  if (isNaN(tempDate.getTime())) {
+    tempDate = new Date(); // Dự phòng nếu chuỗi ngày bị lỗi
+  }
+
+  // 2. Tịnh tiến trực tiếp +7 hoặc -7 ngày 
   tempDate.setDate(tempDate.getDate() + (direction * 7));
-  const newMonStr = tempDate.toISOString().split('T')[0];
+  let newMonStr = tempDate.toISOString().split('T')[0];
   
-  // 3. Ghi đè mốc ngày mới này vào ô Input chọn tuần (hoặc biến lưu trữ toàn cục) của thầy
-  const weekInput = document.getElementById('current-week-input') || document.getElementById('week-select');
-  if (weekInput) {
-    weekInput.value = newMonStr;
-    // Kích hoạt sự kiện change của hệ thống để đồng bộ số liệu cũ của thầy
-    if (typeof changeWeek === 'function') {
-      changeWeek(0); 
-    } else {
-      renderWorkingHoursList();
-    }
-  } else {
+  // 3. Đồng bộ mốc ngày mới vào ô chọn tuần chính của thầy (Thử nghiệm các ID phổ biến)
+  const mainWeekInput = document.getElementById('current-week') || 
+                        document.getElementById('current-week-input') || 
+                        document.getElementById('week-select');
+                        
+  if (mainWeekInput) {
+    mainWeekInput.value = newMonStr;
+    
+    // Phát sự kiện để kích hoạt luồng đổi tuần gốc của thầy
+    mainWeekInput.dispatchEvent(new Event('change'));
+  }
+  
+  // 4. Ép vẽ lại dữ liệu mới ngay lập tức cho bảng Giờ làm
+  if (typeof renderWorkingHoursList === 'function') {
     renderWorkingHoursList();
   }
 }
-// =========================================================================
 // =========================================================================
     document.getElementById('btn-modal-close').onclick = closeModal;
     document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
