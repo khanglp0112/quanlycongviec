@@ -1212,140 +1212,154 @@ function getWorkingDaysList(startDateStr, endDateStr) {
 }
 
 
-function renderWorkingHoursList() {
-      const container = document.getElementById('working-hours-list');
-      const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
-      const currentMonday = new Date(currentMonStr);
-      const nextMonday = new Date(currentMonday);
-      nextMonday.setDate(currentMonday.getDate() + 7);
-
-      container.innerHTML = membersData.map((m) => {
-        const workQuota = parseFloat(m.work_quota || '40');
-        const fixedHours = parseFloat(m.fixed_hours || '0');
-        
-        let taskEstimated = 0;
-        const memberTasksThisWeek = allTasks.filter(t => {
-          if (!t.assignee || !t.assignee.includes(m.name)) return false;
-          // Áp dụng bộ lọc thời gian: Đã xong -> Tính ngày xong. Chưa xong -> Tính ngày hết hạn
-          let targetDateStr = t.deadline;
-          if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
-          
-          if (!targetDateStr) return false;
-          const d = new Date(targetDateStr);
-          return d >= currentMonday && d < nextMonday;
-        });
-
-        // =========================================================================
-// CẬP NHẬT PHẦN 2B: THUẬT TOÁN DÀN ĐỀU GIỜ VÀ CHIA ĐỀU VIỆC NHÓM TRONG TUẦN
 // =========================================================================
-memberTasksThisWeek.forEach(t => {
-    // Xác định số người làm chung nhiệm vụ này để chia đều tải (mặc định là 1)
-    const soNguoiLamChung = (t.assignee && Array.isArray(t.assignee)) ? t.assignee.length : 1;
+// PHẦN 2: THIẾT KẾ MẪU THẺ GIÁO VIÊN PHẲNG MỚI (IN TRONG HÀM JAVASCRIPT)
+// =========================================================================
+function renderWorkingHoursList() {
+  const container = document.getElementById('working-hours-list');
+  const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
+  const currentMonday = new Date(currentMonStr);
+  const nextMonday = new Date(currentMonday);
+  nextMonday.setDate(currentMonday.getDate() + 7);
 
-    if (t.status === 'done') {
-        // TRƯỜNG HỢP 1: Việc ĐÃ XONG -> Chốt hạ bằng Giờ thực tế chia đều theo số người
-        // Chỉ tính giờ vào tuần chứa ngày hoàn thành (completed_at)
+  // Đảm bảo vùng chứa dữ liệu được làm sạch trước khi nạp
+  container.innerHTML = '';
+
+  // Vòng lặp quét qua từng giáo viên để định danh và đổ thông số chính xác 100%
+  container.innerHTML = membersData.map((m) => {
+    const workQuota = parseFloat(m.work_quota || '40');
+    const fixedHours = parseFloat(m.fixed_hours || '0');
+    
+    let taskEstimated = 0;
+    const memberTasksThisWeek = allTasks.filter(t => {
+      if (!t.assignee || !t.assignee.includes(m.name)) return false;
+      let targetDateStr = t.deadline;
+      if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
+      if (!targetDateStr) return false;
+      const d = new Date(targetDateStr);
+      return d >= currentMonday && d < nextMonday;
+    });
+
+    // Giữ nguyên vẹn thuật toán lõi tính toán gánh việc và dàn đều tải tuần cũ của thầy
+    memberTasksThisWeek.forEach(t => {
+      const soNguoiLamChung = (t.assignee && Array.isArray(t.assignee)) ? t.assignee.length : 1;
+      if (t.status === 'done') {
         const ngayHoanThanhStr = t.completed_at ? t.completed_at.substring(0, 10) : "";
         const ngayDauTuanXemStr = currentMonday.toISOString().substring(0, 10);
         const ngayCuoiTuanXemStr = new Date(currentMonday.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
-
         if (ngayHoanThanhStr >= ngayDauTuanXemStr && ngayHoanThanhStr <= ngayCuoiTuanXemStr) {
-            taskEstimated += (parseFloat(t.actual_hours || t.estimated_hours || 0) / soNguoiLamChung);
+          taskEstimated += (parseFloat(t.actual_hours || t.estimated_hours || 0) / soNguoiLamChung);
         }
-    } else {
-        // TRƯỜNG HỢP 2: Việc CHƯA XONG -> Dàn đều giờ dự kiến theo ngày làm việc (trừ CN)
+      } else {
         const ngayNhanStr = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "");
         const ngayChotStr = t.deadline ? t.deadline.substring(0, 10) : "";
-
         if (ngayNhanStr && ngayChotStr) {
-            // Lấy danh sách toàn bộ ngày làm việc thực tế của Task (Đã loại trừ CN ở phần 2A)
-            const danhSachNgayCuaTask = getWorkingDaysList(ngayNhanStr, ngayChotStr);
-            const tongSoNgayCuaTask = danhSachNgayCuaTask.length;
-
-            if (tongSoNgayCuaTask > 0) {
-                // Đếm xem có bao nhiêu ngày làm việc của Task nằm trong tuần đang xem
-                let soNgayTrungTrongTuan = 0;
-                
-                // Tạo mảng chứa 6 ngày làm việc (T2 -> T7) của tuần đang xem trên giao diện
-                const danhSachNgayTrongTuanXem = [];
-                for (let i = 0; i < 6; i++) {
-                    const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
-                    const yyyy = ngayChay.getFullYear();
-                    const mm = String(ngayChay.getMonth() + 1).padStart(2, '0');
-                    const dd = String(ngayChay.getDate()).padStart(2, '0');
-                    danhSachNgayTrongTuanXem.push(`${yyyy}-${mm}-${dd}`);
-                }
-
-                // Tiến hành đối chiếu giao thoa ngày
-                danhSachNgayCuaTask.forEach(ngayTask => {
-                    if (danhSachNgayTrongTuanXem.includes(ngayTask)) {
-                        soNgayTrungTrongTuan++;
-                    }
-                });
-
-                // Áp dụng tỷ lệ phân bổ thời gian gánh việc của từng người vào quỹ tuần này
-                const gioDuKienTong = parseFloat(t.estimated_hours || 0);
-                const gioPhanBoMoiNguoi = (gioDuKienTong / soNguoiLamChung);
-                
-                taskEstimated += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
-            } else {
-                taskEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
+          const danhSachNgayCuaTask = getWorkingDaysList(ngayNhanStr, ngayChotStr);
+          const tongSoNgayCuaTask = danhSachNgayCuaTask.length;
+          if (tongSoNgayCuaTask > 0) {
+            let soNgayTrungTrongTuan = 0;
+            const danhSachNgayTrongTuanXem = [];
+            for (let i = 0; i < 6; i++) {
+              const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
+              danhSachNgayTrongTuanXem.push(`${ngayChay.getFullYear()}-${String(ngayChay.getMonth() + 1).padStart(2, '0')}-${String(ngayChay.getDate()).padStart(2, '0')}`);
             }
-        } else {
+            danhSachNgayCuaTask.forEach(ngayTask => {
+              if (danhSachNgayTrongTuanXem.includes(ngayTask)) {
+                soNgayTrungTrongTuan++;
+              }
+            });
+            const gioDuKienTong = parseFloat(t.estimated_hours || 0);
+            const gioPhanBoMoiNguoi = (gioDuKienTong / soNguoiLamChung);
+            taskEstimated += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
+          } else {
             taskEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
+          }
+        } else {
+          taskEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
         }
-    }
-});
+      }
+    });
 
-        const totalUsedEst = fixedHours + taskEstimated;
-        const remainingEst = Math.max(0, workQuota - totalUsedEst);
+    const totalUsedEst = fixedHours + taskEstimated;
+    const remainingEst = Math.max(0, workQuota - totalUsedEst);
+    const percent = Math.min(100, (totalUsedEst / workQuota) * 100);
+    
+    // Thuật toán găm dải màu Gradient phẳng cho thanh tiến độ mềm mại sâu 6px
+    let barGradient = 'from-emerald-400 to-green-500'; 
+    let textBadgeColor = 'text-emerald-700 bg-emerald-50 border-emerald-100';
+    let badgeLabel = `🟢 Còn trống ${remainingEst.toFixed(1)}h`;
+    
+    if (totalUsedEst >= workQuota) { 
+      barGradient = 'from-rose-500 to-red-600'; 
+      textBadgeColor = 'text-red-600 bg-red-50 border-red-100';
+      badgeLabel = `🔴 Quá tải ${Math.abs(workQuota - totalUsedEst).toFixed(1)}h`;
+    } else if (totalUsedEst >= workQuota * 0.8) { 
+      barGradient = 'from-amber-400 to-orange-500'; 
+      textBadgeColor = 'text-amber-700 bg-amber-50 border-amber-100';
+      badgeLabel = `🟡 Cận tải (Còn ${remainingEst.toFixed(1)}h)`;
+    }
+
+    const eai = (typeof calculateMemberEAI === 'function') ? calculateMemberEAI(m.name) : { label: 'N/A', color: 'text-slate-400 bg-slate-50 border-slate-200' };
+
+    // XUẤT KHUÔN MẪU THẺ GIÁO VIÊN PHẲNG HOÀN TOÀN (HÒA NỀN TRẮNG FLAT KHÔNG KHUNG XÁM)
+    return `
+      <div class="fade-in flex flex-col p-4 rounded-xl border border-slate-100 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300">
         
-        const percent = Math.min(100, (totalUsedEst / workQuota) * 100);
-        let barColor = '#10b981'; 
-        if (percent >= 100) barColor = '#ef4444'; 
-        else if (percent >= 80) barColor = '#f59e0b'; 
-
-        return `
-          <div class="fade-in flex flex-col mb-4" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,0.02);">
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center gap-3">
-                <div class="avatar" style="background:${m.color};width:36px;height:36px;font-weight:700;">${m.name.charAt(0).toUpperCase()}</div>
-                <div>
-                  <div style="color:#1e293b;font-size:15px;font-weight:700;">${escHtml(m.name)}</div>
-                  <div style="color:#64748b;font-size:11px;">Tuần: ${currentMonday.toLocaleDateString('vi-VN')} - ${new Date(nextMonday-1).toLocaleDateString('vi-VN')}</div>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-xs font-bold ${totalUsedEst > workQuota ? 'text-red-500' : 'text-slate-500'}">${totalUsedEst.toFixed(1)} / ${workQuota}h</div>
-                <div class="text-[10px] text-slate-400">Định mức tuần</div>
-              </div>
+        <!-- Hàng 1: Định danh giáo viên & Trạng thái tải -->
+        <div class="flex items-start justify-between mb-3.5">
+          <div class="flex items-center gap-3">
+            <div class="avatar shadow-inner font-bold text-sm select-none" style="background:${m.color}; width:38px; height:36px; border-radius:10px;">
+              ${m.name.charAt(0).toUpperCase()}
             </div>
-
-            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden mb-4">
-              <div style="width:${percent}%; background:${barColor}; height:100%; transition:width 0.5s ease;"></div>
+            <div>
+              <div class="text-[14px] font-bold text-slate-800 tracking-tight">${escHtml(m.name)}</div>
+              <div class="text-[10px] text-slate-400 font-medium font-sans">Hiệu suất: <span class="font-bold text-slate-500">${eai.label.split(' ')[2] || '100%'}</span></div>
             </div>
-
-            <div class="grid grid-cols-3 gap-2">
-              <div class="p-2 rounded-lg bg-slate-50 border border-slate-100 text-center">
-                <div class="text-[10px] text-slate-500 font-bold mb-1">GIỜ CỐ ĐỊNH</div>
-                <div class="text-sm font-bold text-slate-700">${fixedHours.toFixed(1)}h</div>
-              </div>
-              <div class="p-2 rounded-lg bg-blue-50 border border-blue-100 text-center">
-                <div class="text-[10px] text-blue-500 font-bold mb-1">TASK TUẦN</div>
-                <div class="text-sm font-bold text-blue-600">${taskEstimated.toFixed(1)}h</div>
-              </div>
-              <div class="p-2 rounded-lg ${remainingEst <= 0 ? 'bg-red-50 border-red-100' : 'bg-emerald-50 border-emerald-100'} text-center">
-                <div class="text-[10px] ${remainingEst <= 0 ? 'text-red-500' : 'text-emerald-500'} font-bold mb-1">CÒN TRỐNG</div>
-                <div class="text-sm font-bold ${remainingEst <= 0 ? 'text-red-600' : 'text-emerald-600'}">${remainingEst.toFixed(1)}h</div>
-              </div>
-            </div>
-            
-            <button type="button" onclick="editWorkingHours('${m.__backendId}')" class="w-full mt-3 py-2 rounded-lg text-xs font-bold text-blue-600 hover:bg-blue-50 border border-blue-100 transition-colors">⚙️ Cấu hình cố định</button>
           </div>
-        `;
-      }).join('');
-      if(typeof lucide !== 'undefined') lucide.createIcons();
-    }
+          <div class="text-right">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm ${textBadgeColor}">
+              ${badgeLabel}
+            </span>
+            <div class="text-[11px] font-bold text-slate-700 mt-1">${totalUsedEst.toFixed(1)}<span class="text-slate-400 font-medium"> / ${workQuota}h</span></div>
+          </div>
+        </div>
+
+        <!-- Hàng 2: Thanh tiến độ siêu mảnh 6px dải màu Gradient -->
+        <div class="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-4 shadow-inner">
+          <div class="bg-gradient-to-r ${barGradient} h-full rounded-full transition-all duration-500 ease-out" style="width:${percent}%;"></div>
+        </div>
+
+        <!-- Hàng 3: Phân rã 3 quỹ giờ dạng hàng dọc phẳng (Ngăn cách bằng kẻ dọc mờ mảnh) -->
+        <div class="grid grid-cols-3 text-center border-t border-b border-slate-100 py-2.5 my-1 bg-slate-50/40 rounded-lg">
+          <div class="border-r border-slate-200/60">
+            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Giờ cố định</div>
+            <div class="text-[13px] font-extrabold text-slate-700 tracking-tight">${fixedHours.toFixed(1)}h</div>
+          </div>
+          <div class="border-r border-slate-200/60">
+            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Task tuần</div>
+            <div class="text-[13px] font-extrabold text-blue-600 tracking-tight">${taskEstimated.toFixed(1)}h</div>
+          </div>
+          <div>
+            <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Còn trống</div>
+            <div class="text-[13px] font-extrabold ${remainingEst <= 0 ? 'text-red-500' : 'text-emerald-600'} tracking-tight">${remainingEst.toFixed(1)}h</div>
+          </div>
+        </div>
+        
+        <!-- Vùng neo chờ để Bản đồ nhiệt Phần 3 chèn trực tiếp vào đây -->
+        <div id="heatmap-placeholder-${m.__backendId}" class="mt-3"></div>
+
+      </div>
+    `;
+  }).join('');
+
+  // Gọi bổ trợ vẽ danh sách cấu hình Tab 2 phẳng (Giúp dọn nút bánh răng ra riêng biệt)
+  if (typeof renderWorkingHoursConfigList === 'function') {
+    renderWorkingHoursConfigList();
+  }
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+// =========================================================================
 
     function updateWorkQuota(input) {
       const memberId = input.getAttribute('data-member-id');
