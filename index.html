@@ -1414,7 +1414,26 @@ function renderWorkingHoursList() {
   if (typeof renderWorkingHoursConfigList === 'function') {
     renderWorkingHoursConfigList();
   }
-
+// =========================================================================
+// PHẦN 4A: HÀM VẼ DANH SÁCH NÚT CẤU HÌNH PHẲNG CHO TAB 2 (LỊCH CỐ ĐỊNH)
+// =========================================================================
+function renderWorkingHoursConfigList() {
+  const configContainer = document.getElementById('working-hours-config-list');
+  if (!configContainer) return;
+  
+  configContainer.innerHTML = membersData.map((m) => `
+    <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-white shadow-sm hover:border-blue-200 transition-all duration-200">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:${m.color};"></div>
+        <span class="text-xs font-bold text-slate-700 truncate">${escHtml(m.name)}</span>
+      </div>
+      <button type="button" onclick="editWorkingHours('${m.__backendId}')" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-blue-600 hover:bg-blue-50 border border-blue-100 transition-all shrink-0">
+        ⚙️ Thiết lập TKB
+      </button>
+    </div>
+  `).join('');
+}
+// =========================================================================
   if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 // =========================================================================
@@ -1708,18 +1727,64 @@ document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('edit-member-modal').classList.remove('hidden');
     }
 
+    // =========================================================================
+    // PHẦN 4B: BỘ ĐIỀU KHIỂN CHUYỂN TAB & ĐỒNG BỘ LUỒNG ĐÓNG/MỞ BẢNG GIỜ LÀM
+    // =========================================================================
+    // 1. Luồng Mở: Gỡ 'hidden', thêm 'show' và mặc định đưa về Tab 1 (Tổng quan)
     document.getElementById('btn-working-hours').onclick = () => {
       renderWorkingHoursList();
       const whModal = document.getElementById('working-hours-modal');
       whModal.classList.remove('hidden'); 
       whModal.classList.add('show');
+      
+      // Tự động kích hoạt lại Tab 1 làm mặc định mỗi khi mở bảng lên
+      switchWorkingHoursTab('summary');
     };
 
-   document.getElementById('btn-working-hours-close').onclick = () => { 
+    // 2. Luồng Đóng (Bấm nút X): Khử 'show' và bù lại class ẩn 'hidden'
+    document.getElementById('btn-working-hours-close').onclick = () => { 
       const whModal = document.getElementById('working-hours-modal');
       whModal.classList.remove('show'); 
       whModal.classList.add('hidden'); 
     };
+
+    // 3. Luồng Đóng (Bấm màng nền bọc ngoài): Đồng bộ giấu sạch class tương tự nút X
+    document.getElementById('working-hours-modal').addEventListener('click', e => { 
+      if (e.target === e.currentTarget) { 
+        const whModal = document.getElementById('working-hours-modal');
+        whModal.classList.remove('show'); 
+        whModal.classList.add('hidden'); 
+      } 
+    });
+
+    // 4. Logic cốt lõi: Thuật toán chuyển đổi qua lại giữa 2 phân khu Tabs phẳng
+    function switchWorkingHoursTab(tabName) {
+      const tabSummaryBtn = document.getElementById('btn-wh-tab-summary');
+      const tabConfigBtn = document.getElementById('btn-wh-tab-config');
+      const contentSummary = document.getElementById('wh-tab-content-summary');
+      const contentConfig = document.getElementById('wh-tab-content-config');
+      
+      if (!tabSummaryBtn || !tabConfigBtn) return;
+
+      if (tabName === 'summary') {
+        // Bật sáng Tab Tổng quan (Xanh đậm nét gạch) - Ẩn ẩn Tab Cấu hình
+        tabSummaryBtn.className = "px-4 py-2 text-xs font-bold border-b-2 border-blue-600 text-blue-600 transition-all duration-200 outline-none";
+        tabConfigBtn.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition-all duration-200 outline-none";
+        contentSummary.classList.remove('hidden');
+        contentConfig.classList.add('hidden');
+      } else {
+        // Bật sáng Tab Cấu hình TKB - Ẩn Tab Tổng quan năng suất tuần
+        tabSummaryBtn.className = "px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition-all duration-200 outline-none";
+        tabConfigBtn.className = "px-4 py-2 text-xs font-bold border-b-2 border-blue-600 text-blue-600 transition-all duration-200 outline-none";
+        contentSummary.classList.add('hidden');
+        contentConfig.classList.remove('hidden');
+      }
+    }
+
+    // Đăng ký hành vi click chuột trực tiếp cho các nút Tab hiển thị trên thanh vỏ
+    document.getElementById('btn-wh-tab-summary').onclick = () => switchWorkingHoursTab('summary');
+    document.getElementById('btn-wh-tab-config').onclick = () => switchWorkingHoursTab('config');
+    // =========================================================================
     document.getElementById('members-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('members-modal').classList.add('hidden'); } });
 document.getElementById('working-hours-modal').addEventListener('click', e => { 
       if (e.target === e.currentTarget) { 
