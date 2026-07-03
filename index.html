@@ -2261,7 +2261,14 @@ document.getElementById('btn-add').onclick = () => {
     };
     document.getElementById('btn-modal-close').onclick = closeModal;
     document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
-
+// KHÔI PHỤC LỆNH ĐÓNG BẰNG DẤU X CHO BẢNG QUẢN LÝ GIỜ LÀM/THÀNH VIÊN
+    const btnWorkingHoursClose = document.getElementById('btn-working-hours-close');
+    if (btnWorkingHoursClose) {
+        btnWorkingHoursClose.onclick = () => {
+            const whModal = document.getElementById('working-hours-modal');
+            if (whModal) whModal.classList.remove('show');
+        };
+    }
     document.querySelectorAll('.rating-btn').forEach(btn => {
       btn.addEventListener('click', (e) => { e.preventDefault(); const rating = btn.getAttribute('data-rating'); document.getElementById('inp-rating').value = rating; updateRatingButtons(); });
     });
