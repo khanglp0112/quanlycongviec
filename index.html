@@ -1251,9 +1251,6 @@ function renderWorkingHoursList() {
     else if (window.whWeekOffset === 1) lbl.innerText = "Tuần sau";
     else lbl.innerText = (window.whWeekOffset > 0 ? "+" : "") + window.whWeekOffset + " tuần";
   }
-  const nextMonday = new Date(currentMonday);
-  nextMonday.setDate(currentMonday.getDate() + 7);
-
   // Đảm bảo vùng chứa dữ liệu được làm sạch trước khi nạp
   container.innerHTML = '';
 
