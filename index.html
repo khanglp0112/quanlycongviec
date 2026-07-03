@@ -566,13 +566,41 @@
    </div>
 
 <div id="working-hours-modal" class="modal-backdrop-smooth">
-  <div class="modal-box-smooth w-full max-w-4xl rounded-2xl p-6 flex flex-col border border-slate-200 overflow-hidden scrollbar-thin shadow-2xl" style="background: rgba(255, 255, 255, 0.85); max-height:90vh;">
-     <div class="flex items-center justify-between mb-5 flex-shrink-0">
-      <h2 class="font-display text-lg font-bold" style="color:#1e293b;">Quản lý giờ làm việc</h2><button id="btn-working-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+  <div class="modal-box-smooth w-full max-w-5xl rounded-2xl p-6 flex flex-col border border-slate-200/80 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.12)]" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); max-height:90vh;">
+     
+     <div class="flex items-center justify-between mb-3 flex-shrink-0">
+       <div>
+         <h2 class="font-display text-xl font-bold tracking-tight" style="color:#0f172a;">Quản lý Năng suất & Quỹ giờ Tổ</h2>
+         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Dự phóng và dàn đều tải giáo viên khoa học</p>
+       </div>
+       <button id="btn-working-hours-close" class="p-1.5 rounded-lg transition-colors text-slate-400 hover:text-slate-700 hover:bg-slate-100">
+         <i data-lucide="x" style="width:20px;height:20px;"></i>
+       </button>
      </div>
-     <div id="working-hours-list" class="space-y-3 overflow-y-auto scrollbar-thin flex-1 pr-2"></div>
-    </div>
-   </div>
+     
+     <div class="flex border-b border-slate-200/60 mb-5 flex-shrink-0 gap-2">
+       <button id="btn-wh-tab-summary" type="button" class="px-4 py-2 text-xs font-bold border-b-2 border-blue-600 text-blue-600 transition-all duration-200 outline-none">
+         📊 Tổng quan năng suất tuần
+       </button>
+       <button id="btn-wh-tab-config" type="button" class="px-4 py-2 text-xs font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-700 transition-all duration-200 outline-none">
+         ⚙️ Lịch cố định
+       </button>
+     </div>
+
+     <div class="flex-1 overflow-hidden flex flex-col min-h-0">
+       
+       <div id="wh-tab-content-summary" class="overflow-y-auto scrollbar-thin flex-1 pr-1">
+         <div id="working-hours-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-2"></div>
+       </div>
+
+       <div id="wh-tab-content-config" class="hidden overflow-y-auto scrollbar-thin flex-1 pr-1">
+         <div id="working-hours-config-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pb-2"></div>
+       </div>
+
+     </div>
+
+  </div>
+</div>
   <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300" style="overflow-y:auto;">
   <div class="w-full max-w-4xl rounded-2xl p-6 my-4 border border-slate-200 overflow-hidden scrollbar-thin" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
