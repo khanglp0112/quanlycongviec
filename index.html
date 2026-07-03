@@ -628,31 +628,31 @@
          <div id="assignee-list" class="w-full flex-1 min-h-[260px] max-h-[260px] overflow-y-auto px-3 py-2 rounded-xl text-sm outline-none scrollbar-thin space-y-1 focus:border-blue-500 border border-slate-200" style="background:#f8fafc;"></div>
        </div>
        
-       <div class="col-span-2 flex flex-col gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200/60">
+       <div class="col-span-2 flex flex-col justify-between bg-slate-50 p-3 rounded-xl border border-slate-200/60 h-full">
          
-         <div>
+         <div class="w-full">
            <label for="inp-priority" class="block text-[11px] font-bold uppercase tracking-wider mb-1" style="color:#475569;">Mức ưu tiên</label> 
-           <select id="inp-priority" class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none cursor-pointer border border-slate-300 focus:border-blue-500 font-semibold" style="background:#ffffff;color:#1e293b;">
+           <select id="inp-priority" class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none cursor-pointer border border-slate-300 focus:border-blue-500 font-semibold bg-white text-slate-800">
                <option value="delegable">Không quan trọng & Không khẩn</option>
                <option value="urgent">Khẩn cấp nhưng Không quan trọng</option>
                <option value="important" selected>Quan trọng nhưng Không khẩn</option>
-               <option value="urgent_important">Quan trọng & Khẩn cấp</option>
+               <option value="urgent_important">Quan trọng & Khân cấp</option>
            </select>
          </div>
 
-         <div>
+         <div class="w-full">
            <label for="inp-start-date" class="block text-[11px] font-bold uppercase tracking-wider mb-1" style="color:#475569;">Ngày nhận việc *</label> 
-           <input id="inp-start-date" type="date" required class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none border border-slate-300 focus:border-blue-500 font-semibold" style="background:#ffffff;color:#1e293b;">
+           <input id="inp-start-date" type="date" required class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none border border-slate-300 focus:border-blue-500 font-semibold bg-white text-slate-800">
          </div>
 
-         <div>
+         <div class="w-full">
            <label for="inp-deadline" class="block text-[11px] font-bold uppercase tracking-wider mb-1" style="color:#475569;">Thời hạn chót</label> 
-           <input id="inp-deadline" type="datetime-local" class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none border border-slate-300 focus:border-blue-500 font-semibold" style="background:#ffffff;color:#1e293b;">
+           <input id="inp-deadline" type="datetime-local" class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none border border-slate-300 focus:border-blue-500 font-semibold bg-white text-slate-800">
          </div>
 
-         <div>
+         <div class="w-full">
            <label for="inp-estimated-hours" class="block text-[11px] font-bold uppercase tracking-wider mb-1" style="color:#475569;">Giờ dự kiến (h)</label> 
-           <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none border border-slate-300 focus:border-blue-500 font-semibold" style="background:#ffffff;color:#1e293b;" placeholder="VD: 2.5">
+           <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none border border-slate-300 focus:border-blue-500 font-semibold bg-white text-slate-800" placeholder="VD: 2.5">
          </div>
 
        </div>
