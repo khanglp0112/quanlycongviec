@@ -9,6 +9,19 @@
 <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
   <style>
+   /* Tăng tốc phần cứng bằng GPU cho toàn bộ các khu vực có thanh cuộn */
+    .overflow-y-auto, .overflow-auto, #assignee-list, #task-form, .table-responsive {
+        webkit-overflow-scrolling: touch;
+        will-change: transform, scroll-position;
+        transform: translateZ(0); /* Ép trình duyệt dùng card đồ họa để xử lý cuộn */
+    }
+
+    /* Tối ưu hóa hiệu ứng kính mờ khi cuộn để chống lag giật trên Chrome/Edge */
+    [style*="backdrop-filter"] {
+        will-change: backdrop-filter;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+    }
     .cham-tiet-container { background: #ffffff !important; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .table-responsive { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
     .sticky-col { position: sticky; left: 0; background: #f8fafc; z-index: 10; border-right: 2px solid #e2e8f0 !important; }
