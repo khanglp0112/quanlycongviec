@@ -1351,7 +1351,65 @@ function renderWorkingHoursList() {
       </div>
     `;
   }).join('');
+// =========================================================================
+  // PHẦN 3: LOGIC TỰ ĐỘNG TÍNH TOÁN VÀ THẮP SÁNG BẢN ĐỒ NHIỆT (TIME HEATMAP)
+  // =========================================================================
+  membersData.forEach(m => {
+    const placeholder = document.getElementById(`heatmap-placeholder-${m.__backendId}`);
+    if (!placeholder) return;
 
+    // A. Trích xuất bản đồ lịch bận cố định (TKB nhập tay) của giáo viên
+    const weekHoursData = m.week_hours_data ? JSON.parse(m.week_hours_data) : [];
+    const fixedHoursMap = {};
+    weekHoursData.forEach(day => { fixedHoursMap[day.date] = parseFloat(day.hours) || 0; });
+
+    // B. Tạo danh sách 6 ngày làm việc (Thứ 2 -> Thứ 7) của tuần hiện tại để đối chiếu
+    const dayNames = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+    const weekDays = [];
+    for (let i = 0; i < 6; i++) {
+      const dateChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
+      const dateStr = `${dateChay.getFullYear()}-${String(dateChay.getMonth() + 1).padStart(2, '0')}-${String(dateChay.getDate()).padStart(2, '0')}`;
+      weekDays.push({ date: dateStr, label: dayNames[i] });
+    }
+
+    // C. Vẽ chuỗi 6 ô vuông phẳng lên chân thẻ của từng giáo viên cụ thể
+    let heatmapHtml = `
+      <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+        <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Mật độ bận trong tuần (T2 - T7)</div>
+        <div class="flex gap-1.5 items-center">
+    `;
+
+    weekDays.forEach(day => {
+      // Tính giờ bận cứng dạy tiết của ngày đó
+      const gioCoDinhTrongNgay = fixedHoursMap[day.date] || 0;
+
+      // Tính số lượng Task Kanban có deadline rơi trùng vào ngày đó
+      const soTaskDeadlineTrongNgay = allTasks.filter(t => {
+        if (!t.assignee || !t.assignee.includes(m.name) || t.archived) return false;
+        return t.deadline && t.deadline.startsWith(day.date);
+      }).length;
+
+      // Trọng số bận = Giờ cố định + (Số việc phải nộp * 2h quy đổi)
+      const taitrongNgay = gioCoDinhTrongNgay + (soTaskDeadlineTrongNgay * 2);
+
+      // Thuật toán đổ màu xanh phẳng chuẩn đồ thị GitHub
+      let oVuongBg = 'bg-slate-50 border-slate-200/50 text-slate-400'; // Trống lịch
+      if (taitrongNgay > 8) oVuongBg = 'bg-emerald-600 text-white border-emerald-700'; // Quá bận
+      else if (taitrongNgay > 4) oVuongBg = 'bg-emerald-400 text-emerald-900 border-emerald-500'; // Bận vừa
+      else if (taitrongNgay > 0) oVuongBg = 'bg-emerald-100 text-emerald-800 border-emerald-200'; // Bận nhẹ
+
+      heatmapHtml += `
+        <div class="flex-1 flex flex-col items-center p-1 rounded-md border text-center transition-all ${oVuongBg}" title="${day.label}: Cố định ${gioCoDinhTrongNgay}h, Cần nộp ${soTaskDeadlineTrongNgay} việc">
+          <span class="text-[8px] font-bold uppercase block">${day.label.replace('hứ ', '')}</span>
+          <span class="text-[10px] font-black mt-0.5">${gioCoDinhTrongNgay > 0 ? gioCoDinhTrongNgay : (soTaskDeadlineTrongNgay > 0 ? '✓' : '-')}</span>
+        </div>
+      `;
+    });
+
+    heatmapHtml += `</div></div>`;
+    placeholder.innerHTML = heatmapHtml;
+  });
+  // =========================================================================
   // Gọi bổ trợ vẽ danh sách cấu hình Tab 2 phẳng (Giúp dọn nút bánh răng ra riêng biệt)
   if (typeof renderWorkingHoursConfigList === 'function') {
     renderWorkingHoursConfigList();
