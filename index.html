@@ -1002,7 +1002,7 @@ function populateMemberSelects() {
           const currentMon = new Date(currentMonStr);
           const nextMon = new Date(currentMon); nextMon.setDate(currentMon.getDate() + 7);
 
-          // PHỤC HỒI ĐOẠN PHÉP MAP VÀ TÍNH TOÁN GIỜ TUẦN GỐC CỦA TỔ
+          // Mở phép map quét qua danh sách giáo viên
           listDiv.innerHTML = membersData.map(m => {
               const workQuota = parseFloat(m.work_quota || '40');
               const fixedHours = parseFloat(m.fixed_hours || '0');
@@ -1024,9 +1024,7 @@ function populateMemberSelects() {
                   });
               }
 
-              // =========================================================================
-              // PHẦN 3C: TÍNH TOÁN GIỜ MÔ PHỎNG ĐỘNG NGAY TRÊN FORM (REAL-TIME SIMULATION)
-              // =========================================================================
+              // --- PHẦN 3C: TÍNH TOÁN GIỜ MÔ PHỎNG ĐỘNG NGAY TRÊN FORM ---
               const formEstHours = parseFloat(document.getElementById('inp-estimated-hours').value) || 0;
               const formStatus = document.getElementById('inp-status').value;
               const formStartDateStr = document.getElementById('inp-start-date').value;
@@ -1065,7 +1063,6 @@ function populateMemberSelects() {
                   }
               }
 
-              // Khai báo chuẩn các biến totalUsed và remaining cho badge
               const totalUsed = fixedHours + taskHours;
               const remaining = Math.max(0, workQuota - totalUsed);
               
@@ -1074,10 +1071,8 @@ function populateMemberSelects() {
               else if (totalUsed >= workQuota * 0.8) badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-100 text-amber-700 ml-auto border border-amber-200">🟡 Còn ${remaining.toFixed(1)}h</span>`;
               else badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-700 ml-auto border border-emerald-200">🟢 Còn ${remaining.toFixed(1)}h</span>`;
 
-              // =========================================================================
-              // PHẦN 3B: ĐỒNG BỘ CHỈ SỐ HIỆU SUẤT VÀO BẢN ĐỒ NHIỆT (2 LỚP PHẲNG)
-              // =========================================================================
-              const eai = calculateMemberEAI(m.name);
+              // --- PHẦN 3B: TÍCH HỢP CHỈ SỐ HIỆU SUẤT VÀO BẢN ĐỒ NHIỆT ---
+              const eai = (typeof calculateMemberEAI === 'function') ? calculateMemberEAI(m.name) : { label: 'N/A', color: 'text-slate-400 bg-slate-50 border-slate-200' };
 
               return `
                 <label class="flex flex-col gap-1 p-2 hover:bg-slate-200/60 rounded-xl transition-all w-full border border-transparent hover:border-slate-200 cursor-pointer mb-1" style="background: rgba(255, 255, 255, 0.6);">
@@ -1096,7 +1091,7 @@ function populateMemberSelects() {
 
                 </label>
               `;
-          }).join(''); // Đóng hàm map đồng bộ cú pháp
+          }).join('');
       }
     }
    // Lệnh mồi đảm bảo danh sách Họ tên đầy đủ luôn được nạp sẵn cho Biên bản họp
