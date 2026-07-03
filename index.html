@@ -2373,39 +2373,34 @@ const subtasksList = [];
 
     ['filter-status', 'filter-assignee', 'filter-priority', 'filter-month'].forEach(id => { document.getElementById(id).addEventListener('change', renderTasks); });
 // =========================================================================
-    // PHẦN 3C: BỘ MÔ PHỎNG TẢI ĐỘNG THEO THỜI GIAN THỰC (REAL-TIME SIMULATION)
+   // =========================================================================
+    // PHẦN 3C: BỘ MÔ PHỎNG TẢI ĐỘNG THEO THỜI GIAN THỰC (ĐÃ SỬA LỖI KHÓA Ô)
     // =========================================================================
-    // Lắng nghe sự kiện thay đổi Giờ dự kiến trên Form để vẽ lại tải mô phỏng của giáo viên
-    const estHoursInput = document.getElementById('inp-estimated-hours');
-    if (estHoursInput) {
-        ['input', 'change'].forEach(evt => {
-            estHoursInput.addEventListener(evt, () => {
+    // Chỉ lắng nghe sự kiện 'change' (khi gõ xong tab ra ngoài) để tránh reset HTML liên tục gây đơ con trỏ gõ giờ
+    ['inp-estimated-hours', 'inp-start-date', 'inp-deadline', 'inp-status'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => {
+                const checkedNames = Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value);
                 if (typeof populateMemberSelects === 'function') populateMemberSelects();
-                reapplyCheckedAssignees(); // Giữ lại các ô đã tích chọn
+                // Phục hồi lại dấu tích chọn sau khi danh sách nạp lại
+                document.querySelectorAll('.assignee-cb').forEach(cb => {
+                    if (checkedNames.includes(cb.value)) cb.checked = true;
+                });
             });
-        });
-    }
+        }
+    });
 
-    // Hàm bổ trợ: Giữ nguyên trạng thái tích chọn của các checkbox sau khi danh sách nạp lại
-    function reapplyCheckedAssignees() {
-        const formStatus = document.getElementById('inp-status').value;
-        // Chỉ kích hoạt mô phỏng tải động khi công việc CHƯA HOÀN THÀNH (done thì đã chốt giờ thực tế)
-        if (formStatus === 'done') return;
-
-        const checkedNames = Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value);
-        
-        // Cập nhật lại bộ lắng nghe change cho từng checkbox mới được vẽ lại để tạo dòng lặp phản hồi real-time
-        document.querySelectorAll('.assignee-cb').forEach(cb => {
-            if (checkedNames.includes(cb.value)) {
-                cb.checked = true;
-            }
-            cb.addEventListener('change', () => {
-                // Tạo hiệu ứng lan tỏa: Khi tích chọn người này, tải của những người tích chung sẽ tự động giảm xuống
-                if (typeof populateMemberSelects === 'function') populateMemberSelects();
-                reapplyCheckedAssignees();
+    // Lắng nghe riêng biệt hành vi tích chọn checkbox của giáo viên, không động chạm luồng focus của ô nhập giờ
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.classList.contains('assignee-cb')) {
+            const checkedNames = Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value);
+            if (typeof populateMemberSelects === 'function') populateMemberSelects();
+            document.querySelectorAll('.assignee-cb').forEach(cb => {
+                if (checkedNames.includes(cb.value)) cb.checked = true;
             });
-        });
-    }
+        }
+    });
     // =========================================================================
     const dataHandler = {
       onDataChanged(data) {
