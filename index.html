@@ -9,6 +9,22 @@
 <script src="https://unpkg.com/lucide@latest"></script>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
   <style>
+   /* Ép toàn bộ các phân khu cuộn chạy ở tần số quét cao nhất 120Hz */
+    html, body, .overflow-y-auto, .overflow-auto, #assignee-list, #task-form, .table-responsive {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        content-visibility: auto; /* Chỉ render các phần tử khi cuộn tới, giải phóng bộ nhớ */
+        contain-intrinsic-size: auto 100px;
+        transform: translateZ(0); /* Kích hoạt chế độ tăng tốc phần cứng 3D Layers */
+        will-change: scroll-position, transform;
+    }
+
+    /* Khóa hoạt cảnh mượt 120 khung hình/giây (120 FPS) cho các Form Modal */
+    .modal-backdrop-smooth, .modal-box-smooth {
+        backface-visibility: hidden;
+        perspective: 1000px;
+        will-change: transform, opacity;
+    }
    /* --- HOẠT CẢNH MỞ MODAL MỀM MẠI --- */
     /* Lớp nền mờ (Backdrop) */
     .modal-backdrop-smooth {
