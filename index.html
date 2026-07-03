@@ -576,7 +576,7 @@
              <button type="button" onclick="changeWorkingHoursWeek(-1)" class="p-1 rounded-md hover:bg-white text-slate-500 hover:text-slate-800 transition-all select-none" title="Tuần trước">
                <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
              </button>
-             <span id="wh-current-week-lbl" class="text-[10px] font-bold text-slate-600 px-1 font-mono">Tuần này</span>
+<span id="wh-current-week-lbl" class="text-[10px] font-bold text-slate-600 px-1 font-mono">Xem lịch tuần</span>
              <button type="button" onclick="changeWorkingHoursWeek(1)" class="p-1 rounded-md hover:bg-white text-slate-500 hover:text-slate-800 transition-all select-none" title="Tuần sau">
                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
              </button>
@@ -1232,7 +1232,15 @@ function renderWorkingHoursList() {
   const currentMonday = new Date(currentMonStr);
   const nextMonday = new Date(currentMonday);
   nextMonday.setDate(currentMonday.getDate() + 7);
-
+renderWorkingHoursList()
+ 
+  const lbl = document.getElementById('wh-current-week-lbl');
+  if (lbl) {
+    const dd = String(currentMonday.getDate()).padStart(2, '0');
+    const mm = String(currentMonday.getMonth() + 1).padStart(2, '0'); // Tháng trong JS chạy từ 0-11
+    const yyyy = currentMonday.getFullYear();
+    lbl.innerText = `Tuần: ${dd}/${mm}/${yyyy}`;
+  }
   // [Toàn bộ đoạn code map dữ liệu phía dưới giữ nguyên 100%...]
   container.innerHTML = '';
 
