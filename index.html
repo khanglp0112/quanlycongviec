@@ -2184,6 +2184,8 @@ document.getElementById('inp-start-date').value = '';
     function updateReviewSections() {
       const status = document.getElementById('inp-status').value;
       
+      // SỬA LỖI: Bổ sung câu lệnh if bị khuyết để bọc lấy khối lệnh dưới
+      if (status === 'done') {
         document.getElementById('rating-section').classList.remove('hidden');
         document.getElementById('lessons-section').classList.remove('hidden');
         document.getElementById('actual-hours-section').classList.remove('hidden');
@@ -2192,6 +2194,7 @@ document.getElementById('inp-start-date').value = '';
         document.getElementById('lessons-section').classList.add('hidden');
         document.getElementById('actual-hours-section').classList.add('hidden');
       }
+    }
    
 
     function updateRatingButtons() {
