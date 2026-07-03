@@ -1086,6 +1086,70 @@ function getWorkingDaysList(startDateStr, endDateStr) {
     }
     return workingDays;
 }
+   // =========================================================================
+// PHẦN 3A: THUẬT TOÁN CỬA SỔ TRƯỢT 30 NGÀY TÍNH CHỈ SỐ HIỆU SUẤT (EAI)
+// =========================================================================
+function calculateMemberEAI(memberName) {
+    if (!allTasks || allTasks.length === 0) return { score: null, label: 'N/A', color: 'text-slate-400' };
+
+    // 1. Xác định mốc thời gian "Cửa sổ trượt 30 ngày" tính từ hôm nay
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    let totalEstimated = 0;
+    let totalActual = 0;
+
+    // 2. Quét toàn bộ kho dữ liệu allTasks để tính toán dữ liệu quá khứ
+    allTasks.forEach(t => {
+        // Kiểm tra xem giáo viên có nằm trong danh sách người phụ trách không
+        const isAssignee = t.assignee && Array.isArray(t.assignee) && t.assignee.includes(memberName);
+        
+        // Điều kiện lọc: Đã HOÀN THÀNH và phải có ngày hoàn thành (completed_at)
+        if (isAssignee && t.status === 'done' && t.completed_at) {
+            // Chuyển chuỗi completed_at (yyyy-mm-dd hh:mm:ss) thành đối tượng Date để so sánh mốc 30 ngày
+            const taskCompletedDate = new Date(t.completed_at.substring(0, 10) + 'T00:00:00');
+            
+            if (taskCompletedDate >= thirtyDaysAgo && taskCompletedDate <= today) {
+                // Đếm số người gánh chung việc để chia đều số giờ dự kiến và thực tế tương tự Phần 2B
+                const soNguoiLamChung = Array.isArray(t.assignee) ? t.assignee.length : 1;
+                
+                totalEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
+                totalActual += (parseFloat(t.actual_hours || 0) / soNguoiLamChung);
+            }
+        }
+    });
+
+    // Nếu trong 30 ngày qua giáo viên không có việc nào hoàn thành, trả về chưa có dữ liệu
+    if (totalEstimated === 0) {
+        return { score: null, label: 'Chưa có dữ liệu', color: 'text-slate-400 bg-slate-100 border-slate-200' };
+    }
+
+    // 3. Áp dụng công thức tính toán tỷ lệ phần trăm phong độ EAI
+    const eaiPercent = Math.round((totalActual / totalEstimated) * 100);
+
+    // 4. Phân nhóm nhãn trạng thái phong độ làm việc và gán màu sắc trực quan (Badge)
+    if (eaiPercent >= 90 && eaiPercent <= 110) {
+        return {
+            score: eaiPercent,
+            label: `🎯 Hiệu suất tốt (${eaiPercent}%)`,
+            color: 'text-emerald-700 bg-emerald-50 border-emerald-200'
+        };
+    } else if (eaiPercent < 90) {
+        return {
+            score: eaiPercent,
+            label: `⚡ Hiệu suất vượt trội (${eaiPercent}%)`,
+            color: 'text-blue-700 bg-blue-50 border-blue-200'
+        };
+    } else {
+        return {
+            score: eaiPercent,
+            label: `⚠️ Hiệu suất cần cải thiện (${eaiPercent}%)`,
+            color: 'text-amber-700 bg-amber-50 border-amber-200'
+        };
+    }
+}
+
 function renderWorkingHoursList() {
       const container = document.getElementById('working-hours-list');
       const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
