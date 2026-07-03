@@ -999,45 +999,32 @@ function populateMemberSelects() {
           const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
           const currentMon = new Date(currentMonStr);
           const nextMon = new Date(currentMon); nextMon.setDate(currentMon.getDate() + 7);
-
-          listDiv.innerHTML = membersData.map(m => {
-              const workQuota = parseFloat(m.work_quota || '40');
-              const fixedHours = parseFloat(m.fixed_hours || '0');
-              
-              let taskHours = 0;
-              if (typeof allTasks !== 'undefined') {
-                  allTasks.forEach(t => {
-                      if (t.assignee && t.assignee.includes(m.name)) {
-                          // Nếu xong rồi thì tính vào tuần hoàn thành, chưa xong thì tính vào tuần Deadline
-                          let targetDateStr = t.deadline;
-                          if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
-                          
-                          if (targetDateStr) {
-                              const d = new Date(targetDateStr);
-                              if (d >= currentMon && d < nextMon) {
-                                  taskHours += parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours) : t.estimated_hours) || 0;
-                              }
-                          }
-                      }
-                  });
-              }
-              
-              const totalUsed = fixedHours + taskHours;
-              const remaining = Math.max(0, workQuota - totalUsed);
-              
-              let badge = '';
-              if (totalUsed >= workQuota) badge = '<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-red-100 text-red-600 ml-auto border border-red-200">🔴 Quá tải</span>';
-              else if (totalUsed >= workQuota * 0.8) badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-100 text-amber-700 ml-auto border border-amber-200">🟡 Còn ${remaining.toFixed(1)}h</span>`;
-              else badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-700 ml-auto border border-emerald-200">🟢 Còn ${remaining.toFixed(1)}h</span>`;
+          // =========================================================================
+              // PHẦN 3B: TÍCH HỢP CHỈ SỐ HIỆU SUẤT EAI 30 NGÀY VÀO BẢN ĐỒ NHIỆT NĂNG SUẤT
+              // =========================================================================
+              // Gọi hàm bổ trợ Phần 3A để lấy dữ liệu phong độ quá khứ của giáo viên
+              const eai = calculateMemberEAI(m.name);
 
               return `
-                <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-slate-200 rounded transition-colors w-full">
-                  <input type="checkbox" value="${m.name}" class="assignee-cb w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
-                  <span style="color:#1e293b;font-size:13px;font-weight:600;" class="truncate">${escHtml(m.name)}</span>
-                  ${badge}
+                <label class="flex flex-col gap-1 p-2 hover:bg-slate-150 rounded-xl transition-all w-full border border-transparent hover:border-slate-200 cursor-pointer mb-1" style="background: rgba(255, 255, 255, 0.6);">
+                  
+                  <!-- Hàng 1: Checkbox, Tên giáo viên và Badge tải làm việc của tuần hiện tại -->
+                  <div class="flex items-center gap-2 w-full">
+                    <input type="checkbox" value="${m.name}" class="assignee-cb w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
+                    <span style="color:#1e293b;font-size:13px;font-weight:700;" class="truncate flex-1">${escHtml(m.name)}</span>
+                    ${badge}
+                  </div>
+                  
+                  <!-- Hàng 2: Bản đồ nhiệt phẳng hiển thị nhãn chỉ số Hiệu suất EAI 30 ngày -->
+                  <div class="pl-6 w-full flex">
+                    <span class="text-[9px] font-bold px-2 py-0.5 rounded-md border shadow-sm ${eai.color}">
+                      ${eai.label}
+                    </span>
+                  </div>
+
                 </label>
               `;
-          }).join('');
+              // =========================================================================
       }
     }
    // Lệnh mồi đảm bảo danh sách Họ tên đầy đủ luôn được nạp sẵn cho Biên bản họp
@@ -2342,7 +2329,41 @@ const subtasksList = [];
     });
 
     ['filter-status', 'filter-assignee', 'filter-priority', 'filter-month'].forEach(id => { document.getElementById(id).addEventListener('change', renderTasks); });
+// =========================================================================
+    // PHẦN 3C: BỘ MÔ PHỎNG TẢI ĐỘNG THEO THỜI GIAN THỰC (REAL-TIME SIMULATION)
+    // =========================================================================
+    // Lắng nghe sự kiện thay đổi Giờ dự kiến trên Form để vẽ lại tải mô phỏng của giáo viên
+    const estHoursInput = document.getElementById('inp-estimated-hours');
+    if (estHoursInput) {
+        ['input', 'change'].forEach(evt => {
+            estHoursInput.addEventListener(evt, () => {
+                if (typeof populateMemberSelects === 'function') populateMemberSelects();
+                reapplyCheckedAssignees(); // Giữ lại các ô đã tích chọn
+            });
+        });
+    }
 
+    // Hàm bổ trợ: Giữ nguyên trạng thái tích chọn của các checkbox sau khi danh sách nạp lại
+    function reapplyCheckedAssignees() {
+        const formStatus = document.getElementById('inp-status').value;
+        // Chỉ kích hoạt mô phỏng tải động khi công việc CHƯA HOÀN THÀNH (done thì đã chốt giờ thực tế)
+        if (formStatus === 'done') return;
+
+        const checkedNames = Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value);
+        
+        // Cập nhật lại bộ lắng nghe change cho từng checkbox mới được vẽ lại để tạo dòng lặp phản hồi real-time
+        document.querySelectorAll('.assignee-cb').forEach(cb => {
+            if (checkedNames.includes(cb.value)) {
+                cb.checked = true;
+            }
+            cb.addEventListener('change', () => {
+                // Tạo hiệu ứng lan tỏa: Khi tích chọn người này, tải của những người tích chung sẽ tự động giảm xuống
+                if (typeof populateMemberSelects === 'function') populateMemberSelects();
+                reapplyCheckedAssignees();
+            });
+        });
+    }
+    // =========================================================================
     const dataHandler = {
       onDataChanged(data) {
         const members = data.filter(d => d._collection === 'members');
