@@ -537,7 +537,7 @@
    </div>
 
 <div id="working-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
-    <div class="w-full max-w-4xl rounded-2xl p-6 flex flex-col border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+  <div class="w-full max-w-4xl rounded-2xl p-6 flex flex-col border border-slate-200 overflow-hidden scrollbar-thin" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-5 flex-shrink-0">
       <h2 class="font-display text-lg font-bold" style="color:#1e293b;">Quản lý giờ làm việc</h2><button id="btn-working-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -545,7 +545,7 @@
     </div>
    </div>
   <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300" style="overflow-y:auto;">
-    <div class="w-full max-w-4xl rounded-2xl p-6 my-4 border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+  <div class="w-full max-w-4xl rounded-2xl p-6 my-4 border border-slate-200 overflow-hidden scrollbar-thin" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 class="font-display text-lg font-bold" style="color:#1e293b;" id="edit-hours-title">Quản lý giờ làm việc</h2><button id="btn-edit-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -572,7 +572,7 @@
     </div>
    </div>
    <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
-    <div class="w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-thin border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+  <div class="w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#1e293b;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -581,7 +581,7 @@
     </div>
    </div>
   <div id="modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
-    <div class="w-full max-w-2xl rounded-2xl p-6 overflow-y-auto border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height: 90vh; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+  <div class="w-full max-w-2xl rounded-2xl p-6 overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height: 90vh; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-5">
       <h2 id="modal-title" class="font-display text-lg font-bold" style="color:#1e293b;">Thêm công việc</h2><button id="btn-modal-close" class="p-1 rounded-lg transition-colors flex-shrink-0" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -608,7 +608,10 @@
              <option value="urgent_important">Quan trọng & Khẩn cấp</option>
          </select>
        </div>
-       
+       <div class="col-span-2">
+  <label for="inp-start-date" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Ngày nhận việc *</label> 
+  <input id="inp-start-date" type="date" required class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;">
+</div>
        <div class="col-span-2">
          <label for="inp-deadline" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Thời hạn (Ngày & Giờ)</label> 
          <input id="inp-deadline" type="datetime-local" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;">
@@ -1057,7 +1060,32 @@ function populateMemberSelects() {
       `).join('');
       lucide.createIcons();
     }
+// =========================================================================
+// BỔ SUNG PHẦN 2A: HÀM ĐẾM VÀ TRẢ VỀ DANH SÁCH NGÀY LÀM VIỆC THỰC TẾ (TRỪ CHỦ NHẬT)
+// =========================================================================
+function getWorkingDaysList(startDateStr, endDateStr) {
+    const workingDays = [];
+    if (!startDateStr || !endDateStr) return workingDays;
 
+    // Chuyển đổi chuỗi yyyy-mm-dd thành đối tượng Date (mốc 00:00:00 để tính toán chính xác ngày)
+    const start = new Date(startDateStr.substring(0, 10) + 'T00:00:00');
+    const end = new Date(endDateStr.substring(0, 10) + 'T00:00:00');
+
+    if (start > end) return workingDays;
+
+    let current = new Date(start);
+    while (current <= end) {
+        // current.getDay() === 0 đại diện cho ngày Chủ Nhật trong JavaScript
+        if (current.getDay() !== 0) {
+            const yyyy = current.getFullYear();
+            const mm = String(current.getMonth() + 1).padStart(2, '0');
+            const dd = String(current.getDate()).padStart(2, '0');
+            workingDays.push(`${yyyy}-${mm}-${dd}`);
+        }
+        current.setDate(current.getDate() + 1);
+    }
+    return workingDays;
+}
 function renderWorkingHoursList() {
       const container = document.getElementById('working-hours-list');
       const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
@@ -1081,9 +1109,67 @@ function renderWorkingHoursList() {
           return d >= currentMonday && d < nextMonday;
         });
 
-        memberTasksThisWeek.forEach(t => { 
-            taskEstimated += parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours) : t.estimated_hours) || 0; 
-        });
+        // =========================================================================
+// CẬP NHẬT PHẦN 2B: THUẬT TOÁN DÀN ĐỀU GIỜ VÀ CHIA ĐỀU VIỆC NHÓM TRONG TUẦN
+// =========================================================================
+memberTasksThisWeek.forEach(t => {
+    // Xác định số người làm chung nhiệm vụ này để chia đều tải (mặc định là 1)
+    const soNguoiLamChung = (t.assignee && Array.isArray(t.assignee)) ? t.assignee.length : 1;
+
+    if (t.status === 'done') {
+        // TRƯỜNG HỢP 1: Việc ĐÃ XONG -> Chốt hạ bằng Giờ thực tế chia đều theo số người
+        // Chỉ tính giờ vào tuần chứa ngày hoàn thành (completed_at)
+        const ngayHoanThanhStr = t.completed_at ? t.completed_at.substring(0, 10) : "";
+        const ngayDauTuanXemStr = currentMonday.toISOString().substring(0, 10);
+        const ngayCuoiTuanXemStr = new Date(currentMonday.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
+
+        if (ngayHoanThanhStr >= ngayDauTuanXemStr && ngayHoanThanhStr <= ngayCuoiTuanXemStr) {
+            taskEstimated += (parseFloat(t.actual_hours || t.estimated_hours || 0) / soNguoiLamChung);
+        }
+    } else {
+        // TRƯỜNG HỢP 2: Việc CHƯA XONG -> Dàn đều giờ dự kiến theo ngày làm việc (trừ CN)
+        const ngayNhanStr = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "");
+        const ngayChotStr = t.deadline ? t.deadline.substring(0, 10) : "";
+
+        if (ngayNhanStr && ngayChotStr) {
+            // Lấy danh sách toàn bộ ngày làm việc thực tế của Task (Đã loại trừ CN ở phần 2A)
+            const danhSachNgayCuaTask = getWorkingDaysList(ngayNhanStr, ngayChotStr);
+            const tongSoNgayCuaTask = danhSachNgayCuaTask.length;
+
+            if (tongSoNgayCuaTask > 0) {
+                // Đếm xem có bao nhiêu ngày làm việc của Task nằm trong tuần đang xem
+                let soNgayTrungTrongTuan = 0;
+                
+                // Tạo mảng chứa 6 ngày làm việc (T2 -> T7) của tuần đang xem trên giao diện
+                const danhSachNgayTrongTuanXem = [];
+                for (let i = 0; i < 6; i++) {
+                    const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
+                    const yyyy = ngayChay.getFullYear();
+                    const mm = String(ngayChay.getMonth() + 1).padStart(2, '0');
+                    const dd = String(ngayChay.getDate()).padStart(2, '0');
+                    danhSachNgayTrongTuanXem.push(`${yyyy}-${mm}-${dd}`);
+                }
+
+                // Tiến hành đối chiếu giao thoa ngày
+                danhSachNgayCuaTask.forEach(ngayTask => {
+                    if (danhSachNgayTrongTuanXem.includes(ngayTask)) {
+                        soNgayTrungTrongTuan++;
+                    }
+                });
+
+                // Áp dụng tỷ lệ phân bổ thời gian gánh việc của từng người vào quỹ tuần này
+                const gioDuKienTong = parseFloat(t.estimated_hours || 0);
+                const gioPhanBoMoiNguoi = (gioDuKienTong / soNguoiLamChung);
+                
+                taskEstimated += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
+            } else {
+                taskEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
+            }
+        } else {
+            taskEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
+        }
+    }
+});
 
         const totalUsedEst = fixedHours + taskEstimated;
         const remainingEst = Math.max(0, workQuota - totalUsedEst);
@@ -1378,7 +1464,6 @@ document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('stats-bar').classList.add('hidden');
       document.getElementById('timeline-view').classList.remove('hidden');
       document.getElementById('bien-ban-view').classList.add('hidden');
-      // Mặc định luôn mở chế độ hiện tại khi quay lại Timeline
       if (typeof timelineMode !== 'undefined' && timelineMode === 'calendar') renderCalendar(); 
       else renderTimeline();
     };
@@ -1856,31 +1941,36 @@ function showTaskDetail(task) {
     }
 
     function editTask(id) {
-      const task = allTasks.find(t => t.__backendId === id);
-      if (!task) return;
-     document.getElementById('subtasks-container').innerHTML = '';
-      if (task.subtasks && task.subtasks.length > 0) {
-          task.subtasks.forEach(st => addSubtaskInput(st.text, st.done));
-      }
-      document.getElementById('inp-title').value = task.title;
-      document.getElementById('inp-desc').value = task.description || '';
-      document.querySelectorAll('.assignee-cb').forEach(cb => { cb.checked = task.assignee && task.assignee.includes(cb.value); });
-      document.getElementById('inp-priority').value = task.priority;
-      document.getElementById('inp-deadline').value = task.deadline || '';
-      document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
-      document.getElementById('inp-supporters').value = task.supporters || '';
-      document.getElementById('inp-goal').value = task.goal || '';
-      document.getElementById('inp-rating').value = task.rating || '';
-      document.getElementById('inp-actual-hours-review').value = task.actual_hours || '';
-      document.getElementById('inp-lessons').value = task.lessons_learned || '';
-      document.getElementById('inp-weekly').checked = task.is_weekly || false;
-      document.getElementById('inp-status').value = task.status;
-      document.getElementById('inp-edit-id').value = id;
-      updateRatingButtons(); updateReviewSections();
-      document.getElementById('modal-title').textContent = 'Sửa công việc';
-      document.getElementById('btn-submit').textContent = 'Cập nhật';
-      openModal();
-    }
+  const task = allTasks.find(t => t.__backendId === id);
+  if (!task) return;
+  document.getElementById('subtasks-container').innerHTML = '';
+  if (task.subtasks && task.subtasks.length > 0) {
+      task.subtasks.forEach(st => addSubtaskInput(st.text, st.done));
+  }
+  document.getElementById('inp-title').value = task.title;
+  document.getElementById('inp-desc').value = task.description || '';
+  document.querySelectorAll('.assignee-cb').forEach(cb => { cb.checked = task.assignee && task.assignee.includes(cb.value); });
+  document.getElementById('inp-priority').value = task.priority;
+  document.getElementById('inp-deadline').value = task.deadline || '';
+  document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
+  document.getElementById('inp-supporters').value = task.supporters || '';
+  document.getElementById('inp-goal').value = task.goal || '';
+  document.getElementById('inp-rating').value = task.rating || '';
+  document.getElementById('inp-actual-hours-review').value = task.actual_hours || '';
+  document.getElementById('inp-lessons').value = task.lessons_learned || '';
+  document.getElementById('inp-weekly').checked = task.is_weekly || false;
+  document.getElementById('inp-status').value = task.status;
+  document.getElementById('inp-edit-id').value = id;
+  
+  // BỔ SUNG VÁ LỖI 1A: Tự động nạp Ngày nhận việc cũ lên form khi bấm Sửa
+  // Nếu task cũ chưa có trường này, hệ thống sẽ tự động lấy 10 ký tự đầu của ngày tạo (yyyy-mm-dd) làm mốc mặc định
+  document.getElementById('inp-start-date').value = task.start_date || (task.created_at ? task.created_at.substring(0, 10) : '');
+
+  updateRatingButtons(); updateReviewSections();
+  document.getElementById('modal-title').textContent = 'Sửa công việc';
+  document.getElementById('btn-submit').textContent = 'Cập nhật';
+  openModal();
+}
 // === CƠ CHẾ XÓA THÔNG MINH (HOÀN TÁC TRONG 15 GIÂY) ===
     const pendingDeletes = new Map();
 
@@ -2015,22 +2105,23 @@ let draggedSubtask = null; // Biến toàn cục để nhớ xem đang kéo mụ
         }
     } 
    function closeModal() {
-      document.getElementById('modal').classList.add('hidden');
-      document.getElementById('task-form').reset();
-      document.getElementById('inp-edit-id').value = '';
-      document.getElementById('inp-status').value = 'todo';
-      document.getElementById('inp-rating').value = '';
-      document.getElementById('inp-actual-hours-review').value = '';
-      document.getElementById('inp-goal').value = '';
-      document.getElementById('modal-title').textContent = 'Thêm công việc';
-      document.getElementById('btn-submit').textContent = 'Thêm công việc';
-      document.getElementById('rating-section').classList.add('hidden');
-      document.getElementById('actual-hours-section').classList.add('hidden');
-      document.getElementById('lessons-section').classList.add('hidden');
-      document.getElementById('inp-weekly').checked = false;
-      document.querySelectorAll('.assignee-cb').forEach(cb => cb.checked = false);
-     document.getElementById('subtasks-container').innerHTML = '';
-    }
+  document.getElementById('modal').classList.add('hidden');
+  document.getElementById('task-form').reset();
+  document.getElementById('inp-edit-id').value = '';
+  document.getElementById('inp-status').value = 'todo';
+  document.getElementById('inp-rating').value = '';
+  document.getElementById('inp-actual-hours-review').value = '';
+  document.getElementById('inp-goal').value = '';
+  document.getElementById('modal-title').textContent = 'Thêm công việc';
+  document.getElementById('btn-submit').textContent = 'Thêm công việc';
+  document.getElementById('rating-section').classList.add('hidden');
+  document.getElementById('actual-hours-section').classList.add('hidden');
+  document.getElementById('lessons-section').classList.add('hidden');
+  document.getElementById('inp-weekly').checked = false;
+  document.querySelectorAll('.assignee-cb').forEach(cb => cb.checked = false);
+  document.getElementById('subtasks-container').innerHTML = '';
+  document.getElementById('inp-start-date').value = '';
+}
 
     function updateReviewSections() {
       const status = document.getElementById('inp-status').value;
