@@ -1234,11 +1234,17 @@ function renderWorkingHoursList() {
   nextMonday.setDate(currentMonday.getDate() + 7);
 renderWorkingHoursList()
  
+  // ĐỔI CHỮ TỰ ĐỘNG (BẢN VÁ LỖI AN TOÀN CHỐNG CRASH HÀM RENDER):
   const lbl = document.getElementById('wh-current-week-lbl');
   if (lbl) {
-    const dd = String(currentMonday.getDate()).padStart(2, '0');
-    const mm = String(currentMonday.getMonth() + 1).padStart(2, '0'); // Tháng trong JS chạy từ 0-11
-    const yyyy = currentMonday.getFullYear();
+    // Kiểm tra tính hợp lệ của ngày, nếu ngày bị lỗi thì dùng ngày hiện tại ngay để cứu hộ
+    const validDate = (currentMonday && !isNaN(currentMonday.getTime())) ? currentMonday : new Date();
+    
+    const dd = String(validDate.getDate()).padStart(2, '0');
+    const mm = String(validDate.getMonth() + 1).padStart(2, '0');
+    const yyyy = validDate.getFullYear();
+    lbl.innerText = `Tuần: ${dd}/${mm}/${yyyy}`;
+  }
     lbl.innerText = `Tuần: ${dd}/${mm}/${yyyy}`;
   }
   // [Toàn bộ đoạn code map dữ liệu phía dưới giữ nguyên 100%...]
