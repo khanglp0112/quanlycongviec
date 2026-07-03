@@ -1000,15 +1000,15 @@ function populateMemberSelects() {
           const currentMon = new Date(currentMonStr);
           const nextMon = new Date(currentMon); nextMon.setDate(currentMon.getDate() + 7);
 
-          // PHỤC HỒI LOGIC VÒNG LẶP GỐC CỦA FILE: Quét qua từng giáo viên để tính giờ
+          // PHỤC HỒI ĐOẠN PHÉP MAP VÀ TÍNH TOÁN GIỜ TUẦN GỐC CỦA TỔ
           listDiv.innerHTML = membersData.map(m => {
               const workQuota = parseFloat(m.work_quota || '40');
               const fixedHours = parseFloat(m.fixed_hours || '0');
               
               let taskHours = 0;
-              if (typeof allTasks !== 'undefined') {
+              if (typeof allTasks !== 'undefined' && allTasks.length > 0) {
                   allTasks.forEach(t => {
-                      if (t.assignee && t.assignee.includes(m.name)) {
+                      if (t.assignee && t.assignee.includes(m.name) && !t.archived) {
                           let targetDateStr = t.deadline;
                           if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
                           
@@ -1023,22 +1023,19 @@ function populateMemberSelects() {
               }
 
               // =========================================================================
-              // PHẦN 3C: TÍNH TOÁN GIỜ MÔ PHỎNG ĐỘNG NGAY TRÊN FORM (REAL-TIME)
+              // PHẦN 3C: TÍNH TOÁN GIỜ MÔ PHỎNG ĐỘNG NGAY TRÊN FORM (REAL-TIME SIMULATION)
               // =========================================================================
               const formEstHours = parseFloat(document.getElementById('inp-estimated-hours').value) || 0;
               const formStatus = document.getElementById('inp-status').value;
               const formStartDateStr = document.getElementById('inp-start-date').value;
               const formDeadlineStr = document.getElementById('inp-deadline').value;
 
-              // Lấy danh sách những giáo viên đang được tích chọn trên form hiện tại
               const selectedNamesOnForm = Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value);
 
-              // Điều kiện kích hoạt: Task trên form chưa done, giáo viên này đang được tích chọn, và form có điền giờ dự kiến
               if (formStatus !== 'done' && selectedNamesOnForm.includes(m.name) && formEstHours > 0) {
                   const soNguoiLamChungOnForm = selectedNamesOnForm.length;
                   
                   if (formStartDateStr && formDeadlineStr) {
-                      // Áp dụng thuật toán lấy danh sách ngày làm việc (Phần 2A)
                       const danhSachNgayCuaTaskOnForm = getWorkingDaysList(formStartDateStr, formDeadlineStr);
                       const tongSoNgayCuaTaskOnForm = danhSachNgayCuaTaskOnForm.length;
 
@@ -1046,23 +1043,17 @@ function populateMemberSelects() {
                           let soNgayTrungTrongTuanOnForm = 0;
                           const danhSachNgayTrongTuanXem = [];
                           
-                          // Tạo danh sách 6 ngày làm việc của tuần hiện tại (Thứ 2 đến Thứ 7)
                           for (let i = 0; i < 6; i++) {
-                              const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
-                              const yyyy = ngayChay.getFullYear();
-                              const mm = String(ngayChay.getMonth() + 1).padStart(2, '0');
-                              const dd = String(ngayChay.getDate()).padStart(2, '0');
-                              danhSachNgayTrongTuanXem.push(`${yyyy}-${mm}-${dd}`);
+                              const ngayChay = new Date(currentMon.getTime() + i * 24 * 60 * 60 * 1000);
+                              danhSachNgayTrongTuanXem.push(`${ngayChay.getFullYear()}-${String(ngayChay.getMonth() + 1).padStart(2, '0')}-${String(ngayChay.getDate()).padStart(2, '0')}`);
                           }
 
-                          // Đếm số ngày giao thoa của task trùng vào tuần này
                           danhSachNgayCuaTaskOnForm.forEach(ngayTask => {
                               if (danhSachNgayTrongTuanXem.includes(ngayTask)) {
                                   soNgayTrungTrongTuanOnForm++;
                               }
                           });
 
-                          // Cộng dồn tải mô phỏng của việc đang soạn thảo vào quỹ giờ tuần của giáo viên này
                           taskHours += ((formEstHours / soNguoiLamChungOnForm) / tongSoNgayCuaTaskOnForm) * soNgayTrungTrongTuanOnForm;
                       } else {
                           taskHours += (formEstHours / soNguoiLamChungOnForm);
@@ -1072,7 +1063,7 @@ function populateMemberSelects() {
                   }
               }
 
-              // Khai báo các biến tổng số và còn lại phục vụ cho badge hiển thị giờ tuần hiện tại
+              // Khai báo chuẩn các biến totalUsed và remaining cho badge
               const totalUsed = fixedHours + taskHours;
               const remaining = Math.max(0, workQuota - totalUsed);
               
@@ -1082,7 +1073,7 @@ function populateMemberSelects() {
               else badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-700 ml-auto border border-emerald-200">🟢 Còn ${remaining.toFixed(1)}h</span>`;
 
               // =========================================================================
-              // PHẦN 3B: TÍCH HỢP CHỈ SỐ HIỆU SUẤT VÀO GIAO DIỆN BẢN ĐỒ NHIỆT (2 LỚP)
+              // PHẦN 3B: ĐỒNG BỘ CHỈ SỐ HIỆU SUẤT VÀO BẢN ĐỒ NHIỆT (2 LỚP PHẲNG)
               // =========================================================================
               const eai = calculateMemberEAI(m.name);
 
@@ -1103,7 +1094,7 @@ function populateMemberSelects() {
 
                 </label>
               `;
-          }).join('');
+          }).join(''); // Đóng hàm map đồng bộ cú pháp
       }
     }
    // Lệnh mồi đảm bảo danh sách Họ tên đầy đủ luôn được nạp sẵn cho Biên bản họp
