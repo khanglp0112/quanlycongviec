@@ -1230,6 +1230,9 @@ function renderWorkingHoursList() {
   const container = document.getElementById('working-hours-list');
   const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
   const currentMonday = new Date(currentMonStr);
+ if (typeof changeWorkingHoursWeek.offsetDays === 'number') {
+    currentMonday.setDate(currentMonday.getDate() + changeWorkingHoursWeek.offsetDays);
+  }
   const nextMonday = new Date(currentMonday);
   nextMonday.setDate(currentMonday.getDate() + 7);
 
@@ -2467,32 +2470,19 @@ document.getElementById('btn-add').onclick = () => {
 // =========================================================================
 // BẢN VÁ LỖI NÚT BẤM: ÉP ĐỔI MỐC NGÀY HỆ THỐNG VÀO HÀM RENDER CŨ
 // =========================================================================
+// =========================================================================
+// SỬA LỖI ĐỔI TUẦN: TỊNH TIẾN NGÀY VÀ ÉP LÀM TƯƠI SỐ LIỆU NGAY TẠI CHỖ
+// =========================================================================
 function changeWorkingHoursWeek(direction) {
-  // 1. Lấy chuỗi ngày Thứ 2 hiện tại từ hàm hệ thống của thầy
-  let currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
-  let tempDate = new Date(currentMonStr);
-  
-  if (isNaN(tempDate.getTime())) {
-    tempDate = new Date(); // Dự phòng nếu chuỗi ngày bị lỗi
-  }
-
-  // 2. Tịnh tiến trực tiếp +7 hoặc -7 ngày 
-  tempDate.setDate(tempDate.getDate() + (direction * 7));
-  let newMonStr = tempDate.toISOString().split('T')[0];
-  
-  // 3. Đồng bộ mốc ngày mới vào ô chọn tuần chính của thầy (Thử nghiệm các ID phổ biến)
-  const mainWeekInput = document.getElementById('current-week') || 
-                        document.getElementById('current-week-input') || 
-                        document.getElementById('week-select');
-                        
-  if (mainWeekInput) {
-    mainWeekInput.value = newMonStr;
-    
-    // Phát sự kiện để kích hoạt luồng đổi tuần gốc của thầy
-    mainWeekInput.dispatchEvent(new Event('change'));
+  // 1. Khởi tạo thuộc tính lệch ngày ẩn trực tiếp vào hàm nếu chưa có
+  if (typeof changeWorkingHoursWeek.offsetDays === 'undefined') {
+    changeWorkingHoursWeek.offsetDays = 0;
   }
   
-  // 4. Ép vẽ lại dữ liệu mới ngay lập tức cho bảng Giờ làm
+  // 2. Bấm mũi tên dịch 1 tuần = Tăng hoặc Giảm 7 ngày làm việc
+  changeWorkingHoursWeek.offsetDays += (direction * 7);
+  
+  // 3. Ép bảng Giờ làm nạp lại dữ liệu tính toán mới của tuần vừa chọn
   if (typeof renderWorkingHoursList === 'function') {
     renderWorkingHoursList();
   }
