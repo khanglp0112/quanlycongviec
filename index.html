@@ -1961,7 +1961,7 @@ function showTaskDetail(task) {
   document.getElementById('inp-weekly').checked = task.is_weekly || false;
   document.getElementById('inp-status').value = task.status;
   document.getElementById('inp-edit-id').value = id;
-  
+  document.getElementById('inp-start-date').value = task.start_date || (task.created_at ? task.created_at.substring(0, 10) : '');
   // BỔ SUNG VÁ LỖI 1A: Tự động nạp Ngày nhận việc cũ lên form khi bấm Sửa
   // Nếu task cũ chưa có trường này, hệ thống sẽ tự động lấy 10 ký tự đầu của ngày tạo (yyyy-mm-dd) làm mốc mặc định
   document.getElementById('inp-start-date').value = task.start_date || (task.created_at ? task.created_at.substring(0, 10) : '');
@@ -2121,6 +2121,8 @@ let draggedSubtask = null; // Biến toàn cục để nhớ xem đang kéo mụ
   document.querySelectorAll('.assignee-cb').forEach(cb => cb.checked = false);
   document.getElementById('subtasks-container').innerHTML = '';
   document.getElementById('inp-start-date').value = '';
+    // PHẦN 2C: Xóa trắng ô ngày nhận việc khi đóng form để tránh lưu đè dữ liệu rác
+document.getElementById('inp-start-date').value = '';
 }
 
     function updateReviewSections() {
@@ -2176,7 +2178,14 @@ document.getElementById('btn-add').onclick = () => {
       const status = document.getElementById('inp-status').value;
       
       if (status === 'done' && !document.getElementById('inp-rating').value) { showFormError('Vui lòng đánh giá công việc trước khi hoàn thành.'); return; }
-      
+      if (status === 'done') {
+            const actualHoursInput = document.getElementById('inp-actual-hours-review');
+            if (!actualHoursInput.value || parseFloat(actualHoursInput.value) <= 0) {
+                showFormError("Vui lòng nhập số giờ hoàn thành thực tế lớn hơn 0.");
+                actualHoursInput.focus();
+                return;
+            }
+        }
       const btn = document.getElementById('btn-submit');
       btn.disabled = true; btn.textContent = 'Đang lưu...';
 const subtasksList = [];
@@ -2203,7 +2212,16 @@ const subtasksList = [];
       } else {
           data.completed_at = null; // Trả lại task đang làm thì xóa ngày hoàn thành
       }
-      // -------------------------------
+      data.start_date = document.getElementById('inp-start-date').value;
+
+    // 2. Logic cuốn chiếu chốt ngày hoàn thành dựa theo biến trạng thái 'status' của thầy
+    if (status === 'done') {
+        // Nếu chuyển sang done, tự đóng dấu ngày giờ hoàn thành (yyyy-mm-dd hh:mm:ss)
+        data.completed_at = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    } else {
+        // Nếu thuộc cột khác, để trống ngày hoàn thành
+        data.completed_at = "";
+    }
      if (editId) {
         db.collection("CongViec").doc(editId).update(data)
         .then(() => {
