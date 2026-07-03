@@ -999,23 +999,102 @@ function populateMemberSelects() {
           const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
           const currentMon = new Date(currentMonStr);
           const nextMon = new Date(currentMon); nextMon.setDate(currentMon.getDate() + 7);
-          // =========================================================================
-              // PHẦN 3B: TÍCH HỢP CHỈ SỐ HIỆU SUẤT EAI 30 NGÀY VÀO BẢN ĐỒ NHIỆT NĂNG SUẤT
+
+          // PHỤC HỒI LOGIC VÒNG LẶP GỐC CỦA FILE: Quét qua từng giáo viên để tính giờ
+          listDiv.innerHTML = membersData.map(m => {
+              const workQuota = parseFloat(m.work_quota || '40');
+              const fixedHours = parseFloat(m.fixed_hours || '0');
+              
+              let taskHours = 0;
+              if (typeof allTasks !== 'undefined') {
+                  allTasks.forEach(t => {
+                      if (t.assignee && t.assignee.includes(m.name)) {
+                          let targetDateStr = t.deadline;
+                          if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
+                          
+                          if (targetDateStr) {
+                              const d = new Date(targetDateStr);
+                              if (d >= currentMon && d < nextMon) {
+                                  taskHours += parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours) : t.estimated_hours) || 0;
+                              }
+                          }
+                      }
+                  });
+              }
+
               // =========================================================================
-              // Gọi hàm bổ trợ Phần 3A để lấy dữ liệu phong độ quá khứ của giáo viên
+              // PHẦN 3C: TÍNH TOÁN GIỜ MÔ PHỎNG ĐỘNG NGAY TRÊN FORM (REAL-TIME)
+              // =========================================================================
+              const formEstHours = parseFloat(document.getElementById('inp-estimated-hours').value) || 0;
+              const formStatus = document.getElementById('inp-status').value;
+              const formStartDateStr = document.getElementById('inp-start-date').value;
+              const formDeadlineStr = document.getElementById('inp-deadline').value;
+
+              // Lấy danh sách những giáo viên đang được tích chọn trên form hiện tại
+              const selectedNamesOnForm = Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value);
+
+              // Điều kiện kích hoạt: Task trên form chưa done, giáo viên này đang được tích chọn, và form có điền giờ dự kiến
+              if (formStatus !== 'done' && selectedNamesOnForm.includes(m.name) && formEstHours > 0) {
+                  const soNguoiLamChungOnForm = selectedNamesOnForm.length;
+                  
+                  if (formStartDateStr && formDeadlineStr) {
+                      // Áp dụng thuật toán lấy danh sách ngày làm việc (Phần 2A)
+                      const danhSachNgayCuaTaskOnForm = getWorkingDaysList(formStartDateStr, formDeadlineStr);
+                      const tongSoNgayCuaTaskOnForm = danhSachNgayCuaTaskOnForm.length;
+
+                      if (tongSoNgayCuaTaskOnForm > 0) {
+                          let soNgayTrungTrongTuanOnForm = 0;
+                          const danhSachNgayTrongTuanXem = [];
+                          
+                          // Tạo danh sách 6 ngày làm việc của tuần hiện tại (Thứ 2 đến Thứ 7)
+                          for (let i = 0; i < 6; i++) {
+                              const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
+                              const yyyy = ngayChay.getFullYear();
+                              const mm = String(ngayChay.getMonth() + 1).padStart(2, '0');
+                              const dd = String(ngayChay.getDate()).padStart(2, '0');
+                              danhSachNgayTrongTuanXem.push(`${yyyy}-${mm}-${dd}`);
+                          }
+
+                          // Đếm số ngày giao thoa của task trùng vào tuần này
+                          danhSachNgayCuaTaskOnForm.forEach(ngayTask => {
+                              if (danhSachNgayTrongTuanXem.includes(ngayTask)) {
+                                  soNgayTrungTrongTuanOnForm++;
+                              }
+                          });
+
+                          // Cộng dồn tải mô phỏng của việc đang soạn thảo vào quỹ giờ tuần của giáo viên này
+                          taskHours += ((formEstHours / soNguoiLamChungOnForm) / tongSoNgayCuaTaskOnForm) * soNgayTrungTrongTuanOnForm;
+                      } else {
+                          taskHours += (formEstHours / soNguoiLamChungOnForm);
+                      }
+                  } else {
+                      taskHours += (formEstHours / soNguoiLamChungOnForm);
+                  }
+              }
+
+              // Khai báo các biến tổng số và còn lại phục vụ cho badge hiển thị giờ tuần hiện tại
+              const totalUsed = fixedHours + taskHours;
+              const remaining = Math.max(0, workQuota - totalUsed);
+              
+              let badge = '';
+              if (totalUsed >= workQuota) badge = '<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-red-100 text-red-600 ml-auto border border-red-200">🔴 Quá tải</span>';
+              else if (totalUsed >= workQuota * 0.8) badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-amber-100 text-amber-700 ml-auto border border-amber-200">🟡 Còn ${remaining.toFixed(1)}h</span>`;
+              else badge = `<span class="text-[10px] px-1.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-700 ml-auto border border-emerald-200">🟢 Còn ${remaining.toFixed(1)}h</span>`;
+
+              // =========================================================================
+              // PHẦN 3B: TÍCH HỢP CHỈ SỐ HIỆU SUẤT VÀO GIAO DIỆN BẢN ĐỒ NHIỆT (2 LỚP)
+              // =========================================================================
               const eai = calculateMemberEAI(m.name);
 
               return `
-                <label class="flex flex-col gap-1 p-2 hover:bg-slate-150 rounded-xl transition-all w-full border border-transparent hover:border-slate-200 cursor-pointer mb-1" style="background: rgba(255, 255, 255, 0.6);">
+                <label class="flex flex-col gap-1 p-2 hover:bg-slate-200/60 rounded-xl transition-all w-full border border-transparent hover:border-slate-200 cursor-pointer mb-1" style="background: rgba(255, 255, 255, 0.6);">
                   
-                  <!-- Hàng 1: Checkbox, Tên giáo viên và Badge tải làm việc của tuần hiện tại -->
                   <div class="flex items-center gap-2 w-full">
                     <input type="checkbox" value="${m.name}" class="assignee-cb w-4 h-4 rounded border-slate-300 bg-white accent-blue-600 cursor-pointer flex-shrink-0">
                     <span style="color:#1e293b;font-size:13px;font-weight:700;" class="truncate flex-1">${escHtml(m.name)}</span>
                     ${badge}
                   </div>
                   
-                  <!-- Hàng 2: Bản đồ nhiệt phẳng hiển thị nhãn chỉ số Hiệu suất EAI 30 ngày -->
                   <div class="pl-6 w-full flex">
                     <span class="text-[9px] font-bold px-2 py-0.5 rounded-md border shadow-sm ${eai.color}">
                       ${eai.label}
@@ -1024,7 +1103,7 @@ function populateMemberSelects() {
 
                 </label>
               `;
-              // =========================================================================
+          }).join('');
       }
     }
    // Lệnh mồi đảm bảo danh sách Họ tên đầy đủ luôn được nạp sẵn cho Biên bản họp
@@ -1076,10 +1155,12 @@ function getWorkingDaysList(startDateStr, endDateStr) {
    // =========================================================================
 // PHẦN 3A: THUẬT TOÁN CỬA SỔ TRƯỢT 30 NGÀY TÍNH CHỈ SỐ HIỆU SUẤT (EAI)
 // =========================================================================
+// =========================================================================
+// PHẦN 3A: THUẬT TOÁN CỬA SỔ TRƯỢT 30 NGÀY TÍNH CHỈ SỐ HIỆU SUẤT (EAI)
+// =========================================================================
 function calculateMemberEAI(memberName) {
-    if (!allTasks || allTasks.length === 0) return { score: null, label: 'N/A', color: 'text-slate-400' };
+    if (!allTasks || allTasks.length === 0) return { score: null, label: 'N/A', color: 'text-slate-400 bg-slate-50 border-slate-200' };
 
-    // 1. Xác định mốc thời gian "Cửa sổ trượt 30 ngày" tính từ hôm nay
     const today = new Date();
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -1087,19 +1168,16 @@ function calculateMemberEAI(memberName) {
     let totalEstimated = 0;
     let totalActual = 0;
 
-    // 2. Quét toàn bộ kho dữ liệu allTasks để tính toán dữ liệu quá khứ
     allTasks.forEach(t => {
-        // Kiểm tra xem giáo viên có nằm trong danh sách người phụ trách không
-        const isAssignee = t.assignee && Array.isArray(t.assignee) && t.assignee.includes(memberName);
+        // Tách danh sách assignee chuỗi (VD: "Thầy A, Cô B") thành mảng để kiểm tra chuẩn xác
+        const assigneesArray = t.assignee ? t.assignee.split(',').map(s => s.trim()) : [];
+        const isAssignee = assigneesArray.includes(memberName);
         
-        // Điều kiện lọc: Đã HOÀN THÀNH và phải có ngày hoàn thành (completed_at)
         if (isAssignee && t.status === 'done' && t.completed_at) {
-            // Chuyển chuỗi completed_at (yyyy-mm-dd hh:mm:ss) thành đối tượng Date để so sánh mốc 30 ngày
             const taskCompletedDate = new Date(t.completed_at.substring(0, 10) + 'T00:00:00');
             
             if (taskCompletedDate >= thirtyDaysAgo && taskCompletedDate <= today) {
-                // Đếm số người gánh chung việc để chia đều số giờ dự kiến và thực tế tương tự Phần 2B
-                const soNguoiLamChung = Array.isArray(t.assignee) ? t.assignee.length : 1;
+                const soNguoiLamChung = assigneesArray.length > 0 ? assigneesArray.length : 1;
                 
                 totalEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
                 totalActual += (parseFloat(t.actual_hours || 0) / soNguoiLamChung);
@@ -1107,31 +1185,29 @@ function calculateMemberEAI(memberName) {
         }
     });
 
-    // Nếu trong 30 ngày qua giáo viên không có việc nào hoàn thành, trả về chưa có dữ liệu
     if (totalEstimated === 0) {
-        return { score: null, label: 'Chưa có dữ liệu', color: 'text-slate-400 bg-slate-100 border-slate-200' };
+        return { score: null, label: 'Chưa có dữ liệu', color: 'text-slate-400 bg-slate-50 border-slate-200' };
     }
 
-    // 3. Áp dụng công thức tính toán tỷ lệ phần trăm phong độ EAI
     const eaiPercent = Math.round((totalActual / totalEstimated) * 100);
 
-    // 4. Phân nhóm nhãn trạng thái phong độ làm việc và gán màu sắc trực quan (Badge)
+    // Phân nhóm hiệu suất chuẩn quản lý, tinh tế môi trường sư phạm
     if (eaiPercent >= 90 && eaiPercent <= 110) {
         return {
             score: eaiPercent,
-            label: `🎯 Hiệu suất tốt (${eaiPercent}%)`,
+            label: `🎯 Hiệu suất Tốt (${eaiPercent}%)`,
             color: 'text-emerald-700 bg-emerald-50 border-emerald-200'
         };
     } else if (eaiPercent < 90) {
         return {
             score: eaiPercent,
-            label: `⚡ Hiệu suất vượt trội (${eaiPercent}%)`,
+            label: `⚡ Hiệu suất Cao (${eaiPercent}%)`,
             color: 'text-blue-700 bg-blue-50 border-blue-200'
         };
     } else {
         return {
             score: eaiPercent,
-            label: `⚠️ Hiệu suất cần cải thiện (${eaiPercent}%)`,
+            label: `⏳ Hiệu suất cần cải thiện (${eaiPercent}%)`,
             color: 'text-amber-700 bg-amber-50 border-amber-200'
         };
     }
@@ -2178,7 +2254,7 @@ document.getElementById('inp-start-date').value = '';
 
     function updateReviewSections() {
       const status = document.getElementById('inp-status').value;
-      if (status === 'done') {
+      
         document.getElementById('rating-section').classList.remove('hidden');
         document.getElementById('lessons-section').classList.remove('hidden');
         document.getElementById('actual-hours-section').classList.remove('hidden');
@@ -2255,15 +2331,19 @@ const subtasksList = [];
        subtasks: subtasksList,
         status: status, created_at: new Date().toISOString()
       };
-      // --- LƯU LẠI NGÀY HOÀN THÀNH ---
+
+      // 1. Thu thập Ngày nhận việc từ ô input Phần 1A găm thẳng vào đối tượng data
+      data.start_date = document.getElementById('inp-start-date').value || '';
+
+      // 2. Thuật toán cuốn chiếu tự động đóng dấu hoặc xóa bỏ mốc thời gian completed_at
       if (status === 'done') {
           const oldTask = editId ? allTasks.find(t => t.__backendId === editId) : null;
-          // Nếu đã hoàn thành từ trước thì giữ nguyên ngày, nếu mới hoàn thành thì lấy ngày hôm nay
-          data.completed_at = (oldTask && oldTask.completed_at) ? oldTask.completed_at : new Date().toISOString();
+          // Nếu đã hoàn thành từ trước và có mốc cũ thì giữ nguyên, nếu mới hoàn thành thì đóng dấu định dạng yyyy-mm-dd hh:mm:ss
+          data.completed_at = (oldTask && oldTask.completed_at) ? oldTask.completed_at : new Date().toISOString().replace('T', ' ').substring(0, 19);
       } else {
-          data.completed_at = null; // Trả lại task đang làm thì xóa ngày hoàn thành
+          data.completed_at = null; // Trả việc ngược về các cột khác thì xóa mốc hoàn thành
       }
-      data.start_date = document.getElementById('inp-start-date').value;
+      // =========================================================================
 
     // 2. Logic cuốn chiếu chốt ngày hoàn thành dựa theo biến trạng thái 'status' của thầy
     if (status === 'done') {
@@ -2528,9 +2608,10 @@ const subtasksList = [];
         }
         setTimeout(async () => {
             try {
-                await db.collection("CongViec").doc(id).update({ archived: true, completed_at: new Date().toISOString() });
+               const targetTime = new Date().toISOString().replace('T', ' ').substring(0, 19);
+                await db.collection("CongViec").doc(id).update({ archived: true, completed_at: targetTime });
                 const index = allTasks.findIndex(t => t.__backendId === id);
-                if (index !== -1) Object.assign(allTasks[index], { archived: true, completed_at: new Date().toISOString() });
+                if (index !== -1) Object.assign(allTasks[index], { archived: true, completed_at: targetTime });
                 if(typeof renderTasks === 'function') renderTasks();
             } catch (error) {
                 if (card) { card.style.opacity = '1'; card.style.transform = 'none'; }
