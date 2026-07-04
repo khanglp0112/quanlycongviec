@@ -3259,26 +3259,35 @@ function toggleBienBan() {
     }
 
     function handleBBXoaGVKhoiHeThong(gvId) {
-        const gvTarget = DANH_SACH_GIAO_VIEN_FULL.find(g => g.id === gvId);
-        if (!gvTarget) return;
+    const gvTarget = DANH_SACH_GIAO_VIEN_FULL.find(g => g.id === gvId);
+    if (!gvTarget) return;
 
-        if (confirm(`Thầy có chắc chắn muốn xóa thầy cô "${gvTarget.hoTen}" ra khỏi danh sách hệ thống? (Thao tác này giúp dọn sạch danh sách khi nhân sự chuyển công tác)`)) {
-            // Gọi hàm lõi ở Phần 1 để xóa khỏi bộ nhớ thiết bị
+    // TÍCH HỢP HỘP THOẠI XÁC NHẬN CUSTOM TAILWIND CSS CÓ SẴN CỦA HỆ THỐNG
+    showSystemConfirm(
+        "Xóa nhân sự khỏi Tổ?", 
+        `Thầy có chắc chắn muốn xóa "${gvTarget.hoTen}" ra khỏi danh sách hệ thống mẫu? Thao tác này giúp dọn sạch danh sách nhân sự khi có thầy cô ngừng công tác tại tổ Toán - Tin.`,
+        async () => {
+            // Luồng xử lý sau khi Tổ trưởng nhấn nút [Đồng ý xóa] trên Modal Tailwind
             xoaGiaoVienKhoiHeThong(gvId);
             
-            // Vẽ lại dữ liệu cho bảng và cập nhật lại Modal
+            // Làm tươi (Render) lại danh sách trong Modal quản lý nhân sự gốc
             openQuanLyGiaoVienModal();
+            
+            // Cập nhật ngầm trạng thái các ô select giáo viên đang hiển thị trên bảng họp tổ
             document.querySelectorAll('.bb-sel-gv').forEach(sel => {
                 const currentVal = sel.value;
-                // Nếu dòng nào đang chọn trúng giáo viên vừa bị xóa, đưa dòng đó về trạng thái trống
+                // Nếu dòng nào đang chọn trúng giáo viên vừa xóa, đưa dòng đó về trống
                 sel.innerHTML = generateGiaoVienOptions(currentVal === gvTarget.hoTen ? '' : currentVal);
                 if (currentVal === gvTarget.hoTen) {
                     sel.closest('tr').querySelector('.bb-inp-chucvu').value = '';
                 }
             });
+            
+            // Đồng bộ lại danh sách ký tên Chủ trì & Thư ký cuộc họp
             updateBBChủTrìThưKýSelects();
         }
-    }
+    );
+}
    // ====================================================================
     // PHẦN 4: THIẾT LẬP KẾT NỐI FIREBASE FIRESTORE & QUẢN LÝ LỊCH SỬ
     // ====================================================================
