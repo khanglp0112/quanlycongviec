@@ -218,6 +218,30 @@
         background: linear-gradient(135deg, #10b981, #047857) !important;
         color: #ffffff !important;
     }
+   /* --- TINH CHỈNH HÀNG Ô RATING SAO MICA PHA LÊ CAO CẤP --- */
+    .rating-btn {
+        border-radius: 10px !important;
+        border: 1px solid rgba(148, 163, 184, 0.2) !important;
+        font-size: 14px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+        /* Khóa cứng vị trí, loại bỏ hiệu ứng nảy trượt lên theo đúng gu tối giản của thầy */
+        transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+        transform: none !important;
+    }
+
+    /* Hiệu ứng khi di chuột qua: Khóa cứng vị trí, chỉ tăng nhẹ độ sáng lớp kính */
+    .rating-btn:hover {
+        transform: none !important;
+        filter: brightness(1.05) !important;
+    }
+
+    /* Hiệu ứng đàn hồi lún nhẹ tại chỗ khi click chọn số sao */
+    .rating-btn:active {
+        transform: scale(0.95) !important;
+    }
   </style>
   <!-- ==================================================================== -->
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
@@ -2571,8 +2595,22 @@ document.getElementById('inp-start-date').value = '';
       const rating = document.getElementById('inp-rating').value;
       document.querySelectorAll('.rating-btn').forEach(btn => {
         const r = btn.getAttribute('data-rating');
-        if (rating && parseInt(rating) >= parseInt(r)) { btn.style.background = '#fbbf24'; btn.style.color = '#0f172a'; }
-        else { btn.style.background = '#334155'; btn.style.color = '#fbbf24'; }
+        
+        if (rating && parseInt(rating) >= parseInt(r)) {
+          // KHI ĐƯỢC CHỌN: Hóa tấm kính màu vàng Hổ phách đổ dốc mịn màng, viền sáng mảnh
+          btn.style.background = 'linear-gradient(135deg, #fbbf24, #f59e0b)';
+          btn.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+          btn.style.boxShadow = '0 3px 8px rgba(245, 158, 11, 0.15), inset 0 1px 0 rgba(255,255,255,0.3)';
+          // Làm icon ngôi sao đổ bóng nhẹ sắc sảo
+          btn.innerHTML = '<span style="filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15));">⭐</span>';
+        } else {
+          // KHI CHƯA CHỌN: Trả về tấm kính mờ xám trong suốt phẳng tiệp màu nền cực sạch
+          btn.style.background = 'rgba(241, 245, 249, 0.5)';
+          btn.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+          btn.style.boxShadow = 'none';
+          // Làm mờ nhẹ ngôi sao chưa chọn đi để tạo sự tương phản rõ rệt
+          btn.innerHTML = '<span style="opacity: 0.35; filter: grayscale(100%);">⭐</span>';
+        }
       });
     }
 
