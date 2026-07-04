@@ -243,87 +243,93 @@
         transform: scale(0.95) !important;
     }
 /* ==================================================================== */
-    /* MENU HEADER PHONG CÁCH TINTED GLASS TƯƠI DỊU - CHỐNG CHÓI & SANG TRỌNG */
+    /* BẢN VÁ KHỬ LÓA TOÀN DIỆN: DÌM SÁNG NỀN HEADER, NỔI BẬT NÚT MÀU TƯƠI  */
     /* ==================================================================== */
+    
+    /* 1. ÉP DẢI NỀN BỌC NGOÀI THANH HEADER XUỐNG TÔNG XÁM ĐÁ TRẦM ĐỂ CHỐNG LÓA MẮT */
+    header {
+        /* Chuyển từ trắng sáng sang dải màu xám đá Slate mịn, đầm ấm và triệt tiêu lóa đỉnh */
+        background: linear-gradient(to bottom, #334155, #1e293b) !important; 
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 4px 15px rgba(15, 23, 42, 0.15) !important;
+    }
+    
+    /* Chuyển tiêu đề chữ "Quản lý công việc nhóm" sang màu trắng sáng để tương phản dịu mắt trên nền sẫm */
+    #app-title {
+        color: #ffffff !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* 2. ĐỒNG BỘ TOÀN BỘ DÃY NÚT BÊN TRONG THEO PHOM PHẲNG MÀU TƯƠI CHỮ TRẮNG */
     header button {
         border-radius: 10px !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important; /* Chữ đậm sắc nét */
         font-size: 13px !important;
-        padding: 6px 14px !important;
-        /* Đường viền mờ tiệp phom màu kính */
-        border: 1px solid rgba(148, 163, 184, 0.2) !important;
-        background: rgba(241, 245, 249, 0.8) !important;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.01) !important;
-        /* Khóa cứng vị trí phẳng lặng, phản hồi màu sắc mượt mà không giật lắc */
-        transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease !important;
+        padding: 6px 15px !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important; /* Viền sáng mảnh mượt */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+        /* Khóa cứng vị trí phẳng lặng, không nảy khối gây nhức mắt */
+        transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
         transform: none !important;
     }
 
-    /* Hiệu ứng Hover: Không dịch chuyển, nút lập tức "đổ đầy" màu sậm rực rỡ dứt khoát */
+    /* Rê chuột tĩnh lặng: Giữ nguyên vị trí, chỉ sậm nhẹ màu tạo độ đầm mắt */
     header button:hover {
         transform: none !important;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+        filter: brightness(0.9) !important; 
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
     }
 
-    /* Hiệu ứng click lún nhẹ lò xo cơ học tại chỗ */
+    /* Click lún nhẹ lò xo tại chỗ */
     header button:active { transform: scale(0.96) !important; }
 
-    /* 1. ĐỊNH NGHĨA SẮC ĐỘ KÍNH MỜ TRẦM DỊU KHI ĐỨNG IM & HOVER RỰC RỠ */
+    /* ĐỔ LẠI CÁC KHỐI MÀU TƯƠI SẮC NÉT (CHỮ TRẮNG) NỔI BẬT TRÊN NỀN XÁM SẪM */
 
-    /* Nhóm nút tĩnh (Thành viên, Giờ làm, Timeline, Kho): Kính xám Slate tinh tế */
+    /* Nhóm nút quản lý tĩnh (Thành viên, Giờ làm, Timeline, Kho): Màu kính khói trắng tương phản cao */
     #btn-members, #btn-working-hours, #btn-timeline, #btn-archive {
-        color: #475569 !important;
-        background: rgba(148, 163, 184, 0.12) !important;
-        border-color: rgba(148, 163, 184, 0.2) !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
+        border-color: rgba(255, 255, 255, 0.15) !important;
     }
     #btn-members:hover, #btn-working-hours:hover, #btn-timeline:hover, #btn-archive:hover {
-        background: #475569 !important;
+        background: rgba(255, 255, 255, 0.22) !important;
         color: #ffffff !important;
-        border-color: #475569 !important;
     }
 
-    /* Nút "Liên kết": Kính sắc lam sapphire mát mắt */
+    /* Nút "Liên kết": Xanh dương Electric tươi rói */
     #btn-links { 
-        color: #2563eb !important; 
-        border-color: rgba(59, 130, 246, 0.2) !important; 
-        background: rgba(59, 130, 246, 0.06) !important; 
+        background: #2563eb !important; 
+        color: #ffffff !important; 
+        border-color: #1d4ed8 !important; 
     }
-    #btn-links:hover { background: #2563eb !important; color: #ffffff !important; border-color: #2563eb !important; }
 
-    /* Nút "Chấm tiết": Kính sắc tím Thạch Anh thanh lịch */
+    /* Nút "Chấm tiết": Tím Neon rực rỡ */
     #btn-show-chamtiet { 
-        color: #7c3aed !important; 
-        border-color: rgba(139, 92, 246, 0.2) !important; 
-        background: rgba(139, 92, 246, 0.06) !important; 
+        background: #9333ea !important; 
+        color: #ffffff !important; 
+        border-color: #7c3aed !important; 
     }
-    #btn-show-chamtiet:hover { background: #7c3aed !important; color: #ffffff !important; border-color: #7c3aed !important; }
 
-    /* Nút "Biên bản họp": Kính sắc cam Chanh ấm áp, rực rỡ hiệu năng */
+    /* Nút "Biên bản họp": Cam Chanh IGC tươi rói */
     #btn-show-bienban { 
-        color: #ea580c !important; 
-        border-color: rgba(234, 88, 12, 0.2) !important; 
-        background: rgba(234, 88, 12, 0.06) !important; 
+        background: #ff5500 !important; 
+        color: #ffffff !important; 
+        border-color: #e64d00 !important; 
     }
-    #btn-show-bienban:hover { background: #ea580c !important; color: #ffffff !important; border-color: #ea580c !important; }
 
-    /* Nút "Xuất Excel": Kính sắc xanh lá Mint tươi tắn năng suất */
+    /* Nút "Xuất Excel": Xanh lá Mint đầy năng lượng */
     #btn-export-excel { 
-        color: #10b981 !important; 
-        border-color: rgba(16, 185, 129, 0.2) !important; 
-        background: rgba(16, 185, 129, 0.06) !important; 
+        background: #00cc66 !important; 
+        color: #ffffff !important; 
+        border-color: #00b359 !important; 
     }
-    #btn-export-excel:hover { background: #10b981 !important; color: #ffffff !important; border-color: #10b981 !important; }
 
-    /* Nút "Thêm việc" Kanban tối cao: Giữ nguyên khối Hổ phách đổ dốc để làm điểm nhấn chính */
+    /* Nút "Thêm việc" Kanban tối cao: Dốc Gradient Hổ Phách rực rỡ */
     #btn-add {
-        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        background: linear-gradient(135deg, #ffb300, #f59e0b) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15) !important;
-    }
-    #btn-add:hover {
-        filter: brightness(1.05) !important;
-        box-shadow: 0 6px 16px rgba(217, 119, 6, 0.25) !important;
+        border: 1px solid rgba(255, 255, 255, 0.35) !important;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25) !important;
     }
   </style>
   <!-- ==================================================================== -->
