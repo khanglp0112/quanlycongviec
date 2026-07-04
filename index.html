@@ -49,22 +49,27 @@
     body { font-family: 'Geist', sans-serif; margin: 0; }
     .font-display { font-family: 'Newsreader', serif; }
     /* --- BỘ NÃO ÉP THẺ KANBAN TRONG SUỐT KÍNH MỜ 3D PHẲNG --- */
+   /* --- BỘ NÃO ÉP THẺ KANBAN THÀNH MIẾNG KÍNH PHA LÊ (CRYSTAL GLASS) --- */
     .task-card { 
-        /* Ép độ trong suốt 45% và làm nhòe sương mờ chạy ngầm dưới nền cột */
-        background: rgba(255, 255, 255, 0.45) !important; 
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.6) !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.01) !important;
-        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out !important; 
+        /* Hạ màu trắng xuống 15% để nhìn xuyên thấu rõ rệt, tăng blur lên 12px để khúc xạ sâu */
+        background: rgba(255, 255, 255, 0.15) !important; 
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        
+        /* Viền kính bắt sáng mảnh và trong suốt hơn */
+        border: 1px solid rgba(255, 255, 255, 0.45) !important;
+        
+        /* Đổ bóng vi mô sắc nét để giả lập độ dày của rìa tấm kính */
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.02) !important;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background 0.3s ease !important; 
     }
     
-    /* Hoạt cảnh nhấc khối 3D nịnh mắt trên Laptop khi rê chuột vào */
+    /* Hiệu ứng khi di chuột trên Laptop: Miếng kính bắt sáng lung linh */
     .task-card:hover { 
-        background: rgba(255, 255, 255, 0.75) !important; /* Tự động hút thêm độ sáng */
-        border-color: rgba(255, 255, 255, 0.95) !important;
-        transform: translateY(-4px) !important; /* Nhấc tấm kính lên cao */
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06) !important; /* Đổ bóng tầng rộng lên thẻ dưới */
+        background: rgba(255, 255, 255, 0.4) !important; /* Khi hover mới tăng độ trắng để dễ đọc */
+        border-color: rgba(255, 255, 255, 0.7) !important;
+        transform: translateY(-5px) !important; /* Nhấc tấm kính lên cao hẳn */
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.02) !important;
     }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
