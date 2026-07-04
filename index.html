@@ -48,6 +48,24 @@
     * { box-sizing: border-box; }
     body { font-family: 'Geist', sans-serif; margin: 0; }
     .font-display { font-family: 'Newsreader', serif; }
+    /* --- BỘ NÃO ÉP THẺ KANBAN TRONG SUỐT KÍNH MỜ 3D PHẲNG --- */
+    .task-card { 
+        /* Ép độ trong suốt 45% và làm nhòe sương mờ chạy ngầm dưới nền cột */
+        background: rgba(255, 255, 255, 0.45) !important; 
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.01) !important;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out !important; 
+    }
+    
+    /* Hoạt cảnh nhấc khối 3D nịnh mắt trên Laptop khi rê chuột vào */
+    .task-card:hover { 
+        background: rgba(255, 255, 255, 0.75) !important; /* Tự động hút thêm độ sáng */
+        border-color: rgba(255, 255, 255, 0.95) !important;
+        transform: translateY(-4px) !important; /* Nhấc tấm kính lên cao */
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.06) !important; /* Đổ bóng tầng rộng lên thẻ dưới */
+    }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .modal-backdrop { animation: backdropIn 0.2s ease; }
@@ -2057,41 +2075,16 @@ function renderTasks() {
 
   function createCard(t) {
   const div = document.createElement('div');
-  // CẬP NHẬT: Định hình lại hệ thống class, loại bỏ shadow mặc định để bóng 3D của JS xử lý
-  div.className = 'task-card rounded-2xl p-4 mb-3.5 fade-in cursor-pointer transition-all duration-300 ease-in-out border';
-  
-  // ÉP CỨNG ĐỘ TRONG SUỐT VÀ KÍNH MỜ BẰNG JAVASCRIPT STYLE (Bảo đảm đè mọi class)
-  div.style.background = 'rgba(255, 255, 255, 0.45)'; 
-  div.style.backdropFilter = 'blur(10px)';
-  div.style.webkitBackdropFilter = 'blur(10px)';
-  div.style.borderColor = 'rgba(255, 255, 255, 0.6)';
-  div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.01)';
-  
+  // Trả về class nguyên bản sạch sẽ của thầy
+  div.className = 'task-card rounded-xl p-3.5 fade-in cursor-pointer transition-all duration-300';
   div.dataset.id = t.__backendId;
   div.addEventListener('click', () => showTaskDetail(t));
   div.addEventListener('contextmenu', (e) => showContextMenu(e, t.__backendId));
   div.setAttribute('draggable', 'true');
-  
-  // HIỆU ỨNG HOVER TƯƠNG TÁC TĂNG ĐỘ TRẮNG KHI RÊ CHUỘT
-  div.addEventListener('mouseenter', () => {
-    div.style.background = 'rgba(255, 255, 255, 0.8)'; // Hút sáng nổi bật
-    div.style.borderColor = 'rgba(255, 255, 255, 0.95)';
-    div.style.transform = 'translateY(-4px)'; // Nhấc khối 3D lên
-    div.style.boxShadow = '0 16px 32px rgba(0, 0, 0, 0.06)'; // Bóng đổ tầng rộng
-  });
-  
-  div.addEventListener('mouseleave', () => {
-    div.style.background = 'rgba(255, 255, 255, 0.45)'; // Trả về trong suốt sương mờ
-    div.style.borderColor = 'rgba(255, 255, 255, 0.6)';
-    div.style.transform = 'translateY(0)';
-    div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.01)';
-  });
-
   div.addEventListener('dragstart', (e) => {
     e.dataTransfer.setData('text/plain', t.__backendId);
-    setTimeout(() => div.style.opacity = '0.3', 0); 
+    setTimeout(() => div.style.opacity = '0.4', 0); 
   });
-  
   div.addEventListener('dragend', () => { div.style.opacity = '1'; });
   
   updateCard(div, t);
