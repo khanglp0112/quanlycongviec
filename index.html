@@ -693,19 +693,19 @@
          </div>
 
          <div class="w-full">
-           <label for="inp-deadline" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Thời hạn chót</label> 
+           <label for="inp-deadline" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Hạn chót *</label> 
            <input id="inp-deadline" type="datetime-local" class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none border border-slate-300 focus:border-blue-500 font-semibold bg-white text-slate-800">
          </div>
 
          <div class="w-full">
-           <label for="inp-estimated-hours" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Giờ dự kiến (h)</label> 
+           <label for="inp-estimated-hours" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Giờ dự kiến (h) *</label> 
            <input id="inp-estimated-hours" type="number" min="0.5" step="0.5" class="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none border border-slate-300 focus:border-blue-500 font-semibold bg-white text-slate-800" placeholder="VD: 2.5">
          </div>
 
        </div>
        <div class="col-span-4 flex items-center gap-2 pt-6"><input id="inp-weekly" type="checkbox" class="w-4 h-4 rounded border-slate-400 bg-white accent-blue-600 cursor-pointer"><label for="inp-weekly" class="text-xs font-semibold cursor-pointer" style="color:#475569;">🔁 Lặp lại hàng tuần</label></div>
        <div class="col-span-6"><label for="inp-supporters" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Nhân sự hỗ trợ</label> <input id="inp-supporters" type="text" class="w-full px-3 py-2 rounded-lg text-sm outline-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="VD: Minh, Lan, Tuấn"></div>
-       <div class="col-span-6"><label for="inp-goal" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mục tiêu công việc</label> <textarea id="inp-goal" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Ghi rõ mục tiêu cần đạt được..."></textarea></div>
+       <div class="col-span-6"><label for="inp-goal" class="block text-xs font-semibold mb-1.5" style="color:#475569;">Mục tiêu công việc *</label> <textarea id="inp-goal" rows="2" class="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none focus:border-blue-500" style="background:#f8fafc;color:#1e293b;border:1px solid #cbd5e1;" placeholder="Ghi rõ mục tiêu cần đạt được..."></textarea></div>
        <div id="rating-section" class="hidden col-span-6"><label class="block text-xs font-semibold mb-1.5" style="color:#475569;">Đánh giá *</label>
         <div class="flex gap-1.5">
           <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="1" style="background:#f1f5f9;color:#cbd5e1;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="2" style="background:#f1f5f9;color:#cbd5e1;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="3" style="background:#f1f5f9;color:#cbd5e1;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="4" style="background:#f1f5f9;color:#cbd5e1;">⭐</button> <button type="button" class="rating-btn flex-1 h-9 rounded-lg text-base font-bold transition-colors" data-rating="5" style="background:#f1f5f9;color:#cbd5e1;">⭐</button>
@@ -2194,7 +2194,7 @@ function showTaskDetail(task) {
     html += `<div><span style="${lbl}">Mức độ ưu tiên</span><span class="inline-block mt-1" style="background:${p.color}15;color:${p.color};padding:6px 12px;border-radius:6px;font-size:12px;font-weight:800;">${p.label}</span></div>`;
     if (task.deadline) { 
         const d = new Date(task.deadline);
-        html += `<div><span style="${lbl}">Thời hạn chót</span><span style="${val}"><i data-lucide="calendar-clock" style="width:18px;height:18px;color:#ef4444;margin-top:1px;flex-shrink:0;"></i> <span style="color:#ef4444;">${('0' + d.getHours()).slice(-2)}:${('0' + d.getMinutes()).slice(-2)} - ${d.toLocaleDateString('vi-VN')}</span></span></div>`; 
+        html += `<div><span style="${lbl}">Hạn chót *</span><span style="${val}"><i data-lucide="calendar-clock" style="width:18px;height:18px;color:#ef4444;margin-top:1px;flex-shrink:0;"></i> <span style="color:#ef4444;">${('0' + d.getHours()).slice(-2)}:${('0' + d.getMinutes()).slice(-2)} - ${d.toLocaleDateString('vi-VN')}</span></span></div>`; 
     }
     html += `<div><span style="${lbl}">Phân công</span><span style="${val}"><i data-lucide="user-circle" style="width:18px;height:18px;color:#3b82f6;margin-top:1px;flex-shrink:0;"></i><span>${escHtml(task.assignee)}</span></span></div>`;
     if (task.supporters) html += `<div><span style="${lbl}">Thành viên hỗ trợ</span><span style="${val}"><i data-lucide="users" style="width:18px;height:18px;color:#8b5cf6;margin-top:1px;flex-shrink:0;"></i><span>${escHtml(task.supporters)}</span></span></div>`;
@@ -2523,12 +2523,33 @@ function changeWorkingHoursWeek(direction) {
 
     document.getElementById('task-form').addEventListener('submit', function(e) {
       e.preventDefault();
+      
+      // 1. TRÍCH XUẤT VÀ KIỂM TRA ĐIỀU KIỆN RÀ SOÁT CÁC TRƯỜNG BẮT BUỘC 
       const title = document.getElementById('inp-title').value.trim();
-      if (!title) return;
-      const editId = document.getElementById('inp-edit-id').value;
+      const startDate = document.getElementById('inp-start-date').value;
+      const deadline = document.getElementById('inp-deadline').value;
+      const estHours = document.getElementById('inp-estimated-hours').value.trim();
+      const goal = document.getElementById('inp-goal').value.trim();
       const status = document.getElementById('inp-status').value;
       
-      if (status === 'done' && !document.getElementById('inp-rating').value) { showFormError('Vui lòng đánh giá công việc trước khi hoàn thành.'); return; }
+      // Khóa chặn nếu bỏ trống bất kỳ trường bắt buộc nào theo yêu cầu mới
+      if (!title || !startDate || !deadline || !estHours || !goal) {
+          showFormError('Vui lòng điền đầy đủ các thông tin bắt buộc (*): Tiêu đề, Ngày nhận việc, Thời hạn chót, Giờ dự kiến và Mục tiêu.');
+          return;
+      }
+      
+      // Kiểm tra rà soát người chịu trách nhiệm (Không cho phép trống)
+      const selectedAssignees = Array.from(document.querySelectorAll('.assignee-cb:checked'));
+      if (selectedAssignees.length === 0) {
+          showFormError('Vui lòng chọn phân công ít nhất một giáo viên thực hiện.');
+          return;
+      }
+      
+      // 2. RÀ SOÁT ĐIỀU KIỆN KHI HOÀN THÀNH (DONE)
+      if (status === 'done' && !document.getElementById('inp-rating').value) { 
+          showFormError('Vui lòng đánh giá mức độ hoàn thành (chọn sao ⭐) trước khi đóng việc.'); 
+          return; 
+      }
       if (status === 'done') {
             const actualHoursInput = document.getElementById('inp-actual-hours-review');
             if (!actualHoursInput.value || parseFloat(actualHoursInput.value) <= 0) {
@@ -2536,48 +2557,51 @@ function changeWorkingHoursWeek(direction) {
                 actualHoursInput.focus();
                 return;
             }
-        }
+      }
+      
+      const editId = document.getElementById('inp-edit-id').value;
       const btn = document.getElementById('btn-submit');
       btn.disabled = true; btn.textContent = 'Đang lưu...';
-const subtasksList = [];
+      
+      const subtasksList = [];
       document.querySelectorAll('.subtask-item').forEach(item => {
           const stText = item.querySelector('.subtask-text').value.trim();
           const stDone = item.querySelector('.subtask-cb').checked;
           if(stText) subtasksList.push({ text: stText, done: stDone });
       });
+      
+      // Đóng gói mảng dữ liệu để chuẩn bị đồng bộ Firebase
       const data = {
-        title: title, description: document.getElementById('inp-desc').value.trim(), assignee: Array.from(document.querySelectorAll('.assignee-cb:checked')).map(cb => cb.value).join(', '),
-        priority: document.getElementById('inp-priority').value, deadline: document.getElementById('inp-deadline').value || '',
-        estimated_hours: document.getElementById('inp-estimated-hours').value || '', actual_hours: document.getElementById('inp-actual-hours-review').value || '',
-        supporters: document.getElementById('inp-supporters').value.trim() || '', goal: document.getElementById('inp-goal').value.trim() || '',
-        rating: document.getElementById('inp-rating').value || '', lessons_learned: document.getElementById('inp-lessons').value.trim() || '',
-       is_weekly: document.getElementById('inp-weekly').checked,
-       subtasks: subtasksList,
-        status: status, created_at: new Date().toISOString()
+        title: title, 
+        description: document.getElementById('inp-desc').value.trim(), 
+        assignee: selectedAssignees.map(cb => cb.value).join(', '),
+        priority: document.getElementById('inp-priority').value, 
+        deadline: deadline,
+        estimated_hours: estHours, 
+        actual_hours: document.getElementById('inp-actual-hours-review').value || '',
+        supporters: document.getElementById('inp-supporters').value.trim() || '', 
+        goal: goal,
+        rating: document.getElementById('inp-rating').value || '', 
+        lessons_learned: document.getElementById('inp-lessons').value.trim() || '',
+        is_weekly: document.getElementById('inp-weekly').checked,
+        subtasks: subtasksList,
+        status: status, 
+        created_at: new Date().toISOString()
       };
 
-      // 1. Thu thập Ngày nhận việc từ ô input Phần 1A găm thẳng vào đối tượng data
-      data.start_date = document.getElementById('inp-start-date').value || '';
+      // 3. Găm mốc Ngày nhận việc vào đối tượng dữ liệu
+      data.start_date = startDate;
 
-      // 2. Thuật toán cuốn chiếu tự động đóng dấu hoặc xóa bỏ mốc thời gian completed_at
+      // 4. Thuật toán xử lý mốc thời gian hoàn thành (completed_at) cuốn chiếu an toàn
       if (status === 'done') {
           const oldTask = editId ? allTasks.find(t => t.__backendId === editId) : null;
-          // Nếu đã hoàn thành từ trước và có mốc cũ thì giữ nguyên, nếu mới hoàn thành thì đóng dấu định dạng yyyy-mm-dd hh:mm:ss
           data.completed_at = (oldTask && oldTask.completed_at) ? oldTask.completed_at : new Date().toISOString().replace('T', ' ').substring(0, 19);
       } else {
-          data.completed_at = null; // Trả việc ngược về các cột khác thì xóa mốc hoàn thành
+          data.completed_at = ""; // Để trống nếu thuộc các cột khác
       }
-      // =========================================================================
 
-    // 2. Logic cuốn chiếu chốt ngày hoàn thành dựa theo biến trạng thái 'status' của thầy
-    if (status === 'done') {
-        // Nếu chuyển sang done, tự đóng dấu ngày giờ hoàn thành (yyyy-mm-dd hh:mm:ss)
-        data.completed_at = new Date().toISOString().replace('T', ' ').substring(0, 19);
-    } else {
-        // Nếu thuộc cột khác, để trống ngày hoàn thành
-        data.completed_at = "";
-    }
-     if (editId) {
+      // 5. Tiến hành đồng bộ Cloud Firestore
+      if (editId) {
         db.collection("CongViec").doc(editId).update(data)
         .then(() => {
             const index = allTasks.findIndex(t => t.__backendId === editId);
@@ -2588,32 +2612,27 @@ const subtasksList = [];
                 const nextTask = { ...data };
                 delete nextTask.__backendId; 
                 
-                // Cộng 7 ngày cho deadline
                 if (data.deadline) {
                     const d = new Date(data.deadline);
                     d.setDate(d.getDate() + 7); 
                     nextTask.deadline = d.toISOString().split('T')[0];
                 }
                 
-                // Trả các thông số về trạng thái việc mới
                 nextTask.status = 'todo';
                 nextTask.actual_hours = '';
                 nextTask.rating = '';
                 nextTask.lessons_learned = '';
                 nextTask.created_at = new Date().toISOString();
                 
-                // Tắt tick lặp lại ở việc cũ để không bị nhân đôi nếu thầy sửa lại việc cũ
                 db.collection("CongViec").doc(editId).update({ is_weekly: false });
                 if (index !== -1) allTasks[index].is_weekly = false;
 
-                // Lưu việc mới tuần sau lên Firebase
                 db.collection("CongViec").add(nextTask).then(docRef => {
                     nextTask.__backendId = docRef.id;
                     allTasks.push(nextTask);
                     renderTasks();
                 });
             }
-            // ---------------------------------------------
 
             if(typeof renderTasks === 'function') renderTasks();
             btn.disabled = false; btn.textContent = 'Cập nhật'; closeModal();
@@ -2630,7 +2649,7 @@ const subtasksList = [];
         })
         .catch((error) => { showFormError('Lỗi kết nối Firebase: ' + error.message); btn.disabled = false; btn.textContent = 'Thêm công việc'; });
       }
-    });
+});
 
     ['filter-status', 'filter-assignee', 'filter-priority', 'filter-month'].forEach(id => { document.getElementById(id).addEventListener('change', renderTasks); });
 // =========================================================================
@@ -4008,7 +4027,7 @@ function deleteLienKet(id) {
             return {
                 "Tiêu đề công việc": t.title || "", "Mô tả": t.description || "", "Người phụ trách": t.assignee || "", "Hỗ trợ": t.supporters || "",
                 "Mức ưu tiên": p, "Thời hạn": t.deadline ? new Date(t.deadline).toLocaleDateString('vi-VN') : "",
-                "Giờ dự kiến (h)": t.estimated_hours ? Number(t.estimated_hours) : "", "Trạng thái": st,
+                "Giờ dự kiến (h) *": t.estimated_hours ? Number(t.estimated_hours) : "", "Trạng thái": st,
                 "Giờ thực tế (h)": t.actual_hours ? Number(t.actual_hours) : "", "Đánh giá (Sao)": t.rating ? Number(t.rating) : "", "Rút kinh nghiệm": t.lessons_learned || ""
             };
         });
