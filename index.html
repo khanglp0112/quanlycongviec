@@ -3305,75 +3305,89 @@ function toggleBienBan() {
 
     // Hàm 4.1: Đẩy toàn bộ dữ liệu chữ của biên bản họp tổ lên Cloud Firebase
     async function saveBienBan() {
-        const id = document.getElementById('inp-bb-id').value;
-        const lanHop = document.getElementById('inp-bb-lan').value.trim();
-        const ngayHop = document.getElementById('inp-bb-ngay').value;
-        const diaDiem = document.getElementById('inp-bb-diadiem').value.trim();
-        const gioBD = document.getElementById('inp-bb-gio-bd').value;
-        const gioKT = document.getElementById('inp-bb-gio-kt').value;
-        const noiDungHtml = document.getElementById('editor-bb-noidung').innerHTML;
-        const chuTri = document.getElementById('sel-bb-chutri').value;
-        const thuKy = document.getElementById('sel-bb-thuky').value;
+    const id = document.getElementById('inp-bb-id').value;
+    const lanHop = document.getElementById('inp-bb-lan').value.trim();
+    const ngayHop = document.getElementById('inp-bb-ngay').value;
+    const diaDiem = document.getElementById('inp-bb-diadiem').value.trim();
+    const gioBD = document.getElementById('inp-bb-gio-bd').value;
+    const gioKT = document.getElementById('inp-bb-gio-kt').value;
+    const noiDungHtml = document.getElementById('editor-bb-noidung').innerHTML;
+    const chuTri = document.getElementById('sel-bb-chutri').value;
+    const thuKy = document.getElementById('sel-bb-thuky').value;
 
-        // Bẫy lỗi kiểm tra điều kiện nhập bắt buộc
-        if (!ngayHop || !diaDiem || !chuTri || !thuKy) {
-            alert("Thầy vui lòng điền đầy đủ các thông tin bắt buộc: Ngày họp, Địa điểm, Chủ trì và Thư ký.");
-            return;
-        }
+    // Bẫy lỗi kiểm tra điều kiện nhập bắt buộc
+    if (!ngayHop || !diaDiem || !chuTri || !thuKy) {
+        alert("Thầy vui lòng điền đầy đủ các thông tin bắt buộc: Ngày họp, Địa điểm, Chủ trì và Thư ký.");
+        return;
+    }
 
-        // Đóng gói mảng dữ liệu từ bảng thành phần động mục II
-const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
-        const thanhPhanThamDu = rows.map(row => {
-            const selectGv = row.getElementsByClassName('bb-sel-gv')[0];
-            const ten = selectGv ? selectGv.value : '';
-            if (!ten) return null;
+    // --- BẢN VÁ UX CHỐNG LAG: LẬP TỨC THAY ĐỔI TRẠNG THÁI NÚT LƯU KHI CÓ CLICK ---
+    const btnSave = document.querySelector('button[onclick="saveBienBan()"]');
+    let originalBtnText = "";
+    if (btnSave) {
+        originalBtnText = btnSave.innerHTML;
+        btnSave.innerHTML = '<i data-lucide="loader" class="animate-spin" style="width:16px;height:16px;display:inline-block;margin-right:6px;"></i> Đang đồng bộ...';
+        btnSave.disabled = true;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
 
-            const chucVuInput = row.getElementsByClassName('bb-inp-chucvu')[0];
-            const ghiChuInput = row.getElementsByClassName('bb-inp-ghichu')[0];
+    // Gom dữ liệu thành phần động mục II
+    const rows = Array.from(document.getElementsByClassName('bb-tp-row'));
+    const thanhPhanThamDu = rows.map(row => {
+        const selectGv = row.getElementsByClassName('bb-sel-gv')[0];
+        const ten = selectGv ? selectGv.value : '';
+        if (!ten) return null;
 
-            return {
-                hoTen: ten,
-                chucVu: chucVuInput ? chucVuInput.value : '',
-                ghiChu: ghiChuInput ? ghiChuInput.value.trim() : ''
-            };
-        }).filter(item => item !== null);
+        const chucVuInput = row.getElementsByClassName('bb-inp-chucvu')[0];
+        const ghiChuInput = row.getElementsByClassName('bb-inp-ghichu')[0];
 
-        // Tạo tiêu đề trực quan để hiển thị ở bảng lịch sử tra cứu
-        const parts = ngayHop.split('-');
-        const tieuDeHienThi = `Biên bản họp Tổ lần ${lanHop} - Tháng ${parts[1]}/${parts[0]}`;
-
-        const dataBB = {
-            lanHop: parseInt(lanHop) || 1,
-            ngayHop: ngayHop,
-            diaDiem: diaDiem,
-            gioBD: gioBD,
-            gioKT: gioKT,
-            noiDung: noiDungHtml, // Lưu định dạng HTML của bộ Rich Text
-            chuTri: chuTri,
-            thuKy: thuKy,
-            thanhPhan: thanhPhanThamDu,
-            tieuDe: tieuDeHienThi,
-            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        return {
+            hoTen: ten,
+            chucVu: chucVuInput ? chucVuInput.value : '',
+            ghiChu: ghiChuInput ? ghiChuInput.value.trim() : ''
         };
+    }).filter(item => item !== null);
 
-        try {
+    const parts = ngayHop.split('-');
+    const tieuDeHienThi = `Biên bản họp Tổ lần ${lanHop} - Tháng ${parts[1]}/${parts[0]}`;
+
+    const dataBB = {
+        lanHop: parseInt(lanHop) || 1,
+        ngayHop: ngayHop,
+        diaDiem: diaDiem,
+        gioBD: gioBD,
+        gioKT: gioKT,
+        noiDung: noiDungHtml,
+        chuTri: chuTri,
+        thuKy: thuKy,
+        thanhPhan: thanhPhanThamDu,
+        tieuDe: tieuDeHienThi,
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
         if (id) {
             await db.collection("BienBanHop").doc(id).update(dataBB);
-            // THAY THẾ ALERT BẰNG HỘP THOẠI HOÀN HẢO MỚI
             showSystemSuccess("Cập nhật thành công", "Hệ thống đã ghi nhận toàn bộ chỉnh sửa và cập nhật lại biên bản họp tổ trên dữ liệu đám mây.");
         } else {
             const docRef = await db.collection("BienBanHop").add(dataBB);
             document.getElementById('inp-bb-id').value = docRef.id;
-            // THAY THẾ ALERT BẰNG HỘP THOẠI HOÀN HẢO MỚI
             showSystemSuccess("Lưu trữ thành công", "Biên bản họp tổ Toán - Tin đã được đóng gói và đồng bộ an toàn lên hệ thống cơ sở dữ liệu Firebase.");
         }
         
-        if (typeof renderBBLichSuTable === "function") renderBBLichSuTable();
+        if (typeof renderBBLichSuTable === "function") await renderBBLichSuTable();
     } catch (error) {
         console.error("Lỗi Firebase Firestore: ", error);
         alert("Đã xảy ra sự cố kết nối dữ liệu: " + error.message);
+    } finally {
+        // --- PHỤC HỒI NÚT LƯU VỀ NGUYÊN BẢN SAU KHI MẠNG ĐÃ CHẠY XONG ---
+        if (btnSave) {
+            btnSave.innerHTML = originalBtnText;
+            btnSave.disabled = false;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
     }
-    }
+}
 
     // Hàm 4.2: Lấy dữ liệu từ Cloud Firebase về vẽ lên bảng lịch sử tra cứu
     async function renderBBLichSuTable() {
