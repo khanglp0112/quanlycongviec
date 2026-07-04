@@ -243,100 +243,96 @@
         transform: scale(0.95) !important;
     }
 /* ==================================================================== */
-    /* HỆ THỐNG NÚT MENU HEADER TÔNG MÀU TƯƠI RỰC RỠ - TƯƠNG PHẢN CHỐNG CHÓI*/
+    /* HỆ THỐNG MENU HEADER TÔNG MÀU SIÊU TƯƠI RỰC RỠ (VIBRANT NEON TONES) */
     /* ==================================================================== */
     
-    /* 1. Cấu hình phom dáng phẳng đúc khối độc lập cho nhóm nút Header */
     header button {
         border-radius: 10px !important;
-        font-weight: 700 !important;
+        font-weight: 800 !important; /* Đẩy chữ lên siêu đậm để nổi bật trên nền màu tươi */
         font-size: 13px !important;
         padding: 6px 15px !important;
-        /* Viền sáng mảnh giả lập rìa khối pha lê */
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        /* Bóng đổ chìm sắc nét giúp khối màu tươi bứt hẳn khỏi nền trắng */
-        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-        /* Khóa cứng chuyển động tịnh tiến (chống nảy trượt), chỉ chuyển màu mượt */
+        border: 1px solid rgba(255, 255, 255, 0.3) !important; /* Viền trắng mảnh bắt sáng rõ hơn */
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
         transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
         transform: none !important;
     }
 
-    /* Hiệu ứng di chuột tĩnh lặng dịu mắt: Không nảy khối, chỉ sậm nhẹ màu tạo độ đầm */
+    /* Hiệu ứng di chuột tĩnh lặng dịu mắt: Chỉ dìm nhẹ sắc độ, giữ phom phẳng dứt khoát */
     header button:hover {
         transform: none !important;
-        filter: brightness(0.92) !important; /* Di chuột vào sẽ đằm màu xuống giúp mắt dễ chịu */
-        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1) !important;
+        filter: brightness(0.9) !important; /* Hạ nhẹ độ sáng khi hover để tránh mỏi mắt */
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12) !important;
     }
 
-    /* Hiệu ứng click lún nhẹ cơ học tại chỗ */
+    /* Hiệu ứng click lún nhẹ tại chỗ */
     header button:active { 
         transform: scale(0.96) !important; 
     }
 
-    /* 2. NHUỘM DẢI MÀU NỀN TƯƠI VÀ ĐẬM NÉT CHO TỪNG NÚT BẤM (CHỮ TRẮNG NỔI BẬT) */
+    /* ĐỔ CÁC MÃ MÀU NGUYÊN BẢN CÓ ĐỘ TƯƠI VÀ ĐỘ BÃO HÒA CAO NHẤT (CHỮ TRẮNG) */
 
-    /* Nút "Thành viên": Màu Xanh Slate bán trung tính (Đậm đà, sạch sẽ) */
+    /* Nút "Thành viên": Xanh Slate tươi sáng (Vibrant Slate) */
     #btn-members {
-        background: #475569 !important;
+        background: #64748b !important;
         color: #ffffff !important;
-        border-color: #334155 !important;
+        border-color: #475569 !important;
     }
 
-    /* Nút "Giờ làm": Màu Xanh Cyan công nghệ tươi mát */
+    /* Nút "Giờ làm": Xanh bầu trời Neon (Vibrant Sky Blue) */
     #btn-working-hours {
-        background: #0ea5e9 !important;
+        background: #00bfff !important; /* Đẩy sắc độ xanh Cyan lên mức rực rỡ nhất */
         color: #ffffff !important;
-        border-color: #0284c7 !important;
+        border-color: #0099cc !important;
     }
 
-    /* Nút "Timeline": Màu Tím Khói sẫm tinh tế */
+    /* Nút "Timeline": Màu Xám Bạc tươi sáng (Light Silver Glass) */
     #btn-timeline {
-        background: #6b7280 !important;
+        background: #9ca3af !important;
         color: #ffffff !important;
-        border-color: #4b5563 !important;
+        border-color: #6b7280 !important;
     }
 
-    /* Nút "Kho lưu trữ": Màu Xanh Cổ Vịt trầm tĩnh */
+    /* Nút "Kho lưu trữ": Màu Xanh Ngọc Bích tươi (Vibrant Teal) */
     #btn-archive {
-        background: #0f766e !important;
+        background: #0d9488 !important;
         color: #ffffff !important;
-        border-color: #115e59 !important;
+        border-color: #0f766e !important;
     }
 
-    /* Nút "Liên kết": Màu Xanh Dương Sapphire tươi sáng rực rỡ */
+    /* Nút "Liên kết": Xanh dương Electric tươi rói (Vibrant Electric Blue) */
     #btn-links { 
-        background: #3b82f6 !important; 
+        background: #2563eb !important; /* Sắc xanh thuần khiết, nổi bật tuyệt đối */
         color: #ffffff !important; 
         border-color: #1d4ed8 !important; 
     }
 
-    /* Nút "Chấm tiết": Màu Tím Hoa Cà thạch anh tươi tắn */
+    /* Nút "Chấm tiết": Tím Neon rực rỡ (Vibrant Purple/Violet) */
     #btn-show-chamtiet { 
-        background: #8b5cf6 !important; 
+        background: #9333ea !important; /* Đẩy tông tím tươi và bắt mắt hơn */
         color: #ffffff !important; 
-        border-color: #6d28d9 !important; 
+        border-color: #7c3aed !important; 
     }
 
-    /* Nút "Biên bản họp": Màu Cam Chanh hành chính rực rỡ */
+    /* Nút "Biên bản họp": Cam Chanh độc quyền IGC tươi rói (Vibrant Neon Orange) */
     #btn-show-bienban { 
-        background: #ea580c !important; 
+        background: #ff5500 !important; /* Đạt sắc độ cam tươi roi rói, triệt tiêu sắc đất */
         color: #ffffff !important; 
-        border-color: #c2410c !important; 
+        border-color: #e64d00 !important; 
     }
 
-    /* Nút "Xuất Excel": Màu Xanh Lá Ngọc Lục Bảo đầy năng lượng */
+    /* Nút "Xuất Excel": Xanh lá cây Mint rực rỡ đầy năng lượng (Vibrant Emerald) */
     #btn-export-excel { 
-        background: #10b981 !important; 
+        background: #00cc66 !important; /* Hạ màu tối, đẩy độ tươi xanh của lá lên tối đa */
         color: #ffffff !important; 
-        border-color: #059669 !important; 
+        border-color: #00b359 !important; 
     }
 
-    /* Nút "Thêm việc" Kanban: Ép dải Gradient màu Vàng Nghệ Hổ Phách cao cấp phát sáng nhẹ */
+    /* Nút "Thêm việc" Kanban: Dốc màu Vàng Chanh/Hổ Phách rực sáng trên Header */
     #btn-add {
-        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        background: linear-gradient(135deg, #ffb300, #f59e0b) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.25) !important;
-        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.35) !important;
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25) !important;
     }
   </style>
   <!-- ==================================================================== -->
