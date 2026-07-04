@@ -121,6 +121,37 @@
         0% { transform: translateX(-100%); }
         100% { transform: translateX(100%); }
     }
+   /* Lớp nền tối kính mờ toàn cục khi kích hoạt Dark Mode */
+.dark body {
+    background: #0f172a !important; /* Đổi nền thô sang màu đen xanh than đá */
+}
+
+/* Cấu trúc các khối kính mờ khi sang giao diện tối */
+.dark header {
+    background: rgba(15, 23, 42, 0.75) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.dark .task-card {
+    background: rgba(30, 41, 59, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    color: #f1f5f9 !important;
+}
+.dark h1, .dark h2, .dark h3, .dark span, .dark label:not(.text-slate-400) {
+    color: #f8fafc !important;
+}
+
+/* Bộ não xử lý vòng tròn lan tỏa */
+#dark-reveal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 9999; /* Đảm bảo nổi lên trên để quét qua màn hình */
+    clip-path: circle(0% at 0px 0px);
+    transition: clip-path 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#dark-reveal-overlay.active {
+    clip-path: circle(150% at var(--x) var(--y));
+}
   </style>
   <!-- ==================================================================== -->
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
@@ -168,6 +199,9 @@
       <button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
       <button id="btn-archive" onclick="openArchiveModal()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm hover:shadow" style="background:#ffffff;color:#475569;border:1px solid #cbd5e1;"><i data-lucide="archive" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Kho lưu trữ</span></button>
       <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thêm việc</span></button>
+      <button id="btn-toggle-dark" onclick="triggerDarkReveal(event)" class="flex items-center justify-center p-2 rounded-lg border border-slate-200 transition-colors shadow-sm bg-white/60 text-slate-600 hover:bg-slate-200" title="Chuyển đổi giao diện ban đêm">
+        <i data-lucide="moon" class="w-4 h-4" id="icon-dark-mode"></i>
+      </button>
     </div>
 </header>
 
@@ -4305,6 +4339,56 @@ window.calculateMemberEAI = function(memberName) {
         return { score: eaiPercent, label: `⏳ Hiệu suất cần cải thiện (${eaiPercent}%)`, color: 'text-amber-700 bg-amber-50 border-amber-200' };
     }
 };
+   // Tạo thẻ overlay ngầm cho luồng hiệu ứng khi vừa nạp trang web
+document.addEventListener("DOMContentLoaded", () => {
+    const overlay = document.createElement("div");
+    overlay.id = "dark-reveal-overlay";
+    document.body.appendChild(overlay);
+});
+
+function triggerDarkReveal(event) {
+    const overlay = document.getElementById("dark-reveal-overlay");
+    const icon = document.getElementById("icon-dark-mode");
+    const isDarkNow = document.documentElement.classList.contains("dark");
+    
+    // 1. Đo chính xác tọa độ click chuột trên màn hình Laptop
+    const x = event.clientX;
+    const y = event.clientY;
+    
+    // Đẩy tọa độ vào biến CSS ngầm
+    overlay.style.setProperty('--x', `${x}px`);
+    overlay.style.setProperty('--y', `${y}px`);
+    
+    // 2. Thiết lập màu sắc tạm thời cho vòng tròn quét qua dựa vào trạng thái hiện tại
+    if (!isDarkNow) {
+        overlay.style.background = "rgba(15, 23, 42, 0.85)";
+        overlay.style.backdropFilter = "blur(16px)";
+    } else {
+        overlay.style.background = "rgba(255, 255, 255, 0.85)";
+        overlay.style.backdropFilter = "blur(12px)";
+    }
+    
+    // 3. Kích hoạt hiệu ứng bung vòng tròn hình học
+    overlay.classList.add("active");
+    
+    // 4. Khi vòng tròn quét được nửa chu kỳ (0.3 giây), lật màu giao diện cốt lõi bên dưới
+    setTimeout(() => {
+        if (!isDarkNow) {
+            document.documentElement.classList.add("dark");
+            if (icon) icon.setAttribute("data-lucide", "sun"); // Đổi icon sang Mặt trời
+        } else {
+            document.documentElement.classList.remove("dark");
+            if (icon) icon.setAttribute("data-lucide", "moon"); // Trả lại icon Mặt trăng
+        }
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        if (typeof renderTasks === 'function') renderTasks(); // Làm tươi lại bảng Kanban
+    }, 300);
+    
+    // 5. Tắt hiệu ứng, thu gọn màng phủ ngầm khi chu kỳ kết thúc hoàn toàn
+    setTimeout(() => {
+        overlay.classList.remove("active");
+    }, 600);
+}
 // =========================================================================
   </script>
    <!-- SYSTEM CONFIRM MODAL FOR BIEN BAN -->
