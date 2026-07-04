@@ -48,8 +48,20 @@
     * { box-sizing: border-box; }
     body { font-family: 'Geist', sans-serif; margin: 0; }
     .font-display { font-family: 'Newsreader', serif; }
-    .task-card { transition: transform 0.2s, box-shadow 0.2s; }
-    .task-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+   .task-card { 
+        background: rgba(255, 255, 255, 0.4) !important; 
+        backdrop-filter: blur(14px) !important;
+        -webkit-backdrop-filter: blur(14px) !important;
+        border: 1.5px solid rgba(100, 116, 139, 0.25) !important; /* Viền xám đậm đà dứt khoát */
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03) !important;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
+    }
+    .task-card:hover { 
+        background: rgba(255, 255, 255, 0.75) !important;
+        border-color: rgba(59, 130, 246, 0.6) !important; /* Viền xanh khi hover */
+        transform: translateY(-5px) !important;
+        box-shadow: 0 15px 30px rgba(15, 23, 42, 0.06) !important;
+    }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .modal-backdrop { animation: backdropIn 0.2s ease; }
