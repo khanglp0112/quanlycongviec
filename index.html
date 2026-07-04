@@ -121,36 +121,54 @@
         0% { transform: translateX(-100%); }
         100% { transform: translateX(100%); }
     }
-   /* Lớp nền tối kính mờ toàn cục khi kích hoạt Dark Mode */
-.dark body {
-    background: #0f172a !important; /* Đổi nền thô sang màu đen xanh than đá */
+/* --- BẢN VÁ LỖI HIỂN THỊ DARK MODE KÍNH MỜ CAO CẤP --- */
+
+/* Ép toàn bộ màn hình nền sang màu xanh đen than đá sâu, làm nổi bật các thẻ */
+.dark #app, .dark body {
+    background: #0b0f19 !important; 
 }
 
-/* Cấu trúc các khối kính mờ khi sang giao diện tối */
+/* Tối ưu hóa các cột Kanban để làm bệ đỡ cho kính mờ */
+.dark #board-view > div > div {
+    background: rgba(15, 23, 42, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Thanh Header kính mờ tối phẳng dứt khoát */
 .dark header {
-    background: rgba(15, 23, 42, 0.75) !important;
+    background: rgba(11, 15, 25, 0.75) !important;
     border-color: rgba(255, 255, 255, 0.08) !important;
-}
-.dark .task-card {
-    background: rgba(30, 41, 59, 0.7) !important;
-    border-color: rgba(255, 255, 255, 0.08) !important;
-    color: #f1f5f9 !important;
-}
-.dark h1, .dark h2, .dark h3, .dark span, .dark label:not(.text-slate-400) {
-    color: #f8fafc !important;
 }
 
-/* Bộ não xử lý vòng tròn lan tỏa */
-#dark-reveal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    pointer-events: none;
-    z-index: 9999; /* Đảm bảo nổi lên trên để quét qua màn hình */
-    clip-path: circle(0% at 0px 0px);
-    transition: clip-path 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+/* SỬA LỖI THẺ VIỆC: Đưa về nền tối mờ sâu, ép chữ trắng tuyết để không bị mờ */
+.dark .task-card {
+    background: rgba(22, 30, 49, 0.85) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
 }
-#dark-reveal-overlay.active {
-    clip-path: circle(150% at var(--x) var(--y));
+
+/* Đảm bảo toàn bộ chữ tiêu đề, nội dung mô tả, nhãn dán trong Dark Mode nổi bật 100% */
+.dark .task-card span, 
+.dark .task-card p, 
+.dark .task-card div,
+.dark h1, .dark h2, .dark h3 {
+    color: #f8fafc !important; /* Màu trắng tuyết tinh khiết */
+}
+
+/* Giữ nguyên các chữ mô tả phụ màu xám bạc dịu mắt hơn */
+.dark .task-card p {
+    color: #cbd5e1 !important;
+}
+
+/* Giữ cho chữ ở các nút chức năng trong thẻ việc (Sửa, Chép, Xóa) hiển thị rõ */
+.dark .task-card button {
+    color: #ffffff !important;
+}
+
+/* Thanh bộ lọc và thống kê kính mờ tối */
+.dark #wrapper-filters {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
 }
   </style>
   <!-- ==================================================================== -->
