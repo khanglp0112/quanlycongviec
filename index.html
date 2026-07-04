@@ -243,29 +243,37 @@
         transform: scale(0.95) !important;
     }
 /* ==================================================================== */
-    /* HỆ THỐNG NÚT MENU HEADER MICA GLASSMORPHISM TRONG SUỐT CAO CẤP       */
+    /* HỆ THỐNG NÚT MENU HEADER MICA ĐÚC PHA LÊ ĐÍCH THỰC (GLASSMORPHISM)  */
     /* ==================================================================== */
     
-    /* 1. Cấu hình cấu trúc cốt lõi: Tấm kính mờ pha lê phẳng tuyệt đối */
     header button:not(#btn-toggle-filters) {
         border-radius: 10px !important;
         font-weight: 700 !important;
         font-size: 13px !important;
         padding: 6px 14px !important;
-        /* Chiều sâu thấu kính mờ xuyên thấu nền trắng chạy phía dưới */
-        backdrop-filter: blur(10px) !important;
-        -webkit-backdrop-filter: blur(10px) !important;
-        /* Bóng đổ vi mô tinh tế tạo độ dày vật lý cho rìa tấm kính */
-        box-shadow: 0 2px 5px rgba(15, 23, 42, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-        /* Khóa cứng vị trí chống nảy, chỉ chuyển hiệu ứng ánh sáng mịn */
-        transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease !important;
+        
+        /* Đẩy mạnh hiệu ứng thấu kính mờ */
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        
+        /* BỘ BÓNG ĐỔ KHÚC XẠ 3 TẦNG: Tạo độ dày vật lý nổi khối, viền sáng bóng bẩy */
+        box-shadow: 
+            inset 0 1.5px 2px rgba(255, 255, 255, 0.8), 
+            inset 0 -1.5px 2px rgba(15, 23, 42, 0.05),
+            0 4px 10px rgba(15, 23, 42, 0.04) !important;
+            
+        /* Khóa cứng chuyển động phẳng, chỉ tương tác hiệu ứng lọc sáng mượt mà */
+        transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease !important;
         transform: none !important;
     }
 
-    /* Hiệu ứng tương tác: Khi rê chuột vào, lớp kính Mica "đổ đầy" thành khối màu đặc sậm và đằm */
+    /* Hover chốt khối: Kính hấp thụ ánh sáng và chuyển sang màu đằm đặc rực rỡ */
     header button:not(#btn-toggle-filters):hover {
         transform: none !important;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+        filter: brightness(0.92) !important; /* Di chuột vào sẽ đằm màu xuống tạo cảm giác kính đục chắc tay */
+        box-shadow: 
+            inset 0 1px 1px rgba(255, 255, 255, 0.4),
+            0 6px 14px rgba(15, 23, 42, 0.08) !important;
     }
 
     /* Hiệu ứng click đàn hồi lún nhẹ tại chỗ */
@@ -273,69 +281,69 @@
         transform: scale(0.96) !important; 
     }
 
-    /* 2. ĐỔ NỀN KÍNH TRONG SUỐT VÀ VIỀN NEON PHẢN QUANG ĐỊNH PHOM CHỐNG LÓA */
+    /* ĐỔ LỚP NỀN TINTED GRADIENT PHA LÊ TRONG SUỐT ĐỂ ĐỊNH HÌNH CHẤT MICA */
 
-    /* Nút "Thành viên": Kính mờ khói đen Slate, chữ sẫm dứt khoát */
+    /* Nút "Thành viên": Kính mờ khói xám Slate quý phái */
     #btn-members {
-        background: rgba(71, 85, 105, 0.08) !important;
+        background: linear-gradient(135deg, rgba(71, 85, 105, 0.1), rgba(51, 65, 85, 0.18)) !important;
         color: #334155 !important;
-        border: 1px solid rgba(71, 85, 105, 0.3) !important;
+        border: 1px solid rgba(71, 85, 105, 0.4) !important;
     }
     #btn-members:hover { background: #334155 !important; color: #ffffff !important; border-color: #334155 !important; }
 
-    /* Nút "Giờ làm": Kính mờ sắc xanh bầu trời tươi tắn */
+    /* Nút "Giờ làm": Kính mờ pha lê Xanh Bầu Trời */
     #btn-working-hours {
-        background: rgba(14, 165, 233, 0.08) !important;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(2, 132, 199, 0.18)) !important;
         color: #0284c7 !important;
-        border: 1px solid rgba(14, 165, 233, 0.35) !important;
+        border: 1px solid rgba(2, 132, 199, 0.45) !important;
     }
     #btn-working-hours:hover { background: #0284c7 !important; color: #ffffff !important; border-color: #0284c7 !important; }
 
-    /* Nút "Timeline": Kính mờ xám đá lịch lãm */
+    /* Nút "Timeline": Kính mờ khói trầm trung tính */
     #btn-timeline {
-        background: rgba(107, 114, 128, 0.08) !important;
+        background: linear-gradient(135deg, rgba(107, 114, 128, 0.08), rgba(75, 85, 99, 0.18)) !important;
         color: #4b5563 !important;
-        border: 1px solid rgba(107, 114, 128, 0.3) !important;
+        border: 1px solid rgba(75, 85, 99, 0.4) !important;
     }
     #btn-timeline:hover { background: #4b5563 !important; color: #ffffff !important; border-color: #4b5563 !important; }
 
-    /* Nút "Kho lưu trữ": Kính mờ sắc xanh cổ vịt quý phái */
+    /* Nút "Kho lưu trữ": Kính mờ khói Slate đằm ấm, tiệp phom */
     #btn-archive {
-        background: rgba(15, 118, 110, 0.07) !important;
-        color: #115e59 !important;
-        border: 1px solid rgba(15, 118, 110, 0.35) !important;
+        background: linear-gradient(135deg, rgba(71, 85, 105, 0.1), rgba(51, 65, 85, 0.18)) !important;
+        color: #475569 !important;
+        border: 1px solid rgba(71, 85, 105, 0.4) !important;
     }
-    #btn-archive:hover { background: #115e59 !important; color: #ffffff !important; border-color: #115e59 !important; }
+    #btn-archive:hover { background: #334155 !important; color: #ffffff !important; border-color: #334155 !important; }
 
-    /* Nút "Liên kết": Kính mờ sắc xanh Sapphire hoàng gia */
+    /* Nút "Liên kết": Kính mờ pha lê Xanh Dương Sapphire hoàng gia */
     #btn-links { 
-        background: rgba(59, 130, 246, 0.07) !important; 
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(29, 78, 216, 0.18)) !important; 
         color: #1d4ed8 !important; 
-        border: 1px solid rgba(59, 130, 246, 0.35) !important; 
+        border: 1px solid rgba(29, 78, 216, 0.45) !important; 
     }
     #btn-links:hover { background: #1d4ed8 !important; color: #ffffff !important; border-color: #1d4ed8 !important; }
 
-    /* Nút "Chấm tiết": Kính mờ sắc tím hoa thạch anh tinh tế */
+    /* Nút "Chấm tiết": Kính mờ pha lê Tím Thạch Anh sậm */
     #btn-show-chamtiet { 
-        background: rgba(139, 92, 246, 0.07) !important; 
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(124, 58, 237, 0.18)) !important; 
         color: #7c3aed !important; 
-        border: 1px solid rgba(139, 92, 246, 0.35) !important; 
+        border: 1px solid rgba(124, 58, 237, 0.45) !important; 
     }
     #btn-show-chamtiet:hover { background: #7c3aed !important; color: #ffffff !important; border-color: #7c3aed !important; }
 
-    /* Nút "Biên bản họp": Kính mờ sắc cam đất cháy dứt khoát */
+    /* Nút "Biên bản họp": Kính mờ pha lê Cam Đất Hổ Phách hành chính */
     #btn-show-bienban { 
-        background: rgba(234, 88, 12, 0.07) !important; 
+        background: linear-gradient(135deg, rgba(234, 88, 12, 0.08), rgba(194, 65, 12, 0.18)) !important; 
         color: #c2410c !important; 
-        border: 1px solid rgba(234, 88, 12, 0.35) !important; 
+        border: 1px solid rgba(194, 65, 12, 0.45) !important; 
     }
     #btn-show-bienban:hover { background: #c2410c !important; color: #ffffff !important; border-color: #c2410c !important; }
 
-    /* Nút "Xuất Excel": Kính mờ sắc xanh ngọc lục bảo năng suất */
+    /* Nút "Xuất Excel": Kính mờ pha lê Xanh Ngọc Lục Bảo năng suất */
     #btn-export-excel { 
-        background: rgba(16, 185, 129, 0.07) !important; 
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.18)) !important; 
         color: #059669 !important; 
-        border: 1px solid rgba(16, 185, 129, 0.35) !important; 
+        border: 1px solid rgba(5, 150, 105, 0.45) !important; 
     }
     #btn-export-excel:hover { background: #059669 !important; color: #ffffff !important; border-color: #059669 !important; }
 
@@ -343,12 +351,12 @@
     #btn-add {
         background: linear-gradient(135deg, #f59e0b, #d97706) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.25) !important;
-        box-shadow: 0 3px 8px rgba(217, 119, 6, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.18), inset 0 1.5px 2px rgba(255, 255, 255, 0.3) !important;
     }
     #btn-add:hover {
-        filter: brightness(1.05) !important;
-        box-shadow: 0 5px 14px rgba(217, 119, 6, 0.25) !important;
+        filter: brightness(1.06) !important;
+        box-shadow: 0 6px 15px rgba(217, 119, 6, 0.28) !important;
     }
   </style>
   <!-- ==================================================================== -->
