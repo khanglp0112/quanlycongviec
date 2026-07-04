@@ -243,85 +243,100 @@
         transform: scale(0.95) !important;
     }
 /* ==================================================================== */
-    /* HỆ THỐNG NÚT MENU HEADER ĐỔ MÀU NỀN SẪM ĐẰM - CHỐNG LÓA MẮT HOÀN HẢO */
+    /* HỆ THỐNG NÚT MENU HEADER TÔNG MÀU TƯƠI RỰC RỠ - TƯƠNG PHẢN CHỐNG CHÓI*/
     /* ==================================================================== */
     
-    /* 1. Cấu hình cấu trúc nền nút sẫm màu ở trạng thái chờ */
+    /* 1. Cấu hình phom dáng phẳng đúc khối độc lập cho nhóm nút Header */
     header button {
         border-radius: 10px !important;
         font-weight: 700 !important;
         font-size: 13px !important;
-        padding: 6px 14px !important;
+        padding: 6px 15px !important;
+        /* Viền sáng mảnh giả lập rìa khối pha lê */
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05) !important;
-        /* Khóa cứng vị trí phẳng lặng theo đúng gu của thầy */
-        transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease !important;
+        /* Bóng đổ chìm sắc nét giúp khối màu tươi bứt hẳn khỏi nền trắng */
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        /* Khóa cứng chuyển động tịnh tiến (chống nảy trượt), chỉ chuyển màu mượt */
+        transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease !important;
         transform: none !important;
     }
 
-    /* Hiệu ứng tương tác tĩnh lặng khi rê chuột: Chỉ làm đằm màu xuống, không nảy khối */
+    /* Hiệu ứng di chuột tĩnh lặng dịu mắt: Không nảy khối, chỉ sậm nhẹ màu tạo độ đầm */
     header button:hover {
         transform: none !important;
-        filter: brightness(0.9) !important; /* Di chuột vào sẽ làm sẫm màu hơn giúp dịu mắt */
-        box-shadow: 0 4px 8px rgba(15, 23, 42, 0.1) !important;
+        filter: brightness(0.92) !important; /* Di chuột vào sẽ đằm màu xuống giúp mắt dễ chịu */
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1) !important;
     }
 
-    /* Hiệu ứng đàn hồi lún nhẹ tại chỗ khi click chuột */
-    header button:active { transform: scale(0.96) !important; }
+    /* Hiệu ứng click lún nhẹ cơ học tại chỗ */
+    header button:active { 
+        transform: scale(0.96) !important; 
+    }
 
-    /* 2. ĐỔ MÀU NỀN ĐẬM CHO TỪNG NÚT LỆNH TRÊN HEADER KHI Ở TRẠNG THÁI CHỜ */
+    /* 2. NHUỘM DẢI MÀU NỀN TƯƠI VÀ ĐẬM NÉT CHO TỪNG NÚT BẤM (CHỮ TRẮNG NỔI BẬT) */
 
-    /* Nhóm nút quản lý tĩnh (Thành viên, Giờ làm, Timeline, Kho): Nền xám Slate đằm, chữ trắng dịu mắt */
-    #btn-members, #btn-working-hours, #btn-timeline, #btn-archive {
+    /* Nút "Thành viên": Màu Xanh Slate bán trung tính (Đậm đà, sạch sẽ) */
+    #btn-members {
         background: #475569 !important;
         color: #ffffff !important;
         border-color: #334155 !important;
     }
-    #btn-members:hover, #btn-working-hours:hover, #btn-timeline:hover, #btn-archive:hover {
-        background: #334155 !important;
+
+    /* Nút "Giờ làm": Màu Xanh Cyan công nghệ tươi mát */
+    #btn-working-hours {
+        background: #0ea5e9 !important;
+        color: #ffffff !important;
+        border-color: #0284c7 !important;
     }
 
-    /* Nút "Liên kết": Nền xanh dương Royal đậm đà */
+    /* Nút "Timeline": Màu Tím Khói sẫm tinh tế */
+    #btn-timeline {
+        background: #6b7280 !important;
+        color: #ffffff !important;
+        border-color: #4b5563 !important;
+    }
+
+    /* Nút "Kho lưu trữ": Màu Xanh Cổ Vịt trầm tĩnh */
+    #btn-archive {
+        background: #0f766e !important;
+        color: #ffffff !important;
+        border-color: #115e59 !important;
+    }
+
+    /* Nút "Liên kết": Màu Xanh Dương Sapphire tươi sáng rực rỡ */
     #btn-links { 
-        background: #1e4ed8 !important; 
+        background: #3b82f6 !important; 
         color: #ffffff !important; 
-        border-color: #1e3a8a !important; 
+        border-color: #1d4ed8 !important; 
     }
-    #btn-links:hover { background: #1e3a8a !important; }
 
-    /* Nút "Chấm tiết": Nền tím Thạch Anh sẫm hoàng gia */
+    /* Nút "Chấm tiết": Màu Tím Hoa Cà thạch anh tươi tắn */
     #btn-show-chamtiet { 
-        background: #6d28d9 !important; 
+        background: #8b5cf6 !important; 
         color: #ffffff !important; 
-        border-color: #4c1d95 !important; 
+        border-color: #6d28d9 !important; 
     }
-    #btn-show-chamtiet:hover { background: #4c1d95 !important; }
 
-    /* Nút "Biên bản họp": Nền cam đất cháy (Burnt Orange) dứt khoát */
+    /* Nút "Biên bản họp": Màu Cam Chanh hành chính rực rỡ */
     #btn-show-bienban { 
-        background: #ca8a04 !important; /* Đổi sang tông vàng đất/cam sậm để tiệp phom chữ trắng không bị chói */
+        background: #ea580c !important; 
         color: #ffffff !important; 
-        border-color: #854d0e !important; 
+        border-color: #c2410c !important; 
     }
-    #btn-show-bienban:hover { background: #854d0e !important; }
 
-    /* Nút "Xuất Excel": Nền xanh lá thông sẫm (Deep Pine Green) */
+    /* Nút "Xuất Excel": Màu Xanh Lá Ngọc Lục Bảo đầy năng lượng */
     #btn-export-excel { 
-        background: #059669 !important; 
+        background: #10b981 !important; 
         color: #ffffff !important; 
-        border-color: #064e3b !important; 
+        border-color: #059669 !important; 
     }
-    #btn-export-excel:hover { background: #064e3b !important; }
 
-    /* Nút "Thêm việc" Kanban tối cao: Giữ nguyên dải dốc màu Hổ phách pha lê đúc khối */
+    /* Nút "Thêm việc" Kanban: Ép dải Gradient màu Vàng Nghệ Hổ Phách cao cấp phát sáng nhẹ */
     #btn-add {
         background: linear-gradient(135deg, #f59e0b, #d97706) !important;
         color: #ffffff !important;
         border: 1px solid rgba(255, 255, 255, 0.25) !important;
-        box-shadow: 0 3px 8px rgba(217, 119, 6, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-    }
-    #btn-add:hover {
-        background: linear-gradient(135deg, #d97706, #b45309) !important;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
     }
   </style>
   <!-- ==================================================================== -->
