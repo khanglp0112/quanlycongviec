@@ -143,82 +143,80 @@
         0% { transform: translateX(-100%); }
         100% { transform: translateX(100%); }
     }
-   /* --- HỆ THỐNG ĐỒNG BỘ NÚT XÁC NHẬN MICA 3D TOÀN CỤC HOÀN HẢO --- */
-    
-    /* Gom tất cả các nút bấm hành động chính về cùng một bộ mã thiết kế Hổ phách dốc Mica */
-    #btn-submit, 
-    #btn-lk-submit, 
-    button[onclick="saveChamTiet()"], 
-    button[onclick="saveBienBan()"],
-    #btn-success-close {
-        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.25) !important;
-        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-        border-radius: 12px !important;
-        font-weight: 700 !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease !important;
-    }
-    
   /* ==================================================================== */
-    /* HỆ THỐNG NÚT BẤM MICA KÍNH ĐÚC 3D TOÀN CỤC CHỐNG "QUÊ MÙA"           */
+    /* HỆ THỐNG NÚT BẤM MICA PHA LÊ PHẲNG (ĐỒNG BỘ PHONG CÁCH XÁC NHẬN XÓA) */
     /* ==================================================================== */
     
-    /* Cấu trúc lõi chung: Đã bổ sung các nút quản lý nhân sự thành viên vào nhóm */
+    /* Cấu trúc vỏ chung cho tất cả các nút: Không nảy lên khi hover, bo góc 12px sắc sảo */
     #btn-submit, #btn-lk-submit, button[onclick="saveChamTiet()"], 
     button[onclick="saveBienBan()"], button[onclick="exportWordFromPhoi()"], #btn-success-close,
     #btn-add-member, #btn-member-save, #btn-member-delete {
         border-radius: 12px !important;
         font-weight: 700 !important;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
-        border: 1px solid rgba(255, 255, 255, 0.35) !important;
-        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, filter 0.25s ease !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        /* Bóng đổ vi mô chìm sắc nét giả lập phom nút đúc phẳng */
+        box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+        /* Tắt hoàn toàn hiệu ứng nảy trượt lên, chỉ giữ hiệu ứng lọc sáng mượt mà */
+        transition: filter 0.2s ease, box-shadow 0.2s ease !important;
+        transform: none !important;
     }
     
-    /* Hiệu ứng nhấc khối 3D đồng bộ khi rê chuột */
+    /* Khi rê chuột vào: GIỮ NGUYÊN VỊ TRÍ (Không dịch chuyển), chỉ tăng nhẹ độ sáng bắt mắt */
     #btn-submit:hover, #btn-lk-submit:hover, button[onclick="saveChamTiet()"]:hover, 
     button[onclick="saveBienBan()"]:hover, button[onclick="exportWordFromPhoi()"]:hover, #btn-success-close:hover,
     #btn-add-member:hover, #btn-member-save:hover, #btn-member-delete:hover {
-        transform: translateY(-2.5px) !important;
-        filter: brightness(1.06);
+        transform: none !important; /* Khóa cứng vị trí chống nảy */
+        filter: brightness(1.08) !important;
+        box-shadow: 0 4px 8px rgba(15, 23, 42, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
     }
     
-    /* Hiệu ứng đàn hồi lún xuống khi click chuột */
+    /* Hiệu ứng đàn hồi lún nhẹ tại chỗ cực kỳ tinh tế khi click chuột */
     #btn-submit:active, #btn-lk-submit:active, button[onclick="saveChamTiet()"]:active, 
     button[onclick="saveBienBan()"]:active, button[onclick="exportWordFromPhoi()"]:active, #btn-success-close:active,
     #btn-add-member:active, #btn-member-save:active, #btn-member-delete:active {
-        transform: translateY(0) !important;
+        transform: scale(0.98) !important; /* Lún nhẹ góc 3D vật lý tại chỗ */
+        filter: brightness(0.95) !important;
     }
 
-    /* [GIỮ NGUYÊN các đoạn CSS số 1, 2, 3, 4, 5, 6 của thầy phía dưới...] */
+    /* 1. NÚT "THÊM LIÊN KẾT / CẬP NHẬT LINK" (Đã chuyển sang màu Xanh Dương Sapphire sang trọng) */
+    #btn-lk-submit {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+        color: #ffffff !important;
+    }
 
-    /* 7. NÚT "THÊM THÀNH VIÊN" & NÚT "LƯU THÀNH VIÊN" (Kính Hoàng Kim Hổ Phách đồng bộ) */
-    #btn-add-member, #btn-member-save {
+    /* 2. NÚT LƯU CỦA BẢNG BIÊN BẢN HỌP TỔ (Đã chuyển sang màu Xanh Dương Sapphire đồng bộ) */
+    button[onclick="saveBienBan()"] {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+        color: #ffffff !important;
+    }
+
+    /* 3. NÚT XÁC NHẬN "TUYỆT VỜI" CỦA BIÊN BẢN (Đã chuyển sang màu Xanh Lá Ngọc Lục Bảo Premium) */
+    #btn-success-close {
+        background: linear-gradient(135deg, #10b981, #047857) !important;
+        color: #ffffff !important;
+    }
+
+    /* 4. NÚT "LƯU DỮ LIỆU" BẢNG CHẤM TIẾT (Giữ tông Tím Thạch Anh đồng màu thanh Header của bảng) */
+    button[onclick="saveChamTiet()"] {
+        background: linear-gradient(135deg, #a78bfa, #6d28d9) !important;
+        color: #ffffff !important;
+    }
+
+    /* 5. NÚT "THÊM VIỆC / CẬP NHẬT" KANBAN (Giữ tông Hổ Phách rực rỡ) */
+    #btn-submit, #btn-add-member, #btn-member-save {
         background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-    }
-    #btn-add-member:hover, #btn-member-save:hover {
-        box-shadow: 0 10px 22px rgba(217, 119, 6, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+        color: #ffffff !important;
     }
 
-    /* 8. NÚT "XÓA THÀNH VIÊN" (Kính Ru-bi Đỏ Neon cảnh báo cao cấp, không thô gắt) */
+    /* 6. NÚT "XÓA NHÂN SỰ" VÀ NÚT "TẢI FILE WORD" HÀNH CHÍNH */
     #btn-member-delete {
         background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-        box-shadow: 0 4px 12px rgba(185, 28, 28, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        color: #ffffff !important;
     }
-    #btn-member-delete:hover {
-        box-shadow: 0 10px 22px rgba(185, 28, 28, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
-    }
-    
-    /* 9. Tinh chỉnh lại bộ nút nhỏ (Sửa/Xóa văn bản mẫu) trong danh sách thành viên */
-    #members-list button {
-        border-radius: 8px !important;
-        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
-    }
-    #members-list button:hover {
-        transform: translateY(-1.5px) !important;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+    button[onclick="exportWordFromPhoi()"] {
+        background: linear-gradient(135deg, #10b981, #047857) !important;
+        color: #ffffff !important;
     }
   </style>
   <!-- ==================================================================== -->
