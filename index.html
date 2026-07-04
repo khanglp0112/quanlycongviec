@@ -50,26 +50,13 @@
     .font-display { font-family: 'Newsreader', serif; }
     /* --- BỘ NÃO ÉP THẺ KANBAN TRONG SUỐT KÍNH MỜ 3D PHẲNG --- */
    /* --- BỘ NÃO ÉP THẺ KANBAN THÀNH MIẾNG KÍNH PHA LÊ (CRYSTAL GLASS) --- */
+   /* Tối ưu hóa hoạt cảnh trượt và đổ bóng mượt mà cho hiệu ứng hover kính */
     .task-card { 
-        /* Hạ màu trắng xuống 15% để nhìn xuyên thấu rõ rệt, tăng blur lên 12px để khúc xạ sâu */
-        background: rgba(255, 255, 255, 0.15) !important; 
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        
-        /* Viền kính bắt sáng mảnh và trong suốt hơn */
-        border: 1px solid rgba(255, 255, 255, 0.45) !important;
-        
-        /* Đổ bóng vi mô sắc nét để giả lập độ dày của rìa tấm kính */
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 16px rgba(0, 0, 0, 0.02) !important;
         transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background 0.3s ease !important; 
     }
-    
-    /* Hiệu ứng khi di chuột trên Laptop: Miếng kính bắt sáng lung linh */
     .task-card:hover { 
-        background: rgba(255, 255, 255, 0.4) !important; /* Khi hover mới tăng độ trắng để dễ đọc */
-        border-color: rgba(255, 255, 255, 0.7) !important;
-        transform: translateY(-5px) !important; /* Nhấc tấm kính lên cao hẳn */
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04), 0 4px 8px rgba(0, 0, 0, 0.02) !important;
+        background: rgba(255, 255, 255, 0.35) !important; /* Chỉ khi hover mới sáng rõ lên để dễ đọc */
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04) !important;
     }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -2078,18 +2065,31 @@ function renderTasks() {
       if (!document.getElementById('working-hours-modal').classList.contains('hidden')) renderWorkingHoursList();
     }
 
-  function createCard(t) {
+ function createCard(t) {
   const div = document.createElement('div');
-  // Trả về class nguyên bản sạch sẽ của thầy
-  div.className = 'task-card rounded-xl p-3.5 fade-in cursor-pointer transition-all duration-300';
+  
+  // ÉP CLASS TAILWIND KÍNH MỜ XUYÊN THẤU (bg-white/10: chỉ giữ 10% sắc trắng để nhìn xuyên thấu rõ rệt)
+  div.className = 'task-card rounded-2xl p-4 mb-3.5 fade-in cursor-pointer transition-all duration-300 ease-in-out border border-white/40 bg-white/10 backdrop-blur-md shadow-sm';
+  
   div.dataset.id = t.__backendId;
   div.addEventListener('click', () => showTaskDetail(t));
   div.addEventListener('contextmenu', (e) => showContextMenu(e, t.__backendId));
   div.setAttribute('draggable', 'true');
+  
+  // HIỆU ỨNG HOVER LAPTOP: TẤM KÍNH BẮT SÁNG NỔI BẬT LÊN
+  div.addEventListener('mouseenter', () => {
+    div.style.transform = 'translateY(-4px)';
+  });
+  
+  div.addEventListener('mouseleave', () => {
+    div.style.transform = 'translateY(0)';
+  });
+
   div.addEventListener('dragstart', (e) => {
     e.dataTransfer.setData('text/plain', t.__backendId);
-    setTimeout(() => div.style.opacity = '0.4', 0); 
+    setTimeout(() => div.style.opacity = '0.3', 0); 
   });
+  
   div.addEventListener('dragend', () => { div.style.opacity = '1'; });
   
   updateCard(div, t);
