@@ -2258,7 +2258,7 @@ function showTaskDetail(task) {
   
   // 4. Reset trống các ô dành riêng cho việc Review nghiệm thu cuối tuần
   document.getElementById('inp-rating').value = '';
-  document.getElementById('inp-actual-hours-review').value = task.actual_hours || task.estimated_hours || ''; // Gợi ý sẵn giờ thực tế bằng giờ dự kiến cho giáo viên đỡ phải gõ lại nhiều
+document.getElementById('inp-actual-hours-review').value = task.actual_hours || '';
   document.getElementById('inp-lessons').value = task.lessons_learned || '';
   
   // 5. Cài đặt trạng thái kỹ thuật và bật sáng Form Đánh giá
