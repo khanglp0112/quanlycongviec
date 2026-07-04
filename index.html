@@ -51,12 +51,32 @@
     /* --- BỘ NÃO ÉP THẺ KANBAN TRONG SUỐT KÍNH MỜ 3D PHẲNG --- */
    /* --- BỘ NÃO ÉP THẺ KANBAN THÀNH MIẾNG KÍNH PHA LÊ (CRYSTAL GLASS) --- */
    /* Tối ưu hóa hoạt cảnh trượt và đổ bóng mượt mà cho hiệu ứng hover kính */
+   /* --- BỘ NÃO ÉP VIỀN KÍNH ĐÚC 3D NỔI KHỐI ĐỘC LẬP CHỐNG DÍNH --- */
     .task-card { 
-        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, background 0.3s ease !important; 
+        /* 1. Nền kính mờ trong suốt tăng nhẹ sắc trắng lên 50% để chữ rõ nét */
+        background: rgba(255, 255, 255, 0.55) !important; 
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        
+        /* 2. SỬA LỖI DÍNH NHAU: Ép đường viền màu xám slate bán trong suốt, dày dặn sắc nét */
+        border: 1.5px solid rgba(148, 163, 184, 0.3) !important; 
+        
+        /* 3. Tạo bóng đổ kép sắc cạnh vi mô giúp định hình rìa tấm kính có độ dày vật lý */
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02) !important;
+        transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
     }
+    
+    /* Hiệu ứng tương tác tách lớp cực mạnh khi di chuột trên Laptop */
     .task-card:hover { 
-        background: rgba(255, 255, 255, 0.35) !important; /* Chỉ khi hover mới sáng rõ lên để dễ đọc */
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04) !important;
+        background: rgba(255, 255, 255, 0.85) !important; /* Hút sáng trắng nổi bật hẳn lên */
+        
+        /* Viền sáng rực rỡ màu xanh công nghệ để định vị rõ thẻ đang focus */
+        border-color: rgba(59, 130, 246, 0.6) !important; 
+        
+        transform: translateY(-6px) !important; /* Nhấc hẳn miếng kính lên cao */
+        
+        /* Đổ bóng tầng rộng đậm đà rõ rệt in trực tiếp lên bề mặt của các thẻ bên dưới */
+        box-shadow: 0 20px 30px rgba(15, 23, 42, 0.07), 0 4px 8px rgba(15, 23, 42, 0.03) !important;
     }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
