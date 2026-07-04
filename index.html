@@ -243,92 +243,111 @@
         transform: scale(0.95) !important;
     }
 /* ==================================================================== */
-    /* PHỤC HỒI HEADER TRẮNG PHA LÊ - KHỬ LỘ VIỀN LOGO & CHỐNG CHÓI THỊ GIÁC*/
+    /* PHỤC HỒI HEADER TRẮNG - ĐỔ MÀU NỀN TƯƠI ĐẬM CHO TOÀN BỘ NÚT MENU     */
     /* ==================================================================== */
     
-    /* 1. TRẢ LẠI NỀN TRẮNG SÁNG GỐC CỦA HEADER ĐỂ GIẤU VIỀN LOGO HOÀN HẢO */
+    /* 1. GIỮ NỀN TRẮNG ĐỂ GIẤU VIỀN KHUNG LOGO TRƯỜNG */
     header {
-        background: rgba(255, 255, 255, 0.95) !important; /* Tiệp màu 100% với nền vuông của logo */
+        background: #ffffff !important; /* Trắng tuyệt đối tiệp phom viền logo */
         border-bottom: 1px solid #e2e8f0 !important;
-        /* Đổ bóng tầng mịn siêu mảnh để cản bớt luồng sáng gắt xuống khay Kanban bên dưới */
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02) !important;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
     }
     
-    /* Trả lại màu chữ tiêu đề đen sẫm lịch lãm ban đầu */
+    /* Chữ tiêu đề đen sẫm sắc nét trên nền trắng */
     #app-title {
         color: #1a1a1a !important;
         text-shadow: none !important;
     }
 
-    /* 2. HỆ THỐNG NÚT BẤM PHẲNG KÍNH ĐÚC TRẦM (ĐỨNG IM DỊU MẮT - HOVER LÊN MÀU TƯƠI) */
+    /* 2. ĐỒNG BỘ ĐỔ MÀU NỀN TƯƠI ĐÚC KHỐI - CHỮ TRẮNG NỔI BẬT KHÔNG LO LÓA */
     header button {
         border-radius: 10px !important;
         font-weight: 700 !important;
         font-size: 13px !important;
         padding: 6px 14px !important;
-        border: 1px solid #cbd5e1 !important; /* Viền xám mảnh định hình phom nút trên nền trắng */
-        background: #f1f5f9 !important; /* Nhuộm màu nền xám đằm cứng cáp từ trạng thái chờ để KHÔNG BỊ LÓA */
-        color: #334155 !important; /* Chữ sẫm màu đọc cực rõ ràng */
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
-        /* Khóa cứng chuyển động phẳng, chỉ tương tác trượt màu mượt mà */
-        transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Viền sáng mảnh mượt */
+        box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+        /* Khóa cứng vị trí phẳng lặng, di chuột chỉ đằm màu lại dịu mắt */
+        transition: background 0.2s ease, border-color 0.2s ease, filter 0.2s ease !important;
         transform: none !important;
     }
 
-    /* Hiệu ứng lò xo lún nhẹ tại chỗ khi click chuột */
-    header button:active { transform: scale(0.96) !important; }
+    /* Rê chuột tĩnh lặng: Không rung lắc, màu sậm đằm xuống rất chắc chắn */
+    header button:hover {
+        transform: none !important;
+        filter: brightness(0.88) !important; /* Dìm nhẹ sắc độ khi hover để làm dịu mắt */
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12) !important;
+    }
 
-    /* 3. ĐỊNH NGHĨA HOVER BỪNG SÁNG MÀU TƯƠI CHO TỪNG NÚT KHI RÊ CHUỘT */
+    /* Click lún nhẹ cơ học tại chỗ */
+    header button:active { 
+        transform: scale(0.96) !important; 
+    }
 
-    /* Nút Thành viên, Giờ làm, Timeline, Kho lưu trữ: Hover hóa khối xám Slate sẫm */
-    #btn-members:hover, #btn-working-hours:hover, #btn-timeline:hover, #btn-archive:hover {
+    /* 3. ĐỔ MÀU NỀN TƯƠI CHUẨN ĐỒ HỌA PHẲNG (CHỮ TRẮNG TINH KHIẾT) */
+
+    /* Nút "Thành viên": Màu Xanh Đá phiến sẫm đậm đà */
+    #btn-members {
         background: #475569 !important;
         color: #ffffff !important;
-        border-color: #475569 !important;
+        border-color: #334155 !important;
     }
 
-    /* Nút "Liên kết": Hover bừng sáng màu Xanh Dương Sapphire tươi tắn */
-    #btn-links:hover { 
-        background: #2563eb !important; 
+    /* Nút "Giờ làm": Màu Xanh Cyan công nghệ tươi mát */
+    #btn-working-hours {
+        background: #0ea5e9 !important;
+        color: #ffffff !important;
+        border-color: #0284c7 !important;
+    }
+
+    /* Nút "Timeline": Màu Cát Bạc trầm ổn định */
+    #btn-timeline {
+        background: #6b7280 !important;
+        color: #ffffff !important;
+        border-color: #4b5563 !important;
+    }
+
+    /* Nút "Kho lưu trữ": Màu Xanh Cổ Vịt thanh lịch */
+    #btn-archive {
+        background: #0f766e !important;
+        color: #ffffff !important;
+        border-color: #115e59 !important;
+    }
+
+    /* Nút "Liên kết": Màu Xanh Dương Sapphire rực rỡ */
+    #btn-links { 
+        background: #3b82f6 !important; 
         color: #ffffff !important; 
-        border-color: #2563eb !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+        border-color: #1d4ed8 !important; 
     }
 
-    /* Nút "Chấm tiết": Hover bừng sáng màu Tím Thạch Anh rực rỡ */
-    #btn-show-chamtiet:hover { 
+    /* Nút "Chấm tiết": Màu Tím Thạch Anh tươi tắn */
+    #btn-show-chamtiet { 
         background: #8b5cf6 !important; 
         color: #ffffff !important; 
-        border-color: #8b5cf6 !important;
-        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2) !important;
+        border-color: #6d28d9 !important; 
     }
 
-    /* Nút "Biên bản họp": Hover bừng sáng màu Cam Chanh IGC tươi rói */
-    #btn-show-bienban:hover { 
+    /* Nút "Biên bản họp": Màu Cam Chanh IGC thương hiệu rực rỡ */
+    #btn-show-bienban { 
         background: #ea580c !important; 
         color: #ffffff !important; 
-        border-color: #ea580c !important;
-        box-shadow: 0 4px 12px rgba(234, 88, 12, 0.2) !important;
+        border-color: #c2410c !important; 
     }
 
-    /* Nút "Xuất Excel": Hover bừng sáng màu Xanh Lá Mint năng suất */
-    #btn-export-excel:hover { 
+    /* Nút "Xuất Excel": Màu Xanh Lá Ngọc Lục Bảo năng suất */
+    #btn-export-excel { 
         background: #10b981 !important; 
         color: #ffffff !important; 
-        border-color: #10b981 !important;
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+        border-color: #059669 !important; 
     }
 
-    /* Nút "Thêm việc" Kanban: Giữ màu Hổ Phách dốc mịn cố định để làm điểm nhấn chính trên Header */
+    /* Nút "Thêm việc" Kanban tối cao: Giữ nguyên dốc màu Hổ Phách pha lê nổi bật */
     #btn-add {
         background: linear-gradient(135deg, #f59e0b, #d97706) !important;
         color: #ffffff !important;
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
         box-shadow: 0 3px 8px rgba(217, 119, 6, 0.15) !important;
-    }
-    #btn-add:hover {
-        filter: brightness(1.08) !important;
-        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25) !important;
     }
   </style>
   <!-- ==================================================================== -->
