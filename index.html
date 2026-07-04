@@ -3490,12 +3490,27 @@ function toggleBienBan() {
 
     try {
         if (id) {
+            // LUỒNG 1: Nếu đang trong chế độ [Xem lại / Sửa] một biên bản cũ -> Thực hiện Cập nhật đè
             await db.collection("BienBanHop").doc(id).update(dataBB);
             showSystemSuccess("Cập nhật thành công", "Hệ thống đã ghi nhận toàn bộ chỉnh sửa và cập nhật lại biên bản họp tổ trên dữ liệu đám mây.");
         } else {
-            const docRef = await db.collection("BienBanHop").add(dataBB);
-            document.getElementById('inp-bb-id').value = docRef.id;
+            // LUỒNG 2: Nếu đang viết biên bản MỚI TINH -> Tạo mới hoàn toàn trên Firebase
+            await db.collection("BienBanHop").add(dataBB);
             showSystemSuccess("Lưu trữ thành công", "Biên bản họp tổ Toán - Tin đã được đóng gói và đồng bộ an toàn lên hệ thống cơ sở dữ liệu Firebase.");
+            
+            // SAU KHI LƯU MỚI THÀNH CÔNG: Tự động dọn sạch Form để sẵn sàng cho lần viết biên bản tiếp theo
+            document.getElementById('inp-bb-id').value = ""; // Xóa trắng ID ẩn để chống ghi đè
+            document.getElementById('editor-bb-noidung').innerHTML = ""; // Xóa sạch nội dung chữ vừa gõ
+            
+            // Reset số lần họp về mặc định (Lần 1) và đặt ngày họp về ngày hôm nay
+            document.getElementById('inp-bb-lan').value = "1";
+            document.getElementById('inp-bb-ngay').value = new Date().toISOString().split('T')[0];
+            
+            // Nạp lại danh sách giáo viên tham gia sạch sẽ ban đầu
+            if (typeof renderBBThanhPhanTable === "function") {
+                document.getElementById('tbody-bb-thanhphan').innerHTML = "";
+                renderBBThanhPhanTable();
+            }
         }
         
         if (typeof renderBBLichSuTable === "function") await renderBBLichSuTable();
