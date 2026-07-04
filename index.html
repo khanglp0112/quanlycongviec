@@ -48,19 +48,29 @@
     * { box-sizing: border-box; }
     body { font-family: 'Geist', sans-serif; margin: 0; }
     .font-display { font-family: 'Newsreader', serif; }
-   .task-card { 
-        background: rgba(255, 255, 255, 0.4) !important; 
-        backdrop-filter: blur(14px) !important;
-        -webkit-backdrop-filter: blur(14px) !important;
-        border: 1.5px solid rgba(100, 116, 139, 0.25) !important; /* Viền xám đậm đà dứt khoát */
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03) !important;
+  /* --- BỘ NÃO ÉP VIỀN KÍNH ĐÚC 3D NỔI KHỐI ĐỘC LẬP CHỐNG DÍNH --- */
+    .task-card { 
+        /* 1. Nền kính mờ trong suốt giữ sắc trắng ở mức 55% để hiển thị chữ rõ nét */
+        background: rgba(255, 255, 255, 0.55) !important; 
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        
+        /* 2. CHỐNG DÍNH KHỐI: Ép đường viền màu xám Slate bán trong suốt, định hình phom thẻ dứt khoát */
+        border: 1.5px solid rgba(148, 163, 184, 0.3) !important; 
+        
+        /* 3. Tạo bóng đổ kép sắc cạnh vi mô giúp giả lập độ dày vật lý của rìa tấm kính */
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02) !important;
         transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease !important;
     }
+    
+    /* Hiệu ứng tương tác tách lớp cực mạnh khi di chuột trên Laptop */
     .task-card:hover { 
-        background: rgba(255, 255, 255, 0.75) !important;
-        border-color: rgba(59, 130, 246, 0.6) !important; /* Viền xanh khi hover */
-        transform: translateY(-5px) !important;
-        box-shadow: 0 15px 30px rgba(15, 23, 42, 0.06) !important;
+        background: rgba(255, 255, 255, 0.85) !important; /* Hút sáng trắng nổi bật hẳn lên */
+        border-color: rgba(59, 130, 246, 0.6) !important; /* Viền sáng rực màu xanh công nghệ để định vị thẻ */
+        transform: translateY(-6px) !important; /* Nhấc hẳn miếng kính lên cao tạo chiều sâu lập thể */
+        
+        /* Đổ bóng tầng rộng đậm đà in trực tiếp lên bề mặt của các thẻ phía dưới */
+        box-shadow: 0 20px 30px rgba(15, 23, 42, 0.07), 0 4px 8px rgba(15, 23, 42, 0.03) !important;
     }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -132,6 +142,56 @@
     @keyframes sleekScan {
         0% { transform: translateX(-100%); }
         100% { transform: translateX(100%); }
+    }
+   /* --- HỆ THỐNG ĐỒNG BỘ NÚT XÁC NHẬN MICA 3D TOÀN CỤC HOÀN HẢO --- */
+    
+    /* Gom tất cả các nút bấm hành động chính về cùng một bộ mã thiết kế Hổ phách dốc Mica */
+    #btn-submit, 
+    #btn-lk-submit, 
+    button[onclick="saveChamTiet()"], 
+    button[onclick="saveBienBan()"],
+    #btn-success-close {
+        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease !important;
+    }
+    
+    /* Hiệu ứng Hover nhấc khối đồng bộ cho tất cả các nút chính */
+    #btn-submit:hover, 
+    #btn-lk-submit:hover, 
+    button[onclick="saveChamTiet()"]:hover, 
+    button[onclick="saveBienBan()"]:hover,
+    #btn-success-close:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 22px rgba(217, 119, 6, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+        filter: brightness(1.08);
+    }
+    
+    /* Hiệu ứng nhấn xuống (Click/Active) tạo độ phản hồi vật lý */
+    #btn-submit:active, #btn-lk-submit:active, button[onclick="saveChamTiet()"]:active, button[onclick="saveBienBan()"]:active, #btn-success-close:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 6px rgba(217, 119, 6, 0.15) !important;
+    }
+
+    /* Riêng nút "Tải file Word" mang đặc trưng màu hành chính Emerald (Xanh lá) - Tối ưu hiệu ứng Mica riêng */
+    button[onclick="exportWordFromPhoi()"] {
+        background: linear-gradient(135deg, #10b981, #059669) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.25) !important;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease !important;
+    }
+    button[onclick="exportWordFromPhoi()"]:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 22px rgba(5, 150, 105, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+        filter: brightness(1.08);
     }
   </style>
   <!-- ==================================================================== -->
