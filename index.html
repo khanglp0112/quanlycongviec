@@ -49,7 +49,6 @@
     body { font-family: 'Geist', sans-serif; margin: 0; }
     .font-display { font-family: 'Newsreader', serif; }
     .task-card { transition: transform 0.2s, box-shadow 0.2s; }
-    .task-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
     .fade-in { animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .modal-backdrop { animation: backdropIn 0.2s ease; }
@@ -2058,24 +2057,49 @@ function renderTasks() {
     }
 
     function createCard(t) {
-      const div = document.createElement('div');
-      div.className = 'task-card rounded-xl p-3.5 fade-in cursor-pointer transition-all duration-200';
-      div.style.background = 'rgba(255, 255, 255, 0.9)';
-      div.style.border = '1px solid #e2e8f0';
-      div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.03)';
-      div.dataset.id = t.__backendId;
-      div.addEventListener('click', () => showTaskDetail(t));
-      div.addEventListener('contextmenu', (e) => showContextMenu(e, t.__backendId));
-      div.setAttribute('draggable', 'true');
-      div.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', t.__backendId);
-        setTimeout(() => div.style.opacity = '0.4', 0); 
-      });
-      div.addEventListener('dragend', () => { div.style.opacity = '1'; });
-      
-      updateCard(div, t);
-      return div;
-    }
+  const div = document.createElement('div');
+  // CẬP NHẬT: Thay đổi class bo góc tròn lớn hơn (rounded-2xl) và thêm các bộ chuyển động mượt mà duration-300
+  div.className = 'task-card rounded-2xl p-4 mb-1 fade-in cursor-pointer transition-all duration-300 ease-in-out border';
+  
+  // Ép thông số kính mờ trong suốt cao cấp cố định (Chỉ trong suốt 45%)
+  div.style.background = 'rgba(255, 255, 255, 0.45)';
+  div.style.backdropFilter = 'blur(8px)';
+  div.style.webkitBackdropFilter = 'blur(8px)';
+  div.style.borderColor = 'rgba(255, 255, 255, 0.6)';
+  div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.01)';
+  
+  div.dataset.id = t.__backendId;
+  div.addEventListener('click', () => showTaskDetail(t));
+  div.addEventListener('contextmenu', (e) => showContextMenu(e, t.__backendId));
+  div.setAttribute('draggable', 'true');
+  
+  // TÍCH HỢP HIỆU ỨNG TƯƠNG TÁC HOVER MICRO-UI TRÊN LAPTOP
+  div.addEventListener('mouseenter', () => {
+    div.style.background = 'rgba(255, 255, 255, 0.75)'; // Hút thêm độ sáng trắng
+    div.style.borderColor = 'rgba(255, 255, 255, 0.9)';   // Viền sáng rõ hơn
+    div.style.transform = 'translateY(-4px)';             // Nhấc khối 3D lên cao
+    div.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.06)'; // Đổ bóng rộng ra
+  });
+  
+  div.addEventListener('mouseleave', () => {
+    div.style.background = 'rgba(255, 255, 255, 0.45)'; // Trả về độ trong suốt ban đầu
+    div.style.borderColor = 'rgba(255, 255, 255, 0.6)';
+    div.style.transform = 'translateY(0)';
+    div.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.01)';
+  });
+
+  div.addEventListener('dragstart', (e) => {
+    e.dataTransfer.setData('text/plain', t.__backendId);
+    setTimeout(() => div.style.opacity = '0.3', 0); 
+  });
+  
+  div.addEventListener('dragend', () => { 
+    div.style.opacity = '1'; 
+  });
+  
+  updateCard(div, t);
+  return div;
+}
 
     function formatCountdown(ms) {
       if (ms <= 0) return 'Hết hạn';
