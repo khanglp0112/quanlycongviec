@@ -242,80 +242,86 @@
     .rating-btn:active {
         transform: scale(0.95) !important;
     }
-   /* ==================================================================== */
-    /* HỆ THỐNG MENU HEADER MICA PHA LÊ PHẲNG PREMIUM - ĐỒNG BỘ 100%        */
+ /* ==================================================================== */
+    /* 2. ĐỒNG BỘ CÁC NÚT TRÊN THANH MENU HEADER SANG TÔNG MICA TRẦM DỊU MẮT */
     /* ==================================================================== */
-    
-    /* 1. Cấu hình cấu trúc lõi chung cho tất cả các nút trên thanh Header */
     header button {
         border-radius: 10px !important;
         font-weight: 700 !important;
         font-size: 13px !important;
         padding: 6px 14px !important;
-        border: 1px solid rgba(255, 255, 255, 0.4) !important;
-        background: rgba(255, 255, 255, 0.45) !important;
+        /* Thay viền trắng gắt bằng viền Slate mờ dịu, hạ độ sáng */
+        border: 1px solid rgba(148, 163, 184, 0.25) !important; 
+        /* Nền xám nhạt bán trong suốt giúp dìm bớt độ tương phản lóa mắt của nền trắng */
+        background: rgba(241, 245, 249, 0.75) !important; 
         backdrop-filter: blur(8px) !important;
         -webkit-backdrop-filter: blur(8px) !important;
-        box-shadow: 0 2px 5px rgba(15, 23, 42, 0.02) !important;
-        /* Khóa cứng vị trí chống rung lắc/nảy lên theo đúng gu phẳng của thầy */
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02) !important;
+        /* Khóa cứng vị trí phẳng tuyệt đối theo gu của thầy, chỉ trượt màu mượt */
         transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease !important;
         transform: none !important;
     }
 
-    /* Hiệu ứng Hover tĩnh lặng: Không dịch chuyển vị trí, chỉ tụ sáng rực rỡ tinh tế */
+    /* Hover tĩnh lặng: Không dịch chuyển, chỉ làm đằm và rõ phom kính mờ xuống */
     header button:hover {
         transform: none !important;
-        filter: brightness(1.03) !important;
-        background: rgba(255, 255, 255, 0.85) !important;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05) !important;
+        background: rgba(226, 232, 240, 0.95) !important; 
+        box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05) !important;
     }
 
-    /* Hiệu ứng Click đàn hồi lún nhẹ tại chỗ thích tay */
-    header button:active {
-        transform: scale(0.96) !important;
+    /* Click đàn hồi cơ học lún nhẹ 3D tại chỗ */
+    header button:active { 
+        transform: scale(0.96) !important; 
     }
 
-    /* 2. TINH CHỈNH MÀU KÍNH VÀ ICON ĐẶC TRƯNG CHO TỪNG PHÂN HỆ HEADER */
+    /* Đưa chữ và viền của các nút Header quản lý tĩnh về tông trầm, rõ nét, chống lóa */
+    #btn-members, #btn-working-hours, #btn-timeline, #btn-archive {
+        color: #475569 !important;
+    }
+    #btn-members:hover, #btn-working-hours:hover, #btn-timeline:hover, #btn-archive:hover {
+        color: #0f172a !important;
+        border-color: rgba(71, 85, 105, 0.35) !important;
+    }
 
-    /* Nhóm 1: Các nút quản lý nền tảng (Thành viên, Giờ làm, Timeline, Kho lưu trữ) */
-    #btn-members { color: #475569 !important; border-color: rgba(71, 85, 105, 0.15) !important; }
-    #btn-members:hover { color: #1e293b !important; border-color: rgba(71, 85, 105, 0.4) !important; }
+    /* Hạ độ rực của các nút chức năng Header màu sang tông sẫm và đằm sâu (Deep Tones) */
+    #btn-links { 
+        color: #1d4ed8 !important; 
+        border-color: rgba(59, 130, 246, 0.35) !important; 
+        background: rgba(239, 246, 255, 0.7) !important; 
+    }
+    #btn-links:hover { background: #1d4ed8 !important; color: #ffffff !important; border-color: #1d4ed8 !important; }
 
-    #btn-working-hours { color: #475569 !important; border-color: rgba(71, 85, 105, 0.15) !important; }
-    #btn-working-hours:hover { color: #1e293b !important; border-color: rgba(71, 85, 105, 0.4) !important; }
+    #btn-show-chamtiet { 
+        color: #6d28d9 !important; 
+        border-color: rgba(139, 92, 246, 0.35) !important; 
+        background: rgba(245, 243, 255, 0.7) !important; 
+    }
+    #btn-show-chamtiet:hover { background: #6d28d9 !important; color: #ffffff !important; border-color: #6d28d9 !important; }
 
-    #btn-timeline { color: #475569 !important; border-color: rgba(71, 85, 105, 0.15) !important; }
-    #btn-timeline:hover { color: #1e293b !important; border-color: rgba(71, 85, 105, 0.4) !important; }
+    #btn-show-bienban { 
+        color: #c2410c !important; 
+        border-color: rgba(234, 88, 12, 0.35) !important; 
+        background: rgba(255, 247, 237, 0.7) !important; 
+    }
+    #btn-show-bienban:hover { background: #c2410c !important; color: #ffffff !important; border-color: #c2410c !important; }
 
-    #btn-archive { color: #475569 !important; border-color: rgba(71, 85, 105, 0.15) !important; }
-    #btn-archive:hover { color: #1e293b !important; border-color: rgba(71, 85, 105, 0.4) !important; }
+    #btn-export-excel { 
+        color: #047857 !important; 
+        border-color: rgba(16, 185, 129, 0.35) !important; 
+        background: rgba(236, 253, 245, 0.7) !important; 
+    }
+    #btn-export-excel:hover { background: #047857 !important; color: #ffffff !important; border-color: #047857 !important; }
 
-    /* Nhóm 2: Nút "Liên kết" (Bắt viền và ánh sáng Xanh Dương Sapphire) */
-    #btn-links { color: #2563eb !important; border-color: rgba(59, 130, 246, 0.25) !important; background: rgba(239, 246, 255, 0.5) !important; }
-    #btn-links:hover { background: #2563eb !important; color: #ffffff !important; border-color: #2563eb !important; }
-
-    /* Nhóm 3: Nút "Chấm tiết" (Bắt viền và ánh sáng Tím Tách Khối) */
-    #btn-show-chamtiet { color: #7c3aed !important; border-color: rgba(139, 92, 246, 0.25) !important; background: rgba(245, 243, 255, 0.5) !important; }
-    #btn-show-chamtiet:hover { background: #7c3aed !important; color: #ffffff !important; border-color: #7c3aed !important; }
-
-    /* Nhóm 4: Nút "Biên bản họp" (Bắt viền và ánh sáng Cam Chanh hành chính) */
-    #btn-show-bienban { color: #ea580c !important; border-color: rgba(234, 88, 12, 0.25) !important; background: rgba(255, 247, 237, 0.5) !important; }
-    #btn-show-bienban:hover { background: #ea580c !important; color: #ffffff !important; border-color: #ea580c !important; }
-
-    /* Nhóm 5: Nút "Xuất Excel" (Bắt viền và ánh sáng Ngọc Lục Bảo năng suất) */
-    #btn-export-excel { color: #059669 !important; border-color: rgba(16, 185, 129, 0.25) !important; background: rgba(236, 253, 245, 0.5) !important; }
-    #btn-export-excel:hover { background: #059669 !important; color: #ffffff !important; border-color: #059669 !important; }
-
-    /* Nhóm 6: Nút "Thêm việc" Kanban (Nút hành động tối cao - Ép dốc màu Hổ Phách pha lê nổi bật) */
+    /* Nút "Thêm việc" tối cao trên Header: Ép dốc màu Cam Đất Hổ Phách trầm vô cùng vững chãi */
     #btn-add {
-        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        background: linear-gradient(135deg, #d97706, #a16207) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 4px 10px rgba(217, 119, 6, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        box-shadow: 0 3px 8px rgba(161, 98, 7, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
     }
     #btn-add:hover {
-        background: linear-gradient(135deg, #fbbf24, #f59e0b) !important;
-        box-shadow: 0 6px 15px rgba(217, 119, 6, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+        background: linear-gradient(135deg, #b45309, #78350f) !important;
+        box-shadow: 0 5px 12px rgba(120, 53, 15, 0.25) !important;
     }
   </style>
   <!-- ==================================================================== -->
