@@ -243,11 +243,11 @@
         transform: scale(0.95) !important;
     }
 /* ==================================================================== */
-    /* PHỤC HỒI HEADER TRẮNG - ĐỔ MÀU NỀN TƯƠI ĐẬM CHO TOÀN BỘ NÚT MENU     */
+    /* MÃ VÁ TÁCH BIỆT KHUNG VỎ: TRẢ LẠI PHOM GỐC CHO NÚT BỘ LỌC            */
     /* ==================================================================== */
     
-
-  header button {
+    /* 1. KHUNG VỎ VÀ CẤU TRÚC LÕI CHUNG (CHỈ ÁP DỤNG CHO DÀN NÚT HÀNH CHÍNH) */
+    header button:not(#btn-toggle-filters) {
         border-radius: 10px !important;
         font-weight: 700 !important;
         font-size: 13px !important;
@@ -258,80 +258,32 @@
         transform: none !important;
     }
 
-    header button:hover {
+    header button:not(#btn-toggle-filters):hover {
         transform: none !important;
         filter: brightness(0.88) !important;
         box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12) !important;
     }
 
-    header button:active { 
+    header button:not(#btn-toggle-filters):active { 
         transform: scale(0.96) !important; 
     }
 
-    /* 2. CHỈ ĐIỀU CHỈNH THÔNG SỐ MÃ MÀU (TĂNG ĐỘ ĐẬM ĐÀ VÀ CÔ ĐẶC LÊN 1 XỈU) */
-
-    /* Nút "Thành viên": Nhích từ #475569 lên màu Xanh Đá Slate sậm đầm nét hơn */
-    #btn-members {
-        background: #334155 !important;
-        color: #ffffff !important;
-        border-color: #1e293b !important;
+    /* KHÓA CHẶT: TẮT HOÀN TOÀN CÁC THUỘC TÍNH ÉP NỀN THÔ ĐỐI VỚI NÚT BỘ LỌC */
+    #btn-toggle-filters {
+        background: rgba(255, 255, 255, 0.6) !important; /* Nền kính mờ trong suốt nguyên bản */
+        color: #475569 !important; /* Chữ xám Slate thanh lịch */
+        border: 1px solid #cbd5e1 !important; /* Viền mảnh sạch sẽ như ban đầu */
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        transform: none !important;
+        transition: all 0.2s ease !important;
     }
-
-    /* Nút "Giờ làm": Nhích từ #0ea5e9 lên màu Xanh Sky rực năng lượng hơn */
-    #btn-working-hours {
-        background: #0284c7 !important;
-        color: #ffffff !important;
-        border-color: #0369a1 !important;
+    #btn-toggle-filters:hover {
+        background: rgba(241, 245, 249, 0.85) !important;
+        color: #0f172a !important;
+        border-color: #94a3b8 !important;
     }
-
-    /* Nút "Timeline": Nhích từ #6b7280 lên màu Xám Trì cứng cáp hoàn hảo */
-    #btn-timeline {
-        background: #4b5563 !important;
-        color: #ffffff !important;
-        border-color: #374151 !important;
-    }
-
-    /* Nút "Kho lưu trữ": Nhích từ #0f766e lên màu Xanh Cổ Vịt đậm đà, có chiều sâu */
-    #btn-archive {
-        background: #115e59 !important;
-        color: #ffffff !important;
-        border-color: #134e4a !important;
-    }
-
-    /* Nút "Liên kết": Nhích từ #3b82f6 lên màu Xanh Sapphire hoàng gia đầm đặc */
-    #btn-links { 
-        background: #1d4ed8 !important; 
-        color: #ffffff !important; 
-        border-color: #1e3a8a !important; 
-    }
-
-    /* Nút "Chấm tiết": Nhích từ #8b5cf6 lên màu Tím Thạch Anh sậm sắc nét */
-    #btn-show-chamtiet { 
-        background: #7c3aed !important; 
-        color: #ffffff !important; 
-        border-color: #5b21b6 !important; 
-    }
-
-    /* Nút "Biên bản họp": Nhích từ #ea580c lên màu Cam Đất IGC đậm đà đặc trưng */
-    #btn-show-bienban { 
-        background: #c2410c !important; 
-        color: #ffffff !important; 
-        border-color: #9a3412 !important; 
-    }
-
-    /* Nút "Xuất Excel": Nhích từ #10b981 lên màu Xanh Lá Cây đậm đà, tươi tắn hành chính */
-    #btn-export-excel { 
-        background: #059669 !important; 
-        color: #ffffff !important; 
-        border-color: #064e3b !important; 
-    }
-
-    /* Nút "Thêm việc" Kanban tối cao: Giữ dốc màu Hổ Phách nguyên bản cực sang */
-    #btn-add {
-        background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-        color: #ffffff !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        box-shadow: 0 3px 8px rgba(217, 119, 6, 0.15) !important;
+    #btn-toggle-filters:active {
+        transform: scale(0.96) !important;
     }
   </style>
   <!-- ==================================================================== -->
