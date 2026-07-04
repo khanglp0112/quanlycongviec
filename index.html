@@ -2233,30 +2233,45 @@ function showTaskDetail(task) {
       db.collection("CongViec").doc(id).update({ status: newStatus }).catch((error) => { alert("Lỗi khi cập nhật trạng thái: " + error.message); });
     }
 
-    function showCompleteTaskForm(task) {
-     document.getElementById('subtasks-container').innerHTML = '';
-      if (task.subtasks && task.subtasks.length > 0) {
-          task.subtasks.forEach(st => addSubtaskInput(st.text, st.done));
-      }
-      document.getElementById('inp-title').value = task.title;
-      document.getElementById('inp-desc').value = task.description || '';
-      document.querySelectorAll('.assignee-cb').forEach(cb => { cb.checked = task.assignee && task.assignee.includes(cb.value); });
-      document.getElementById('inp-priority').value = task.priority;
-      document.getElementById('inp-deadline').value = task.deadline || '';
-      document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
-      document.getElementById('inp-supporters').value = task.supporters || '';
-      document.getElementById('inp-goal').value = task.goal || '';
-      document.getElementById('inp-rating').value = '';
-      document.getElementById('inp-actual-hours-review').value = task.actual_hours || '';
-      document.getElementById('inp-lessons').value = task.lessons_learned || '';
-      document.getElementById('inp-weekly').checked = task.is_weekly || false;
-      document.getElementById('inp-status').value = 'done';
-      document.getElementById('inp-edit-id').value = task.__backendId;
-      updateRatingButtons(); updateReviewSections();
-      document.getElementById('modal-title').textContent = 'Hoàn thành công việc';
-      document.getElementById('btn-submit').textContent = 'Hoàn thành & Lưu';
-      openModal();
-    }
+   function showCompleteTaskForm(task) {
+  // 1. Dọn sạch và tái dựng danh sách công việc con (Subtasks) của Task nếu có
+  document.getElementById('subtasks-container').innerHTML = '';
+  if (task.subtasks && task.subtasks.length > 0) {
+      task.subtasks.forEach(st => addSubtaskInput(st.text, st.done));
+  }
+  
+  // 2. Tự động đổ ngược toàn bộ dữ liệu đã điền từ trước vào form mà không gây mất mát
+  document.getElementById('inp-title').value = task.title || '';
+  document.getElementById('inp-desc').value = task.description || '';
+  document.getElementById('inp-priority').value = task.priority || 'important';
+  document.getElementById('inp-start-date').value = task.start_date || (task.created_at ? task.created_at.substring(0, 10) : '');
+  document.getElementById('inp-deadline').value = task.deadline || '';
+  document.getElementById('inp-estimated-hours').value = task.estimated_hours || '';
+  document.getElementById('inp-supporters').value = task.supporters || '';
+  document.getElementById('inp-goal').value = task.goal || '';
+  document.getElementById('inp-weekly').checked = task.is_weekly || false;
+  
+  // 3. Tự động tích chọn lại chuẩn xác những giáo viên đã được phân công từ trước
+  document.querySelectorAll('.assignee-cb').forEach(cb => { 
+      cb.checked = task.assignee && task.assignee.includes(cb.value); 
+  });
+  
+  // 4. Reset trống các ô dành riêng cho việc Review nghiệm thu cuối tuần
+  document.getElementById('inp-rating').value = '';
+  document.getElementById('inp-actual-hours-review').value = task.actual_hours || task.estimated_hours || ''; // Gợi ý sẵn giờ thực tế bằng giờ dự kiến cho giáo viên đỡ phải gõ lại nhiều
+  document.getElementById('inp-lessons').value = task.lessons_learned || '';
+  
+  // 5. Cài đặt trạng thái kỹ thuật và bật sáng Form Đánh giá
+  document.getElementById('inp-status').value = 'done';
+  document.getElementById('inp-edit-id').value = task.__backendId;
+  
+  updateRatingButtons(); 
+  updateReviewSections();
+  
+  document.getElementById('modal-title').textContent = 'Nghiệm thu & Hoàn thành công việc';
+  document.getElementById('btn-submit').textContent = 'Xác nhận hoàn thành';
+  openModal();
+}
 
     function editTask(id) {
   const task = allTasks.find(t => t.__backendId === id);
