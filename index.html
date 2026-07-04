@@ -388,16 +388,10 @@
                 <label class="block text-xs font-bold text-slate-600 mb-1">Họ và tên đầy đủ *</label>
                 <input type="text" id="inp-modal-gv-ten" placeholder="Ví dụ: Thầy Nguyễn Văn A" class="w-full px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500">
             </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-600 mb-1">Chức vụ / Phân công chuyên môn</label>
-                <select id="sel-modal-gv-chucvu" class="w-full px-3 py-2 bg-white rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500">
-                    <option value="GV Toán">GV Toán</option>
-                    <option value="GV Tin">GV Tin</option>
-                    <option value="Tổ trưởng">Tổ trưởng</option>
-                    <option value="Tổ phó">Tổ phó</option>
-                    <option value="TLCM">TLCM</option>
-                </select>
-            </div>
+           <div>
+    <label class="block text-xs font-bold text-slate-600 mb-1">Chức vụ / Phân công chuyên môn *</label>
+    <input type="text" id="inp-modal-gv-chucvu" placeholder="Ví dụ: GV Toán, Tổ trưởng, Thư ký Hội đồng..." class="w-full px-3 py-2 rounded-lg text-sm border border-slate-300 outline-none focus:border-blue-500 bg-white">
+</div>
         </div>
         <div class="flex gap-2 mt-5">
             <button onclick="closeThemGVModal()" class="flex-1 py-2 rounded-lg text-sm font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">Hủy</button>
@@ -3201,36 +3195,43 @@ function toggleBienBan() {
     }
 
     function saveGVMoiTuModal() {
-        const tenMoi = document.getElementById('inp-modal-gv-ten').value.trim();
-        const chucVuMoi = document.getElementById('sel-modal-gv-chucvu').value;
+    const tenMoi = document.getElementById('inp-modal-gv-ten').value.trim();
+    // Cập nhật lấy giá trị từ ô input text mới
+    const chucVuMoi = document.getElementById('inp-modal-gv-chucvu').value.trim();
 
-        if (!tenMoi) { alert("Vui lòng gõ đầy đủ họ và tên giáo viên."); return; }
-
-        // Gọi hàm lõi ở phần 1 để đẩy vào bộ nhớ LocalStorage
-        const thanhCong = themGiaoVienVaoHeThong(tenMoi, chucVuMoi);
-        if (thanhCong) {
-            // Nạp tên vừa tạo vào đúng ô select giáo viên đang kích hoạt dòng đó
-            if (window.activeBBSelectEl) {
-                const select = window.activeBBSelectEl;
-                select.innerHTML = generateGiaoVienOptions(tenMoi);
-                select.value = tenMoi;
-                const row = select.closest('tr');
-                row.querySelector('.bb-inp-chucvu').value = chucVuMoi;
-                window.activeBBSelectEl = null;
-            }
-            
-            // Vẽ lại toàn bộ các ô select khác trên bảng để cập nhật đồng bộ tên mới này
-            document.querySelectorAll('.bb-sel-gv').forEach(sel => {
-                if (sel !== window.activeBBSelectEl) {
-                    const temp = sel.value;
-                    sel.innerHTML = generateGiaoVienOptions(temp);
-                }
-            });
-
-            updateBBChủTrìThưKýSelects();
-            closeThemGVModal();
-        }
+    if (!tenMoi || !chucVuMoi) { 
+        alert("Vui lòng nhập đầy đủ cả Họ tên và Chức vụ của nhân sự mới."); 
+        return; 
     }
+
+    // Gọi hàm lõi để đẩy vào bộ nhớ LocalStorage
+    const thanhCong = themGiaoVienVaoHeThong(tenMoi, chucVuMoi);
+    if (thanhCong) {
+        if (window.activeBBSelectEl) {
+            const select = window.activeBBSelectEl;
+            select.innerHTML = generateGiaoVienOptions(tenMoi);
+            select.value = tenMoi;
+            const row = select.closest('tr');
+            row.querySelector('.bb-inp-chucvu').value = chucVuMoi;
+            window.activeBBSelectEl = null;
+        }
+        
+        document.querySelectorAll('.bb-sel-gv').forEach(sel => {
+            if (sel !== window.activeBBSelectEl) {
+                const temp = sel.value;
+                sel.innerHTML = generateGiaoVienOptions(temp);
+            }
+        });
+
+        updateBBChủTrìThưKýSelects();
+        
+        // DỌN SẠCH Ô NHẬP LIỆU ĐỂ SẴN SÀNG CHO LẦN THÊM SAU
+        document.getElementById('inp-modal-gv-ten').value = "";
+        document.getElementById('inp-modal-gv-chucvu').value = "";
+        
+        closeThemGVModal();
+    }
+}
 
     // Hàm 3.8: Xử lý đóng/mở và vận hành Modal Quản lý danh sách gốc (Xóa giáo viên cũ)
     function openQuanLyGiaoVienModal() {
