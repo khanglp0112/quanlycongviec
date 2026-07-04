@@ -259,90 +259,86 @@
         text-shadow: none !important;
     }
 
-    /* 2. ĐỒNG BỘ ĐỔ MÀU NỀN TƯƠI ĐÚC KHỐI - CHỮ TRẮNG NỔI BẬT KHÔNG LO LÓA */
-    header button {
+  header button {
         border-radius: 10px !important;
         font-weight: 700 !important;
         font-size: 13px !important;
         padding: 6px 14px !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important; /* Viền sáng mảnh mượt */
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
         box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-        /* Khóa cứng vị trí phẳng lặng, di chuột chỉ đằm màu lại dịu mắt */
         transition: background 0.2s ease, border-color 0.2s ease, filter 0.2s ease !important;
         transform: none !important;
     }
 
-    /* Rê chuột tĩnh lặng: Không rung lắc, màu sậm đằm xuống rất chắc chắn */
     header button:hover {
         transform: none !important;
-        filter: brightness(0.88) !important; /* Dìm nhẹ sắc độ khi hover để làm dịu mắt */
+        filter: brightness(0.88) !important;
         box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12) !important;
     }
 
-    /* Click lún nhẹ cơ học tại chỗ */
     header button:active { 
         transform: scale(0.96) !important; 
     }
 
-    /* 3. ĐỔ MÀU NỀN TƯƠI CHUẨN ĐỒ HỌA PHẲNG (CHỮ TRẮNG TINH KHIẾT) */
+    /* 2. CHỈ ĐIỀU CHỈNH THÔNG SỐ MÃ MÀU (TĂNG ĐỘ ĐẬM ĐÀ VÀ CÔ ĐẶC LÊN 1 XỈU) */
 
-    /* Nút "Thành viên": Màu Xanh Đá phiến sẫm đậm đà */
+    /* Nút "Thành viên": Nhích từ #475569 lên màu Xanh Đá Slate sậm đầm nét hơn */
     #btn-members {
-        background: #475569 !important;
+        background: #334155 !important;
         color: #ffffff !important;
-        border-color: #334155 !important;
+        border-color: #1e293b !important;
     }
 
-    /* Nút "Giờ làm": Màu Xanh Cyan công nghệ tươi mát */
+    /* Nút "Giờ làm": Nhích từ #0ea5e9 lên màu Xanh Sky rực năng lượng hơn */
     #btn-working-hours {
-        background: #0ea5e9 !important;
+        background: #0284c7 !important;
         color: #ffffff !important;
-        border-color: #0284c7 !important;
+        border-color: #0369a1 !important;
     }
 
-    /* Nút "Timeline": Màu Cát Bạc trầm ổn định */
+    /* Nút "Timeline": Nhích từ #6b7280 lên màu Xám Trì cứng cáp hoàn hảo */
     #btn-timeline {
-        background: #6b7280 !important;
+        background: #4b5563 !important;
         color: #ffffff !important;
-        border-color: #4b5563 !important;
+        border-color: #374151 !important;
     }
 
-    /* Nút "Kho lưu trữ": Màu Xanh Cổ Vịt thanh lịch */
+    /* Nút "Kho lưu trữ": Nhích từ #0f766e lên màu Xanh Cổ Vịt đậm đà, có chiều sâu */
     #btn-archive {
-        background: #0f766e !important;
+        background: #115e59 !important;
         color: #ffffff !important;
-        border-color: #115e59 !important;
+        border-color: #134e4a !important;
     }
 
-    /* Nút "Liên kết": Màu Xanh Dương Sapphire rực rỡ */
+    /* Nút "Liên kết": Nhích từ #3b82f6 lên màu Xanh Sapphire hoàng gia đầm đặc */
     #btn-links { 
-        background: #3b82f6 !important; 
+        background: #1d4ed8 !important; 
         color: #ffffff !important; 
-        border-color: #1d4ed8 !important; 
+        border-color: #1e3a8a !important; 
     }
 
-    /* Nút "Chấm tiết": Màu Tím Thạch Anh tươi tắn */
+    /* Nút "Chấm tiết": Nhích từ #8b5cf6 lên màu Tím Thạch Anh sậm sắc nét */
     #btn-show-chamtiet { 
-        background: #8b5cf6 !important; 
+        background: #7c3aed !important; 
         color: #ffffff !important; 
-        border-color: #6d28d9 !important; 
+        border-color: #5b21b6 !important; 
     }
 
-    /* Nút "Biên bản họp": Màu Cam Chanh IGC thương hiệu rực rỡ */
+    /* Nút "Biên bản họp": Nhích từ #ea580c lên màu Cam Đất IGC đậm đà đặc trưng */
     #btn-show-bienban { 
-        background: #ea580c !important; 
+        background: #c2410c !important; 
         color: #ffffff !important; 
-        border-color: #c2410c !important; 
+        border-color: #9a3412 !important; 
     }
 
-    /* Nút "Xuất Excel": Màu Xanh Lá Ngọc Lục Bảo năng suất */
+    /* Nút "Xuất Excel": Nhích từ #10b981 lên màu Xanh Lá Cây đậm đà, tươi tắn hành chính */
     #btn-export-excel { 
-        background: #10b981 !important; 
+        background: #059669 !important; 
         color: #ffffff !important; 
-        border-color: #059669 !important; 
+        border-color: #064e3b !important; 
     }
 
-    /* Nút "Thêm việc" Kanban tối cao: Giữ nguyên dốc màu Hổ Phách pha lê nổi bật */
+    /* Nút "Thêm việc" Kanban tối cao: Giữ dốc màu Hổ Phách nguyên bản cực sang */
     #btn-add {
         background: linear-gradient(135deg, #f59e0b, #d97706) !important;
         color: #ffffff !important;
