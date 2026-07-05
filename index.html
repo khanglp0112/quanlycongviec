@@ -817,9 +817,9 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         
-        <div class="lg:col-span-1 space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/80 h-[650px] overflow-y-auto scrollbar-thin">
+        <div class="lg:col-span-1 space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/80 h-[680px] overflow-y-auto scrollbar-thin">
             <input type="hidden" id="inp-sd-id" value="">
             
             <div>
@@ -837,23 +837,25 @@
             </div>
         </div>
 
-        <div class="lg:col-span-2 flex flex-col h-[75vh] relative">
-            <div class="mb-2 flex flex-wrap justify-between items-center gap-2">
+        <div class="lg:col-span-2 flex flex-col h-[680px] relative">
+            <div class="mb-2 flex flex-wrap justify-between items-center gap-2 flex-shrink-0">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
                     <i data-lucide="eye" class="w-3.5 h-3.5"></i> Bản vẽ thấu kính trực quan
                 </span>
                 
-                <div class="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[11px] font-bold shadow-inner">
-                    <button id="btn-dir-td" onclick="changeSodoDirection('TD')" class="px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm transition-all">🔽 Hướng dọc</button>
-                    <button id="btn-dir-lr" onclick="changeSodoDirection('LR')" class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition-all">▶️ Hướng ngang</button>
+                <div class="flex items-center gap-2">
+                    <div class="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[11px] font-bold shadow-inner">
+                        <button id="btn-dir-td" onclick="changeSodoDirection('TD')" class="px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm transition-all">🔽 Hướng dọc</button>
+                        <button id="btn-dir-lr" onclick="changeSodoDirection('LR')" class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition-all">▶️ Hướng ngang</button>
+                    </div>
+                    <button type="button" onclick="downloadSodoAsImage()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-200 bg-white text-slate-600 hover:text-pink-600 hover:border-pink-200 transition-all shadow-sm">
+                        <i data-lucide="download" style="width:12px;height:12px;"></i> Tải ảnh sơ đồ
+                    </button>
                 </div>
-             <button type="button" onclick="downloadSodoAsImage()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-200 bg-white text-slate-600 hover:text-pink-600 hover:border-pink-200 transition-all shadow-sm">
-                    <i data-lucide="download" style="width:12px;height:12px;"></i> Tải ảnh sơ đồ
-                </button>
             </div>
             
-            <div class="flex-1 w-full border border-slate-200 rounded-xl bg-white flex items-center justify-center overflow-auto p-6 relative shadow-inner scrollbar-thin" style="min-height: 650px;">
-                <div id="canvas-mermaid-render" class="mermaid w-full text-center"></div>
+            <div class="flex-1 w-full border border-slate-200 rounded-xl bg-white flex items-center justify-center overflow-hidden p-4 relative shadow-inner">
+                <div id="canvas-mermaid-render" class="mermaid w-full h-full text-center flex items-center justify-center"></div>
             </div>
         </div>
 
