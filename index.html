@@ -810,8 +810,8 @@
             <p class="text-xs text-slate-400 mt-1">Số hóa quy trình làm việc dạng danh mục văn bản hành chính dễ dùng</p>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="saveQuyTrinhServer()" class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white border border-white/20 transition-all shadow-[0_2px_4px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.25)]" style="background: linear-gradient(135deg, #f472b6, #db2777); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);" onmouseenter="this.style.filter='brightness(1.08)'" onmouseleave="this.style.filter='none'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='none'">
-                <i data-lucide="save" style="width:16px;height:16px;"></i> Lưu quy trình
+            <button id="btn-save-quytrinh" onclick="saveQuyTrinhServer()" class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white border border-white/20 transition-all shadow-[0_2px_4px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.25)]" style="background: linear-gradient(135deg, #f472b6, #db2777); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);" onmouseenter="this.style.filter='brightness(1.08)'" onmouseleave="this.style.filter='none'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='none'">
+                <i data-lucide="save" style="width:16px;height:16px;"></i> <span>Lưu quy trình</span>
             </button>
             <button onclick="toggleSoDoView()" class="px-4 py-2 rounded-lg text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">Đóng</button>
         </div>
@@ -819,7 +819,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
-        <div class="lg:col-span-1 space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/80 max-h-[75vh] overflow-y-auto scrollbar-thin">
+        <div class="lg:col-span-1 space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/80 h-[650px] overflow-y-auto scrollbar-thin">
             <input type="hidden" id="inp-sd-id" value="">
             
             <div>
@@ -4990,6 +4990,7 @@ window.calculateMemberEAI = function(memberName) {
     // ====================================================================
 
     // 1. Hàm đóng gói mảng tịnh tiến và đẩy lên Cloud Firebase
+    // 1. Hàm đóng gói mảng tịnh tiến và đẩy lên Cloud Firebase (BẢN VÁ CHỐNG LAG LẶP NÚT)
     async function saveQuyTrinhServer() {
         const id = document.getElementById('inp-sd-id').value;
         const tenQuyTrinh = document.getElementById('inp-sd-ten').value.trim();
@@ -5003,6 +5004,17 @@ window.calculateMemberEAI = function(memberName) {
         if(rows.length === 0) {
             alert("Quy trình phải có ít nhất một bước thực hiện.");
             return;
+        }
+
+        // --- BẢN VÁ CHỐNG LAG: BẬT TRẠNG THÁI XOAY XOÀI ĐỒNG BỘ 100% VỚI BIÊN BẢN ---
+        const btnSave = document.getElementById('btn-save-quytrinh');
+        let originalBtnText = "";
+        if (btnSave) {
+            originalBtnText = btnSave.innerHTML;
+            // ÉP KIỂU HIỂN THỊ VÒNG XOAY HOẠT CẢNH QUAY ĐỀU CỦA LUCIDE TRÊN KHUNG MICA
+            btnSave.innerHTML = '<i data-lucide="loader" class="animate-spin" style="width:16px;height:16px;display:inline-block;margin-right:6px;"></i> Đang đồng bộ...';
+            btnSave.disabled = true; // Khóa cứng chuột hoàn toàn chống bấm đúp tạo rác Firebase
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         // Thu thập dữ liệu sạch từ Form tịnh tiến
@@ -5048,6 +5060,13 @@ window.calculateMemberEAI = function(memberName) {
             loadQuyTrinhLichSuTable();
         } catch(e) { 
             alert("Lỗi kết nối Firebase khi lưu sơ đồ: " + e.message); 
+        } finally {
+            // --- PHỤC HỒI TRẠNG THÁI NÚT KHI ĐƯỜNG TRUYỀN MẠNG ĐÃ CHẠY XONG AN TOÀN ---
+            if (btnSave) {
+                btnSave.innerHTML = originalBtnText;
+                btnSave.disabled = false; // Mở khóa chuột
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
         }
     }
 
