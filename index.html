@@ -4800,8 +4800,7 @@ window.calculateMemberEAI = function(memberName) {
         if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // 2. HÀM SINH TỰ ĐỘNG MỘT HÀNG Ô CHỮ (BẢN VÁ PHẦN 2: TỰ ĐỘNG ĐỔI BỐ CỤC ẨN HÀN THEO KHỐI)
-    // 2. HÀM SINH TỰ ĐỘNG MỘT HÀNG Ô CHỮ (PHẦN 2: PHÂN TÁCH ĐỘC LẬP LUỒNG ĐỒNG CẤP VÀ QUAY LẠI)
+    // 2. Hàm sinh tự động một hàng ô chữ trực quan tịnh tiến tự nhiên
     function addSodoBlockRow(initText = "", initShape = "rect", initBack = "", initDesc = "") {
         const container = document.getElementById('container-sd-blocks');
         const stepIndex = container.children.length + 1;
@@ -4810,21 +4809,6 @@ window.calculateMemberEAI = function(memberName) {
         div.className = "sd-block-row bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm space-y-2.5 relative transition-all hover:shadow-md";
         div.dataset.step = stepIndex;
         
-        const isRhombus = (initShape === 'rhombus');
-        
-        // Trích xuất tách đôi giá trị cũ trong thuộc tính để hiển thị sang hai ô độc lập
-        let equalVal = initBack;
-        let failVal = "";
-        if (isRhombus && initBack && initBack.includes(",")) {
-            const parts = initBack.split(",");
-            equalVal = parts[0];
-            failVal = parts[1];
-        } else if (isRhombus) {
-            // Nếu dữ liệu cũ chưa phân tách, mặc định coi như ô quay lại khi sai
-            failVal = initBack;
-            equalVal = "";
-        }
-        
         div.innerHTML = `
             <div class="flex items-center justify-between">
                 <span class="text-[10px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md uppercase">Bước ${stepIndex}</span>
@@ -4832,39 +4816,23 @@ window.calculateMemberEAI = function(memberName) {
             </div>
             
             <div>
-                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Tên bước quy trình *</label>
                 <input type="text" value="${initText}" oninput="compileSodoDataToMermaid()" placeholder="Tên bước (VD: Tổ trưởng phê duyệt đề)..." class="sd-block-title w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-pink-500 font-semibold text-slate-700 bg-white shadow-inner">
             </div>
 
             <div>
-                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Hình khối hiển thị</label>
-                <select onchange="handleShapeChange(this)" class="sd-block-shape w-full text-[11px] px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-slate-50 font-semibold text-slate-600 cursor-pointer">
-                    <option value="rect" ${initShape==='rect'?'selected':''}>⏹️ Khối Hành động (Chữ nhật)</option>
-                    <option value="round" ${initShape==='round'?'selected':''}>⚪ Khối Đầu/Cuối (Tròn)</option>
-                    <option value="rhombus" ${initShape==='rhombus'?'selected':''}>🔶 Khối Quyết định (Hình thoi)</option>
+                <textarea oninput="compileSodoDataToMermaid()" placeholder="Mô tả chi tiết / Hướng dẫn nghiệp vụ lưu ý (Không bắt buộc)..." class="sd-block-desc w-full px-2.5 py-1 border border-slate-200 rounded-lg text-[11px] outline-none focus:border-pink-500 text-slate-500 font-medium bg-slate-50/30 shadow-inner h-11 resize-none scrollbar-thin">${initDesc}</textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <select onchange="handleShapeChange(this)" class="sd-block-shape text-[11px] px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-slate-50 font-semibold text-slate-600 cursor-pointer">
+                    <option value="rect" ${initShape==='rect'?'selected':''}>⏹️ Khối Hành động</option>
+                    <option value="rhombus" ${initShape==='rhombus'?'selected':''}>🔶 Khối Quyết định</option>
+                    <option value="round" ${initShape==='round'?'selected':''}>⚪ Khối Đầu/Cuối</option>
                 </select>
-            </div>
-
-            <div class="sd-navigation-group flex flex-col gap-2 pt-1 border-t border-dashed border-slate-100">
                 
-                <div class="sd-equal-step-box">
-                    <label class="sd-label-equal block text-[10px] font-bold text-slate-500 mb-1">
-                        ${isRhombus ? 'Đồng cấp với bước (Nếu có)' : 'Đồng cấp với bước (Để trống sẽ tự đi tiếp bước sau)'}
-                    </label>
-                    <input type="number" value="${equalVal}" oninput="syncSodoSplitInputsToBack(this)" placeholder="Điền số bước muốn đứng song song (Ví dụ: 4)" class="sd-block-equal-input w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-[11px] outline-none focus:border-pink-500 font-bold text-slate-600 shadow-inner">
+                <div class="div-back-select ${initShape==='rhombus'?'':'opacity-40 pointer-events-none'} transition-all">
+                    <input type="text" value="${initBack}" oninput="compileSodoDataToMermaid()" placeholder="Lỗi? Quay lại bước mấy (VD: 1)" class="sd-block-back w-full px-2 py-1.5 border border-slate-200 rounded-lg text-[11px] outline-none text-center font-bold text-red-500 placeholder:text-slate-300 shadow-inner">
                 </div>
-
-                <div class="sd-fail-step-box ${isRhombus ? '' : 'hidden'}">
-                    <label class="block text-[10px] font-bold text-red-600 mb-1">❌ Không đạt, quay lại bước...</label>
-                    <input type="number" value="${failVal}" oninput="syncSodoSplitInputsToBack(this)" placeholder="Điền số bước sửa đổi khi quy trình sai (Ví dụ: 1)" class="sd-block-fail-input w-full px-2.5 py-1.5 bg-red-50/40 border border-red-200 rounded-lg text-[11px] outline-none focus:border-red-500 font-bold text-red-700 shadow-inner">
-                </div>
-
-                <input type="hidden" class="sd-block-back" value="${initBack}">
-            </div>
-
-            <div>
-                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Mô tả nghiệp vụ / Hướng dẫn chuyên môn</label>
-                <textarea oninput="compileSodoDataToMermaid()" placeholder="Nhập hướng dẫn thao tác chi tiết hiển thị ở Sidebar..." class="sd-block-desc w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-[11px] outline-none focus:border-pink-500 text-slate-500 font-medium bg-slate-50/30 shadow-inner h-11 resize-none scrollbar-thin">${initDesc}</textarea>
             </div>
         `;
         container.appendChild(div);
@@ -4882,60 +4850,19 @@ window.calculateMemberEAI = function(memberName) {
         compileSodoDataToMermaid();
     }
 
-    // HÀM TRỢ LÝ: Ẩn/Hiện ô nhập liệu trực quan khi đổi hình khối
- window.handleShapeChange = function(select) {
+    // Kiểm tra thông minh: Nếu chọn hình thoi thì mở khóa ô nhập rẽ nhánh
+    function handleShapeChange(select) {
         const row = select.closest('.sd-block-row');
-        if(!row) return;
-
-        const shape = select.value;
-        const labelEqual = row.querySelector('.sd-label-equal');
-        const failBox = row.querySelector('.sd-fail-step-box');
-        const inputEqual = row.querySelector('.sd-block-equal-input');
-        const inputFail = row.querySelector('.sd-block-fail-input');
-
-        if(shape === 'rhombus') {
-            if(labelEqual) labelEqual.textContent = 'Đồng cấp với bước (Nếu có)';
-            if(failBox) failBox.classList.remove('hidden');
+        const backDiv = row.querySelector('.div-back-select');
+        const backInput = row.querySelector('.sd-block-back');
+        if(select.value === 'rhombus') {
+            backDiv.classList.remove('opacity-40', 'pointer-events-none');
         } else {
-            if(labelEqual) labelEqual.textContent = 'Đồng cấp với bước (Để trống sẽ đi tiếp bước sau)';
-            if(failBox) failBox.classList.add('hidden');
-            if(inputFail) inputFail.value = "";
-        }
-        
-        // Gọi hàm đồng bộ an toàn vì hàm này đã được nạp ở phía trên
-        if(inputEqual) window.syncSodoSplitInputsToBack(inputEqual);
-    };
-
-    // HÀM TRỢ LÝ: Đồng bộ giá trị lập tức từ ô nhập phụ (Mirror) sang ô dữ liệu gốc .sd-block-back để tránh lỗi lưu file
-    window.syncSodoFailMirrorValue = function(mirrorInputEl) {
-        const row = mirrorInputEl.closest('.sd-block-row');
-        if(!row) return;
-// HÀM TRỢ LÝ ĐẮT GIÁ: ĐÃ ĐƯỢC GẮN WINDOW TOÀN CỤC ĐỂ HẾT LỖI NOT DEFINED
-   // 1. Hàm đồng bộ dữ liệu ngầm (Đưa lên đầu hàng để nạp toàn cục trước)
-    window.syncSodoSplitInputsToBack = function(inputEl) {
-        const row = inputEl.closest('.sd-block-row');
-        if(!row) return;
-
-        const inputEqual = row.querySelector('.sd-block-equal-input');
-        const inputFail = row.querySelector('.sd-block-fail-input');
-        const inputBackOriginal = row.querySelector('.sd-block-back');
-
-        if(inputBackOriginal) {
-            const eqVal = inputEqual ? inputEqual.value.trim() : "";
-            const faVal = inputFail ? inputFail.value.trim() : "";
-            
-            // Đóng gói dạng chuỗi ghép "Equal,Fail" để lưu trữ gọn gàng vào 1 biến gốc của thầy
-            inputBackOriginal.value = `${eqVal},${faVal}`;
+            backDiv.classList.add('opacity-40', 'pointer-events-none');
+            backInput.value = ""; 
         }
         compileSodoDataToMermaid();
-    };
-        const inputBack = row.querySelector('.sd-block-back');
-        if(inputBack) {
-            // Ép giá trị sang ô gốc để thuật toán Mermaid ở Phần 1 nhận diện và bắn mũi tên quay về chuẩn chỉ
-            inputBack.value = mirrorInputEl.value;
-        }
-        compileSodoDataToMermaid();
-    };
+    }
 
     // 3. Logic xử lý nút chuyển hướng Sơ đồ Ngang hay Dọc
     function changeSodoDirection(dir) {
@@ -4952,7 +4879,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
- // 4. THUẬT TOÁN BIÊN DỊCH MERMAID (BẢN SỬA LỖI MŨI TÊN TÙM LUM VÀ ÉP DÀN HÀNG NGANG ĐỒNG CẤP)
+  // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ TRIỆT ĐỂ LỖI PARSE ERROR GRAMMAR)
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -4966,7 +4893,7 @@ window.calculateMemberEAI = function(memberName) {
         sodoActiveDescMap.clear(); 
         let code = `graph ${sodoCurrentDirection}\n`;
         
-        // VÒNG 1: DỰNG HÌNH KHỐI NGUYÊN BẢN CỦA THẦY
+        // VÒNG 1: BẢO LƯU NGUYÊN BẢN 100% QUY TẮC KẾT XUẤT HÌNH KHỐI VÀ LỚP MỸ THUẬT CỦA THẦY
         rows.forEach(row => {
             const step = row.dataset.step;
             const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
@@ -4981,70 +4908,27 @@ window.calculateMemberEAI = function(memberName) {
             else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
         });
 
-        // Mảng ghi nhận các khối đã có đường nối hướng tâm đến để chống sinh xích mặc định kéo dọc
-        const hasIncomingLink = new Set();
-
-        // VÒNG 2: PHÂN TÍCH LUỒNG ĐỒNG CẤP SONG SONG VÀ LUỒNG QUAY LẠI
+        // VÒNG 2: BẢO LƯU NGUYÊN BẢN 100% QUY TẮC ĐƯỜNG TRUYỀN MŨI TÊN TỊNH TIẾN CỦA THẦY
         rows.forEach((row, idx) => {
             const step = row.dataset.step;
             const nodeId = `step_${step}`;
             const shape = row.querySelector('.sd-block-shape').value;
-            const backRawVal = row.querySelector('.sd-block-back').value.trim();
+            const backStepNum = row.querySelector('.sd-block-back').value.trim();
 
-            // Tách chuỗi đóng gói thành 2 luồng xử lý riêng biệt
-            let equalStep = "";
-            let failStep = "";
-            if (backRawVal.includes(",")) {
-                const parts = backRawVal.split(",");
-                equalStep = parts[0].trim();
-                failStep = parts[1].trim();
-            } else {
-                if(shape === 'rhombus') failStep = backRawVal;
-                else equalStep = backRawVal;
+            if(idx < rows.length - 1) {
+                const nextNodeId = `step_${parseInt(step) + 1}`;
+                code += `  ${nodeId} --> ${nextNodeId}\n`;
             }
 
-            if (shape === "rhombus") {
-                // LUỒNG HÌNH THOI QUYẾT ĐỊNH
-                // Nhánh 1 (Đạt): Đi xuống bước tiếp theo dưới chân
-                if (idx < rows.length - 1) {
-                    const nextNodeId = `step_${parseInt(step) + 1}`;
-                    code += `  ${nodeId} -- Đạt --> ${nextNodeId}\n`;
-                    hasIncomingLink.add(nextNodeId);
-                }
-                // Nhánh 2 (Không đạt): Bắn ngược dòng độc lập về số bước chỉ định
-                if (failStep) {
-                    const failNodeId = `step_${failStep}`;
-                    if (document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${failStep}"]`)) {
-                        code += `  ${nodeId} -- Không đạt --> ${failNodeId}\n`;
-                    }
-                }
-                // Nhánh 3 (Đồng cấp): Nếu điền số bước đồng cấp song song
-                if (equalStep) {
-                    const equalNodeId = `step_${equalStep}`;
-                    if (document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${equalStep}"]`)) {
-                        code += `  ${nodeId} --> ${equalNodeId}\n`;
-                        hasIncomingLink.add(equalNodeId);
-                    }
-                }
-            } else {
-                // LUỒNG KHỐI THƯỜNG (TRÒN / VUÔNG)
-                if (equalStep) {
-                    const equalNodeId = `step_${equalStep}`;
-                    if (document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${equalStep}"]`)) {
-                        code += `  ${nodeId} --> ${equalNodeId}\n`;
-                        hasIncomingLink.add(equalNodeId);
-                    }
-                } else if (idx < rows.length - 1) {
-                    // Nếu để trống ô đồng cấp, hệ thống mới tự kiểm tra xem khối sau đã có luồng nào chỉ định chưa
-                    const nextNodeId = `step_${parseInt(step) + 1}`;
-                    if (!hasIncomingLink.has(nextNodeId)) {
-                        code += `  ${nodeId} --> ${nextNodeId}\n`;
-                        hasIncomingLink.add(nextNodeId);
-                    }
+            if(shape === "rhombus" && backStepNum) {
+                const backNodeId = `step_${backStepNum}`;
+                if(document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${backStepNum}"]`)) {
+                    code += `  ${nodeId} -- Không đạt --> ${backNodeId}\n`;
                 }
             }
         });
 
+        // Đóng gói hàm mở Sidebar lên window toàn cục để hệ thống tương tác gọi chính xác
         window.openSodoSidebarWithData = function(nodeId) {
             if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
             const data = sodoActiveDescMap.get(nodeId);
@@ -5054,6 +4938,8 @@ window.calculateMemberEAI = function(memberName) {
             document.getElementById('sd-side-desc').textContent = data.desc;
             document.getElementById('sodo-sidebar-panel').classList.add('active');
         };
+
+        // --- ĐÃ LOẠI BỎ HOÀN TOÀN VÒNG LẶP CHỮ 'click ... call' ĐỂ TRIỆT TIÊU LỖI PARSE CÚ PHÁP MERMAID ---
 
         try {
             if (typeof mermaid !== 'undefined') {
@@ -5067,17 +4953,18 @@ window.calculateMemberEAI = function(memberName) {
                     },
                     flowchart: {
                         htmlLabels: true, 
-                        useMaxWidth: false,
-                        // ÉP ĐƯỜNG MŨI TÊN BẺ GÓC VUÔNG 90 ĐỘ TUYỆT ĐỐI KHÔNG CONG VẸO
-                        curve: 'step'
+                        useMaxWidth: false
                     }
                 });
 
+                // Dựng mã ID duy nhất theo dấu thời gian để làm sạch bộ nhớ đệm
                 const idDocBanSvg = 'sodo-svg-' + Date.now();
 
+                // Kích nổ luồng render phẳng bất đồng bộ của Mermaid
                 mermaid.render(idDocBanSvg, code).then(({ svg }) => {
                     renderContainer.innerHTML = svg;
 
+                    // ÉP KHUNG XEM THỬ LUÔN GIỮ SƠ ĐỒ NẰM Ở CHÍNH GIỮA MÀN HÌNH BẰNG FLEXBOX
                     renderContainer.style.display = 'flex';
                     renderContainer.style.alignItems = 'center';
                     renderContainer.style.justifyContent = 'center';
@@ -5090,6 +4977,7 @@ window.calculateMemberEAI = function(memberName) {
                         svgElement.style.width = '100%';
                         svgElement.style.height = '100%';
                         
+                        // Khởi động luồng chuột tương tác mượt mà trên ma trận số thực hữu hạn
                         if(typeof svgPanZoom !== 'undefined') {
                             window.currentSodoPanZoom = svgPanZoom(svgElement, {
                                 zoomEnabled: true,          
@@ -5102,15 +4990,18 @@ window.calculateMemberEAI = function(memberName) {
                             });
                         }
 
+                        // GẮN SỰ KIỆN CLICK ĐỘNG AN TOÀN TRỰC TIẾP LÊN TỪNG PHẦN TỬ KHỐI HÌNH HỌC CỦA SVG
                         svgElement.querySelectorAll('.node').forEach(nodeEl => {
                             nodeEl.style.cursor = 'pointer';
                             nodeEl.addEventListener('click', function(e) {
                                 e.stopPropagation();
                                 const idAttribute = nodeEl.id || "";
+                                // Quét tìm mã nodeId tương ứng từ class hoặc id của thẻ khối đồ họa (VD: step_1, step_2)
                                 const match = idAttribute.match(/step_\d+/);
                                 if(match) {
                                     window.openSodoSidebarWithData(match[0]);
                                 } else {
+                                    // Kiểm tra thêm trong danh sách class nếu ID thẻ bị Mermaid thay đổi
                                     const classList = nodeEl.className.baseVal || "";
                                     const classMatch = classList.match(/step_\d+/);
                                     if(classMatch) window.openSodoSidebarWithData(classMatch[0]);
