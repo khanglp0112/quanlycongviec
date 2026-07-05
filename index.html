@@ -4939,31 +4939,38 @@ window.calculateMemberEAI = function(memberName) {
                     theme: 'neutral', 
                     securityLevel: 'loose',
                     themeVariables: {
-                        fontFamily: '"Times New Roman", Times, serif', 
+                        fontFamily: 'Arial, Helvetica, sans-serif', 
                         fontSize: '13px' 
                     },
                     flowchart: {
                         htmlLabels: true, 
-                        useMaxWidth: false
+                        useMaxWidth: false // Giữ nguyên kích thước tự nhiên theo ý thầy
                     }
                 });
                 mermaid.init(undefined, renderContainer);
                 
+                // --- THUẬT TOÁN ĐẨY SƠ ĐỒ VÀO CHÍNH GIỮA KHUNG XEM THỬ ---
                 const svgElement = renderContainer.querySelector('svg');
                 if(svgElement) {
-                    svgElement.removeAttribute('width');
-                    svgElement.style.width = '100%';
-                    svgElement.style.height = '100%';
+                    // Căn giữa tuyệt đối bằng Flexbox của CSS
+                    renderContainer.style.display = 'flex';
+                    renderContainer.style.alignItems = 'center';
+                    renderContainer.style.justifyContent = 'center';
+                    renderContainer.style.width = '100%';
+                    renderContainer.style.height = '100%';
                     
-                    svgPanZoom(svgElement, {
-                        zoomEnabled: true,          
-                        controlIconsEnabled: false, 
-                        fit: true,                  
-                        center: true,               
-                        minZoom: 0.2,               
-                        maxZoom: 10,                
-                        panEnabled: true            
-                    });
+                    // Giữ nguyên đoạn code điều khiển chuột cũ (không xóa theo ý thầy)
+                    // nhưng vô hiệu hóa tạm thời để tránh xung đột luồng căn giữa
+                    if (typeof svgPanZoom !== 'undefined') {
+                        // Khóa tính năng kéo thả/thu phóng để nhường quyền hiển thị cố định ở tâm cho Flexbox
+                        svgPanZoom(svgElement, {
+                            zoomEnabled: false,          
+                            controlIconsEnabled: false, 
+                            fit: true,                  
+                            center: true,               
+                            panEnabled: false            
+                        });
+                    }
                 }
             }
         } catch (e) {
