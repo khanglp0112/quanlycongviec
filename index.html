@@ -4879,13 +4879,14 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-   // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ ĐỘNG ID CHỐNG LỖI HIỂN THỊ)
-     // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG
+    // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ TRIỆT ĐỂ LỖI 1 + CĂN TÂM CHÍNH GIỮA)
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
+        if(!renderContainer) return;
+        
         if(rows.length === 0) {
-            renderContainer.innerHTML = `<span class="text-xs text-slate-400">Chưa có bước nào để vẽ sơ đồ. Thầy vui lòng bấm thêm bước.</span>`;
+            renderContainer.innerHTML = `<div class="text-center py-24 text-slate-400 text-xs font-medium">Chưa có bước nào để vẽ sơ đồ. Thầy vui lòng bấm thêm bước.</div>`;
             return;
         }
 
@@ -4925,59 +4926,80 @@ window.calculateMemberEAI = function(memberName) {
             }
         });
 
+        // Đảm bảo hàm callback click khối luôn nằm trên window toàn cục
+        window.openSodoSidebarWithData = function(nodeId) {
+            if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
+            const data = sodoActiveDescMap.get(nodeId);
+            const stepNum = nodeId.replace('step_', '');
+            document.getElementById('sd-side-badge').textContent = `Mã khối: Bước ${stepNum}`;
+            document.getElementById('sd-side-title').textContent = data.title;
+            document.getElementById('sd-side-desc').textContent = data.desc;
+            document.getElementById('sodo-sidebar-panel').classList.add('active');
+        };
+
+        // Gài chốt gọi hàm mở Sidebar khi click khối, bỏ dấu ngoặc tròn để tránh lỗi cú pháp Mermaid
         sodoActiveDescMap.forEach((val, nodeId) => {
-            code += `  click ${nodeId} call openSodoSidebarWithData()\n`;
+            code += `  click ${nodeId} call openSodoSidebarWithData\n`;
         });
 
-        renderContainer.removeAttribute('data-processed');
-        renderContainer.innerHTML = code;
-        
         try {
             if (typeof mermaid !== 'undefined') {
+                // BẢO LƯU NGUYÊN VẸN ĐỊNH DẠNG FONT CHỮ VÀ CẤU HÌNH LABELS CŨ CỦA THẦY
                 mermaid.initialize({ 
                     startOnLoad: false, 
                     theme: 'neutral', 
                     securityLevel: 'loose',
                     themeVariables: {
-                        fontFamily: 'Arial, Helvetica, sans-serif', 
+                        fontFamily: '"Times New Roman", Times, serif', 
                         fontSize: '13px' 
                     },
                     flowchart: {
                         htmlLabels: true, 
-                        useMaxWidth: false // Giữ nguyên kích thước tự nhiên theo ý thầy
+                        useMaxWidth: false
                     }
                 });
-                mermaid.init(undefined, renderContainer);
-                
-                // --- THUẬT TOÁN ĐẨY SƠ ĐỒ VÀO CHÍNH GIỮA KHUNG XEM THỬ ---
-                const svgElement = renderContainer.querySelector('svg');
-                if(svgElement) {
-                    // Căn giữa tuyệt đối bằng Flexbox của CSS
+
+                // Tạo ID độc bản theo mốc thời gian để làm sạch bộ nhớ đệm render
+                const idDocBanSvg = 'sodo-svg-' + Date.now();
+
+                // Dựng sơ đồ bất đồng bộ
+                mermaid.render(idDocBanSvg, code).then(({ svg }) => {
+                    renderContainer.innerHTML = svg;
+
+                    // --- BẢN VÁ CĂN TÂM CHÍNH GIỮA THẤU KÍNH TRỰC QUAN BẰNG FLEXBOX ---
                     renderContainer.style.display = 'flex';
                     renderContainer.style.alignItems = 'center';
                     renderContainer.style.justifyContent = 'center';
                     renderContainer.style.width = '100%';
                     renderContainer.style.height = '100%';
-                    
-                    // Giữ nguyên đoạn code điều khiển chuột cũ (không xóa theo ý thầy)
-                    // nhưng vô hiệu hóa tạm thời để tránh xung đột luồng căn giữa
-                    if (typeof svgPanZoom !== 'undefined') {
-                        // Khóa tính năng kéo thả/thu phóng để nhường quyền hiển thị cố định ở tâm cho Flexbox
-                        svgPanZoom(svgElement, {
-                            zoomEnabled: false,          
-                            controlIconsEnabled: false, 
-                            fit: true,                  
-                            center: true,               
-                            panEnabled: false            
-                        });
+
+                    const svgElement = renderContainer.querySelector('svg');
+                    if(svgElement) {
+                        svgElement.removeAttribute('width');
+                        svgElement.style.width = '100%';
+                        svgElement.style.height = '100%';
+                        
+                        // Khởi động luồng chuột an toàn trên số thực hữu hạn (Không gây lỗi ma trận)
+                        if(typeof svgPanZoom !== 'undefined') {
+                            window.currentSodoPanZoom = svgPanZoom(svgElement, {
+                                zoomEnabled: true,          
+                                controlIconsEnabled: false, 
+                                fit: true,                  
+                                center: true,               
+                                minZoom: 0.2,               
+                                maxZoom: 10,                
+                                panEnabled: true            
+                            });
+                        }
                     }
-                }
+                }).catch(err => {
+                    console.error("Lỗi vẽ khối sơ đồ: ", err);
+                });
             }
         } catch (e) {
-            console.error("Lỗi vẽ sơ đồ đồ thị: ", e);
+            console.error("Lỗi khởi tạo hệ thống Mermaid: ", e);
         }
     }
-
 
     // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do (ĐÃ VÁ CÚ PHÁP CHUẨN)
     window.openSodoSidebarWithData = function(nodeId) {
@@ -5197,8 +5219,8 @@ window.calculateMemberEAI = function(memberName) {
             }
         }
     };
-   // ====================================================================
-    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG SẮC NÉT (BẢN VÁ LỖI)
+
+    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG (BẢN VÁ TRIỆT ĐỂ LỖI 2 TAINTED CANVAS)
     // ====================================================================
     window.downloadSodoAsImage = function() {
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5216,7 +5238,7 @@ window.calculateMemberEAI = function(memberName) {
         }
 
         try {
-            // 1. Tạo bản sao tạm thời của SVG để tính toán kích thước thực tế (tránh lấy theo khung zoom/pan chuột)
+            // 1. Tạo bản sao tạm thời của SVG để tính toán kích thước thực tế nguyên bản
             const svgClone = svgElement.cloneNode(true);
             svgClone.style.width = '';
             svgClone.style.height = '';
@@ -5224,29 +5246,64 @@ window.calculateMemberEAI = function(memberName) {
             
             // Lấy kích thước hình học nguyên bản của sơ đồ để xuất ảnh vuông vắn
             const bBox = svgElement.getBBox();
-            const width = bBox.width + 60;  // Tăng lên 60px padding biên để ảnh thoáng đãng, không sát rìa
-            const height = bBox.height + 60;
+            const width = bBox.width + 80;  // Cộng thêm 80px padding biên để ảnh thoáng đãng
+            const height = bBox.height + 80;
             
             svgClone.setAttribute('width', width);
             svgClone.setAttribute('height', height);
-            svgClone.setAttribute('viewBox', `${bBox.x - 30} ${bBox.y - 30} ${width} ${height}`);
+            svgClone.setAttribute('viewBox', `${bBox.x - 40} ${bBox.y - 40} ${width} ${height}`);
 
-            // 2. Chuyển đổi mã nguồn SVG thành chuỗi text mã hóa an toàn tiếng Việt UTF-8
+            // 2. Chuyển đổi mã nguồn SVG thành chuỗi text mã hóa
             const serializer = new XMLSerializer();
-            const svgString = serializer.serializeToString(svgClone);
+            let svgString = serializer.serializeToString(svgClone);
+
+            // BẢN VÁ LỖI 2 ĐẮT GIÁ: Giải mã và bóc sạch mã HTML ngoại lai để Canvas không bị nhiễm độc (Tainted)
+            // Thuật toán này tự động lọc tất cả cấu trúc lồng thẻ của htmlLabels để chuyển thành chuỗi ảnh phẳng an toàn
+            svgString = svgString.replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, function(match) {
+                // Trích xuất lấy nội dung chữ thô bên trong các thẻ HTML lồng nhau
+                const divMatch = match.match(/<div[\s\S]*?>([\s\S]*?)<\/div>/i);
+                let textContent = divMatch ? divMatch[1] : "";
+                
+                // Loại bỏ sạch sẽ các thẻ con như span, br nếu có để lấy văn bản thuần
+                textContent = textContent.replace(/<[^>]*>/g, "").trim();
+                
+                // Lấy các thuộc tính hình học x, y, width, height từ foreignObject gốc để định vị lại tọa độ chữ
+                const x = match.match(/x="([^"]+)"/)?.[1] || "0";
+                const y = match.match(/y="([^"]+)"/)?.[1] || "0";
+                const w = match.match(/width="([^"]+)"/)?.[1] || "100";
+                const h = match.match(/height="([^"]+)"/)?.[1] || "40";
+                
+                const cx = parseFloat(x) + parseFloat(w) / 2;
+                const cy = parseFloat(y) + parseFloat(h) / 2 + 4; // Bù sai lệch dòng baseline 4px cho vừa vặn tâm khối
+
+                // Trả về thẻ <text> đồ họa vectơ thuần khiết thay cho foreignObject HTML bị cấm
+                return `<text x="${cx}" y="${cy}" text-anchor="middle" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" fill="#1e293b">${textContent}</text>`;
+            });
+
+            // Tiêm bảng định dạng màu sắc ổn định cho tệp ảnh xuất ra độc lập
+            svgString = svgString.replace('</svg>', `
+                <style>
+                    svg { font-family: Arial, sans-serif !important; }
+                    .node rect, .node circle, .node polygon, .node .label-container { fill: #f8fafc !important; stroke: #64748b !important; stroke-width: 1.5px !important; }
+                    .edgePaths .edgePath .path { stroke: #94a3b8 !important; stroke-width: 1.5px !important; }
+                    .marker path { fill: #94a3b8 !important; }
+                </style>
+            </svg>`);
+
+            // Đóng gói chuỗi an toàn không nhiễm độc
             const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
             const URL = window.URL || window.webkitURL || window;
             const blobURL = URL.createObjectURL(svgBlob);
 
-            // 3. Dựng cấu trúc ảnh ngầm (Canvas) để chụp hình phẳng
+            // 3. Dựng cấu trúc ảnh ngầm (Canvas) để ghi nhận hình ảnh phẳng sạch
             const image = new Image();
             image.onload = function() {
                 const canvas = document.createElement('canvas');
-                canvas.width = width * 2;   // Nhân đôi kích thước để xuất file ảnh độ nét cao Retina HD, không vỡ chữ
+                canvas.width = width * 2;   // Nhân đôi độ phân giải lên hệ ảnh Retina HD căng nét
                 canvas.height = height * 2;
                 
                 const context = canvas.getContext('2d');
-                context.scale(2, 2); // Kéo giãn tỷ lệ vẽ tương ứng để chữ sắc nét
+                context.scale(2, 2); // Kéo giãn tỷ lệ vẽ tương ứng để chữ không vỡ hạt
                 
                 // Nhuộm nền trắng sạch sẽ cho file ảnh PNG tải về
                 context.fillStyle = '#ffffff';
@@ -5255,11 +5312,10 @@ window.calculateMemberEAI = function(memberName) {
                 // Vẽ sơ đồ thuật toán lên nền trắng canvas
                 context.drawImage(image, 0, 0);
                 
-                // 4. Kích nổ lệnh tải file trực tiếp xuống máy tính cá nhân
+                // 4. Kích nổ lệnh tải file xuống máy tính cá nhân thưa thầy
                 const pngURL = canvas.toDataURL('image/png');
                 const downloadLink = document.createElement('a');
                 
-                // Tự động chuyển đổi tên quy trình tiếng Việt thành tên file viết liền không dấu gọn gàng
                 const safeFileName = tenQuyTrinh.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-") + "-sodo.png";
                 
                 downloadLink.href = pngURL;
