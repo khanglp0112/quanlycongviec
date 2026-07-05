@@ -4868,7 +4868,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-    // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ LIỀN MẠCH BẤT ĐỒNG BỘ)
+   // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ LỖI CÚ PHÁP BIÊN DỊCH)
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -4880,7 +4880,7 @@ window.calculateMemberEAI = function(memberName) {
         }
 
         sodoActiveDescMap.clear(); 
-        // Thay đổi cấu trúc sang 'graph' sạch kết hợp cấu hình theme Variables trực tiếp trên mã chữ thô
+        // Đưa cấu hình font chữ về dạng biến theme variables sạch
         let code = `%%{init: { 'theme': 'neutral', 'themeVariables': { 'fontFamily': 'Arial, sans-serif', 'fontSize': '13px' }}}%%\n`;
         code += `graph ${sodoCurrentDirection}\n`;
         
@@ -4917,45 +4917,62 @@ window.calculateMemberEAI = function(memberName) {
             }
         });
 
-        sodoActiveDescMap.forEach((val, nodeId) => {
-            code += `  click ${nodeId} call openSodoSidebarWithData\n`; // Trả về dạng call hàm chuẩn của thư viện Mermaid
-        });
+        // BẢN VÁ: Loại bỏ dòng 'click ... call' của Mermaid để tránh lỗi vỡ cú pháp đồ thị hoàn toàn
+        // Chúng ta sẽ dùng cơ chế lắng nghe sự kiện Click động bằng JS ở bên dưới để mở Sidebar, vừa an toàn vừa không lo lỗi font/cú pháp!
 
-        // Nạp mã thô vào lõi bẫy và ép class kích nổ đồ họa
         renderContainer.removeAttribute('data-processed');
         renderContainer.className = "mermaid w-full h-full text-center flex items-center justify-center";
         renderContainer.innerHTML = code;
         
-        // GIẢI PHÁP ĐẮT GIÁ: Hoãn 80ms để chờ trình duyệt dựng xong phom SVG rồi mới gắn bộ điều khiển chuột
+        // Hoãn nhẹ để chờ Mermaid vẽ xong cấu trúc hình khối
         setTimeout(() => {
             try {
                 if (typeof mermaid !== 'undefined') {
                     mermaid.init(undefined, renderContainer);
                     
                     const svgElement = renderContainer.querySelector('svg');
-                    if(svgElement && typeof svgPanZoom !== 'undefined') {
+                    if(svgElement) {
                         svgElement.removeAttribute('width');
                         svgElement.removeAttribute('style');
                         svgElement.style.width = '100%';
                         svgElement.style.height = '100%';
                         svgElement.style.minHeight = '480px';
                         
-                        // Kích hoạt bộ chuột thấu kính vô cực không giật lag
-                        window.currentSodoPanZoom = svgPanZoom(svgElement, {
-                            zoomEnabled: true,          
-                            controlIconsEnabled: false, 
-                            fit: true,                  
-                            center: true,               
-                            minZoom: 0.1,               
-                            maxZoom: 8,                
-                            panEnabled: true            
+                        // Khởi động bộ chuột kéo thả thu phóng mượt mà
+                        if(typeof svgPanZoom !== 'undefined') {
+                            window.currentSodoPanZoom = svgPanZoom(svgElement, {
+                                zoomEnabled: true,          
+                                controlIconsEnabled: false, 
+                                fit: true,                  
+                                center: true,               
+                                minZoom: 0.1,               
+                                maxZoom: 8,                
+                                panEnabled: true            
+                            });
+                        }
+
+                        // GIẢI PHÁP ĐẮT GIÁ VÁ LỖI SIDEBAR: Tự động gắn sự kiện click trực tiếp vào các khối SVG
+                        svgElement.querySelectorAll('.node').forEach(nodeEl => {
+                            nodeEl.style.cursor = 'pointer';
+                            nodeEl.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                // Lấy ra nodeId (Ví dụ: step_1, step_2) dựa vào class hoặc id của khối
+                                const classList = nodeEl.id || nodeEl.className.baseVal || "";
+                                const match = classList.match(/step_\d+/);
+                                if(match) {
+                                    const nodeId = match[0];
+                                    if(typeof window.openSodoSidebarWithData === 'function') {
+                                        window.openSodoSidebarWithData(nodeId);
+                                    }
+                                }
+                            });
                         });
                     }
                 }
             } catch (e) {
-                console.error("Lỗi vẽ sơ đồ đồ thị: ", e);
+                console.error("Lỗi kết xuất đồ họa: ", e);
             }
-        }, 80);
+        }, 85);
     }
 
     // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do (ĐÃ VÁ CÚ PHÁP CHUẨN)
