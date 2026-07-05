@@ -4868,7 +4868,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-    // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ TRIỆT ĐỂ CHUỘT & XUẤT ẢNH)
+   // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ ĐỘNG ID CHỐNG LỖI HIỂN THỊ)
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -4931,10 +4931,6 @@ window.calculateMemberEAI = function(memberName) {
             code += `  click ${nodeId} call openSodoSidebarWithData\n`;
         });
 
-        // 1. Làm sạch container và cấu hình tầng lõi Mermaid
-        renderContainer.removeAttribute('data-processed');
-        renderContainer.innerHTML = code;
-        
         try {
             if (typeof mermaid !== 'undefined') {
                 mermaid.initialize({ 
@@ -4951,11 +4947,14 @@ window.calculateMemberEAI = function(memberName) {
                     }
                 });
 
-                // 2. Kỹ thuật Render bất đồng bộ có kèm ID định danh rõ ràng để ép sinh mã SVG chuẩn
-                mermaid.render('mermaid-svg-core', code).then(({ svg }) => {
+                // GIẢI PHÁP ĐẮT GIÁ: Tạo mã ID ngẫu nhiên theo thời gian để không bao giờ bị trùng lặp bộ nhớ đệm
+                const uniqueSvgId = 'sodo-svg-' + Date.now();
+
+                // Thực hiện dựng hình bất đồng bộ an toàn
+                mermaid.render(uniqueSvgId, code).then(({ svg }) => {
                     renderContainer.innerHTML = svg;
 
-                    // 3. Định vị chuẩn xác file SVG vừa được sinh ra
+                    // Định vị tệp SVG vừa được sinh ra để cấu hình kéo thả chuột
                     const svgElement = renderContainer.querySelector('svg');
                     if(svgElement) {
                         svgElement.removeAttribute('width');
@@ -4963,7 +4962,7 @@ window.calculateMemberEAI = function(memberName) {
                         svgElement.style.height = '100%';
                         svgElement.style.minHeight = '500px';
                         
-                        // 4. Kích hoạt chuột kéo rê thu phóng (svgPanZoom) đè lên phần tử đích danh
+                        // Kích hoạt chuột kéo rê thu phóng (svgPanZoom)
                         if(typeof svgPanZoom !== 'undefined') {
                             window.currentSodoPanZoom = svgPanZoom(svgElement, {
                                 zoomEnabled: true,          
