@@ -5238,6 +5238,9 @@ window.calculateMemberEAI = function(memberName) {
 
     // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG (BẢN VÁ TRIỆT ĐỂ LỖI 2 TAINTED CANVAS)
     // ====================================================================
+    // ====================================================================
+    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT ẢNH PNG (BẢN CAO CẤP: GIỮ MÀU MICA + HIỂN THỊ MÔ TẢ CÁC BƯỚC)
+    // ====================================================================
     window.downloadSodoAsImage = function() {
         const renderContainer = document.getElementById('canvas-mermaid-render');
         if (!renderContainer) {
@@ -5262,51 +5265,80 @@ window.calculateMemberEAI = function(memberName) {
             
             // Lấy kích thước hình học nguyên bản của sơ đồ để xuất ảnh vuông vắn
             const bBox = svgElement.getBBox();
-            const width = bBox.width + 80;  // Cộng thêm 80px padding biên để ảnh thoáng đãng
-            const height = bBox.height + 80;
+            const width = bBox.width + 120;  // Tăng padding lên 120px rộng rãi để chứa text mô tả dài
+            const height = bBox.height + 120;
             
             svgClone.setAttribute('width', width);
             svgClone.setAttribute('height', height);
-            svgClone.setAttribute('viewBox', `${bBox.x - 40} ${bBox.y - 40} ${width} ${height}`);
+            svgClone.setAttribute('viewBox', `${bBox.x - 60} ${bBox.y - 60} ${width} ${height}`);
 
             // 2. Chuyển đổi mã nguồn SVG thành chuỗi text mã hóa
             const serializer = new XMLSerializer();
             let svgString = serializer.serializeToString(svgClone);
 
-            // BẢN VÁ LỖI 2 ĐẮT GIÁ: Giải mã và bóc sạch mã HTML ngoại lai để Canvas không bị nhiễm độc (Tainted)
-            // Thuật toán này tự động lọc tất cả cấu trúc lồng thẻ của htmlLabels để chuyển thành chuỗi ảnh phẳng an toàn
+            // BẢN VÁ ĐẮT GIÁ: Quét tìm foreignObject và gộp Tên bước + Mô tả chi tiết thành văn bản đồ họa SVG sạch
             svgString = svgString.replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, function(match) {
-                // Trích xuất lấy nội dung chữ thô bên trong các thẻ HTML lồng nhau
+                // Định vị nodeId từ chuỗi bọc (Ví dụ: step_1, step_2)
+                const idMatch = match.match(/id="([^"]+)"/i) || match.match(/class="[\s\S]*?(step_\d+)/i);
+                let nodeId = idMatch ? idMatch[1] : "";
+                if(!nodeId && match.includes("step_")) {
+                    const m = match.match(/step_\d+/);
+                    if(m) nodeId = m[0];
+                }
+                
+                // Trích xuất lấy nội dung chữ tiêu đề thô bên trong các thẻ HTML lồng nhau
                 const divMatch = match.match(/<div[\s\S]*?>([\s\S]*?)<\/div>/i);
-                let textContent = divMatch ? divMatch[1] : "";
+                let titleText = divMatch ? divMatch[1] : "";
+                titleText = titleText.replace(/<[^>]*>/g, "").trim(); // làm sạch thẻ HTML thô
                 
-                // Loại bỏ sạch sẽ các thẻ con như span, br nếu có để lấy văn bản thuần
-                textContent = textContent.replace(/<[^>]*>/g, "").trim();
-                
-                // Lấy các thuộc tính hình học x, y, width, height từ foreignObject gốc để định vị lại tọa độ chữ
+                // TRA CỨU LẤY PHẦN MÔ TẢ ẨN TỪ BỘ NHỚ TẠM MAP
+                let descText = "";
+                if (nodeId && typeof sodoActiveDescMap !== 'undefined' && sodoActiveDescMap.has(nodeId)) {
+                    const fullData = sodoActiveDescMap.get(nodeId);
+                    // Nếu có mô tả thực tế và không phải chuỗi mặc định trống thì lấy
+                    if(fullData.desc && !fullData.desc.includes("Chưa có mô tả")) {
+                        descText = fullData.desc.trim();
+                    }
+                }
+
+                // Lấy các thuộc tính hình học x, y, width, height để định tâm chữ
                 const x = match.match(/x="([^"]+)"/)?.[1] || "0";
                 const y = match.match(/y="([^"]+)"/)?.[1] || "0";
                 const w = match.match(/width="([^"]+)"/)?.[1] || "100";
                 const h = match.match(/height="([^"]+)"/)?.[1] || "40";
                 
                 const cx = parseFloat(x) + parseFloat(w) / 2;
-                const cy = parseFloat(y) + parseFloat(h) / 2 + 4; // Bù sai lệch dòng baseline 4px cho vừa vặn tâm khối
+                const cy = parseFloat(y) + parseFloat(h) / 2;
 
-                // Trả về thẻ <text> đồ họa vectơ thuần khiết thay cho foreignObject HTML bị cấm
-                return `<text x="${cx}" y="${cy}" text-anchor="middle" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" fill="#1e293b">${textContent}</text>`;
+                // Tạo chuỗi hiển thị: Nếu bước có mô tả thì vẽ 2 dòng (Dòng 1: Tiêu đề, Dòng 2: Mô tả nhỏ hơn)
+                if (descText) {
+                    return `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" fill="#1e293b">
+                                ${titleText}
+                            </text>
+                            <text x="${cx}" y="${cy + 12}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10px" font-weight="normal" fill="#64748b" font-style="italic">
+                                (${descText.length > 25 ? descText.substring(0, 22) + "..." : descText})
+                            </text>`;
+                } else {
+                    // Nếu không có mô tả, chỉ hiển thị nguyên bản tên bước ở chính tâm khối
+                    return `<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" fill="#1e293b">${titleText}</text>`;
+                }
             });
 
-            // Tiêm bảng định dạng màu sắc ổn định cho tệp ảnh xuất ra độc lập
+            // TIÊM BẢNG CSS MÀU MICA CAO CẤP ĐỒNG BỘ ĐÈ VÀO RUỘT SVG XUẤT ẢNH
             svgString = svgString.replace('</svg>', `
                 <style>
                     svg { font-family: Arial, sans-serif !important; }
-                    .node rect, .node circle, .node polygon, .node .label-container { fill: #f8fafc !important; stroke: #64748b !important; stroke-width: 1.5px !important; }
-                    .edgePaths .edgePath .path { stroke: #94a3b8 !important; stroke-width: 1.5px !important; }
+                    /* Nhuộm hệ màu Mica đúc phẳng sắc nét cho từng loại khối */
+                    .shape-round rect, .shape-round circle, .shape-round polygon, .shape-round .label-container { fill: #f0fdf4 !important; stroke: #22c55e !important; stroke-width: 2px !important; }
+                    .shape-rect rect, .shape-rect circle, .shape-rect polygon, .shape-rect .label-container { fill: #f8fafc !important; stroke: #64748b !important; stroke-width: 2px !important; }
+                    .shape-rhombus rect, .shape-rhombus circle, .shape-rhombus polygon, .shape-rhombus .label-container { fill: #f5f3ff !important; stroke: #7c3aed !important; stroke-width: 2px !important; }
+                    /* Định dạng đường mũi tên liên kết tịnh tiến */
+                    .edgePaths .edgePath .path { stroke: #94a3b8 !important; stroke-width: 1.8px !important; }
                     .marker path { fill: #94a3b8 !important; }
                 </style>
             </svg>`);
 
-            // Đóng gói chuỗi an toàn không nhiễm độc
+            // Đóng gói chuỗi sạch không nhiễm độc
             const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
             const URL = window.URL || window.webkitURL || window;
             const blobURL = URL.createObjectURL(svgBlob);
