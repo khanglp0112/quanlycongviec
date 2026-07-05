@@ -4879,7 +4879,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-  // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ TRIỆT ĐỂ LỖI PARSE ERROR GRAMMAR)
+ // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ PHẦN 1: ĐƯỜNG VUÔNG GÓC VÀ ĐỒNG CẤP)
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -4893,7 +4893,7 @@ window.calculateMemberEAI = function(memberName) {
         sodoActiveDescMap.clear(); 
         let code = `graph ${sodoCurrentDirection}\n`;
         
-        // VÒNG 1: BẢO LƯU NGUYÊN BẢN 100% QUY TẮC KẾT XUẤT HÌNH KHỐI VÀ LỚP MỸ THUẬT CỦA THẦY
+        // VÒNG 1: GIỮ NGUYÊN 100% QUY TẮC KẾT XUẤT HÌNH KHỐI VÀ BIẾN SỐ MỸ THUẬT CỦA THẦY
         rows.forEach(row => {
             const step = row.dataset.step;
             const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
@@ -4908,27 +4908,46 @@ window.calculateMemberEAI = function(memberName) {
             else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
         });
 
-        // VÒNG 2: BẢO LƯU NGUYÊN BẢN 100% QUY TẮC ĐƯỜNG TRUYỀN MŨI TÊN TỊNH TIẾN CỦA THẦY
+        // VÒNG 2: THUẬT TOÁN ĐIỀU HƯỚNG MŨI TÊN PHÂN CẤP VÀ ĐỒNG CẤP SONG SONG
         rows.forEach((row, idx) => {
             const step = row.dataset.step;
             const nodeId = `step_${step}`;
             const shape = row.querySelector('.sd-block-shape').value;
+            
+            // Giữ nguyên thuộc tính .value từ ô nhập liệu hiện tại của thầy để tránh đổi tên biến
             const backStepNum = row.querySelector('.sd-block-back').value.trim();
 
-            if(idx < rows.length - 1) {
-                const nextNodeId = `step_${parseInt(step) + 1}`;
-                code += `  ${nodeId} --> ${nextNodeId}\n`;
-            }
-
-            if(shape === "rhombus" && backStepNum) {
-                const backNodeId = `step_${backStepNum}`;
-                if(document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${backStepNum}"]`)) {
-                    code += `  ${nodeId} -- Không đạt --> ${backNodeId}\n`;
+            if (shape === "rhombus") {
+                // ĐỐI VỚI KHỐI QUYẾT ĐỊNH (HÌNH THOI)
+                // Nhánh 1 (Đạt): Mặc định luôn đi xuôi dòng xuống bước tiếp theo dưới chân
+                if (idx < rows.length - 1) {
+                    const nextNodeId = `step_${parseInt(step) + 1}`;
+                    code += `  ${nodeId} -- Đạt --> ${nextNodeId}\n`;
+                }
+                // Nhánh 2 (Không đạt): Nếu điền số bước quay lại, bắn mũi tên kèm nhãn chữ
+                if (backStepNum) {
+                    const backNodeId = `step_${backStepNum}`;
+                    if (document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${backStepNum}"]`)) {
+                        code += `  ${nodeId} -- Không đạt --> ${backNodeId}\n`;
+                    }
+                }
+            } else {
+                // ĐỐI VỚI KHỐI THƯỜNG (HÌNH TRÒN / HÌNH CHỮ NHẬT)
+                // Nếu có điền số bước chỉ định rẽ nhánh/đồng cấp vào ô backStepNum
+                if (backStepNum) {
+                    const backNodeId = `step_${backStepNum}`;
+                    if (document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${backStepNum}"]`)) {
+                        code += `  ${nodeId} --> ${backNodeId}\n`;
+                    }
+                } else if (idx < rows.length - 1) {
+                    // Nếu để trống, hệ thống tự động cho đi xuôi dòng xuống chân cấp tiếp theo
+                    const nextNodeId = `step_${parseInt(step) + 1}`;
+                    code += `  ${nodeId} --> ${nextNodeId}\n`;
                 }
             }
         });
 
-        // Đóng gói hàm mở Sidebar lên window toàn cục để hệ thống tương tác gọi chính xác
+        // Đóng gói hàm mở Sidebar lên đối tượng window toàn cục theo chuẩn tương tác sạch
         window.openSodoSidebarWithData = function(nodeId) {
             if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
             const data = sodoActiveDescMap.get(nodeId);
@@ -4938,8 +4957,6 @@ window.calculateMemberEAI = function(memberName) {
             document.getElementById('sd-side-desc').textContent = data.desc;
             document.getElementById('sodo-sidebar-panel').classList.add('active');
         };
-
-        // --- ĐÃ LOẠI BỎ HOÀN TOÀN VÒNG LẶP CHỮ 'click ... call' ĐỂ TRIỆT TIÊU LỖI PARSE CÚ PHÁP MERMAID ---
 
         try {
             if (typeof mermaid !== 'undefined') {
@@ -4953,18 +4970,19 @@ window.calculateMemberEAI = function(memberName) {
                     },
                     flowchart: {
                         htmlLabels: true, 
-                        useMaxWidth: false
+                        useMaxWidth: false,
+                        // GIẢI PHÁP ĐẮT GIÁ: Ép toàn bộ các mũi tên bẻ góc vuông góc 90 độ dứt khoát
+                        curve: 'step'
                     }
                 });
 
-                // Dựng mã ID duy nhất theo dấu thời gian để làm sạch bộ nhớ đệm
                 const idDocBanSvg = 'sodo-svg-' + Date.now();
 
-                // Kích nổ luồng render phẳng bất đồng bộ của Mermaid
+                // Tiến hành dựng hình phẳng bất đồng bộ của Mermaid
                 mermaid.render(idDocBanSvg, code).then(({ svg }) => {
                     renderContainer.innerHTML = svg;
 
-                    // ÉP KHUNG XEM THỬ LUÔN GIỮ SƠ ĐỒ NẰM Ở CHÍNH GIỮA MÀN HÌNH BẰNG FLEXBOX
+                    // Giữ nguyên thuộc tính Flexbox để sơ đồ luôn ở giữa khay xem thử trang trọng
                     renderContainer.style.display = 'flex';
                     renderContainer.style.alignItems = 'center';
                     renderContainer.style.justifyContent = 'center';
@@ -4977,7 +4995,7 @@ window.calculateMemberEAI = function(memberName) {
                         svgElement.style.width = '100%';
                         svgElement.style.height = '100%';
                         
-                        // Khởi động luồng chuột tương tác mượt mà trên ma trận số thực hữu hạn
+                        // Kích hoạt luồng chuột tương tác mượt mà thu phóng
                         if(typeof svgPanZoom !== 'undefined') {
                             window.currentSodoPanZoom = svgPanZoom(svgElement, {
                                 zoomEnabled: true,          
@@ -4990,18 +5008,16 @@ window.calculateMemberEAI = function(memberName) {
                             });
                         }
 
-                        // GẮN SỰ KIỆN CLICK ĐỘNG AN TOÀN TRỰC TIẾP LÊN TỪNG PHẦN TỬ KHỐI HÌNH HỌC CỦA SVG
+                        // Bộ lắng nghe sự kiện click DOM sạch sẽ lên từng khối để mở Sidebar
                         svgElement.querySelectorAll('.node').forEach(nodeEl => {
                             nodeEl.style.cursor = 'pointer';
                             nodeEl.addEventListener('click', function(e) {
                                 e.stopPropagation();
                                 const idAttribute = nodeEl.id || "";
-                                // Quét tìm mã nodeId tương ứng từ class hoặc id của thẻ khối đồ họa (VD: step_1, step_2)
                                 const match = idAttribute.match(/step_\d+/);
                                 if(match) {
                                     window.openSodoSidebarWithData(match[0]);
                                 } else {
-                                    // Kiểm tra thêm trong danh sách class nếu ID thẻ bị Mermaid thay đổi
                                     const classList = nodeEl.className.baseVal || "";
                                     const classMatch = classList.match(/step_\d+/);
                                     if(classMatch) window.openSodoSidebarWithData(classMatch[0]);
