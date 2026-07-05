@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
   <style>
    /* --- HOẠT CẢNH MỞ MODAL MỀM MẠI --- */
@@ -809,7 +810,7 @@
             <p class="text-xs text-slate-400 mt-1">Số hóa quy trình làm việc dạng danh mục văn bản hành chính dễ dùng</p>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="saveQuyTrinhServer()" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold bg-pink-600 text-white hover:bg-pink-700 transition-colors shadow-sm">
+            <button onclick="saveQuyTrinhServer()" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all border border-pink-200/60 shadow-sm" style="background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(236, 72, 153, 0.16)); color: #db2777;" onmouseenter="this.style.background='rgba(236, 72, 153, 0.25)'" onmouseleave="this.style.background='linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(236, 72, 153, 0.16))'">
                 <i data-lucide="save" style="width:16px;height:16px;"></i> Lưu quy trình
             </button>
             <button onclick="toggleSoDoView()" class="px-4 py-2 rounded-lg text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">Đóng</button>
@@ -846,9 +847,12 @@
                     <button id="btn-dir-td" onclick="changeSodoDirection('TD')" class="px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm transition-all">🔽 Hướng dọc</button>
                     <button id="btn-dir-lr" onclick="changeSodoDirection('LR')" class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition-all">▶️ Hướng ngang</button>
                 </div>
+             <button type="button" onclick="downloadSodoAsImage()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-200 bg-white text-slate-600 hover:text-pink-600 hover:border-pink-200 transition-all shadow-sm">
+                    <i data-lucide="download" style="width:12px;height:12px;"></i> Tải ảnh sơ đồ
+                </button>
             </div>
             
-            <div class="flex-1 w-full border border-slate-200 rounded-xl bg-white flex items-center justify-center overflow-auto p-6 relative shadow-inner scrollbar-thin" style="min-height: 400px;">
+            <div class="flex-1 w-full border border-slate-200 rounded-xl bg-white flex items-center justify-center overflow-auto p-6 relative shadow-inner scrollbar-thin" style="min-height: 650px;">
                 <div id="canvas-mermaid-render" class="mermaid w-full text-center"></div>
             </div>
         </div>
@@ -4927,13 +4931,43 @@ window.calculateMemberEAI = function(memberName) {
         
         try {
             if (typeof mermaid !== 'undefined') {
-                mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+                mermaid.initialize({ 
+                    startOnLoad: false, 
+                    theme: 'neutral', 
+                    securityLevel: 'loose',
+                    themeVariables: {
+                        fontFamily: '"Times New Roman", Times, serif', // Ép toàn bộ khối nhận font Times New Roman
+                        fontSize: '13px' // Tăng nhẹ 1px vì font có chân nhìn sẽ hơi nhỏ hơn font không chân
+                    },
+                    flowchart: {
+                        htmlLabels: true, 
+                        useMaxWidth: false
+                    }
+                });
                 mermaid.init(undefined, renderContainer);
+            // KÍCH HOẠT TÍNH NĂNG KÉO THẢ & THU PHÓNG BẰNG CHUỘT KHÔNG LAG
+                const svgElement = renderContainer.querySelector('svg');
+                if(svgElement) {
+                    // Xóa bỏ các thuộc tính chiều rộng cố định cũ để nhường quyền điều khiển cho chuột
+                    svgElement.removeAttribute('width');
+                    svgElement.style.width = '100%';
+                    svgElement.style.height = '100%';
+                    
+                    // Khởi động bộ chuột thông minh
+                    svgPanZoom(svgElement, {
+                        zoomEnabled: true,          // Bật lăn chuột để phóng to / thu nhỏ
+                        controlIconsEnabled: false, // Ẩn các nút bấm cộng trừ thừa thãi cho sạch giao diện
+                        fit: true,                  // Tự động căn sơ đồ nằm gọn giữa khung khi mới mở
+                        center: true,               // Đưa sơ đồ vào tâm thấu kính
+                        minZoom: 0.2,               // Giới hạn thu nhỏ tối đa
+                        maxZoom: 10,                // Giới hạn phóng to cận cảnh tối đa
+                        panEnabled: true            // Bật giữ chuột trái để kéo rê tự do
+                    });
+                }
             }
         } catch (e) {
             console.error("Lỗi vẽ sơ đồ đồ thị: ", e);
         }
-    }
 
     // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do
     window.openSodoSidebarWithData = function(nodeId) {
@@ -4962,6 +4996,250 @@ window.calculateMemberEAI = function(memberName) {
         sodoCurrentDirection = 'TD';
         document.getElementById('btn-dir-td').click();
     }
+   // ====================================================================
+    // BỘ ĐỒNG BỘ DỮ LIỆU CLOUD FIREBASE FIRESTORE - LOGIC (PHẦN 4)
+    // ====================================================================
+
+    // 1. Hàm đóng gói mảng tịnh tiến và đẩy lên Cloud Firebase
+    async function saveQuyTrinhServer() {
+        const id = document.getElementById('inp-sd-id').value;
+        const tenQuyTrinh = document.getElementById('inp-sd-ten').value.trim();
+        
+        if(!tenQuyTrinh) { 
+            alert("Thầy vui lòng điền Tên Quy trình công việc trước khi lưu."); 
+            return; 
+        }
+
+        const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
+        if(rows.length === 0) {
+            alert("Quy trình phải có ít nhất một bước thực hiện.");
+            return;
+        }
+
+        // Thu thập dữ liệu sạch từ Form tịnh tiến
+        const blockData = [];
+        rows.forEach(row => {
+            blockData.push({
+                step: row.dataset.step,
+                title: row.querySelector('.sd-block-title').value.trim(),
+                desc: row.querySelector('.sd-block-desc').value.trim(),
+                shape: row.querySelector('.sd-block-shape').value,
+                back: row.querySelector('.sd-block-back').value.trim()
+            });
+        });
+
+        // Đóng gói payload dữ liệu bao gồm cả hướng xoay sơ đồ
+        const dataSD = {
+            ten: tenQuyTrinh,
+            direction: sodoCurrentDirection,
+            blocks: JSON.stringify(blockData),
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            if(id) {
+                // CHẾ ĐỘ CHỈNH SỬA: Cập nhật đè thông minh lên tài liệu cũ
+                await db.collection("QuyTrinhSodo").doc(id).update(dataSD);
+                if (typeof showSystemSuccess === 'function') {
+                    showSystemSuccess("Cập nhật quy trình thành công", "Sơ đồ đã được cập nhật bản vá mới an toàn trên Firebase.");
+                } else { alert("Cập nhật sơ đồ thành công!"); }
+            } else {
+                // CHẾ ĐỘ TẠO MỚI: Thêm tài liệu mới vào bảng lưu trữ chuyên môn
+                await db.collection("QuyTrinhSodo").add(dataSD);
+                if (typeof showSystemSuccess === 'function') {
+                    showSystemSuccess("Lưu trữ quy trình thành công", "Sơ đồ thuật toán mới đã được đồng bộ hóa an toàn.");
+                } else { alert("Lưu trữ sơ đồ thành công!"); }
+                
+                // Xóa trống Form để chuẩn bị cho lượt tạo tiếp theo
+                clearSodoForm();
+                const container = document.getElementById('container-sd-blocks');
+                container.innerHTML = "";
+            }
+            // Nạp lại bảng lịch sử để cập nhật thẻ hiển thị ngay lập tức
+            loadQuyTrinhLichSuTable();
+        } catch(e) { 
+            alert("Lỗi kết nối Firebase khi lưu sơ đồ: " + e.message); 
+        }
+    }
+
+    // 2. Hàm quét Cloud Firebase tải danh sách toàn bộ các quy trình về chân trang
+    async function loadQuyTrinhLichSuTable() {
+        const historyContainer = document.getElementById('list-sd-history');
+        if(!historyContainer) return;
+
+        try {
+            const snapshot = await db.collection("QuyTrinhSodo").orderBy("lastUpdated", "desc").get();
+            if(snapshot.empty) {
+                historyContainer.innerHTML = `<p class="text-xs italic text-slate-400 col-span-full py-4 text-center">Chưa có sơ đồ quy trình nào được lưu trữ trong kho của tổ.</p>`;
+                return;
+            }
+
+            historyContainer.innerHTML = snapshot.docs.map(doc => {
+                const d = doc.data();
+                // Ép hàm escHtml an toàn phòng chống lỗi ký tự đặc biệt
+                const safeName = typeof escHtml === 'function' ? escHtml(d.ten) : d.ten;
+                
+                return `
+                    <div class="bg-slate-50/50 p-3 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm hover:border-pink-300 transition-all group">
+                        <div class="min-w-0 flex-1 pr-3">
+                            <div class="text-xs font-bold text-slate-700 truncate">${safeName}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+                                <i data-lucide="calendar" style="width:10px;height:10px;"></i> Quy trình tổ chuyên môn
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="loadOldQuyTrinhToForm('${doc.id}')" class="text-[11px] bg-pink-50 text-pink-700 border border-pink-100 px-2.5 py-1 rounded-md font-bold hover:bg-pink-100 transition-all shadow-sm">Xem & Sửa</button>
+                            <button onclick="deleteQuyTrinh('${doc.id}')" class="text-slate-300 hover:text-red-500 p-1.5 rounded-md hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100">
+                                ❌
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        } catch(e) { 
+            console.error("Lỗi đồng bộ lịch sử Firebase: ", e); 
+        }
+    }
+
+    // 3. Hàm nạp dữ liệu cũ từ Firebase đổ đầy lại Form trái và xoay lại hướng sơ đồ
+    window.loadOldQuyTrinhToForm = async function(id) {
+        try {
+            const doc = await db.collection("QuyTrinhSodo").doc(id).get();
+            if(!doc.exists) return;
+            const d = doc.data();
+
+            document.getElementById('inp-sd-id').value = id;
+            document.getElementById('inp-sd-ten').value = d.ten;
+
+            const container = document.getElementById('container-sd-blocks');
+            container.innerHTML = ""; // Dọn sạch form hiện tại
+
+            const blocks = JSON.parse(d.blocks || '[]');
+            
+            // Tái thiết lập các hàng ô chữ tịnh tiến kèm dữ liệu ghi chú ẩn
+            blocks.forEach(b => {
+                addSodoBlockRow(b.title, b.shape, b.back || "", b.desc || "");
+            });
+
+            // Khôi phục hướng sơ đồ Ngang/Dọc chuẩn xác lúc lưu
+            if(d.direction) {
+                changeSodoDirection(d.direction);
+            } else {
+                changeSodoDirection('TD');
+            }
+
+            closeSodoSidebar();
+            compileSodoDataToMermaid(); // Kích hoạt vẽ kết xuất đồ họa tức thì
+            
+            // Cuộn nhẹ màn hình lên đầu phân khu để thầy cô tiện theo dõi
+            document.getElementById('so-do-view').scrollIntoView({ behavior: 'smooth' });
+        } catch(e) { 
+            alert("Lỗi khôi phục quy trình: " + e.message); 
+        }
+    };
+
+    // 4. Hàm xóa quy trình cũ khỏi Firebase thông qua cửa sổ xác nhận thông minh
+    window.deleteQuyTrinh = function(id) {
+        const runDelete = async () => {
+            try {
+                await db.collection("QuyTrinhSodo").doc(id).delete();
+                // Nếu đang mở đúng quy trình bị xóa, dọn sạch form luôn
+                if(document.getElementById('inp-sd-id').value === id) {
+                    clearSodoForm();
+                    document.getElementById('container-sd-blocks').innerHTML = "";
+                }
+                loadQuyTrinhLichSuTable();
+                compileSodoDataToMermaid();
+            } catch(e) { alert("Lỗi khi xóa dữ liệu: " + e.message); }
+        };
+
+        // Ưu tiên gọi hàm xác nhận Modal đồng bộ của thầy nếu có, ngược lại dùng confirm nguyên bản
+        if(typeof showSystemConfirm === 'function') {
+            showSystemConfirm(
+                "Xóa sơ đồ quy trình tổ?",
+                "Thầy có chắc chắn muốn xóa vĩnh viễn sơ đồ quy trình này khỏi hệ thống đám mây Firebase không?",
+                runDelete
+            );
+        } else {
+            if(confirm("Thầy có chắc chắn muốn xóa quy trình này không?")) {
+                runDelete();
+            }
+        }
+    };
+     // ====================================================================
+    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG SẮC NÉT
+    // ====================================================================
+    window.downloadSodoAsImage = function() {
+        const renderContainer = document.getElementById('canvas-mermaid-render');
+        const svgElement = renderContainer.querySelector('svg');
+        const tenQuyTrinh = document.getElementById('inp-sd-ten').value.trim() || "quy-trinh-thuat-toan";
+
+        if(!svgElement) {
+            alert("Chưa có sơ đồ nào hiển thị để tải về thưa thầy.");
+            return;
+        }
+
+        try {
+            // 1. Tạo bản sao tạm thời của SVG để tính toán kích thước thực tế (không lấy theo khung zoom chuột)
+            const svgClone = svgElement.cloneNode(true);
+            svgClone.style.width = '';
+            svgClone.style.height = '';
+            svgClone.style.transform = '';
+            
+            // Lấy kích thước hình học nguyên bản của sơ đồ
+            const bBox = svgElement.getBBox();
+            const width = bBox.width + 40;  // Cộng thêm 40px padding biên để ảnh thoáng mắt
+            const height = bBox.height + 40;
+            
+            svgClone.setAttribute('width', width);
+            svgClone.setAttribute('height', height);
+            svgClone.setAttribute('viewBox', `${bBox.x - 20} ${bBox.y - 20} ${width} ${height}`);
+
+            // 2. Chuyển đổi mã nguồn SVG thành chuỗi text mã hóa an toàn tiếng Việt
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgClone);
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(svgBlob);
+
+            // 3. Dựng cấu trúc ảnh ngầm (Canvas) để chụp ảnh
+            const image = new Image();
+            image.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = width * 2;   // Nhân đôi kích thước để ảnh xuất ra có độ nét cao (Retina HD)
+                canvas.height = height * 2;
+                
+                const context = canvas.getContext('2d');
+                context.scale(2, 2); // Kéo giãn tỷ lệ vẽ tương ứng để chữ không bị vỡ hạt
+                
+                // Nhuộm nền trắng sạch sẽ cho file ảnh tải về
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, width, height);
+                
+                // Vẽ sơ đồ thuật toán lên nền trắng
+                context.drawImage(image, 0, 0);
+                
+                // 4. Kích nổ lệnh tải file xuống máy tính cá nhân của giáo viên
+                const pngURL = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                // Tự động chuyển đổi tên quy trình tiếng Việt thành tên file không dấu gạch ngang gọn gàng
+                const safeFileName = tenQuyTrinh.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-") + "-sodo.png";
+                
+                downloadLink.href = pngURL;
+                downloadLink.download = safeFileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                URL.revokeObjectURL(blobURL);
+            };
+
+            image.src = blobURL;
+        } catch (error) {
+            alert("Lỗi xuất ảnh sơ đồ: " + error.message);
+        }
+    };
   </script>
    <!-- SYSTEM CONFIRM MODAL FOR BIEN BAN -->
 <div id="sys-confirm-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
