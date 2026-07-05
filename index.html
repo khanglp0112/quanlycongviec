@@ -4732,9 +4732,8 @@ window.calculateMemberEAI = function(memberName) {
         return { score: eaiPercent, label: `⏳ Hiệu suất cần cải thiện (${eaiPercent}%)`, color: 'text-amber-700 bg-amber-50 border-amber-200' };
     }
 };
-// =========================================================================
-   // ====================================================================
-    // BỘ ĐIỀU KHIỂN LOGIC SƠ ĐỒ QUY TRÌNH - CLIENT JS (PHẦN 3)
+// ====================================================================
+    // BỘ ĐIỀU KHIỂN LOGIC SƠ ĐỒ QUY TRÌNH - CLIENT JS (PHẦN 3 - ĐÃ VÁ LỖI CÚ PHÁP)
     // ====================================================================
     let sodoCurrentDirection = 'TD'; // Mặc định hướng dọc (Top-Down)
     let sodoActiveDescMap = new Map(); // Bộ nhớ tạm lưu trữ mô tả ẩn của từng bước
@@ -4775,7 +4774,7 @@ window.calculateMemberEAI = function(memberName) {
                 addSodoBlockRow("In sao và lưu kho", "round", "");
             }
             
-            // Gọi hàm quét lịch sử quy trình (Hàm Firebase ở Phần 4, tạm thời khai báo để chờ)
+            // Gọi hàm quét lịch sử quy trình
             if (typeof loadQuyTrinhLichSuTable === 'function') loadQuyTrinhLichSuTable();
             compileSodoDataToMermaid();
         } else {
@@ -4830,7 +4829,6 @@ window.calculateMemberEAI = function(memberName) {
     // Hàm xóa hàng bước và tự động cấu trúc lại số thứ tự tịnh tiến
     function removeSodoBlockRow(btn) {
         btn.closest('.sd-block-row').remove();
-        // Định vị lại nhãn số bước (Bước 1, Bước 2, Bước 3...) từ trên xuống dưới
         document.querySelectorAll('#container-sd-blocks .sd-block-row').forEach((row, idx) => {
             const newIndex = idx + 1;
             row.dataset.step = newIndex;
@@ -4848,7 +4846,7 @@ window.calculateMemberEAI = function(memberName) {
             backDiv.classList.remove('opacity-40', 'pointer-events-none');
         } else {
             backDiv.classList.add('opacity-40', 'pointer-events-none');
-            backInput.value = ""; // Xóa dữ liệu rẽ nhánh nếu đổi về khối thường
+            backInput.value = ""; 
         }
         compileSodoDataToMermaid();
     }
@@ -4869,7 +4867,7 @@ window.calculateMemberEAI = function(memberName) {
         compileSodoDataToMermaid();
     }
 
-    // 4. THUẬT TOÁN BIÊN DỊCH: Gom danh mục tịnh tiến dịch sang mã Mermaid động
+    // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -4878,10 +4876,9 @@ window.calculateMemberEAI = function(memberName) {
             return;
         }
 
-        sodoActiveDescMap.clear(); // Làm sạch kho bản đồ ghi chú
+        sodoActiveDescMap.clear(); 
         let code = `graph ${sodoCurrentDirection}\n`;
         
-        // Vòng 1: Tạo khối hình học kèm class định dạng mỹ thuật CSS
         rows.forEach(row => {
             const step = row.dataset.step;
             const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
@@ -4889,7 +4886,6 @@ window.calculateMemberEAI = function(memberName) {
             const desc = row.querySelector('.sd-block-desc').value.trim();
             const nodeId = `step_${step}`;
 
-            // Ghép găm ghi chú vào Map theo mã nodeId để click là tra cứu ra ngay
             sodoActiveDescMap.set(nodeId, { title: title, desc: desc || "Chưa có mô tả hay lưu ý chuyên môn bổ sung cho bước quy trình này." });
 
             if(shape === "round") code += `  ${nodeId}(("${title}")):::shape-round\n`;
@@ -4897,35 +4893,29 @@ window.calculateMemberEAI = function(memberName) {
             else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
         });
 
-        // Vòng 2: Thiết lập dây truyền mũi tên liên kết tự động tịnh tiến xuôi dòng
         rows.forEach((row, idx) => {
             const step = row.dataset.step;
             const nodeId = `step_${step}`;
             const shape = row.querySelector('.sd-block-shape').value;
             const backStepNum = row.querySelector('.sd-block-back').value.trim();
 
-            // Nếu chưa phải bước cuối cùng, mặc định nối thẳng tuột sang bước kế tiếp dưới chân
             if(idx < rows.length - 1) {
                 const nextNodeId = `step_${parseInt(step) + 1}`;
                 code += `  ${nodeId} --> ${nextNodeId}\n`;
             }
 
-            // Nếu là khối hình thoi rẽ nhánh và thầy cô điền số bước quay đầu
             if(shape === "rhombus" && backStepNum) {
                 const backNodeId = `step_${backStepNum}`;
-                // Kiểm tra xem số bước quay lại có hợp lệ trong danh sách không
                 if(document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${backStepNum}"]`)) {
                     code += `  ${nodeId} -- Không đạt --> ${backNodeId}\n`;
                 }
             }
         });
 
-        // Vòng 3: Gài chốt sự kiện click gọi hàm mở Sidebar tự do của hệ thống
         sodoActiveDescMap.forEach((val, nodeId) => {
             code += `  click ${nodeId} call openSodoSidebarWithData()\n`;
         });
 
-        // Đẩy mã chữ thô vào khung và ép lệnh nổ đồ họa Mermaid
         renderContainer.removeAttribute('data-processed');
         renderContainer.innerHTML = code;
         
@@ -4936,8 +4926,8 @@ window.calculateMemberEAI = function(memberName) {
                     theme: 'neutral', 
                     securityLevel: 'loose',
                     themeVariables: {
-                        fontFamily: '"Times New Roman", Times, serif', // Ép toàn bộ khối nhận font Times New Roman
-                        fontSize: '13px' // Tăng nhẹ 1px vì font có chân nhìn sẽ hơi nhỏ hơn font không chân
+                        fontFamily: '"Times New Roman", Times, serif', 
+                        fontSize: '13px' 
                     },
                     flowchart: {
                         htmlLabels: true, 
@@ -4945,31 +4935,30 @@ window.calculateMemberEAI = function(memberName) {
                     }
                 });
                 mermaid.init(undefined, renderContainer);
-            // KÍCH HOẠT TÍNH NĂNG KÉO THẢ & THU PHÓNG BẰNG CHUỘT KHÔNG LAG
+                
                 const svgElement = renderContainer.querySelector('svg');
                 if(svgElement) {
-                    // Xóa bỏ các thuộc tính chiều rộng cố định cũ để nhường quyền điều khiển cho chuột
                     svgElement.removeAttribute('width');
                     svgElement.style.width = '100%';
                     svgElement.style.height = '100%';
                     
-                    // Khởi động bộ chuột thông minh
                     svgPanZoom(svgElement, {
-                        zoomEnabled: true,          // Bật lăn chuột để phóng to / thu nhỏ
-                        controlIconsEnabled: false, // Ẩn các nút bấm cộng trừ thừa thãi cho sạch giao diện
-                        fit: true,                  // Tự động căn sơ đồ nằm gọn giữa khung khi mới mở
-                        center: true,               // Đưa sơ đồ vào tâm thấu kính
-                        minZoom: 0.2,               // Giới hạn thu nhỏ tối đa
-                        maxZoom: 10,                // Giới hạn phóng to cận cảnh tối đa
-                        panEnabled: true            // Bật giữ chuột trái để kéo rê tự do
+                        zoomEnabled: true,          
+                        controlIconsEnabled: false, 
+                        fit: true,                  
+                        center: true,               
+                        minZoom: 0.2,               
+                        maxZoom: 10,                
+                        panEnabled: true            
                     });
                 }
             }
         } catch (e) {
             console.error("Lỗi vẽ sơ đồ đồ thị: ", e);
         }
+    }
 
-    // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do
+    // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do (ĐÃ VÁ CÚ PHÁP CHUẨN)
     window.openSodoSidebarWithData = function(nodeId) {
         if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
         
@@ -4980,7 +4969,6 @@ window.calculateMemberEAI = function(memberName) {
         document.getElementById('sd-side-title').textContent = data.title;
         document.getElementById('sd-side-desc').textContent = data.desc;
 
-        // Đẩy class hiệu ứng CSS trượt lọt vào màn hình tự do
         document.getElementById('sodo-sidebar-panel').classList.add('active');
     };
 
@@ -4994,7 +4982,8 @@ window.calculateMemberEAI = function(memberName) {
         document.getElementById('inp-sd-ten').value = "";
         document.getElementById('container-sd-blocks').innerHTML = "";
         sodoCurrentDirection = 'TD';
-        document.getElementById('btn-dir-td').click();
+        const btnTD = document.getElementById('btn-dir-td');
+        if (btnTD) btnTD.click();
     }
    // ====================================================================
     // BỘ ĐỒNG BỘ DỮ LIỆU CLOUD FIREBASE FIRESTORE - LOGIC (PHẦN 4)
