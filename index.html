@@ -5197,8 +5197,8 @@ window.calculateMemberEAI = function(memberName) {
             }
         }
     };
-// ====================================================================
-    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG SẮC NÉT (BẢN VÁ LỖI LABELS)
+   // ====================================================================
+    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG SẮC NÉT (BẢN VÁ LỖI)
     // ====================================================================
     window.downloadSodoAsImage = function() {
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5216,7 +5216,7 @@ window.calculateMemberEAI = function(memberName) {
         }
 
         try {
-            // 1. Tạo bản sao tạm thời của SVG để tính toán kích thước thực tế nguyên bản
+            // 1. Tạo bản sao tạm thời của SVG để tính toán kích thước thực tế (tránh lấy theo khung zoom/pan chuột)
             const svgClone = svgElement.cloneNode(true);
             svgClone.style.width = '';
             svgClone.style.height = '';
@@ -5224,29 +5224,16 @@ window.calculateMemberEAI = function(memberName) {
             
             // Lấy kích thước hình học nguyên bản của sơ đồ để xuất ảnh vuông vắn
             const bBox = svgElement.getBBox();
-            const width = bBox.width + 80;  // Tăng lên 80px padding biên để ảnh thoáng đãng, chuyên nghiệp
-            const height = bBox.height + 80;
+            const width = bBox.width + 60;  // Tăng lên 60px padding biên để ảnh thoáng đãng, không sát rìa
+            const height = bBox.height + 60;
             
             svgClone.setAttribute('width', width);
             svgClone.setAttribute('height', height);
-            svgClone.setAttribute('viewBox', `${bBox.x - 40} ${bBox.y - 40} ${width} ${height}`);
+            svgClone.setAttribute('viewBox', `${bBox.x - 30} ${bBox.y - 30} ${width} ${height}`);
 
             // 2. Chuyển đổi mã nguồn SVG thành chuỗi text mã hóa an toàn tiếng Việt UTF-8
             const serializer = new XMLSerializer();
-            let svgString = serializer.serializeToString(svgClone);
-            
-            // GIẢI PHÁP ĐẮT GIÁ: Ép cấu trúc font và bảng màu Mica trực tiếp vào chuỗi ảnh xuất ra để tránh tàng hình chữ
-            svgString = svgString.replace('</svg>', `
-                <style>
-                    svg { font-family: Arial, sans-serif !important; }
-                    .node rect, .node circle, .node polygon, .node .label-container { fill: #f8fafc !important; stroke: #64748b !important; stroke-width: 1.5px !important; }
-                    .nodeLabel, .node text, .node span { fill: #1e293b !important; color: #1e293b !important; font-weight: bold !important; font-size: 13px !important; }
-                    .edgePaths .edgePath .path { stroke: #94a3b8 !important; stroke-width: 1.5px !important; }
-                    .marker path { fill: #94a3b8 !important; }
-                </style>
-            </svg>`);
-
-            // Tiến hành đóng gói Blob bọc mã hóa Base64 an toàn cho tiếng Việt
+            const svgString = serializer.serializeToString(svgClone);
             const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
             const URL = window.URL || window.webkitURL || window;
             const blobURL = URL.createObjectURL(svgBlob);
