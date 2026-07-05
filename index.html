@@ -854,8 +854,8 @@
                 </div>
             </div>
             
-            <div class="flex-1 w-full border border-slate-200 rounded-xl bg-white flex items-center justify-center overflow-hidden p-4 relative shadow-inner">
-                <div id="canvas-mermaid-render" class="mermaid w-full h-full text-center flex items-center justify-center"></div>
+           <div id="sodo-canvas-holder" class="flex-1 w-full border border-slate-200 rounded-xl bg-white relative shadow-inner overflow-hidden" style="min-height: 500px;">
+                <div id="canvas-mermaid-render" class="w-full h-full"></div>
             </div>
         </div>
 
@@ -4868,18 +4868,21 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-
-    // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG
+    // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ LIỀN MẠCH BẤT ĐỒNG BỘ)
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
+        if(!renderContainer) return;
+        
         if(rows.length === 0) {
-            renderContainer.innerHTML = `<span class="text-xs text-slate-400">Chưa có bước nào để vẽ sơ đồ. Thầy vui lòng bấm thêm bước.</span>`;
+            renderContainer.innerHTML = `<div class="text-center py-24 text-slate-400 text-xs font-medium">Chưa có bước nào để vẽ sơ đồ. Thầy vui lòng bấm thêm bước.</div>`;
             return;
         }
 
         sodoActiveDescMap.clear(); 
-        let code = `graph ${sodoCurrentDirection}\n`;
+        // Thay đổi cấu trúc sang 'graph' sạch kết hợp cấu hình theme Variables trực tiếp trên mã chữ thô
+        let code = `%%{init: { 'theme': 'neutral', 'themeVariables': { 'fontFamily': 'Arial, sans-serif', 'fontSize': '13px' }}}%%\n`;
+        code += `graph ${sodoCurrentDirection}\n`;
         
         rows.forEach(row => {
             const step = row.dataset.step;
@@ -4915,49 +4918,44 @@ window.calculateMemberEAI = function(memberName) {
         });
 
         sodoActiveDescMap.forEach((val, nodeId) => {
-            code += `  click ${nodeId} call openSodoSidebarWithData()\n`;
+            code += `  click ${nodeId} call openSodoSidebarWithData\n`; // Trả về dạng call hàm chuẩn của thư viện Mermaid
         });
 
+        // Nạp mã thô vào lõi bẫy và ép class kích nổ đồ họa
         renderContainer.removeAttribute('data-processed');
+        renderContainer.className = "mermaid w-full h-full text-center flex items-center justify-center";
         renderContainer.innerHTML = code;
         
-        try {
-            if (typeof mermaid !== 'undefined') {
-                mermaid.initialize({ 
-                    startOnLoad: false, 
-                    theme: 'neutral', 
-                    securityLevel: 'loose',
-                    themeVariables: {
-                        fontFamily: '"Times New Roman", Times, serif', 
-                        fontSize: '13px' 
-                    },
-                    flowchart: {
-                        htmlLabels: true, 
-                        useMaxWidth: false
-                    }
-                });
-                mermaid.init(undefined, renderContainer);
-                
-                const svgElement = renderContainer.querySelector('svg');
-                if(svgElement) {
-                    svgElement.removeAttribute('width');
-                    svgElement.style.width = '100%';
-                    svgElement.style.height = '100%';
+        // GIẢI PHÁP ĐẮT GIÁ: Hoãn 80ms để chờ trình duyệt dựng xong phom SVG rồi mới gắn bộ điều khiển chuột
+        setTimeout(() => {
+            try {
+                if (typeof mermaid !== 'undefined') {
+                    mermaid.init(undefined, renderContainer);
                     
-                    svgPanZoom(svgElement, {
-                        zoomEnabled: true,          
-                        controlIconsEnabled: false, 
-                        fit: true,                  
-                        center: true,               
-                        minZoom: 0.2,               
-                        maxZoom: 10,                
-                        panEnabled: true            
-                    });
+                    const svgElement = renderContainer.querySelector('svg');
+                    if(svgElement && typeof svgPanZoom !== 'undefined') {
+                        svgElement.removeAttribute('width');
+                        svgElement.removeAttribute('style');
+                        svgElement.style.width = '100%';
+                        svgElement.style.height = '100%';
+                        svgElement.style.minHeight = '480px';
+                        
+                        // Kích hoạt bộ chuột thấu kính vô cực không giật lag
+                        window.currentSodoPanZoom = svgPanZoom(svgElement, {
+                            zoomEnabled: true,          
+                            controlIconsEnabled: false, 
+                            fit: true,                  
+                            center: true,               
+                            minZoom: 0.1,               
+                            maxZoom: 8,                
+                            panEnabled: true            
+                        });
+                    }
                 }
+            } catch (e) {
+                console.error("Lỗi vẽ sơ đồ đồ thị: ", e);
             }
-        } catch (e) {
-            console.error("Lỗi vẽ sơ đồ đồ thị: ", e);
-        }
+        }, 80);
     }
 
     // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do (ĐÃ VÁ CÚ PHÁP CHUẨN)
