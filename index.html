@@ -4800,7 +4800,7 @@ window.calculateMemberEAI = function(memberName) {
         if(typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    // 2. Hàm sinh tự động một hàng ô chữ trực quan tịnh tiến tự nhiên
+    // 2. HÀM SINH TỰ ĐỘNG MỘT HÀNG Ô CHỮ (BẢN VÁ PHẦN 2: TỰ ĐỘNG ĐỔI BỐ CỤC ẨN HÀN THEO KHỐI)
     function addSodoBlockRow(initText = "", initShape = "rect", initBack = "", initDesc = "") {
         const container = document.getElementById('container-sd-blocks');
         const stepIndex = container.children.length + 1;
@@ -4809,6 +4809,9 @@ window.calculateMemberEAI = function(memberName) {
         div.className = "sd-block-row bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm space-y-2.5 relative transition-all hover:shadow-md";
         div.dataset.step = stepIndex;
         
+        // Đoán trước trạng thái khối hình thoi quyết định để gán giao diện ban đầu
+        const isRhombus = (initShape === 'rhombus');
+        
         div.innerHTML = `
             <div class="flex items-center justify-between">
                 <span class="text-[10px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md uppercase">Bước ${stepIndex}</span>
@@ -4816,23 +4819,41 @@ window.calculateMemberEAI = function(memberName) {
             </div>
             
             <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Tên bước quy trình *</label>
                 <input type="text" value="${initText}" oninput="compileSodoDataToMermaid()" placeholder="Tên bước (VD: Tổ trưởng phê duyệt đề)..." class="sd-block-title w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-pink-500 font-semibold text-slate-700 bg-white shadow-inner">
             </div>
 
             <div>
-                <textarea oninput="compileSodoDataToMermaid()" placeholder="Mô tả chi tiết / Hướng dẫn nghiệp vụ lưu ý (Không bắt buộc)..." class="sd-block-desc w-full px-2.5 py-1 border border-slate-200 rounded-lg text-[11px] outline-none focus:border-pink-500 text-slate-500 font-medium bg-slate-50/30 shadow-inner h-11 resize-none scrollbar-thin">${initDesc}</textarea>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Hình khối hiển thị</label>
+                <select onchange="handleShapeChange(this)" class="sd-block-shape w-full text-[11px] px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-slate-50 font-semibold text-slate-600 cursor-pointer">
+                    <option value="rect" ${initShape==='rect'?'selected':''}>⏹️ Khối Hành động (Chữ nhật)</option>
+                    <option value="round" ${initShape==='round'?'selected':''}>⚪ Khối Đầu/Cuối (Tròn)</option>
+                    <option value="rhombus" ${initShape==='rhombus'?'selected':''}>🔶 Khối Quyết định (Hình thoi)</option>
+                </select>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <select onchange="handleShapeChange(this)" class="sd-block-shape text-[11px] px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-slate-50 font-semibold text-slate-600 cursor-pointer">
-                    <option value="rect" ${initShape==='rect'?'selected':''}>⏹️ Khối Hành động</option>
-                    <option value="rhombus" ${initShape==='rhombus'?'selected':''}>🔶 Khối Quyết định</option>
-                    <option value="round" ${initShape==='round'?'selected':''}>⚪ Khối Đầu/Cuối</option>
-                </select>
+            <!-- PHÂN KHU ĐIỀU HƯỚNG Ô NHỎ UX THAY ĐỔI ĐỘNG CHỐNG BIẾN RÁC -->
+            <div class="sd-navigation-group flex flex-col gap-2 pt-1 border-t border-dashed border-slate-100">
                 
-                <div class="div-back-select ${initShape==='rhombus'?'':'opacity-40 pointer-events-none'} transition-all">
-                    <input type="text" value="${initBack}" oninput="compileSodoDataToMermaid()" placeholder="Lỗi? Quay lại bước mấy (VD: 1)" class="sd-block-back w-full px-2 py-1.5 border border-slate-200 rounded-lg text-[11px] outline-none text-center font-bold text-red-500 placeholder:text-slate-300 shadow-inner">
+                <!-- Ô ĐỒNG CẤP: Luôn xuất hiện, lưu giữ trực tiếp vào class .sd-block-back gốc của thầy để bảo toàn dữ liệu file lưu -->
+                <div class="sd-equal-step-box">
+                    <label class="sd-label-equal block text-[10px] font-bold text-slate-500 mb-1">
+                        ${isRhombus ? 'Đồng cấp với bước (Nếu có)' : 'Đồng cấp với bước (Để trống sẽ tự đi tiếp bước sau)'}
+                    </label>
+                    <input type="number" value="${initBack}" oninput="compileSodoDataToMermaid()" placeholder="Điền số bước muốn đứng song song (Ví dụ: 4)" class="sd-block-back w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-[11px] outline-none focus:border-pink-500 font-bold text-slate-600 shadow-inner">
                 </div>
+
+                <!-- Ô QUAY LẠI KHI SAI: Chỉ mở bung hiển thị khi chọn Khối hình thoi Quyết định -->
+                <div class="sd-fail-step-box ${isRhombus ? '' : 'hidden'}">
+                    <label class="block text-[10px] font-bold text-red-600 mb-1">❌ Không đạt, quay lại bước...</label>
+                    <!-- Ô này đóng vai trò gương phản chiếu, nhập vào sẽ tự đồng bộ sang ô lưu trữ gốc phía trên -->
+                    <input type="number" value="${isRhombus ? initBack : ''}" oninput="syncSodoFailMirrorValue(this)" placeholder="Điền số bước sửa đổi khi quy trình sai (Ví dụ: 1)" class="sd-block-fail-mirror w-full px-2.5 py-1.5 bg-red-50/40 border border-red-200 rounded-lg text-[11px] outline-none focus:border-red-500 font-bold text-red-700 shadow-inner">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Mô tả nghiệp vụ / Hướng dẫn chuyên môn</label>
+                <textarea oninput="compileSodoDataToMermaid()" placeholder="Nhập hướng dẫn thao tác chi tiết hiển thị ở Sidebar..." class="sd-block-desc w-full px-2.5 py-1 border border-slate-200 rounded-lg text-[11px] outline-none focus:border-pink-500 text-slate-500 font-medium bg-slate-50/30 shadow-inner h-11 resize-none scrollbar-thin">${initDesc}</textarea>
             </div>
         `;
         container.appendChild(div);
@@ -4851,18 +4872,44 @@ window.calculateMemberEAI = function(memberName) {
     }
 
     // Kiểm tra thông minh: Nếu chọn hình thoi thì mở khóa ô nhập rẽ nhánh
-    function handleShapeChange(select) {
+    // HÀM TRỢ LÝ: Điều khiển nhãn chữ và ẩn hiện các ô nhập liệu nhỏ theo kiến nghị của thầy
+    window.handleShapeChange = function(select) {
         const row = select.closest('.sd-block-row');
-        const backDiv = row.querySelector('.div-back-select');
-        const backInput = row.querySelector('.sd-block-back');
-        if(select.value === 'rhombus') {
-            backDiv.classList.remove('opacity-40', 'pointer-events-none');
+        if(!row) return;
+
+        const shape = select.value;
+        const labelEqual = row.querySelector('.sd-label-equal');
+        const failBox = row.querySelector('.sd-fail-step-box');
+        const inputBack = row.querySelector('.sd-block-back');
+        const inputFailMirror = row.querySelector('.sd-block-fail-mirror');
+
+        if(shape === 'rhombus') {
+            // Khi chọn hình thoi quyết định: Hiện ô quay lại, rút gọn hướng dẫn ô đồng cấp
+            if(labelEqual) labelEqual.textContent = 'Đồng cấp với bước (Nếu có)';
+            if(failBox) failBox.classList.remove('hidden');
+            if(inputFailMirror && inputBack) inputFailMirror.value = inputBack.value;
         } else {
-            backDiv.classList.add('opacity-40', 'pointer-events-none');
-            backInput.value = ""; 
+            // Khi chọn khối tròn hoặc vuông: Ẩn ô quay lại khi sai, đổi nhãn ô đồng cấp hướng dẫn đi tiếp
+            if(labelEqual) labelEqual.textContent = 'Đồng cấp với bước (Để trống sẽ đi tiếp bước sau)';
+            if(failBox) failBox.classList.add('hidden');
+            if(inputFailMirror) inputFailMirror.value = "";
+            // Nếu đổi từ hình thoi về khối thường, có thể để trống hoặc giữ nguyên giá trị tuỳ thầy
         }
         compileSodoDataToMermaid();
-    }
+    };
+
+    // HÀM TRỢ LÝ: Đồng bộ giá trị lập tức từ ô nhập phụ (Mirror) sang ô dữ liệu gốc .sd-block-back để tránh lỗi lưu file
+    window.syncSodoFailMirrorValue = function(mirrorInputEl) {
+        const row = mirrorInputEl.closest('.sd-block-row');
+        if(!row) return;
+
+        const inputBack = row.querySelector('.sd-block-back');
+        if(inputBack) {
+            // Ép giá trị sang ô gốc để thuật toán Mermaid ở Phần 1 nhận diện và bắn mũi tên quay về chuẩn chỉ
+            inputBack.value = mirrorInputEl.value;
+        }
+        compileSodoDataToMermaid();
+    };
 
     // 3. Logic xử lý nút chuyển hướng Sơ đồ Ngang hay Dọc
     function changeSodoDirection(dir) {
