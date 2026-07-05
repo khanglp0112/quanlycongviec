@@ -810,7 +810,7 @@
             <p class="text-xs text-slate-400 mt-1">Số hóa quy trình làm việc dạng danh mục văn bản hành chính dễ dùng</p>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="saveQuyTrinhServer()" class="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold transition-all border border-pink-200/60 shadow-sm" style="background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(236, 72, 153, 0.16)); color: #db2777;" onmouseenter="this.style.background='rgba(236, 72, 153, 0.25)'" onmouseleave="this.style.background='linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(236, 72, 153, 0.16))'">
+            <button onclick="saveQuyTrinhServer()" class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white border border-white/20 transition-all shadow-[0_2px_4px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.25)]" style="background: linear-gradient(135deg, #f472b6, #db2777); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);" onmouseenter="this.style.filter='brightness(1.08)'" onmouseleave="this.style.filter='none'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='none'">
                 <i data-lucide="save" style="width:16px;height:16px;"></i> Lưu quy trình
             </button>
             <button onclick="toggleSoDoView()" class="px-4 py-2 rounded-lg text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">Đóng</button>
@@ -5157,64 +5157,70 @@ window.calculateMemberEAI = function(memberName) {
             }
         }
     };
-     // ====================================================================
-    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG SẮC NÉT
+   // ====================================================================
+    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG SẮC NÉT (BẢN VÁ LỖI)
     // ====================================================================
     window.downloadSodoAsImage = function() {
         const renderContainer = document.getElementById('canvas-mermaid-render');
+        if (!renderContainer) {
+            alert("Không tìm thấy khung vẽ sơ đồ thưa thầy.");
+            return;
+        }
+        
         const svgElement = renderContainer.querySelector('svg');
         const tenQuyTrinh = document.getElementById('inp-sd-ten').value.trim() || "quy-trinh-thuat-toan";
 
         if(!svgElement) {
-            alert("Chưa có sơ đồ nào hiển thị để tải về thưa thầy.");
+            alert("Chưa có sơ đồ nào hiển thị hoặc quy trình đang trống để tải về thưa thầy.");
             return;
         }
 
         try {
-            // 1. Tạo bản sao tạm thời của SVG để tính toán kích thước thực tế (không lấy theo khung zoom chuột)
+            // 1. Tạo bản sao tạm thời của SVG để tính toán kích thước thực tế (tránh lấy theo khung zoom/pan chuột)
             const svgClone = svgElement.cloneNode(true);
             svgClone.style.width = '';
             svgClone.style.height = '';
             svgClone.style.transform = '';
             
-            // Lấy kích thước hình học nguyên bản của sơ đồ
+            // Lấy kích thước hình học nguyên bản của sơ đồ để xuất ảnh vuông vắn
             const bBox = svgElement.getBBox();
-            const width = bBox.width + 40;  // Cộng thêm 40px padding biên để ảnh thoáng mắt
-            const height = bBox.height + 40;
+            const width = bBox.width + 60;  // Tăng lên 60px padding biên để ảnh thoáng đãng, không sát rìa
+            const height = bBox.height + 60;
             
             svgClone.setAttribute('width', width);
             svgClone.setAttribute('height', height);
-            svgClone.setAttribute('viewBox', `${bBox.x - 20} ${bBox.y - 20} ${width} ${height}`);
+            svgClone.setAttribute('viewBox', `${bBox.x - 30} ${bBox.y - 30} ${width} ${height}`);
 
-            // 2. Chuyển đổi mã nguồn SVG thành chuỗi text mã hóa an toàn tiếng Việt
+            // 2. Chuyển đổi mã nguồn SVG thành chuỗi text mã hóa an toàn tiếng Việt UTF-8
             const serializer = new XMLSerializer();
             const svgString = serializer.serializeToString(svgClone);
             const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
             const URL = window.URL || window.webkitURL || window;
             const blobURL = URL.createObjectURL(svgBlob);
 
-            // 3. Dựng cấu trúc ảnh ngầm (Canvas) để chụp ảnh
+            // 3. Dựng cấu trúc ảnh ngầm (Canvas) để chụp hình phẳng
             const image = new Image();
             image.onload = function() {
                 const canvas = document.createElement('canvas');
-                canvas.width = width * 2;   // Nhân đôi kích thước để ảnh xuất ra có độ nét cao (Retina HD)
+                canvas.width = width * 2;   // Nhân đôi kích thước để xuất file ảnh độ nét cao Retina HD, không vỡ chữ
                 canvas.height = height * 2;
                 
                 const context = canvas.getContext('2d');
-                context.scale(2, 2); // Kéo giãn tỷ lệ vẽ tương ứng để chữ không bị vỡ hạt
+                context.scale(2, 2); // Kéo giãn tỷ lệ vẽ tương ứng để chữ sắc nét
                 
-                // Nhuộm nền trắng sạch sẽ cho file ảnh tải về
+                // Nhuộm nền trắng sạch sẽ cho file ảnh PNG tải về
                 context.fillStyle = '#ffffff';
                 context.fillRect(0, 0, width, height);
                 
-                // Vẽ sơ đồ thuật toán lên nền trắng
+                // Vẽ sơ đồ thuật toán lên nền trắng canvas
                 context.drawImage(image, 0, 0);
                 
-                // 4. Kích nổ lệnh tải file xuống máy tính cá nhân của giáo viên
+                // 4. Kích nổ lệnh tải file trực tiếp xuống máy tính cá nhân
                 const pngURL = canvas.toDataURL('image/png');
                 const downloadLink = document.createElement('a');
-                // Tự động chuyển đổi tên quy trình tiếng Việt thành tên file không dấu gạch ngang gọn gàng
-                const safeFileName = tenQuyTrinh.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-") + "-sodo.png";
+                
+                // Tự động chuyển đổi tên quy trình tiếng Việt thành tên file viết liền không dấu gọn gàng
+                const safeFileName = tenQuyTrinh.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-") + "-sodo.png";
                 
                 downloadLink.href = pngURL;
                 downloadLink.download = safeFileName;
@@ -5226,7 +5232,8 @@ window.calculateMemberEAI = function(memberName) {
 
             image.src = blobURL;
         } catch (error) {
-            alert("Lỗi xuất ảnh sơ đồ: " + error.message);
+            console.error("Lỗi xuất ảnh: ", error);
+            alert("Gặp sự cố khi xuất ảnh sơ đồ: " + error.message);
         }
     };
   </script>
