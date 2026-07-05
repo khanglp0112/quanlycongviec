@@ -374,66 +374,77 @@
         box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.6), -10px 0 30px rgba(15, 23, 42, 0.03) !important;
     }
 
-    /* 2. THIẾT LẬP LẠI TOÀN BỘ HỆ MÀU MICA ĐÚC CHO LÕI VẼ SƠ ĐỒ MERMAID */
-    .mermaid svg {
-        font-family: 'Geist', sans-serif !important;
+   /* ==================================================================== */
+    /* 2. THIẾT LẬP LẠI TOÀN BỘ HỆ MÀU MICA ĐÚC CHO LÕI VẼ SƠ ĐỒ MERMAID    */
+    /* ==================================================================== */
+    #canvas-mermaid-render svg, .mermaid svg {
+        font-family: 'Arial', system-ui, -apple-system, sans-serif !important;
     }
 
     /* Khối Bắt đầu / Kết thúc: Kính mờ xanh Sky dịu mát */
-    .mermaid .node.shape-round rect, 
-    .mermaid .node.shape-round circle,
-    .mermaid .node.shape-round .label-container {
-        fill: rgba(2, 132, 199, 0.06) !important;
-        stroke: rgba(2, 132, 199, 0.45) !important;
-        stroke-width: 1.5px !important;
+    .node.shape-round rect, 
+    .node.shape-round circle,
+    .node.shape-round polygon,
+    .node.shape-round .label-container {
+        fill: rgba(2, 132, 199, 0.08) !important;
+        stroke: rgba(2, 132, 199, 0.55) !important;
+        stroke-width: 2px !important;
     }
-    .mermaid .node.shape-round .nodeLabel {
+    .node.shape-round .nodeLabel, .node.shape-round span {
         color: #0284c7 !important;
         font-weight: 700 !important;
     }
 
     /* Khối Hành động: Kính mờ khói Slate trung tính chuyên nghiệp */
-    .mermaid .node.shape-rect rect,
-    .mermaid .node.shape-rect .label-container {
-        fill: rgba(71, 85, 105, 0.06) !important;
-        stroke: rgba(71, 85, 105, 0.4) !important;
-        stroke-width: 1.5px !important;
+    .node.shape-rect rect,
+    .node.shape-rect circle,
+    .node.shape-rect polygon,
+    .node.shape-rect .label-container {
+        fill: rgba(71, 85, 105, 0.08) !important;
+        stroke: rgba(71, 85, 105, 0.5) !important;
+        stroke-width: 2px !important;
     }
-    .mermaid .node.shape-rect .nodeLabel {
+    .node.shape-rect .nodeLabel, .node.shape-rect span {
         color: #334155 !important;
         font-weight: 700 !important;
     }
 
     /* Khối Quyết định (Hình thoi): Kính mờ sắc Tím Thạch Anh nổi bật điểm thắt */
-    .mermaid .node.shape-rhombus polygon,
-    .mermaid .node.shape-rhombus .label-container {
-        fill: rgba(124, 58, 237, 0.06) !important;
-        stroke: rgba(124, 58, 237, 0.45) !important;
-        stroke-width: 1.5px !important;
+    .node.shape-rhombus rect,
+    .node.shape-rhombus circle,
+    .node.shape-rhombus polygon,
+    .node.shape-rhombus .label-container {
+        fill: rgba(124, 58, 237, 0.08) !important;
+        stroke: rgba(124, 58, 237, 0.55) !important;
+        stroke-width: 2px !important;
     }
-    .mermaid .node.shape-rhombus .nodeLabel {
+    .node.shape-rhombus .nodeLabel, .node.shape-rhombus span {
         color: #7c3aed !important;
         font-weight: 700 !important;
     }
 
     /* Làm mịn dải đường truyền mũi tên và đầu kim chỉ hướng */
-    .mermaid .edgePaths .edgePath .path {
+    #canvas-mermaid-render .edgePaths .edgePath .path, .mermaid .edgePaths .edgePath .path {
         stroke: #94a3b8 !important;
-        stroke-width: 1.5px !important;
+        stroke-width: 1.8px !important;
     }
-    .mermaid .marker path {
+    #canvas-mermaid-render .marker path, .mermaid .marker path {
         fill: #94a3b8 !important;
         stroke: none !important;
     }
 
     /* Hiệu ứng tương tác: Rê chuột vào khối sơ đồ sẽ đổi màu đằm chắc tay */
-    .mermaid .node:hover rect,
-    .mermaid .node:hover circle,
-    .mermaid .node:hover polygon,
-    .mermaid .node:hover .label-container {
-        fill: rgba(219, 39, 119, 0.08) !important; /* Ánh hồng nhẹ khi tương tác */
+    .node:hover rect,
+    .node:hover circle,
+    .node:hover polygon,
+    .node:hover .label-container {
+        fill: rgba(219, 39, 119, 0.1) !important; /* Ánh hồng Neon nhẹ khi tương tác */
         stroke: #db2777 !important;
         cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    .node:hover .nodeLabel, .node:hover span {
+        color: #db2777 !important;
         transition: all 0.2s ease !important;
     }
   </style>
