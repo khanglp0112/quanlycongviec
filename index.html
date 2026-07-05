@@ -4868,7 +4868,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
- // 4. THUẬT TOÁN BIÊN DỊCH: Gom danh mục tịnh tiến dịch sang mã Mermaid động
+    // 4. THUẬT TOÁN BIÊN DỊCH: Gom danh mục tịnh tiến dịch sang mã Mermaid động (ĐÃ KHÔI PHỤC PHONG CÁCH MICA)
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -4930,7 +4930,20 @@ window.calculateMemberEAI = function(memberName) {
         
         try {
             if (typeof mermaid !== 'undefined') {
-                mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+                // ÉP CẤU HÌNH NHẬN DIỆN FONT CHỮ HÀNH CHÍNH (ARIAL/TIMES NEW ROMAN) VÀ HTML LABELS
+                mermaid.initialize({ 
+                    startOnLoad: false, 
+                    theme: 'neutral', 
+                    securityLevel: 'loose',
+                    themeVariables: {
+                        fontFamily: 'Arial, Helvetica, sans-serif', // Hoặc '"Times New Roman", Times, serif' tùy gu của thầy
+                        fontSize: '13px'
+                    },
+                    flowchart: {
+                        htmlLabels: true,
+                        useMaxWidth: false
+                    }
+                });
                 mermaid.init(undefined, renderContainer);
             }
         } catch (e) {
