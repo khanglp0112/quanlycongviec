@@ -4868,22 +4868,19 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-   // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ LỖI CÚ PHÁP BIÊN DỊCH)
+ // 4. THUẬT TOÁN BIÊN DỊCH: Gom danh mục tịnh tiến dịch sang mã Mermaid động
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
-        if(!renderContainer) return;
-        
         if(rows.length === 0) {
-            renderContainer.innerHTML = `<div class="text-center py-24 text-slate-400 text-xs font-medium">Chưa có bước nào để vẽ sơ đồ. Thầy vui lòng bấm thêm bước.</div>`;
+            renderContainer.innerHTML = `<span class="text-xs text-slate-400">Chưa có bước nào để vẽ sơ đồ. Thầy vui lòng bấm thêm bước.</span>`;
             return;
         }
 
-        sodoActiveDescMap.clear(); 
-        // Đưa cấu hình font chữ về dạng biến theme variables sạch
-        let code = `%%{init: { 'theme': 'neutral', 'themeVariables': { 'fontFamily': 'Arial, sans-serif', 'fontSize': '13px' }}}%%\n`;
-        code += `graph ${sodoCurrentDirection}\n`;
+        sodoActiveDescMap.clear(); // Làm sạch kho bản đồ ghi chú
+        let code = `graph ${sodoCurrentDirection}\n`;
         
+        // Vòng 1: Tạo khối hình học kèm class định dạng mỹ thuật CSS
         rows.forEach(row => {
             const step = row.dataset.step;
             const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
@@ -4891,6 +4888,7 @@ window.calculateMemberEAI = function(memberName) {
             const desc = row.querySelector('.sd-block-desc').value.trim();
             const nodeId = `step_${step}`;
 
+            // Ghép găm ghi chú vào Map theo mã nodeId để click là tra cứu ra ngay
             sodoActiveDescMap.set(nodeId, { title: title, desc: desc || "Chưa có mô tả hay lưu ý chuyên môn bổ sung cho bước quy trình này." });
 
             if(shape === "round") code += `  ${nodeId}(("${title}")):::shape-round\n`;
@@ -4898,81 +4896,46 @@ window.calculateMemberEAI = function(memberName) {
             else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
         });
 
+        // Vòng 2: Thiết lập dây truyền mũi tên liên kết tự động tịnh tiến xuôi dòng
         rows.forEach((row, idx) => {
             const step = row.dataset.step;
             const nodeId = `step_${step}`;
             const shape = row.querySelector('.sd-block-shape').value;
             const backStepNum = row.querySelector('.sd-block-back').value.trim();
 
+            // Nếu chưa phải bước cuối cùng, mặc định nối thẳng tuột sang bước kế tiếp dưới chân
             if(idx < rows.length - 1) {
                 const nextNodeId = `step_${parseInt(step) + 1}`;
                 code += `  ${nodeId} --> ${nextNodeId}\n`;
             }
 
+            // Nếu là khối hình thoi rẽ nhánh và thầy cô điền số bước quay đầu
             if(shape === "rhombus" && backStepNum) {
                 const backNodeId = `step_${backStepNum}`;
+                // Kiểm tra xem số bước quay lại có hợp lệ trong danh sách không
                 if(document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${backStepNum}"]`)) {
                     code += `  ${nodeId} -- Không đạt --> ${backNodeId}\n`;
                 }
             }
         });
 
-        // BẢN VÁ: Loại bỏ dòng 'click ... call' của Mermaid để tránh lỗi vỡ cú pháp đồ thị hoàn toàn
-        // Chúng ta sẽ dùng cơ chế lắng nghe sự kiện Click động bằng JS ở bên dưới để mở Sidebar, vừa an toàn vừa không lo lỗi font/cú pháp!
+        // Vòng 3: Gài chốt sự kiện click gọi hàm mở Sidebar tự do của hệ thống
+        sodoActiveDescMap.forEach((val, nodeId) => {
+            code += `  click ${nodeId} call openSodoSidebarWithData()\n`;
+        });
 
+        // Đẩy mã chữ thô vào khung và ép lệnh nổ đồ họa Mermaid
         renderContainer.removeAttribute('data-processed');
-        renderContainer.className = "mermaid w-full h-full text-center flex items-center justify-center";
         renderContainer.innerHTML = code;
         
-        // Hoãn nhẹ để chờ Mermaid vẽ xong cấu trúc hình khối
-        setTimeout(() => {
-            try {
-                if (typeof mermaid !== 'undefined') {
-                    mermaid.init(undefined, renderContainer);
-                    
-                    const svgElement = renderContainer.querySelector('svg');
-                    if(svgElement) {
-                        svgElement.removeAttribute('width');
-                        svgElement.removeAttribute('style');
-                        svgElement.style.width = '100%';
-                        svgElement.style.height = '100%';
-                        svgElement.style.minHeight = '480px';
-                        
-                        // Khởi động bộ chuột kéo thả thu phóng mượt mà
-                        if(typeof svgPanZoom !== 'undefined') {
-                            window.currentSodoPanZoom = svgPanZoom(svgElement, {
-                                zoomEnabled: true,          
-                                controlIconsEnabled: false, 
-                                fit: true,                  
-                                center: true,               
-                                minZoom: 0.1,               
-                                maxZoom: 8,                
-                                panEnabled: true            
-                            });
-                        }
-
-                        // GIẢI PHÁP ĐẮT GIÁ VÁ LỖI SIDEBAR: Tự động gắn sự kiện click trực tiếp vào các khối SVG
-                        svgElement.querySelectorAll('.node').forEach(nodeEl => {
-                            nodeEl.style.cursor = 'pointer';
-                            nodeEl.addEventListener('click', function(e) {
-                                e.stopPropagation();
-                                // Lấy ra nodeId (Ví dụ: step_1, step_2) dựa vào class hoặc id của khối
-                                const classList = nodeEl.id || nodeEl.className.baseVal || "";
-                                const match = classList.match(/step_\d+/);
-                                if(match) {
-                                    const nodeId = match[0];
-                                    if(typeof window.openSodoSidebarWithData === 'function') {
-                                        window.openSodoSidebarWithData(nodeId);
-                                    }
-                                }
-                            });
-                        });
-                    }
-                }
-            } catch (e) {
-                console.error("Lỗi kết xuất đồ họa: ", e);
+        try {
+            if (typeof mermaid !== 'undefined') {
+                mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+                mermaid.init(undefined, renderContainer);
             }
-        }, 85);
+        } catch (e) {
+            console.error("Lỗi vẽ sơ đồ đồ thị: ", e);
+        }
     }
 
     // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do (ĐÃ VÁ CÚ PHÁP CHUẨN)
