@@ -4879,8 +4879,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-    // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ TRIỆT ĐỂ LỖI 1 + CĂN TÂM CHÍNH GIỮA)
-    // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ BẢO LƯU NGUYÊN VẸN QUY TẮC VẼ KHỐI CŨ)
+   // 4. THUẬT TOÁN BIÊN DỊCH DỮ LIỆU SANG MÃ MERMAID ĐỘNG (BẢN VÁ TRIỆT ĐỂ LỖI VẼ KHỐI SƠ ĐỒ)
     function compileSodoDataToMermaid() {
         const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
         const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -4894,7 +4893,7 @@ window.calculateMemberEAI = function(memberName) {
         sodoActiveDescMap.clear(); 
         let code = `graph ${sodoCurrentDirection}\n`;
         
-        // VÒNG 1: TRẢ VỀ NGUYÊN BẢN CẤU TRÚC KẾT XUẤT HÌNH KHỐI VÀ LỚP ĐỊNH DẠNG MỸ THUẬT CỦA THẦY
+        // VÒNG 1: GIỮ NGUYÊN 100% QUY TẮC KẾT XUẤT HÌNH KHỐI VÀ LỚP MỸ THUẬT CỦA THẦY
         rows.forEach(row => {
             const step = row.dataset.step;
             const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
@@ -4909,7 +4908,7 @@ window.calculateMemberEAI = function(memberName) {
             else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
         });
 
-        // VÒNG 2: TRẢ VỀ NGUYÊN BẢN ĐƯỜNG TRUYỀN MŨI TÊN TỊNH TIẾN TUẦN TỰ CỦA THẦY
+        // VÒNG 2: GIỮ NGUYÊN 100% QUY TẮC ĐƯỜNG TRUYỀN MŨI TÊN TỊNH TIẾN CỦA THẦY
         rows.forEach((row, idx) => {
             const step = row.dataset.step;
             const nodeId = `step_${step}`;
@@ -4929,7 +4928,10 @@ window.calculateMemberEAI = function(memberName) {
             }
         });
 
-        // Đảm bảo hàm callback click khối luôn nằm trên window toàn cục
+        // GIẢI PHÁP ĐẮT GIÁ: Bỏ dòng lệnh 'click ... call' thô để tránh lỗi biên dịch khối của Mermaid hoàn toàn.
+        // Cấu trúc Sidebar sẽ được kích hoạt an toàn bằng bộ lắng nghe sự kiện JS ở phía dưới.
+
+        // Đảm bảo hàm mở Sidebar luôn nằm trên đối tượng window toàn cục để gọi khi cần
         window.openSodoSidebarWithData = function(nodeId) {
             if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
             const data = sodoActiveDescMap.get(nodeId);
@@ -4939,11 +4941,6 @@ window.calculateMemberEAI = function(memberName) {
             document.getElementById('sd-side-desc').textContent = data.desc;
             document.getElementById('sodo-sidebar-panel').classList.add('active');
         };
-
-        // Gài chốt gọi hàm mở Sidebar khi click khối theo chuẩn sạch
-        sodoActiveDescMap.forEach((val, nodeId) => {
-            code += `  click ${nodeId} call openSodoSidebarWithData\n`;
-        });
 
         try {
             if (typeof mermaid !== 'undefined') {
@@ -4963,11 +4960,11 @@ window.calculateMemberEAI = function(memberName) {
 
                 const idDocBanSvg = 'sodo-svg-' + Date.now();
 
-                // Dựng sơ đồ bất đồng bộ đồng thời ép thuộc tính CSS căn tâm đối xứng
+                // Tiến hành dựng hình phẳng bất đồng bộ
                 mermaid.render(idDocBanSvg, code).then(({ svg }) => {
                     renderContainer.innerHTML = svg;
 
-                    // CĂN TÂM CHÍNH GIỮA THẤU KÍNH
+                    // ÉP CSS FLEXBOX ĐỂ SƠ ĐỒ LUÔN NẰM Ở CHÍNH GIỮA KHUNG XEM THỬ
                     renderContainer.style.display = 'flex';
                     renderContainer.style.alignItems = 'center';
                     renderContainer.style.justifyContent = 'center';
@@ -4980,6 +4977,7 @@ window.calculateMemberEAI = function(memberName) {
                         svgElement.style.width = '100%';
                         svgElement.style.height = '100%';
                         
+                        // Kích hoạt luồng chuột thu phóng mượt mà
                         if(typeof svgPanZoom !== 'undefined') {
                             window.currentSodoPanZoom = svgPanZoom(svgElement, {
                                 zoomEnabled: true,          
@@ -4991,6 +4989,19 @@ window.calculateMemberEAI = function(memberName) {
                                 panEnabled: true            
                             });
                         }
+
+                        // TỰ ĐỘNG GẮN SỰ KIỆN CLICK AN TOÀN TRỰC TIẾP LÊN TỪNG KHỐI HÌNH HỌC SVG
+                        svgElement.querySelectorAll('.node').forEach(nodeEl => {
+                            nodeEl.style.cursor = 'pointer';
+                            nodeEl.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                const idAttribute = nodeEl.id || "";
+                                const match = idAttribute.match(/step_\d+/);
+                                if(match) {
+                                    window.openSodoSidebarWithData(match[0]);
+                                }
+                            });
+                        });
                     }
                 }).catch(err => {
                     console.error("Lỗi vẽ khối sơ đồ: ", err);
