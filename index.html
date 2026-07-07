@@ -5066,6 +5066,7 @@ window.calculateMemberEAI = function(memberName) {
         compileSodoDataToMermaid();
     }
 // 4. THUẬT TOÁN BIÊN DỊCH MERMAID (TÍCH HỢP BẺ DÒNG TIÊU ĐỀ TỰ ĐỘNG & KHÓA TRỤC DỌC VUÔNG GÓC)
+ // THUẬT TOÁN BIÊN DỊCH MERMAID: SỬA LỖI TỰ ĐỘNG BẺ DÒNG VÀ ÔM KHÍT KHUNG HÌNH HỌC KHÔNG VỠ VIỀN
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5078,10 +5079,20 @@ window.calculateMemberEAI = function(memberName) {
 
       sodoActiveDescMap.clear(); 
       
-      // Khởi tạo sơ đồ Flowchart theo hướng cấu hình của thầy
+      // Khởi tạo đồ thị Flowchart theo hướng cấu hình (Ví dụ: graph TD)
       let code = `graph ${sodoCurrentDirection}\n`;
       
-      // VÒNG 1: KHỞI TẠO ĐỊNH DANH HÌNH KHỐI CÓ THẺ HTML BỘC TỰ ĐỘNG XUỐNG DÒNG CHỮ LONG TITLE
+      // HÀM BỔ TRỢ: Tự động ngắt dòng văn bản sau mỗi khoảng 4-5 từ bằng ký tự \\n thô
+      function wrapTextWithNewlines(text, maxWords = 4) {
+          const words = text.split(/\s+/);
+          let result = [];
+          for (let i = 0; i < words.length; i += maxWords) {
+              result.push(words.slice(i, i + maxWords).join(" "));
+          }
+          return result.join("\\n"); // Dùng hai dấu gạch chéo để Mermaid hiểu là ký tự xuống dòng thô
+      }
+      
+      // VÒNG 1: KHỞI TẠO ĐỊNH DANH CÁC KHỐI CÓ CHÈN CHUỖI XUỐNG DÒNG THUẦN TÚY
       rows.forEach(row => {
           const step = row.dataset.step;
           const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
@@ -5091,21 +5102,22 @@ window.calculateMemberEAI = function(memberName) {
 
           sodoActiveDescMap.set(nodeId, { title: title, desc: desc || "Chưa có mô tả hay lưu ý chuyên môn bổ sung cho bước quy trình này." });
 
-          // CHÌA KHÓA VÀNG: Bọc tiêu đề bằng thẻ div có CSS giới hạn max-width 160px để ép bẻ dòng tự động
-          const formattedTitle = `<div style='max-width:160px;white-space:normal;word-wrap:break-word;line-height:1.4;text-align:center;'>${title}</div>`;
+          // Gọi hàm tự động chèn ký tự xuống dòng dựa trên số từ của tiêu đề
+          const formattedTitle = wrapTextWithNewlines(title, 4);
 
+          // Nạp vào mã Mermaid sử dụng dấu nháy kép bọc ngoài chuỗi có chứa \\n để khung hình tự co giãn
           if(shape === "round") code += `  ${nodeId}(("${formattedTitle}")):::shape-round\n`;
           else if(shape === "rhombus") code += `  ${nodeId}{{"${formattedTitle}"}}:::shape-rhombus\n`;
           else code += `  ${nodeId}["${formattedTitle}"]:::shape-rect\n`;
       });
 
-      const mainTrunkLinks = [];       // Mảng chứa các đường nối xương sống dọc chính (ƯU TIÊN LỚP 1)
-      const sideEqualLinks = [];       // Mảng chứa các mũi tên đi ngang mạn sườn đồng cấp (ƯU TIÊN LỚP 2)
-      const failLinks = [];            // Mảng chứa các mũi tên quay ngược Không đạt (ƯU TIÊN LỚP 3)
+      const mainTrunkLinks = [];       
+      const sideEqualLinks = [];       
+      const failLinks = [];            
       
-      const brokenChains = new Set();     // Danh sách khối đồng cấp bị ngắt xích dọc tuyến tính mặc định
-      const sameRankGroups = new Map();   // Nhóm quản lý cao độ ngang nhau phẳng tuyệt đối
-      const mainTrunkSteps = [];          // Danh sách các khối thuộc trục xương sống chính từ trên xuống dưới
+      const brokenChains = new Set();     
+      const sameRankGroups = new Map();   
+      const mainTrunkSteps = [];          
 
       // VÒNG 2: PHÂN RÃ LUỒNG DỮ LIỆU ĐỂ PHÂN TÁCH TRỤC CHÍNH VÀ MẠN SƯỜN
       rows.forEach((row) => {
@@ -5126,33 +5138,25 @@ window.calculateMemberEAI = function(memberName) {
               else equalStep = backRawVal;
           }
 
-          // Ghi nhận luồng Không đạt (Quay ngược về bước cũ)
           if (shape === "rhombus" && failStep) {
               failLinks.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
           }
 
-          // Ghi nhận luồng thiết lập kết nối đồng cấp mạn sườn hàng ngang
           if (equalStep) {
               const targetNodeId = `step_${equalStep}`;
-              
-              // Đưa vào mảng riêng để nạp sau cùng (KHÔNG nhãn chữ đồng cấp)
               sideEqualLinks.push({ from: targetNodeId, to: nodeId, label: "" });
-
-              // Ngắt liên kết dọc mặc định đâm vào khối này để giải phóng nó khỏi trục thẳng đứng chính
               brokenChains.add(nodeId);
 
-              // Đăng ký nhóm ép phẳng cùng cao độ ngang nhau mạn sườn
               if (!sameRankGroups.has(targetNodeId)) {
                   sameRankGroups.set(targetNodeId, []);
               }
               sameRankGroups.get(targetNodeId).push(nodeId);
           } else {
-              // Khối không chọn đồng cấp mặc định là xương sống cốt lõi đứng thẳng hàng dọc
               mainTrunkSteps.push(nodeId);
           }
       });
 
-      // VÒNG 3: DỰNG ĐƯỜNG KẾN NỐI CHO TRỤC XƯƠNG SỐNG CHÍNH ĐỂ CHỐT CHẶN KHÓA KHỐI THẲNG HÀNG
+      // VÒNG 3: DỰNG TRỤC XƯƠNG SỐNG THẲNG ĐỨNG ƯU TIÊN
       for (let i = 0; i < mainTrunkSteps.length - 1; i++) {
           const currentNodeId = mainTrunkSteps[i];
           const nextNodeId = mainTrunkSteps[i + 1];
@@ -5168,30 +5172,21 @@ window.calculateMemberEAI = function(memberName) {
           }
       }
 
-      // =========================================================================
-      // CẤU TRÚC PHÂN TẦNG: THỨ TỰ IN MÃ LỆNH RA ENGINE MERMAID KHÓA CHẶT TRỤC DỌC
-      // =========================================================================
-      
-      // Lớp 1: Ghi toàn bộ TRỤC DỌC XƯƠNG SỐNG chính trước để Mermaid cố định phom thẳng tuột với Bước 1
+      // VÒNG 4: NẠP MÃ LỆNH THEO THỨ TỰ ƯU TIÊN LAYOUT
       mainTrunkLinks.forEach(l => {
-          if (l.label) {
-              code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
-          } else {
-              code += `  ${l.from} --> ${l.to}\n`;
-          }
+          if (l.label) code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
+          else code += `  ${l.from} --> ${l.to}\n`;
       });
 
-      // Lớp 2: Sau đó mới nạp mũi tên rẽ ngang ĐỒNG CẤP để ép văng sang mạn sườn hàng ngang song song
       sideEqualLinks.forEach(l => {
           code += `  ${l.from} --> ${l.to}\n`;
       });
 
-      // Lớp 3: Cuối cùng mới nạp luồng KHÔNG ĐẠT bọc vòng rộng ra ngoài lưng, giữ nguyên trục chính
       failLinks.forEach(l => {
           code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
       });
 
-      // VÒNG 5: CƯỠNG BỨC CAO ĐỘ PHẲNG BẰNG SUBGRAPH ĐỊNH HƯỚNG MẠN SƯỜN NGANG HÀNG TĂM TẮP
+      // VÒNG 5: ĐỊNH VỊ CẤU TRÚC HÀNG NGANG BẰNG SUBGRAPH
       sameRankGroups.forEach((subNodes, mainNodeId) => {
           code += `  subgraph Group_${mainNodeId} [" "]\n`;
           code += `    direction LR\n`;
@@ -5215,7 +5210,6 @@ window.calculateMemberEAI = function(memberName) {
 
       try {
           if (typeof mermaid !== 'undefined') {
-              // Khởi tạo cấu hình bẻ góc vuông vững chắc qua API chuẩn của hệ thống v10
               mermaid.initialize({
                   startOnLoad: false,
                   theme: 'neutral',
@@ -5225,19 +5219,18 @@ window.calculateMemberEAI = function(memberName) {
                       fontSize: '13px'
                   },
                   flowchart: {
-                      htmlLabels: true, // Giữ nhãn HTML để hỗ trợ bẻ dòng chữ trong thẻ div
+                      htmlLabels: false, // TẮT CHẾ ĐỘ HTML LABELS ĐỂ MERMAID TỰ ĐỘNG ĐO CHIỀU CAO/CHIỀU RỘNG CHUỖI NATIVE
                       useMaxWidth: false,
-                      curve: 'ortho' // ĐIỀU HƯỚNG GÓC VUÔNG CHUẨN XƯƠNG SỐNG KHÔNG LỆCH KHỐI
+                      curve: 'ortho' 
                   }
               });
 
-              // Nét vẽ đồng bộ bằng CSS trợ lực
               const styleBlock = document.getElementById('mermaid-ortho-fix') || document.createElement('style');
               styleBlock.id = 'mermaid-ortho-fix';
               styleBlock.innerHTML = `
                   .edgePath .path { stroke-width: 1.8px !important; stroke: #94a3b8 !important; }
                   g.edgePath path.path { marker-end: url(#arrowhead) !important; }
-                  .node foreignObject { overflow: visible !important; }
+                  .node .label { padding: 8px 12px !important; }
               `;
               if(!styleBlock.parentNode) document.head.appendChild(styleBlock);
 
