@@ -5065,7 +5065,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (SỬA LỖI MẤT HÌNH XEM TRƯỚC - ÉP GÓC VUÔNG & PHẲNG MẠN SƯỜN)
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (TÍCH HỢP BẺ DÒNG TIÊU ĐỀ TỰ ĐỘNG & KHÓA TRỤC DỌC VUÔNG GÓC)
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5078,10 +5078,10 @@ window.calculateMemberEAI = function(memberName) {
 
       sodoActiveDescMap.clear(); 
       
-      // Khởi tạo sơ đồ Flowchart tiêu chuẩn theo hướng cấu hình của thầy
+      // Khởi tạo sơ đồ Flowchart theo hướng cấu hình của thầy
       let code = `graph ${sodoCurrentDirection}\n`;
       
-      // VÒNG 1: KHỞI TẠO ĐỊNH DANH HÌNH KHỐI NGUYÊN BẢN CỦA THẦY KHANG
+      // VÒNG 1: KHỞI TẠO ĐỊNH DANH HÌNH KHỐI CÓ THẺ HTML BỘC TỰ ĐỘNG XUỐNG DÒNG CHỮ LONG TITLE
       rows.forEach(row => {
           const step = row.dataset.step;
           const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
@@ -5091,9 +5091,12 @@ window.calculateMemberEAI = function(memberName) {
 
           sodoActiveDescMap.set(nodeId, { title: title, desc: desc || "Chưa có mô tả hay lưu ý chuyên môn bổ sung cho bước quy trình này." });
 
-          if(shape === "round") code += `  ${nodeId}(("${title}")):::shape-round\n`;
-          else if(shape === "rhombus") code += `  ${nodeId}{{"${title}"}}:::shape-rhombus\n`;
-          else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
+          // CHÌA KHÓA VÀNG: Bọc tiêu đề bằng thẻ div có CSS giới hạn max-width 160px để ép bẻ dòng tự động
+          const formattedTitle = `<div style='max-width:160px;white-space:normal;word-wrap:break-word;line-height:1.4;text-align:center;'>${title}</div>`;
+
+          if(shape === "round") code += `  ${nodeId}(("${formattedTitle}")):::shape-round\n`;
+          else if(shape === "rhombus") code += `  ${nodeId}{{"${formattedTitle}"}}:::shape-rhombus\n`;
+          else code += `  ${nodeId}["${formattedTitle}"]:::shape-rect\n`;
       });
 
       const mainTrunkLinks = [];       // Mảng chứa các đường nối xương sống dọc chính (ƯU TIÊN LỚP 1)
@@ -5149,7 +5152,7 @@ window.calculateMemberEAI = function(memberName) {
           }
       });
 
-      // VÒNG 3: DỰNG ĐƯỜNG KẾT NỐI CHO TRỤC XƯƠNG SỐNG CHÍNH ĐỂ CHỐT CHẶN KHÓA KHỐI THẲNG HÀNG
+      // VÒNG 3: DỰNG ĐƯỜNG KẾN NỐI CHO TRỤC XƯƠNG SỐNG CHÍNH ĐỂ CHỐT CHẶN KHÓA KHỐI THẲNG HÀNG
       for (let i = 0; i < mainTrunkSteps.length - 1; i++) {
           const currentNodeId = mainTrunkSteps[i];
           const nextNodeId = mainTrunkSteps[i + 1];
@@ -5169,7 +5172,7 @@ window.calculateMemberEAI = function(memberName) {
       // CẤU TRÚC PHÂN TẦNG: THỨ TỰ IN MÃ LỆNH RA ENGINE MERMAID KHÓA CHẶT TRỤC DỌC
       // =========================================================================
       
-      // Lớp 1: Ghi toàn bộ TRỤC DỌC XƯƠNG SỐNG chính trước để Mermaid khóa cứng phom thẳng tuột với Bước 1
+      // Lớp 1: Ghi toàn bộ TRỤC DỌC XƯƠNG SỐNG chính trước để Mermaid cố định phom thẳng tuột với Bước 1
       mainTrunkLinks.forEach(l => {
           if (l.label) {
               code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
@@ -5212,7 +5215,7 @@ window.calculateMemberEAI = function(memberName) {
 
       try {
           if (typeof mermaid !== 'undefined') {
-              // GIẢI PHÁP TRIỆT ĐỂ: Khởi tạo và thiết lập cấu hình bẻ góc vuông vững chắc qua API chuẩn của hệ thống v10
+              // Khởi tạo cấu hình bẻ góc vuông vững chắc qua API chuẩn của hệ thống v10
               mermaid.initialize({
                   startOnLoad: false,
                   theme: 'neutral',
@@ -5222,24 +5225,24 @@ window.calculateMemberEAI = function(memberName) {
                       fontSize: '13px'
                   },
                   flowchart: {
-                      htmlLabels: true,
+                      htmlLabels: true, // Giữ nhãn HTML để hỗ trợ bẻ dòng chữ trong thẻ div
                       useMaxWidth: false,
-                      curve: 'ortho' // ĐIỀU HƯỚNG SƠ ĐỒ GÓC VUÔNG 90 ĐỘ KHOA HỌC CHỐNG LỆCH KHỐI
+                      curve: 'ortho' // ĐIỀU HƯỚNG GÓC VUÔNG CHUẨN XƯƠNG SỐNG KHÔNG LỆCH KHỐI
                   }
               });
 
-              // Ép độ dày nét vẽ đồng bộ cho đường đi bẻ góc vuông bằng CSS trợ lực
+              // Nét vẽ đồng bộ bằng CSS trợ lực
               const styleBlock = document.getElementById('mermaid-ortho-fix') || document.createElement('style');
               styleBlock.id = 'mermaid-ortho-fix';
               styleBlock.innerHTML = `
                   .edgePath .path { stroke-width: 1.8px !important; stroke: #94a3b8 !important; }
                   g.edgePath path.path { marker-end: url(#arrowhead) !important; }
+                  .node foreignObject { overflow: visible !important; }
               `;
               if(!styleBlock.parentNode) document.head.appendChild(styleBlock);
 
               const idDocBanSvg = 'sodo-svg-' + Date.now();
 
-              // GỌI HÀM RENDER NATIVE QUA PROMISE CHUẨN ĐỂ SƠ ĐỒ LẬP TỨC XUẤT HIỆN TRÊN BẢN XEM TRƯỚC
               mermaid.render(idDocBanSvg, code).then(({ svg }) => {
                   renderContainer.innerHTML = svg;
 
