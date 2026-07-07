@@ -5065,7 +5065,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: BẢN NÂNG CẤP ÉP PHẲNG SONG SONG TUYỆT ĐỐI)
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: KHÓA TRỤC DỌC THẲNG TẮP & BẮN MŨI TÊN NGANG TRỰC TIẾP)
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5097,12 +5097,10 @@ window.calculateMemberEAI = function(memberName) {
       });
 
       // KHỞI TẠO MẠNG LƯỚI PHÂN TÍCH QUAN HỆ ĐỒ THỊ
-      const links = [];               // Chứa danh sách các đường nối có mũi tên
-      const brokenChains = new Set();    // Danh sách các bước bị ngắt kết nối dọc tuyến tính mặc định
-      const parallelPairs = [];          // Danh sách các cặp khối cần giằng phẳng song song ngang hàng
-      const parallelTargets = new Map(); // Map lưu cấu trúc: nodeId -> targetNodeId (bước gốc song song)
+      const links = [];               // Chứa danh sách các đường nối có mũi tên trực tiếp
+      const sameRankGroups = new Map();  // Nhóm các bước cùng tầng phân cấp để ép phẳng hàng ngang
 
-      // VÒNG 2: GIẢI NÉN CHUỖI ĐIỀU HƯỚNG ĐỂ PHÂN TÁCH LUỒNG TRỰC TIẾP & ĐỒNG CẤP
+      // VÒNG 2: GIẢI NÉN CHUỖI ĐIỀU HƯỚNG ĐỂ PHÂN TÁCH LUỒNG TRỰC TIẾP TƯỜNG MINH
       rows.forEach((row) => {
           const step = row.dataset.step;
           const nodeId = `step_${step}`;
@@ -5128,22 +5126,22 @@ window.calculateMemberEAI = function(memberName) {
               links.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
           }
 
-          // Ghi nhận luồng thiết lập kết nối đồng cấp trực tiếp
+          // Xử lý luồng thiết lập kết nối đồng cấp trực tiếp (Bắn mũi tên ngang, KHÔNG cần nhãn chữ)
           if (equalStep) {
               const targetNodeId = `step_${equalStep}`;
               
-              // 1. Tạo sợi dây giằng phẳng không hướng (---) để ép Mermaid khóa chặt 2 khối cùng cao độ ngang hàng
-              parallelPairs.push({ from: targetNodeId, to: nodeId });
-              
-              // Ghi nhớ ma trận để lát nữa nhân bản đường nối hướng tâm từ cha chung
-              parallelTargets.set(nodeId, targetNodeId);
+              // Bắn duy nhất 1 mũi tên đi thẳng từ khối trục chính sang khối đồng cấp, không nhãn chữ
+              links.push({ from: targetNodeId, to: nodeId, label: "" });
 
-              // 2. Chặt đứt sợi xích nối dọc mặc định tuyến tính đâm vào khối này để giải phóng trục dọc
-              brokenChains.add(nodeId);
+              // Gom các bước vào cùng một nhóm phân tầng để ép Mermaid khóa chặt cao độ ngang nhau
+              if (!sameRankGroups.has(targetNodeId)) {
+                  sameRankGroups.set(targetNodeId, []);
+              }
+              sameRankGroups.get(targetNodeId).push(nodeId);
           }
       });
 
-      // VÒNG 3: XÂY DỰNG LUỒNG TUYẾN TÍNH XUÔI DÒNG MẶC ĐỊNH (CHỈ NỐI KHI KHÔNG BỊ CHẶT XÍCH)
+      // VÒNG 3: XÂY DỰNG TRỤC DỌC XƯƠNG SỐNG TUYẾN TÍNH XUÔI DÒNG MẶC ĐỊNH MÀU CHỐT CỐ ĐỊNH
       rows.forEach((row, idx) => {
           if (idx < rows.length - 1) {
               const step = row.dataset.step;
@@ -5151,38 +5149,16 @@ window.calculateMemberEAI = function(memberName) {
               const nextNodeId = `step_${parseInt(step) + 1}`;
               const shape = row.querySelector('.sd-block-shape').value;
 
-              // Nếu bước sau đã được rẽ hướng/đồng cấp, ngắt đường nối dọc tự động để chống trùng lặp và nhảy vị trí
-              if (!brokenChains.has(nextNodeId)) {
-                  if (shape === "rhombus") {
-                      links.push({ from: nodeId, to: nextNodeId, label: "Đạt" });
-                  } else {
-                      links.push({ from: nodeId, to: nextNodeId, label: "" });
-                  }
+              // Trục dọc luôn giữ kết nối liên tục từ trên xuống để định vị thẳng hàng với Bước 1
+              if (shape === "rhombus") {
+                  links.push({ from: nodeId, to: nextNodeId, label: "Đạt" });
+              } else {
+                  links.push({ from: nodeId, to: nextNodeId, label: "" });
               }
           }
       });
 
-      // VÒNG 4: THUẬT TOÁN ĐA ĐIỂM HƯỚNG TÂM CHO CHA CHUNG - ÉP ĐƯỜNG MŨI TÊN TÁCH LUỒNG ĐỐI XỨNG PHẲNG
-      parallelTargets.forEach((targetNodeId, sourceNodeId) => {
-          // Tìm xem khối nào đang làm cha cắm mũi tên vào khối gốc (targetNodeId)
-          const parentLinks = links.filter(l => l.to === targetNodeId && l.from !== sourceNodeId);
-          
-          parentLinks.forEach(pLink => {
-              // Cho khối cha đâm thêm 1 đường mũi tên song song vào khối đồng cấp mới để tạo nhánh đối xứng
-              links.push({ 
-                  from: pLink.from, 
-                  to: sourceNodeId, 
-                  label: pLink.label ? `${pLink.label} (Nhánh 2)` : "" 
-              });
-          });
-          
-          // Phòng hờ trường hợp không tìm thấy cha (bị cô lập), tự động vẽ mũi tên bắc ngang sang
-          if (parentLinks.length === 0) {
-              links.push({ from: targetNodeId, to: sourceNodeId, label: "Đồng cấp" });
-          }
-      });
-
-      // VÒNG 5: BIÊN DỊCH CÁC LIÊN KẾT CÓ MŨI TÊN VÀO MÃ LỆNH MERMAID
+      // VÒNG 4: BIÊN DỊCH CÁC LIÊN KẾT CÓ MŨI TÊN VÀO MÃ LỆNH MERMAID
       links.forEach(l => {
           if (l.label) {
               code += `  ${l.from} -- ${l.label} --> ${l.to}\n`;
@@ -5191,9 +5167,17 @@ window.calculateMemberEAI = function(memberName) {
           }
       });
 
-      // VÒNG 6: ÉP BUỘC ĐƯỜNG GIẰNG KHÔNG HƯỚNG NẰM NGANG ĐỂ CỐ ĐỊNH PHẲNG SONG SONG
-      parallelPairs.forEach(p => {
-          code += `  ${p.from} --- ${p.to}\n`;
+      // VÒNG 5: ÉP BUỘC CÁC KHỐI ĐỒNG CẤP NẰM SANG MẠN SƯỜN CÙNG CAO ĐỘ (SAME RANK PHẲNG)
+      sameRankGroups.forEach((subNodes, mainNodeId) => {
+          // Tạo khối subgraph ẩn danh để ép buộc cao độ hiển thị nằm hàng ngang song song đối xứng
+          code += `  subgraph Group_${mainNodeId} [" "]\n`;
+          code += `    direction LR\n`;
+          code += `    ${mainNodeId}\n`;
+          subNodes.forEach(subId => {
+              code += `    ${subId}\n`;
+          });
+          code += `  end\n`;
+          code += `  style Group_${mainNodeId} fill:none,stroke:none,color:none;\n`; // Giấu viền bảo toàn mỹ thuật
       });
 
       window.openSodoSidebarWithData = function(nodeId) {
@@ -5219,7 +5203,7 @@ window.calculateMemberEAI = function(memberName) {
                   flowchart: {
                       htmlLabels: true, 
                       useMaxWidth: false
-                      // TUYỆT ĐỐI không thêm curve: 'step', giữ nguyên vẹn đường nét uốn lượn cong tự nhiên nguyên bản của thầy
+                      // KHÔNG bẻ góc vuông, giữ nguyên nét uốn lượn tự nhiên của thầy Khang
                   }
               });
 
