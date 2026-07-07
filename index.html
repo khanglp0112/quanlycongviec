@@ -5065,7 +5065,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: BẢN VÁ TỐI ƯU KHÓA TRỤC THẲNG & ÉP MẠN SƯỜN TUYỆT ĐỐI)
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: CẤU HÌNH GÓC VUÔNG 90 ĐỘ CHUẨN KHOA HỌC NHƯ ẢNH 2)
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5078,7 +5078,7 @@ window.calculateMemberEAI = function(memberName) {
 
       sodoActiveDescMap.clear(); 
       
-      // Sử dụng cấu hình đồ thị uốn lượn cong tự nhiên nguyên bản của thầy
+      // Khởi tạo đồ thị Flowchart tiêu chuẩn
       let code = `graph ${sodoCurrentDirection}\n`;
       
       // VÒNG 1: KHỞI TẠO ĐỊNH DANH HÌNH KHỐI NGUYÊN BẢN CỦA THẦY KHANG
@@ -5097,12 +5097,9 @@ window.calculateMemberEAI = function(memberName) {
       });
 
       const links = [];                // Mảng chứa các đường nối xuôi trục dọc hoặc rẽ ngang
-      const failLinks = [];            // Mảng riêng chứa các mũi tên quay về (Không đạt)
-      const brokenChains = new Set();     // Danh sách khối đồng cấp bị ngắt xích dọc
-      const sameRankGroups = new Map();   // Nhóm quản lý cao độ ngang nhau
-      const mainTrunkSteps = [];          // Danh sách các khối thuộc trục xương sống chính
+      const brokenChains = new Set();     // Danh sách khối đồng cấp bị ngắt xích dọc tuyến tính
 
-      // VÒNG 2: PHÂN RÃ DỮ LIỆU ĐỂ PHÂN TÁCH LUỒNG TRỰC TIẾP
+      // VÒNG 2: GIẢI NÉN CHUỒI ĐIỀU HƯỚNG ĐỂ PHÂN TÁCH LUỒNG TRỰC TIẾP TƯỜNG MINH
       rows.forEach((row) => {
           const step = row.dataset.step;
           const nodeId = `step_${step}`;
@@ -5121,78 +5118,49 @@ window.calculateMemberEAI = function(memberName) {
               else equalStep = backRawVal;
           }
 
-          // Xử lý luồng Không đạt: Sử dụng nét đứt giãn rộng để triệt tiêu lực hút làm vẹo trục dọc của Bước 3
+          // Xử lý luồng Không đạt (Nét liền tường minh, bẻ góc vuông)
           if (shape === "rhombus" && failStep) {
-              failLinks.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
+              links.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
           }
 
-          // Xử lý luồng đồng cấp mạn sườn
+          // Xử lý luồng thiết lập kết nối đồng cấp mạn sườn
           if (equalStep) {
               const targetNodeId = `step_${equalStep}`;
               
-              // Đánh dấu chặt đứt liên kết dọc mặc định để ép khối phụ văng sang mạn sườn
-              brokenChains.add(nodeId);
+              // Bắn 1 đường mũi tên nét liền đi thẳng từ khối trục chính sang khối đồng cấp mạn sườn
+              links.push({ from: targetNodeId, to: nodeId, label: "" });
 
-              // Đăng ký gom nhóm ép ngang hàng
-              if (!sameRankGroups.has(targetNodeId)) {
-                  sameRankGroups.set(targetNodeId, []);
-              }
-              sameRankGroups.get(targetNodeId).push(nodeId);
-          } else {
-              // Khối nằm trên trục xương sống thẳng đứng
-              mainTrunkSteps.push(nodeId);
+              // Ngắt liên kết dọc mặc định đâm vào khối này để giải phóng nó ra mạn sườn
+              brokenChains.add(nodeId);
           }
       });
 
-      // VÒNG 3: DỰNG TRỤC XƯƠNG SỐNG THẲNG ĐỨNG (KẾT NỐI LIÊN TỤC KHÔNG ĐỨT ĐOẠN)
-      for (let i = 0; i < mainTrunkSteps.length - 1; i++) {
-          const currentNodeId = mainTrunkSteps[i];
-          const nextNodeId = mainTrunkSteps[i + 1];
-          
-          const currentStepNum = currentNodeId.replace('step_', '');
-          const currentRow = document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${currentStepNum}"]`);
-          const shape = currentRow ? currentRow.querySelector('.sd-block-shape').value : 'rect';
+      // VÒNG 3: XÂY DỰNG TUYẾN TÍNH XUÔI DÒNG MẶC ĐỊNH CHO TRỤC XƯƠNG SỐNG CHÍNH
+      rows.forEach((row, idx) => {
+          if (idx < rows.length - 1) {
+              const step = row.dataset.step;
+              const nodeId = `step_${step}`;
+              const nextNodeId = `step_${parseInt(step) + 1}`;
+              const shape = row.querySelector('.sd-block-shape').value;
 
-          if (shape === "rhombus") {
-              links.push({ from: currentNodeId, to: nextNodeId, label: "Đạt" });
-          } else {
-              links.push({ from: currentNodeId, to: nextNodeId, label: "" });
+              // Chỉ nối dọc tự động nếu bước tiếp theo KHÔNG PHẢI là khối chọn đồng cấp mạn sườn
+              if (!brokenChains.has(nextNodeId)) {
+                  if (shape === "rhombus") {
+                      links.push({ from: nodeId, to: nextNodeId, label: "Đạt" });
+                  } else {
+                      links.push({ from: nodeId, to: nextNodeId, label: "" });
+                  }
+              }
           }
-      }
+      });
 
-      // VÒNG 4: NẠP LỆNH CHO CÁC ĐƯỜNG MŨI TÊN XUÔI TRỤC VÀ MŨI TÊN NGANG MẠN SƯỜN
+      // VÒNG 4: BIÊN DỊCH CÁC LIÊN KẾT NÉT LIỀN VÀO MÃ LỆNH MERMAID
       links.forEach(l => {
           if (l.label) {
               code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
           } else {
               code += `  ${l.from} --> ${l.to}\n`;
           }
-      });
-
-      // VÒNG 5: NẠP CÁC KHỐI ĐỒNG CẤP VÀO HƯỚNG LIÊN KẾT NGANG ĐẶC BIỆT
-      sameRankGroups.forEach((subNodes, mainNodeId) => {
-          subNodes.forEach(subId => {
-              // Sử dụng nét đứt có hướng đi ngang để Mermaid tự động đẩy sang bên cạnh khối gốc
-              code += `  ${mainNodeId} -.-> ${subId}\n`;
-          });
-      });
-
-      // VÒNG 6: NẠP LUỒNG KHÔNG ĐẠT NỚI LỎNG TRỌNG SỐ (ÉP ĐƯỜNG VÒNG RỘNG QUA LƯNG)
-      failLinks.forEach(fl => {
-          // Khai báo nét đứt dài -. nhãn chữ .-> làm giãn biên biên dịch, giữ nguyên vị trí trục dọc chính
-          code += `  ${fl.from} -. "${fl.label}" .-> ${fl.to}\n`;
-      });
-
-      // VÒNG 7: KHÓA BẰNG CẤP CÙNG HÀNG NGANG BẰNG SUBGRAPH ẨN
-      sameRankGroups.forEach((subNodes, mainNodeId) => {
-          code += `  subgraph Group_${mainNodeId} [" "]\n`;
-          code += `    direction LR\n`;
-          code += `    ${mainNodeId}\n`;
-          subNodes.forEach(subId => {
-              code += `    ${subId}\n`;
-          });
-          code += `  end\n`;
-          code += `  style Group_${mainNodeId} fill:none,stroke:none,color:none;\n`;
       });
 
       window.openSodoSidebarWithData = function(nodeId) {
@@ -5217,9 +5185,20 @@ window.calculateMemberEAI = function(memberName) {
                   },
                   flowchart: {
                       htmlLabels: true, 
-                      useMaxWidth: false
+                      useMaxWidth: false,
+                      // CHÌA KHÓA VÀNG: Ép bộ vẽ bẻ góc vuông dứt khoát 90 độ chuẩn khoa học như ảnh 2
+                      curve: 'linear' 
                   }
               });
+
+              // Bổ sung cấu hình ép kết xuất vẽ đường bao vuông góc bằng CSS cho SVG
+              const styleBlock = document.getElementById('mermaid-ortho-fix') || document.createElement('style');
+              styleBlock.id = 'mermaid-ortho-fix';
+              styleBlock.innerHTML = `
+                  .edgePath .path { stroke-width: 1.5px !important; }
+                  g.edgePath path.path { marker-end: url(#arrowhead) !important; }
+              `;
+              if(!styleBlock.parentNode) document.head.appendChild(styleBlock);
 
               const idDocBanSvg = 'sodo-svg-' + Date.now();
 
