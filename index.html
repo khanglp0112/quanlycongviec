@@ -5065,7 +5065,269 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-function compileSodoDataToMermaid() {
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (NÂNG CẤP GIAO DIỆN MICA GLASSMORPHISM ĐÚC KHỐI 3D TRONG SUỐT)
+  function compileSodoDataToMermaid() {
+      const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
+      const renderContainer = document.getElementById('canvas-mermaid-render');
+      if(!renderContainer) return;
+      
+      if(rows.length === 0) {
+          renderContainer.innerHTML = `<div class="text-center py-24 text-slate-400 text-xs font-medium">Chưa có bước nào để vẽ sơ đồ. Thầy vui lòng bấm thêm bước.</div>`;
+          return;
+      }
+
+      sodoActiveDescMap.clear(); 
+      
+      // Khởi tạo đồ thị Flowchart theo hướng cấu hình của thầy
+      let code = `graph ${sodoCurrentDirection}\n`;
+      
+      // HÀM BỔ TRỢ: Tự động ngắt dòng văn bản sau mỗi khoảng 4 từ bằng ký tự \\n thô để hộp thoại vuông vắn
+      function wrapTextWithNewlines(text, maxWords = 4) {
+          const words = text.split(/\s+/);
+          let result = [];
+          for (let i = 0; i < words.length; i += maxWords) {
+              result.push(words.slice(i, i + maxWords).join(" "));
+          }
+          return result.join("\\n");
+      }
+      
+      // VÒNG 1: KHỞI TẠO ĐỊNH DANH HÌNH KHỐI NGUYÊN BẢN CỦA THẦY KHANG
+      rows.forEach(row => {
+          const step = row.dataset.step;
+          const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
+          const shape = row.querySelector('.sd-block-shape').value;
+          const desc = row.querySelector('.sd-block-desc').value.trim();
+          const nodeId = `step_${step}`;
+
+          sodoActiveDescMap.set(nodeId, { title: title, desc: desc || "Chưa có mô tả hay lưu ý chuyên môn bổ sung cho bước quy trình này." });
+
+          const formattedTitle = wrapTextWithNewlines(title, 4);
+
+          if(shape === "round") code += `  ${nodeId}(("${formattedTitle}")):::shape-round\n`;
+          else if(shape === "rhombus") code += `  ${nodeId}{{"${formattedTitle}"}}:::shape-rhombus\n`;
+          else code += `  ${nodeId}["${formattedTitle}"]:::shape-rect\n`;
+      });
+
+      const mainTrunkLinks = [];       
+      const sideEqualLinks = [];       
+      const failLinks = [];            
+      
+      const brokenChains = new Set();     
+      const sameRankGroups = new Map();   
+      const mainTrunkSteps = [];          
+
+      // VÒNG 2: PHÂN RÃ LUỒNG DỮ LIỆU ĐỂ BÓC TÁCH MẠN SƯỜN
+      rows.forEach((row) => {
+          const step = row.dataset.step;
+          const nodeId = `step_${step}`;
+          const shape = row.querySelector('.sd-block-shape').value;
+          const backRawVal = row.querySelector('.sd-block-back').value.trim();
+
+          let equalStep = "";
+          let failStep = "";
+
+          if (backRawVal.includes(",")) {
+              const parts = backRawVal.split(",");
+              equalStep = parts[0].trim();
+              failStep = parts[1].trim();
+          } else {
+              if(shape === 'rhombus') failStep = backRawVal;
+              else equalStep = backRawVal;
+          }
+
+          if (shape === "rhombus" && failStep) {
+              failLinks.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
+          }
+
+          if (equalStep) {
+              const targetNodeId = `step_${equalStep}`;
+              sideEqualLinks.push({ from: targetNodeId, to: nodeId, label: "" });
+              brokenChains.add(nodeId);
+
+              if (!sameRankGroups.has(targetNodeId)) {
+                  sameRankGroups.set(targetNodeId, []);
+              }
+              sameRankGroups.get(targetNodeId).push(nodeId);
+          } else {
+              mainTrunkSteps.push(nodeId);
+          }
+      });
+
+      // VÒNG 3: DỰNG TRỤC XƯƠNG SỐNG THẲNG ĐỨNG ƯU TIÊN
+      for (let i = 0; i < mainTrunkSteps.length - 1; i++) {
+          const currentNodeId = mainTrunkSteps[i];
+          const nextNodeId = mainTrunkSteps[i + 1];
+          
+          const currentStepNum = currentNodeId.replace('step_', '');
+          const currentRow = document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${currentStepNum}"]`);
+          const shape = currentRow ? currentRow.querySelector('.sd-block-shape').value : 'rect';
+
+          if (shape === "rhombus") {
+              mainTrunkLinks.push({ from: currentNodeId, to: nextNodeId, label: "Đạt" });
+          } else {
+              mainTrunkLinks.push({ from: currentNodeId, to: nextNodeId, label: "" });
+          }
+      }
+
+      // VÒNG 4: NẠP MÃ LỆNH THEO THỨ TỰ ƯU TIÊN LAYOUT
+      mainTrunkLinks.forEach(l => {
+          if (l.label) code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
+          else code += `  ${l.from} --> ${l.to}\n`;
+      });
+
+      sideEqualLinks.forEach(l => {
+          code += `  ${l.from} --> ${l.to}\n`;
+      });
+
+      failLinks.forEach(l => {
+          code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
+      });
+
+      // VÒNG 5: ĐỊNH VỊ CẤU TRÚC HÀNG NGANG BẰNG SUBGRAPH MẠN SƯỜN
+      sameRankGroups.forEach((subNodes, mainNodeId) => {
+          code += `  subgraph Group_${mainNodeId} [" "]\n`;
+          code += `    direction LR\n`;
+          code += `    ${mainNodeId}\n`;
+          subNodes.forEach(subId => {
+              code += `    ${subId}\n`;
+          });
+          code += `  end\n`;
+          code += `  style Group_${mainNodeId} fill:none,stroke:none,color:none;\n`; 
+      });
+
+      window.openSodoSidebarWithData = function(nodeId) {
+          if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
+          const data = sodoActiveDescMap.get(nodeId);
+          const stepNum = nodeId.replace('step_', '');
+          document.getElementById('sd-side-badge').textContent = `Mã khối: Bước ${stepNum}`;
+          document.getElementById('sd-side-title').textContent = data.title;
+          document.getElementById('sd-side-desc').textContent = data.desc;
+          document.getElementById('sodo-sidebar-panel').classList.add('active');
+      };
+
+      try {
+          if (typeof mermaid !== 'undefined') {
+              mermaid.initialize({
+                  startOnLoad: false,
+                  theme: 'neutral',
+                  securityLevel: 'loose',
+                  themeVariables: {
+                      fontFamily: '"Times New Roman", Times, serif',
+                      fontSize: '13px'
+                  },
+                  flowchart: {
+                      htmlLabels: false, // Tắt HTML để chuỗi \\n tính toán hình học ôm khít chữ tự động
+                      useMaxWidth: false,
+                      curve: 'ortho' 
+                  }
+              });
+
+              // BỘ NÃO PHÁT SÁNG NỘI VI MICA: Đè CSS cao cấp thiết lập kính thấu quang Glassmorphism cho SVG
+              const styleBlock = document.getElementById('mermaid-ortho-fix') || document.createElement('style');
+              styleBlock.id = 'mermaid-ortho-fix';
+              styleBlock.innerHTML = `
+                  /* 1. Thiết lập dải đường ống dẫn hướng 90 độ mượt mà */
+                  .edgePath .path { stroke-width: 1.8px !important; stroke: #94a3b8 !important; }
+                  g.edgePath path.path { marker-end: url(#arrowhead) !important; }
+                  .node .label { padding: 10px 16px !important; }
+
+                  /* 2. KHỐI BẮT ĐẦU/KẾT THÚC: Kính mờ pha lê Xanh Bầu Trời Sky nhạt */
+                  .node.shape-round rect, .node.shape-round circle, .node.shape-round polygon {
+                      fill: rgba(14, 165, 233, 0.12) !important;
+                      stroke: rgba(14, 165, 233, 0.5) !important;
+                      stroke-width: 1.5px !important;
+                      filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.02)) !important;
+                  }
+                  .node.shape-round text { fill: #0284c7 !important; font-weight: 700 !important; }
+
+                  /* 3. KHỐI HÀNH ĐỘNG (CHỮ NHẬT): Kính mờ khói xám Slate quý phái trung tính */
+                  .node.shape-rect rect, .node.shape-rect circle, .node.shape-rect polygon {
+                      fill: rgba(241, 245, 249, 0.55) !important;
+                      stroke: rgba(148, 163, 184, 0.4) !important;
+                      stroke-width: 1.5px !important;
+                      filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.02)) !important;
+                  }
+                  .node.shape-rect text { fill: #334155 !important; font-weight: 700 !important; }
+
+                  /* 4. KHỐI QUYẾT ĐỊNH (HÌNH THOI): Kính mờ sắc Tím Thạch Anh sậm pha lê */
+                  .node.shape-rhombus rect, .node.shape-rhombus circle, .node.shape-rhombus polygon {
+                      fill: rgba(139, 92, 246, 0.12) !important;
+                      stroke: rgba(139, 92, 246, 0.5) !important;
+                      stroke-width: 1.5px !important;
+                      filter: drop-shadow(0 2px 4px rgba(15, 23, 42, 0.02)) !important;
+                  }
+                  .node.shape-rhombus text { fill: #7c3aed !important; font-weight: 700 !important; }
+
+                  /* 5. HIỆU ỨNG TƯƠNG TÁC HOVER (ÁNH HỒNG NEON PHA LÊ RỰC SÁNG KHI RÊ CHUỘT) */
+                  .node:hover rect, .node:hover circle, .node:hover polygon {
+                      fill: rgba(236, 72, 153, 0.18) !important;
+                      stroke: rgba(236, 72, 153, 0.8) !important;
+                      filter: drop-shadow(0 8px 16px rgba(236, 72, 153, 0.15)) !important;
+                      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                  }
+                  .node:hover text {
+                      fill: #db2777 !important;
+                      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                  }
+              `;
+              if(!styleBlock.parentNode) document.head.appendChild(styleBlock);
+
+              const idDocBanSvg = 'sodo-svg-' + Date.now();
+
+              mermaid.render(idDocBanSvg, code).then(({ svg }) => {
+                  renderContainer.innerHTML = svg;
+
+                  renderContainer.style.display = 'flex';
+                  renderContainer.style.alignItems = 'center';
+                  renderContainer.style.justifyContent = 'center';
+                  renderContainer.style.width = '100%';
+                  renderContainer.style.height = '100%';
+
+                  const svgElement = renderContainer.querySelector('svg');
+                  if(svgElement) {
+                      svgElement.removeAttribute('width');
+                      svgElement.style.width = '100%';
+                      svgElement.style.height = '100%';
+                      
+                      if(typeof svgPanZoom !== 'undefined') {
+                          if(window.currentSodoPanZoom) {
+                              try { window.currentSodoPanZoom.destroy(); } catch(e){}
+                          }
+                          window.currentSodoPanZoom = svgPanZoom(svgElement, {
+                                zoomEnabled: true,          
+                                controlIconsEnabled: false, 
+                                fit: true,                  
+                                center: true,               
+                                minZoom: 0.2,               
+                                maxZoom: 10,                
+                                panEnabled: true            
+                          });
+                      }
+
+                      svgElement.querySelectorAll('.node').forEach(nodeEl => {
+                          nodeEl.style.cursor = 'pointer';
+                          nodeEl.addEventListener('click', function(e) {
+                              e.stopPropagation();
+                              const idAttribute = nodeEl.id || "";
+                              const match = idAttribute.match(/step_\d+/);
+                              if(match) {
+                                  window.openSodoSidebarWithData(match[0]);
+                              } else {
+                                  const classList = nodeEl.className.baseVal || "";
+                                  const classMatch = classList.match(/step_\d+/);
+                                  if(classMatch) window.openSodoSidebarWithData(classMatch[0]);
+                              }
+                          });
+                      });
+                  }
+              }).catch(err => {
+                  console.error("Lỗi dựng hình sơ đồ quy trình: ", err);
+              });
+          }
+      } catch (e) {
+          console.error("Lỗi khởi tạo hệ thống Mermaid: ", e);
+      }
+  }
     // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do (ĐÃ VÁ CÚ PHÁP CHUẨN)
     window.openSodoSidebarWithData = function(nodeId) {
         if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
