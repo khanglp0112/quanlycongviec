@@ -5065,7 +5065,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (VÁ LỖI TRIỆT ĐỂ: ÉP TÂM KHỐI ĐỒNG CẤP THẲNG HÀNG NGANG TUYỆT ĐỐI)
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (CHUYỂN ĐỔI HỆ TRỤC NGANG LR - KHÓA TÂM VUÔNG GÓC TUYỆT ĐỐI)
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5078,8 +5078,8 @@ window.calculateMemberEAI = function(memberName) {
 
       sodoActiveDescMap.clear(); 
       
-      // Sử dụng cấu hình đồ thị hướng dọc tiêu chuẩn làm gốc
-      let code = `graph TD\n`;
+      // GIẢI PHÁP TỐI CAO: Ép cứng hướng sơ đồ chạy từ Trái sang Phải (LR) để giải phóng trọng lực đứng
+      let code = `graph LR\n`;
       
       // HÀM BỔ TRỢ: Tự động ngắt dòng văn bản sau mỗi khoảng 4 từ bằng ký tự \\n thô để hộp thoại vuông vắn
       function wrapTextWithNewlines(text, maxWords = 4) {
@@ -5108,8 +5108,8 @@ window.calculateMemberEAI = function(memberName) {
           else code += `  ${nodeId}["${formattedTitle}"]:::shape-rect\n`;
       });
 
-      const mainTrunkLinks = [];       // Mảng chứa các đường nối xương sống dọc chính
-      const sideEqualLinks = [];       // Mảng chứa các mũi tên đi ngang mạn sườn đồng cấp
+      const mainTrunkLinks = [];       // Mảng chứa các đường nối xương sống dọc chính (bây giờ chạy ngang)
+      const sideEqualLinks = [];       // Mảng chứa các mũi tên đi ngang mạn sườn (bây giờ đâm dọc xuống)
       const failLinks = [];            // Mảng chứa các mũi tên quay ngược Không đạt
       
       const brokenChains = new Set();     // Danh sách khối đồng cấp bị ngắt xích dọc
@@ -5146,6 +5146,7 @@ window.calculateMemberEAI = function(memberName) {
           if (equalStep) {
               const targetNodeId = `step_${equalStep}`;
               brokenChains.add(nodeId);
+              sideEqualLinks.push({ from: targetNodeId, to: nodeId });
 
               if (!sameRankGroups.has(targetNodeId)) {
                   sameRankGroups.set(targetNodeId, []);
@@ -5154,7 +5155,7 @@ window.calculateMemberEAI = function(memberName) {
           }
       });
 
-      // VÒNG 3: DỰNG TRỤC XƯƠNG SỐNG THẲNG ĐỨNG NHẢY CÓC QUA KHỐI ĐỒNG CẤP
+      // VÒNG 3: DỰNG TRỤC XƯƠNG SỐNG CHÍNH NHẢY CÓC QUA KHỐI ĐỒNG CẤP
       const mainTrunkSteps = allStepsOrdered.filter(id => !brokenChains.has(id));
       for (let i = 0; i < mainTrunkSteps.length - 1; i++) {
           const currentNodeId = mainTrunkSteps[i];
@@ -5172,30 +5173,21 @@ window.calculateMemberEAI = function(memberName) {
       }
 
       // =========================================================================
-      // CẤU TRÚC PHÂN TẦNG CƯỠNG BỨC: ÉP BUỘC ĐỒNG TRỤC TÂM NGANG HÀNG PHẲNG
+      // XUẤT MÃ LỆNH THEO KIẾN TRÚC TRỤC NGANG LR CHUẨN XÁC KHÔNG XUNG ĐỘT
       // =========================================================================
       
-      // 1. Dùng cấu trúc định hướng ngang tuyệt đối lồng ghép cấp bậc cho khối đồng cấp
-      sameRankGroups.forEach((subNodes, mainNodeId) => {
-          code += `  subgraph Rank_${mainNodeId} [" "]\n`;
-          code += `    direction LR\n`;
-          code += `    ${mainNodeId}\n`;
-          subNodes.forEach(subId => {
-              code += `    ${subId}\n`;
-              // Ép đường liên kết đi ngang thuần túy nằm bên trong lòng hộp điều hướng
-              code += `    ${mainNodeId} --> ${subId}\n`;
-          });
-          code += `  end\n`;
-          code += `  style Rank_${mainNodeId} fill:none,stroke:none,color:none;\n`; 
-      });
-
-      // 2. Nạp toàn bộ trục dọc xương sống chính sau khi đã bọc mạn sườn
+      // Lớp 1: Vẽ trục xương sống thẳng tắp từ trái sang phải trước
       mainTrunkLinks.forEach(l => {
           if (l.label) code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
           else code += `  ${l.from} --> ${l.to}\n`;
       });
 
-      // 3. Ghi luồng không đạt sau cùng bọc ngoài lưng
+      // Lớp 2: Vẽ mũi tên kết nối các khối đồng cấp mạn sườn (Mermaid tự đẩy thẳng đứng xuống dưới/lên trên)
+      sideEqualLinks.forEach(l => {
+          code += `  ${l.from} --> ${l.to}\n`;
+      });
+
+      // Lớp 3: Nạp luồng không đạt bọc uốn vòng cung rộng rãi ra ngoài biên
       failLinks.forEach(l => {
           code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
       });
@@ -5223,10 +5215,11 @@ window.calculateMemberEAI = function(memberName) {
                   flowchart: {
                       htmlLabels: false, 
                       useMaxWidth: false,
-                      curve: 'ortho' // Ép đi dây bẻ góc vuông dứt khoát 90 độ
+                      curve: 'ortho' // Giữ nguyên bẻ góc vuông 90 độ dứt khoát chuẩn mực
                   }
               });
 
+              // CSS trợ lực cho nét vẽ đường ống Mica Glassmorphism
               const styleBlock = document.getElementById('mermaid-ortho-fix') || document.createElement('style');
               styleBlock.id = 'mermaid-ortho-fix';
               styleBlock.innerHTML = `
@@ -5234,7 +5227,7 @@ window.calculateMemberEAI = function(memberName) {
                   g.edgePath path.path { marker-end: url(#arrowhead) !important; }
                   .node .label { padding: 10px 16px !important; }
 
-                  /* Phong cách kính mờ Mica Glassmorphism */
+                  /* Hiệu ứng kính mờ Mica Glassmorphism cao cấp */
                   .node.shape-round rect, .node.shape-round circle, .node.shape-round polygon {
                       fill: rgba(14, 165, 233, 0.12) !important;
                       stroke: rgba(14, 165, 233, 0.5) !important;
