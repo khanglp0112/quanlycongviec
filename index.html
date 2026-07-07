@@ -7,6 +7,8 @@
   <link rel="icon" href="LogoToToanTin.png" type="image/png">
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
   <style>
    /* --- HOẠT CẢNH MỞ MODAL MỀM MẠI --- */
@@ -358,6 +360,93 @@
         filter: brightness(1.06) !important;
         box-shadow: 0 6px 15px rgba(217, 119, 6, 0.28) !important;
     }
+   /* ==================================================================== */
+    /* CẤU HÌNH MỸ THUẬT THANH SIDEBAR VÀ HỆ MÀU MICA SƠ ĐỒ (PHẦN 2)         */
+    /* ==================================================================== */
+    
+    /* 1. Trạng thái kích hoạt đẩy thanh Sidebar trượt ra mềm mại */
+    #sodo-sidebar-panel.active {
+        transform: translateX(0) !important;
+    }
+
+    /* Đệm dải viền Highlight phát sáng nội vi dọc rìa tấm kính Sidebar */
+    #sodo-sidebar-panel {
+        box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.6), -10px 0 30px rgba(15, 23, 42, 0.03) !important;
+    }
+
+   /* ==================================================================== */
+    /* 2. THIẾT LẬP LẠI TOÀN BỘ HỆ MÀU MICA ĐÚC CHO LÕI VẼ SƠ ĐỒ MERMAID    */
+    /* ==================================================================== */
+    #canvas-mermaid-render svg, .mermaid svg {
+        font-family: 'Arial', system-ui, -apple-system, sans-serif !important;
+    }
+
+    /* Khối Bắt đầu / Kết thúc: Kính mờ xanh Sky dịu mát */
+    .node.shape-round rect, 
+    .node.shape-round circle,
+    .node.shape-round polygon,
+    .node.shape-round .label-container {
+        fill: rgba(2, 132, 199, 0.08) !important;
+        stroke: rgba(2, 132, 199, 0.55) !important;
+        stroke-width: 2px !important;
+    }
+    .node.shape-round .nodeLabel, .node.shape-round span {
+        color: #0284c7 !important;
+        font-weight: 700 !important;
+    }
+
+    /* Khối Hành động: Kính mờ khói Slate trung tính chuyên nghiệp */
+    .node.shape-rect rect,
+    .node.shape-rect circle,
+    .node.shape-rect polygon,
+    .node.shape-rect .label-container {
+        fill: rgba(71, 85, 105, 0.08) !important;
+        stroke: rgba(71, 85, 105, 0.5) !important;
+        stroke-width: 2px !important;
+    }
+    .node.shape-rect .nodeLabel, .node.shape-rect span {
+        color: #334155 !important;
+        font-weight: 700 !important;
+    }
+
+    /* Khối Quyết định (Hình thoi): Kính mờ sắc Tím Thạch Anh nổi bật điểm thắt */
+    .node.shape-rhombus rect,
+    .node.shape-rhombus circle,
+    .node.shape-rhombus polygon,
+    .node.shape-rhombus .label-container {
+        fill: rgba(124, 58, 237, 0.08) !important;
+        stroke: rgba(124, 58, 237, 0.55) !important;
+        stroke-width: 2px !important;
+    }
+    .node.shape-rhombus .nodeLabel, .node.shape-rhombus span {
+        color: #7c3aed !important;
+        font-weight: 700 !important;
+    }
+
+    /* Làm mịn dải đường truyền mũi tên và đầu kim chỉ hướng */
+    #canvas-mermaid-render .edgePaths .edgePath .path, .mermaid .edgePaths .edgePath .path {
+        stroke: #94a3b8 !important;
+        stroke-width: 1.8px !important;
+    }
+    #canvas-mermaid-render .marker path, .mermaid .marker path {
+        fill: #94a3b8 !important;
+        stroke: none !important;
+    }
+
+    /* Hiệu ứng tương tác: Rê chuột vào khối sơ đồ sẽ đổi màu đằm chắc tay */
+    .node:hover rect,
+    .node:hover circle,
+    .node:hover polygon,
+    .node:hover .label-container {
+        fill: rgba(219, 39, 119, 0.1) !important; /* Ánh hồng Neon nhẹ khi tương tác */
+        stroke: #db2777 !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+    }
+    .node:hover .nodeLabel, .node:hover span {
+        color: #db2777 !important;
+        transition: all 0.2s ease !important;
+    }
   </style>
   <!-- ==================================================================== -->
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
@@ -400,11 +489,11 @@
       <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Giờ làm</span></button> 
       <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span></button> 
       <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()"><i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Liên kết</span></button>
-      <button id="btn-flowchart" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#0891b2; color:#ffffff;" onmouseenter="this.style.background='#0e7490'" onmouseleave="this.style.background='#0891b2'" onclick="toggleFlowchart()"><i data-lucide="workflow" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Sơ đồ quy trình</span></button>
       <button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()"><i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Chấm tiết</span></button>
       <button id="btn-show-bienban" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-white" style="background:#ea580c;" onmouseenter="this.style.background='#c2410c'" onmouseleave="this.style.background='#ea580c'" onclick="toggleBienBan()"><i data-lucide="file-text" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Biên bản họp</span></button>
       <button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
       <button id="btn-archive" onclick="openArchiveModal()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm hover:shadow" style="background:#ffffff;color:#475569;border:1px solid #cbd5e1;"><i data-lucide="archive" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Kho lưu trữ</span></button>
+      <button id="btn-so-do" onclick="toggleSoDoView()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-pink-200/60 shadow-sm" style="background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(236, 72, 153, 0.16)); color: #db2777;"><i data-lucide="git-fork" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Sơ đồ quy trình</span></button>
       <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thêm việc</span></button>
     </div>
 </header>
@@ -468,57 +557,6 @@
             </thead>
             <tbody id="ds-lien-ket" class="divide-y divide-slate-200"></tbody>
         </table>
-    </div>
-  </div>
-</div>
-    <!-- ==================================================================== -->
-<!-- PHẦN MỚI: GIAO DIỆN SƠ ĐỒ QUY TRÌNH / THUẬT TOÁN (KÉO-THẢ)            -->
-<!-- ==================================================================== -->
-<div id="flowchart-view" class="hidden fade-in mt-5 mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
-  <div class="rounded-2xl p-4 sm:p-6 border border-white/70 shadow-[0_15px_45px_rgba(0,0,0,0.05),0_1px_3px_rgba(0,0,0,0.02)]" style="background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.85)); backdrop-filter: blur(12px);">
-
-    <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
-        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-            <i data-lucide="workflow" class="text-cyan-600"></i> Sơ đồ quy trình / Thuật toán
-        </h2>
-        <button onclick="toggleFlowchart()" class="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
-    </div>
-
-    <!-- Thanh chọn / quản lý sơ đồ đã lưu -->
-    <div class="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl border border-slate-100" style="background: rgba(248, 250, 252, 0.6);">
-        <select id="fc-select-diagram" onchange="fcLoadSelected()" class="px-3 py-2 rounded-lg text-sm border border-slate-200 outline-none font-medium bg-white/80 min-w-[200px]">
-            <option value="">+ Sơ đồ mới...</option>
-        </select>
-        <input id="fc-diagram-name" type="text" placeholder="Tên sơ đồ *" class="px-3 py-2 rounded-lg text-sm border border-slate-200 outline-none focus:border-cyan-500 bg-white/80 flex-1 min-w-[160px]">
-        <button onclick="fcSaveDiagram()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"><i data-lucide="save" style="width:15px;height:15px;"></i>Lưu</button>
-        <button onclick="fcNewDiagram()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"><i data-lucide="file-plus" style="width:15px;height:15px;"></i>Làm mới</button>
-        <button onclick="fcDeleteDiagram()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-rose-600 bg-rose-50 border border-rose-100 hover:bg-rose-100 transition-colors"><i data-lucide="trash-2" style="width:15px;height:15px;"></i>Xóa</button>
-    </div>
-
-    <!-- Thanh công cụ thêm khối / nối mũi tên -->
-    <div class="flex flex-wrap items-center gap-2 mb-3">
-        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Thêm khối:</span>
-        <button onclick="fcAddNode('start')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white transition-transform hover:scale-105" style="background:#10b981;"><i data-lucide="play" style="width:13px;height:13px;"></i>Bắt đầu/Kết thúc</button>
-        <button onclick="fcAddNode('process')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-transform hover:scale-105" style="background:#3b82f6;"><i data-lucide="square" style="width:13px;height:13px;"></i>Xử lý (tuần tự)</button>
-        <button onclick="fcAddNode('decision')" class="flex items-center gap-1.5 text-xs font-bold text-white transition-transform hover:scale-105" style="background:#f59e0b; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); padding:9px 18px;">Rẽ nhánh</button>
-        <div class="w-px h-6 bg-slate-200 mx-1"></div>
-        <button id="fc-btn-connect" onclick="fcToggleConnectMode()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"><i data-lucide="git-commit-horizontal" style="width:13px;height:13px;"></i>Nối mũi tên</button>
-        <button onclick="fcDeleteSelected()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 bg-white border border-rose-100 hover:bg-rose-50 transition-colors"><i data-lucide="eraser" style="width:13px;height:13px;"></i>Xóa mục đang chọn</button>
-        <span class="text-[11px] text-slate-400 italic ml-2 hidden md:inline">Mẹo: bấm "Nối mũi tên" rồi lần lượt bấm khối nguồn → khối đích. Nhấp đúp vào khối để sửa chữ.</span>
-    </div>
-
-    <!-- Vùng vẽ sơ đồ -->
-    <div id="fc-canvas-wrapper" class="relative w-full overflow-auto rounded-xl border-2 border-dashed border-slate-200" style="height: 65vh; background: radial-gradient(circle, #e2e8f0 1px, transparent 1px) 0 0/16px 16px, #ffffff;">
-        <div id="fc-canvas" style="position:relative; width:2200px; height:1500px;">
-            <svg id="fc-svg" width="2200" height="1500" style="position:absolute; top:0; left:0; pointer-events:none; z-index:1;">
-                <defs>
-                    <marker id="fc-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
-                        <path d="M0,0 L0,6 L9,3 z" fill="#64748b"></path>
-                    </marker>
-                </defs>
-            </svg>
-            <!-- Các khối (node) được JS chèn động vào đây -->
-        </div>
     </div>
   </div>
 </div>
@@ -772,7 +810,78 @@
         </div>
       </div>
 </div>
+<div id="so-do-view" class="hidden fade-in mt-5 mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
+  <div class="rounded-2xl p-6 border border-slate-200/80 shadow-[0_20px_50px_rgba(15,23,42,0.04)] bg-white">
+    
+    <div class="flex flex-wrap justify-between items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+        <div>
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="git-fork" class="text-pink-600 w-5 h-5"></i> Sơ đồ Quy trình Thuật toán Tổ Chuyên Môn
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">Số hóa quy trình làm việc dạng danh mục văn bản hành chính dễ dùng</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <button id="btn-save-quytrinh" onclick="saveQuyTrinhServer()" class="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-bold text-white border border-white/20 transition-all shadow-[0_2px_4px_rgba(15,23,42,0.06),inset_0_1px_0_rgba(255,255,255,0.25)]" style="background: linear-gradient(135deg, #f472b6, #db2777); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);" onmouseenter="this.style.filter='brightness(1.08)'" onmouseleave="this.style.filter='none'" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='none'">
+                <i data-lucide="save" style="width:16px;height:16px;"></i> <span>Lưu quy trình</span>
+            </button>
+            <button onclick="toggleSoDoView()" class="px-4 py-2 rounded-lg text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors border border-slate-200">Đóng</button>
+        </div>
+    </div>
 
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        
+        <div class="lg:col-span-1 space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/80 h-[680px] overflow-y-auto scrollbar-thin">
+            <input type="hidden" id="inp-sd-id" value="">
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Tên Quy trình công việc *</label>
+                <input type="text" id="inp-sd-ten" placeholder="Ví dụ: Quy trình kiểm tra học kỳ Toán 8" class="w-full px-3 py-2 rounded-lg text-sm border border-slate-200 outline-none focus:border-pink-500 font-semibold text-slate-700 bg-white shadow-sm">
+            </div>
+
+            <div class="border-t border-slate-200/60 pt-3">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Các bước thực hiện</span>
+                    <button type="button" onclick="addSodoBlockRow()" class="text-[11px] bg-pink-50 text-pink-700 border border-pink-200/50 px-2.5 py-1 rounded-md font-bold hover:bg-pink-100 transition-colors shadow-sm">+ Thêm bước</button>
+                </div>
+                
+                <div id="container-sd-blocks" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 flex flex-col h-[680px] relative">
+            <div class="mb-2 flex flex-wrap justify-between items-center gap-2 flex-shrink-0">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                    <i data-lucide="eye" class="w-3.5 h-3.5"></i> Bản vẽ thấu kính trực quan
+                </span>
+                
+                <div class="flex items-center gap-2">
+                    <div class="flex bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[11px] font-bold shadow-inner">
+                        <button id="btn-dir-td" onclick="changeSodoDirection('TD')" class="px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm transition-all">🔽 Hướng dọc</button>
+                        <button id="btn-dir-lr" onclick="changeSodoDirection('LR')" class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition-all">▶️ Hướng ngang</button>
+                    </div>
+                    <button type="button" onclick="downloadSodoAsImage()" class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-slate-200 bg-white text-slate-600 hover:text-pink-600 hover:border-pink-200 transition-all shadow-sm">
+                        <i data-lucide="download" style="width:12px;height:12px;"></i> Tải ảnh sơ đồ
+                    </button>
+                </div>
+            </div>
+            
+           <div id="sodo-canvas-holder" class="flex-1 w-full border border-slate-200 rounded-xl bg-white relative shadow-inner overflow-hidden" style="min-height: 500px;">
+                <div id="canvas-mermaid-render" class="w-full h-full"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="mt-8 border-t border-slate-100 pt-6">
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+            <i data-lucide="history" class="w-4 h-4"></i> Kho dữ liệu quy trình tổ toán - tin
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3" id="list-sd-history">
+            </div>
+    </div>
+
+  </div>
+</div>
   <div id="board-view" class="flex-1 w-full px-4 sm:px-6 pt-5 pb-6 overflow-auto transition-all duration-300 ease-in-out">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-0 py-2">
 
@@ -2009,7 +2118,6 @@ document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('stats-bar').classList.add('hidden');
       document.getElementById('timeline-view').classList.remove('hidden');
       document.getElementById('bien-ban-view').classList.add('hidden');
-      if (document.getElementById('flowchart-view')) document.getElementById('flowchart-view').classList.add('hidden');
       if (typeof timelineMode !== 'undefined' && timelineMode === 'calendar') renderCalendar(); 
       else renderTimeline();
     };
@@ -3262,7 +3370,6 @@ function toggleChamTiet() {
         const statsBar = document.getElementById('stats-bar');
         const emptyState = document.getElementById('empty-state');
         const bbView = document.getElementById('bien-ban-view');
-        const fcView = document.getElementById('flowchart-view');
  
         if (chamTiet.classList.contains('hidden')) {
             if (board) board.classList.add('hidden');
@@ -3272,7 +3379,6 @@ function toggleChamTiet() {
             if (statsBar) statsBar.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
             if (bbView) bbView.classList.add('hidden');
-            if (fcView) fcView.classList.add('hidden');
          
             chamTiet.classList.remove('hidden');
             renderChamTietTable();
@@ -3291,7 +3397,6 @@ function toggleBienBan() {
         const timeline = document.getElementById('timeline-view');
         const emptyState = document.getElementById('empty-state');
         const bbView = document.getElementById('bien-ban-view');
-        const fcView = document.getElementById('flowchart-view');
 
         if (!bbView) return;
 
@@ -3301,7 +3406,6 @@ function toggleBienBan() {
             if (ctView) ctView.classList.add('hidden'); 
             if (timeline) timeline.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
-            if (fcView) fcView.classList.add('hidden');
             
             // Hiện thị biên bản họp tổ
             bbView.classList.remove('hidden');
@@ -4178,7 +4282,6 @@ function toggleLienKet() {
         const statsBar = document.getElementById('stats-bar');
         const emptyState = document.getElementById('empty-state');
         const bbView = document.getElementById('bien-ban-view');
-        const fcView = document.getElementById('flowchart-view');
  
         if (!lkView) return;
         if (lkView.classList.contains('hidden')) {
@@ -4189,7 +4292,6 @@ function toggleLienKet() {
             if (statsBar) statsBar.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
             if (bbView) bbView.classList.add('hidden');
-            if (fcView) fcView.classList.add('hidden');
          
             lkView.classList.remove('hidden');
             renderLienKet();
@@ -4643,410 +4745,955 @@ window.calculateMemberEAI = function(memberName) {
         return { score: eaiPercent, label: `⏳ Hiệu suất cần cải thiện (${eaiPercent}%)`, color: 'text-amber-700 bg-amber-50 border-amber-200' };
     }
 };
-// =========================================================================
+// ====================================================================
+    // BỘ ĐIỀU KHIỂN LOGIC SƠ ĐỒ QUY TRÌNH - CLIENT JS (PHẦN 3 - ĐÃ VÁ LỖI CÚ PHÁP)
+    // ====================================================================
+    let sodoCurrentDirection = 'TD'; // Mặc định hướng dọc (Top-Down)
+    let sodoActiveDescMap = new Map(); // Bộ nhớ tạm lưu trữ mô tả ẩn của từng bước
 
-// =========================================================================
-// PHẦN MỚI: TRÌNH VẼ SƠ ĐỒ QUY TRÌNH / THUẬT TOÁN (KÉO-THẢ TRỰC QUAN)
-// Lưu trữ trên Firestore, collection "SoDoQuyTrinh"
-// =========================================================================
-let fcNodes = [];              // { id, type: 'start'|'process'|'decision', x, y, text }
-let fcEdges = [];              // { id, from, to, label }
-let fcCurrentDiagramId = null;
-let fcDiagramsCache = [];
-let fcConnectMode = false;
-let fcConnectSource = null;
-let fcSelected = null;         // { kind: 'node'|'edge', id }
-let fcDrag = null;             // { nodeId, offsetX, offsetY }
+    // 1. Hàm bật/tắt đóng mở phân khu Sơ đồ đồng bộ với các Menu khác
+    function toggleSoDoView() {
+        const board = document.getElementById('board-view');
+        const lkView = document.getElementById('lien-ket-view');
+        const ctView = document.getElementById('cham-tiet-view');
+        const timeline = document.getElementById('timeline-view');
+        const emptyState = document.getElementById('empty-state');
+        const bbView = document.getElementById('bien-ban-view');
+        const sdView = document.getElementById('so-do-view');
+        const filterBar = document.getElementById('filter-bar');
+        const statsBar = document.getElementById('stats-bar');
 
-const FC_DIMS = {
-    start:    { w: 150, h: 56 },
-    process:  { w: 170, h: 70 },
-    decision: { w: 160, h: 120 }
-};
+        if (sdView.classList.contains('hidden')) {
+            // Ẩn toàn bộ các phân hệ làm việc khác
+            if (board) board.classList.add('hidden');
+            if (lkView) lkView.classList.add('hidden');
+            if (ctView) ctView.classList.add('hidden');
+            if (timeline) timeline.classList.add('hidden');
+            if (bbView) bbView.classList.add('hidden');
+            if (filterBar) filterBar.classList.add('hidden');
+            if (statsBar) statsBar.classList.add('hidden');
+            if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
 
-function toggleFlowchart() {
-    const board = document.getElementById('board-view');
-    const lkView = document.getElementById('lien-ket-view');
-    const ctView = document.getElementById('cham-tiet-view');
-    const timeline = document.getElementById('timeline-view');
-    const filterBar = document.getElementById('filter-bar');
-    const statsBar = document.getElementById('stats-bar');
-    const emptyState = document.getElementById('empty-state');
-    const bbView = document.getElementById('bien-ban-view');
-    const fcView = document.getElementById('flowchart-view');
-
-    if (!fcView) return;
-
-    if (fcView.classList.contains('hidden')) {
-        if (board) board.classList.add('hidden');
-        if (lkView) lkView.classList.add('hidden');
-        if (ctView) ctView.classList.add('hidden');
-        if (timeline) timeline.classList.add('hidden');
-        if (filterBar) filterBar.classList.add('hidden');
-        if (statsBar) statsBar.classList.add('hidden');
-        if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
-        if (bbView) bbView.classList.add('hidden');
-
-        fcView.classList.remove('hidden');
-        fcLoadDiagramList();
-    } else {
-        fcView.classList.add('hidden');
-        if (filterBar) filterBar.classList.remove('hidden');
-        if (statsBar) statsBar.classList.remove('hidden');
-        renderTasks();
-    }
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-// --- Thêm khối mới ---
-function fcAddNode(type) {
-    const dims = FC_DIMS[type] || FC_DIMS.process;
-    const node = {
-        id: 'n' + Date.now() + Math.floor(Math.random() * 1000),
-        type,
-        x: 60 + (fcNodes.length % 6) * 40,
-        y: 40 + (fcNodes.length % 8) * 30,
-        text: type === 'start' ? 'Bắt đầu' : (type === 'decision' ? 'Điều kiện?' : 'Bước xử lý')
-    };
-    fcNodes.push(node);
-    fcRenderCanvas();
-}
-
-// --- Vẽ lại toàn bộ canvas: xóa khối cũ, vẽ lại khối + đường nối ---
-function fcRenderCanvas() {
-    const canvas = document.getElementById('fc-canvas');
-    if (!canvas) return;
-
-    // Xóa các node div cũ (giữ lại svg)
-    canvas.querySelectorAll('.fc-node').forEach(el => el.remove());
-
-    fcNodes.forEach(node => fcCreateNodeElement(node));
-    fcRenderEdges();
-
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-function fcCreateNodeElement(node) {
-    const canvas = document.getElementById('fc-canvas');
-    const dims = FC_DIMS[node.type] || FC_DIMS.process;
-
-    const el = document.createElement('div');
-    el.className = 'fc-node';
-    el.dataset.id = node.id;
-    el.style.position = 'absolute';
-    el.style.left = node.x + 'px';
-    el.style.top = node.y + 'px';
-    el.style.width = dims.w + 'px';
-    el.style.height = dims.h + 'px';
-    el.style.zIndex = 2;
-    el.style.display = 'flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-    el.style.padding = '6px 10px';
-    el.style.textAlign = 'center';
-    el.style.fontSize = '13px';
-    el.style.fontWeight = '700';
-    el.style.color = '#ffffff';
-    el.style.cursor = 'grab';
-    el.style.userSelect = 'none';
-    el.style.boxShadow = '0 3px 8px rgba(15,23,42,0.15)';
-    el.style.transition = 'box-shadow 0.15s ease';
-
-    if (node.type === 'start') {
-        el.style.borderRadius = '9999px';
-        el.style.background = '#10b981';
-    } else if (node.type === 'decision') {
-        el.style.background = '#f59e0b';
-        el.style.clipPath = 'polygon(50% 0, 100% 50%, 50% 100%, 0 50%)';
-    } else {
-        el.style.borderRadius = '10px';
-        el.style.background = '#3b82f6';
-    }
-
-    if (fcSelected && fcSelected.kind === 'node' && fcSelected.id === node.id) {
-        el.style.outline = '3px solid #0f172a';
-        el.style.outlineOffset = '2px';
-    }
-    if (fcConnectMode && fcConnectSource === node.id) {
-        el.style.outline = '3px solid #ec4899';
-        el.style.outlineOffset = '2px';
-    }
-
-    const span = document.createElement('span');
-    span.textContent = node.text;
-    span.style.pointerEvents = 'none';
-    span.style.wordBreak = 'break-word';
-    span.style.maxWidth = '100%';
-    el.appendChild(span);
-
-    // --- Click: chọn khối hoặc nối mũi tên ---
-    el.addEventListener('click', (e) => {
-        if (fcDrag && fcDrag.moved) { fcDrag.moved = false; return; } // vừa kéo xong thì bỏ qua click
-        if (fcConnectMode) {
-            if (!fcConnectSource) {
-                fcConnectSource = node.id;
-                fcRenderCanvas();
-            } else if (fcConnectSource !== node.id) {
-                const sourceNode = fcNodes.find(n => n.id === fcConnectSource);
-                let label = '';
-                if (sourceNode && sourceNode.type === 'decision') {
-                    label = prompt('Nhập nhãn cho nhánh này (VD: Đúng / Sai / Có / Không) — để trống nếu không cần:', '') || '';
-                }
-                fcEdges.push({ id: 'e' + Date.now() + Math.floor(Math.random() * 1000), from: fcConnectSource, to: node.id, label });
-                fcConnectSource = null;
-                fcRenderCanvas();
-            } else {
-                fcConnectSource = null;
-                fcRenderCanvas();
+            sdView.classList.remove('hidden');
+            closeSodoSidebar(); // Đảm bảo sidebar đóng khi vào mới
+            
+            // Khởi tạo phom mẫu danh mục cơ bản nếu khay đang trống rỗng
+            const container = document.getElementById('container-sd-blocks');
+            if(container.children.length === 0) {
+                clearSodoForm();
+                addSodoBlockRow("Nhận nhiệm vụ chuyên môn", "round", "__auto__,");
+                addSodoBlockRow("Thực hiện xây dựng nội dung", "rect", "__auto__,");
+                addSodoBlockRow("Kiểm tra chất lượng thành phẩm", "rhombus", "4,2");
+                addSodoBlockRow("In sao và lưu kho", "round", "__end__,");
             }
+            
+            // Gọi hàm quét lịch sử quy trình
+            if (typeof loadQuyTrinhLichSuTable === 'function') loadQuyTrinhLichSuTable();
+            compileSodoDataToMermaid();
         } else {
-            fcSelected = { kind: 'node', id: node.id };
-            fcRenderCanvas();
+            sdView.classList.add('hidden');
+            closeSodoSidebar();
+            if (filterBar) filterBar.classList.remove('hidden');
+            if (statsBar) statsBar.classList.remove('hidden');
+            if (typeof renderTasks === 'function') renderTasks();
         }
-    });
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
 
-    // --- Nhấp đúp: sửa chữ trong khối ---
-    el.addEventListener('dblclick', (e) => {
-        e.stopPropagation();
-        const newText = prompt('Sửa nội dung khối:', node.text);
-        if (newText !== null) {
-            node.text = newText.trim() || node.text;
-            fcRenderCanvas();
+    // 2. HÀM SINH TỰ ĐỘNG MỘT HÀNG Ô CHỮ (BẢN VÁ PHẦN 2: GIAO DIỆN SELECT THÔNG MINH ĐỘNG)
+    function addSodoBlockRow(initText = "", initShape = "rect", initBack = "", initDesc = "") {
+        const container = document.getElementById('container-sd-blocks');
+        const stepIndex = container.children.length + 1;
+        
+        const div = document.createElement('div');
+        // Bổ sung thuộc tính draggable="true" gốc của trình duyệt để hỗ trợ tính năng kéo thả
+        div.className = "sd-block-row bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm space-y-2.5 relative cursor-grab active:cursor-grabbing transition-all hover:shadow-md";
+        div.dataset.step = stepIndex;
+        div.setAttribute('draggable', 'true');
+        
+        const isRhombus = (initShape === 'rhombus');
+        
+        // Giải nén dữ liệu chuỗi đóng gói "nextOrYes,noStep" để nạp lên giao diện
+        let nextOrYesVal = "";
+        let failVal = "";
+        if (initBack && initBack.includes(",")) {
+            const parts = initBack.split(",");
+            nextOrYesVal = parts[0];
+            failVal = parts[1];
+        } else {
+            nextOrYesVal = initBack;
         }
-    });
+        
+        div.innerHTML = `
+            <div class="flex items-center justify-between group-drag-handle">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex flex-col gap-0.5 text-slate-400 cursor-move py-1 px-0.5">
+                        <span class="w-3 h-0.5 bg-slate-400 rounded-full"></span>
+                        <span class="w-3 h-0.5 bg-slate-400 rounded-full"></span>
+                        <span class="w-3 h-0.5 bg-slate-400 rounded-full"></span>
+                    </span>
+                    <span class="sd-step-badge text-[10px] font-bold text-pink-600 bg-pink-50 px-2 py-0.5 rounded-md uppercase">Bước ${stepIndex}</span>
+                </div>
+                <button type="button" onclick="removeSodoBlockRow(this)" class="text-slate-400 hover:text-red-500 text-xs font-semibold transition-colors">Xóa bước</button>
+            </div>
+            
+            <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Tên bước quy trình *</label>
+                <input type="text" value="${initText}" oninput="window.compileSodoDataToMermaid()" placeholder="Tên bước (VD: Tổ trưởng phê duyệt đề)..." class="sd-block-title w-full px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none focus:border-pink-500 font-semibold text-slate-700 bg-white shadow-inner">
+            </div>
 
-    // --- Kéo-thả di chuyển khối (Pointer Events, hỗ trợ cả chuột và cảm ứng) ---
-    el.addEventListener('pointerdown', (e) => {
-        if (fcConnectMode) return;
-        e.preventDefault();
-        el.setPointerCapture(e.pointerId);
-        const canvasRect = canvas.getBoundingClientRect();
-        fcDrag = {
-            nodeId: node.id,
-            offsetX: e.clientX - canvasRect.left - node.x,
-            offsetY: e.clientY - canvasRect.top - node.y,
-            moved: false
-        };
-        el.style.cursor = 'grabbing';
-    });
+            <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Hình khối hiển thị</label>
+                <select onchange="window.handleShapeChange(this)" class="sd-block-shape w-full text-[11px] px-2 py-1.5 rounded-lg border border-slate-200 outline-none bg-slate-50 font-semibold text-slate-600 cursor-pointer">
+                    <option value="rect" ${initShape==='rect'?'selected':''}>⏹️ Khối Hành động (Chữ nhật)</option>
+                    <option value="round" ${initShape==='round'?'selected':''}>⚪ Khối Đầu/Cuối (Tròn)</option>
+                    <option value="rhombus" ${initShape==='rhombus'?'selected':''}>🔶 Khối Quyết định (Hình thoi)</option>
+                </select>
+            </div>
 
-    el.addEventListener('pointermove', (e) => {
-        if (!fcDrag || fcDrag.nodeId !== node.id) return;
-        const canvasRect = canvas.getBoundingClientRect();
-        let newX = e.clientX - canvasRect.left - fcDrag.offsetX;
-        let newY = e.clientY - canvasRect.top - fcDrag.offsetY;
-        newX = Math.max(0, newX);
-        newY = Math.max(0, newY);
-        node.x = newX;
-        node.y = newY;
-        el.style.left = newX + 'px';
-        el.style.top = newY + 'px';
-        fcDrag.moved = true;
-        fcRenderEdges(); // chỉ vẽ lại đường nối cho mượt, không tạo lại toàn bộ khối
-    });
+            <div class="sd-navigation-group flex flex-col gap-2 pt-1 border-t border-dashed border-slate-100">
+                
+                <div class="sd-next-step-box">
+                    <label class="sd-label-next block text-[10px] font-bold mb-1 ${isRhombus ? 'text-emerald-600' : 'text-slate-500'}">
+                        ${isRhombus ? '✅ Đạt → đi đến bước...' : '→ Bước tiếp theo'}
+                    </label>
+                    <select data-saved-val="${nextOrYesVal}" onchange="window.syncSodoSplitInputsToBack(this)" class="sd-block-next-select w-full text-[11px] px-2 py-1.5 rounded-lg border ${isRhombus ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200 bg-white'} outline-none font-bold ${isRhombus ? 'text-emerald-700' : 'text-slate-600'} cursor-pointer shadow-inner">
+                        </select>
+                </div>
 
-    el.addEventListener('pointerup', (e) => {
-        if (fcDrag && fcDrag.nodeId === node.id) {
-            el.style.cursor = 'grab';
-            try { el.releasePointerCapture(e.pointerId); } catch (err) {}
-        }
-        setTimeout(() => { fcDrag = null; }, 0);
-    });
+                <div class="sd-fail-step-box ${isRhombus ? '' : 'hidden'}">
+                    <label class="block text-[10px] font-bold text-red-600 mb-1">❌ Không đạt → quay lại bước...</label>
+                    <select data-saved-val="${failVal}" onchange="window.syncSodoSplitInputsToBack(this)" class="sd-block-fail-select w-full text-[11px] px-2 py-1.5 rounded-lg border border-red-200 outline-none bg-red-50/20 font-bold text-red-700 cursor-pointer shadow-inner">
+                        </select>
+                </div>
 
-    canvas.appendChild(el);
-}
+                <input type="hidden" class="sd-block-back" value="${initBack}">
+            </div>
 
-// --- Tính điểm giao giữa tâm khối và biên hình chữ nhật theo hướng tới khối kia ---
-function fcRectBorderPoint(cx, cy, halfW, halfH, dx, dy) {
-    if (dx === 0 && dy === 0) return { x: cx, y: cy };
-    const scaleX = dx !== 0 ? halfW / Math.abs(dx) : Infinity;
-    const scaleY = dy !== 0 ? halfH / Math.abs(dy) : Infinity;
-    const scale = Math.min(scaleX, scaleY);
-    return { x: cx + dx * scale, y: cy + dy * scale };
-}
-
-// --- Vẽ lại các đường nối (mũi tên) dựa trên vị trí hiện tại của khối ---
-function fcRenderEdges() {
-    const svg = document.getElementById('fc-svg');
-    if (!svg) return;
-    svg.querySelectorAll('.fc-edge-line, .fc-edge-label-bg, .fc-edge-label-text').forEach(el => el.remove());
-    document.querySelectorAll('.fc-edge-del').forEach(el => el.remove());
-
-    fcEdges.forEach(edge => {
-        const from = fcNodes.find(n => n.id === edge.from);
-        const to = fcNodes.find(n => n.id === edge.to);
-        if (!from || !to) return;
-
-        const fd = FC_DIMS[from.type] || FC_DIMS.process;
-        const td = FC_DIMS[to.type] || FC_DIMS.process;
-        const fcx = from.x + fd.w / 2, fcy = from.y + fd.h / 2;
-        const tcx = to.x + td.w / 2, tcy = to.y + td.h / 2;
-        const dx = tcx - fcx, dy = tcy - fcy;
-
-        const p1 = fcRectBorderPoint(fcx, fcy, fd.w / 2, fd.h / 2, dx, dy);
-        const p2 = fcRectBorderPoint(tcx, tcy, td.w / 2, td.h / 2, -dx, -dy);
-
-        const isSelected = fcSelected && fcSelected.kind === 'edge' && fcSelected.id === edge.id;
-
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
-        line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
-        line.setAttribute('stroke', isSelected ? '#ec4899' : '#64748b');
-        line.setAttribute('stroke-width', isSelected ? '3' : '2');
-        line.setAttribute('marker-end', 'url(#fc-arrow)');
-        line.classList.add('fc-edge-line');
-        svg.appendChild(line);
-
-        // Nhãn nhánh (VD: Đúng/Sai) + nút xóa nhanh, đặt ở điểm giữa đường nối
-        const midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
-        const del = document.createElement('div');
-        del.className = 'fc-edge-del';
-        del.style.position = 'absolute';
-        del.style.left = midX + 'px';
-        del.style.top = midY + 'px';
-        del.style.transform = 'translate(-50%, -50%)';
-        del.style.zIndex = '3';
-        del.style.fontSize = '11px';
-        del.style.fontWeight = '700';
-        del.style.color = '#0f172a';
-        del.style.background = 'rgba(255,255,255,0.9)';
-        del.style.border = '1px solid #cbd5e1';
-        del.style.borderRadius = '9999px';
-        del.style.padding = '2px 8px';
-        del.style.cursor = 'pointer';
-        del.style.whiteSpace = 'nowrap';
-        del.title = 'Bấm để chọn/xóa đường nối này';
-        del.textContent = edge.label ? edge.label : '•';
-        del.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fcSelected = { kind: 'edge', id: edge.id };
-            fcRenderCanvas();
+            <div>
+                <label class="block text-[10px] font-semibold text-slate-500 mb-1">Mô tả nghiệp vụ / Hướng dẫn chuyên môn</label>
+                <textarea oninput="window.compileSodoDataToMermaid()" placeholder="Nhập hướng dẫn thao tác chi tiết hiển thị ở Sidebar..." class="sd-block-desc w-full px-2.5 py-1 border border-slate-200 rounded-lg text-[11px] outline-none focus:border-pink-500 text-slate-500 font-medium bg-slate-50/30 shadow-inner h-11 resize-none scrollbar-thin">${initDesc}</textarea>
+            </div>
+        `;
+        container.appendChild(div);
+        
+        // Tái khởi tạo sự kiện kéo thả cho khay chứa và quét cập nhật các ô Select
+        initSodoDragAndDropEvents(div);
+        window.updateAllSodoSelectOptions();
+    }
+    // Hàm xóa hàng bước và tự động cấu trúc lại số thứ tự tịnh tiến
+    function removeSodoBlockRow(btn) {
+        btn.closest('.sd-block-row').remove();
+        document.querySelectorAll('#container-sd-blocks .sd-block-row').forEach((row, idx) => {
+            const newIndex = idx + 1;
+            row.dataset.step = newIndex;
+            row.querySelector('.sd-step-badge').textContent = `Bước ${newIndex}`;
         });
-        document.getElementById('fc-canvas').appendChild(del);
-    });
-}
-
-// --- Bật/tắt chế độ nối mũi tên ---
-function fcToggleConnectMode() {
-    fcConnectMode = !fcConnectMode;
-    fcConnectSource = null;
-    const btn = document.getElementById('fc-btn-connect');
-    if (fcConnectMode) {
-        btn.style.background = '#0f172a';
-        btn.style.color = '#ffffff';
-    } else {
-        btn.style.background = '#ffffff';
-        btn.style.color = '#475569';
+        compileSodoDataToMermaid();
     }
-    fcRenderCanvas();
-}
 
-// --- Xóa khối/đường nối đang được chọn ---
-function fcDeleteSelected() {
-    if (!fcSelected) { alert('Hãy bấm chọn một khối hoặc một đường nối trước khi xóa.'); return; }
-    if (fcSelected.kind === 'node') {
-        fcNodes = fcNodes.filter(n => n.id !== fcSelected.id);
-        fcEdges = fcEdges.filter(e => e.from !== fcSelected.id && e.to !== fcSelected.id);
-    } else if (fcSelected.kind === 'edge') {
-        fcEdges = fcEdges.filter(e => e.id !== fcSelected.id);
+    // HÀM TRỢ LÝ: Quản lý ẩn hiện ô nhỏ và cập nhật label dựa theo loại hình khối
+    function handleShapeChange(select) {
+        const row = select.closest('.sd-block-row');
+        if(!row) return;
+
+        const shape = select.value;
+        const labelNext = row.querySelector('.sd-label-next');
+        const failBox = row.querySelector('.sd-fail-step-box');
+        const selectNext = row.querySelector('.sd-block-next-select');
+        const selectFail = row.querySelector('.sd-block-fail-select');
+
+        if(shape === 'rhombus') {
+            // Chế độ Quyết định: Hiển thị 2 nhánh Đạt / Không đạt
+            if(labelNext) {
+                labelNext.textContent = '✅ Đạt → đi đến bước...';
+                labelNext.className = 'sd-label-next block text-[10px] font-bold mb-1 text-emerald-600';
+            }
+            if(selectNext) {
+                selectNext.className = 'sd-block-next-select w-full text-[11px] px-2 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50/20 outline-none font-bold text-emerald-700 cursor-pointer shadow-inner';
+            }
+            if(failBox) failBox.classList.remove('hidden');
+        } else {
+            // Chế độ Hành động / Đầu-Cuối: Chỉ hiển thị 1 ô bước tiếp theo
+            if(labelNext) {
+                labelNext.textContent = '→ Bước tiếp theo';
+                labelNext.className = 'sd-label-next block text-[10px] font-bold mb-1 text-slate-500';
+            }
+            if(selectNext) {
+                selectNext.className = 'sd-block-next-select w-full text-[11px] px-2 py-1.5 rounded-lg border border-slate-200 bg-white outline-none font-bold text-slate-600 cursor-pointer shadow-inner';
+            }
+            if(failBox) failBox.classList.add('hidden');
+            if(selectFail) { selectFail.value = ""; selectFail.setAttribute('data-saved-val', ''); }
+        }
+        
+        if(selectNext) syncSodoSplitInputsToBack(selectNext);
     }
-    fcSelected = null;
-    fcRenderCanvas();
-}
 
-// --- Tạo sơ đồ mới trắng ---
-function fcNewDiagram() {
-    fcNodes = [];
-    fcEdges = [];
-    fcCurrentDiagramId = null;
-    fcSelected = null;
-    fcConnectMode = false;
-    fcConnectSource = null;
-    document.getElementById('fc-diagram-name').value = '';
-    document.getElementById('fc-select-diagram').value = '';
-    fcRenderCanvas();
-}
+    // HÀM TRỢ LÝ: Đóng gói giá trị từ 2 ô select riêng lẻ ghi đè ngầm về thuộc tính .sd-block-back gốc
+    function syncSodoSplitInputsToBack(selectEl) {
+        const row = selectEl.closest('.sd-block-row');
+        if(!row) return;
 
-// --- Tải danh sách sơ đồ đã lưu từ Firebase ---
-async function fcLoadDiagramList() {
-    const select = document.getElementById('fc-select-diagram');
-    try {
-        const snapshot = await db.collection('SoDoQuyTrinh').get();
-        fcDiagramsCache = [];
-        snapshot.forEach(doc => { const d = doc.data(); d.id = doc.id; fcDiagramsCache.push(d); });
-        fcDiagramsCache.sort((a, b) => (a.ten || '').localeCompare(b.ten || ''));
+        const selectNext = row.querySelector('.sd-block-next-select');
+        const selectFail = row.querySelector('.sd-block-fail-select');
+        const inputBackOriginal = row.querySelector('.sd-block-back');
 
-        select.innerHTML = '<option value="">+ Sơ đồ mới...</option>' +
-            fcDiagramsCache.map(d => `<option value="${d.id}">${d.ten}</option>`).join('');
+        if(inputBackOriginal) {
+            const nextVal = selectNext ? selectNext.value : "";
+            const faVal = selectFail ? selectFail.value : "";
+            
+            // Ghi nhớ giá trị tạm thời vào thuộc tính để chống mất trạng thái khi tịnh tiến
+            if(selectNext) selectNext.setAttribute('data-saved-val', nextVal);
+            if(selectFail) selectFail.setAttribute('data-saved-val', faVal);
 
-        if (fcCurrentDiagramId) select.value = fcCurrentDiagramId;
-        else fcRenderCanvas(); // hiện canvas trắng nếu chưa chọn gì
-    } catch (e) {
-        console.error(e);
+            inputBackOriginal.value = `${nextVal},${faVal}`;
+        }
+        window.compileSodoDataToMermaid();
     }
-}
 
-// --- Chọn 1 sơ đồ có sẵn từ dropdown để mở ---
-function fcLoadSelected() {
-    const select = document.getElementById('fc-select-diagram');
-    const id = select.value;
-    if (!id) { fcNewDiagram(); return; }
-    const diagram = fcDiagramsCache.find(d => d.id === id);
-    if (!diagram) return;
-    fcCurrentDiagramId = id;
-    fcNodes = diagram.nodes || [];
-    fcEdges = diagram.edges || [];
-    fcSelected = null;
-    document.getElementById('fc-diagram-name').value = diagram.ten || '';
-    fcRenderCanvas();
-}
+    // HÀM TRỢ LÝ: Tự động tính toán số bước hiện thời để sinh ra danh sách Option xổ xuống chuẩn xác
+    window.updateAllSodoSelectOptions = function() {
+        const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
+        
+        rows.forEach(row => {
+            const currentStep = row.dataset.step;
+            const shape = row.querySelector('.sd-block-shape').value;
+            const selectNext = row.querySelector('.sd-block-next-select');
+            const selectFail = row.querySelector('.sd-block-fail-select');
 
-// --- Lưu sơ đồ hiện tại lên Firebase ---
-async function fcSaveDiagram() {
-    const ten = document.getElementById('fc-diagram-name').value.trim();
-    if (!ten) { alert('Vui lòng đặt tên cho sơ đồ trước khi lưu!'); return; }
+            if(!selectNext || !selectFail) return;
 
-    const data = {
-        ten,
-        nodes: fcNodes,
-        edges: fcEdges,
-        updated_at: firebase.firestore.FieldValue.serverTimestamp()
+            // Đọc lại giá trị cần hiển thị đã lưu trước đó
+            const savedNext = selectNext.getAttribute('data-saved-val') || "";
+            const savedFail = selectFail.getAttribute('data-saved-val') || "";
+
+            // Xây dựng danh sách chuỗi HTML cho ô chọn Bước tiếp theo / Đạt
+            let nextOptionsHtml = `<option value="__auto__">⚡ Tự động (bước liền sau)</option>`;
+            nextOptionsHtml += `<option value="__end__">🏁 Kết thúc (không nối tiếp)</option>`;
+            rows.forEach(r => {
+                const sNum = r.dataset.step;
+                const sTitle = r.querySelector('.sd-block-title').value.trim() || `Bước ${sNum}`;
+                if(sNum !== currentStep) {
+                    nextOptionsHtml += `<option value="${sNum}">↳ Bước ${sNum}: ${sTitle.substring(0, 30)}</option>`;
+                }
+            });
+
+            // Xây dựng danh sách chuỗi HTML cho ô chọn Không đạt
+            let failOptionsHtml = `<option value="">-- Không chọn --</option>`;
+            rows.forEach(r => {
+                const sNum = r.dataset.step;
+                const sTitle = r.querySelector('.sd-block-title').value.trim() || `Bước ${sNum}`;
+                if(sNum !== currentStep) {
+                    failOptionsHtml += `<option value="${sNum}">↩ Bước ${sNum}: ${sTitle.substring(0, 30)}</option>`;
+                }
+            });
+
+            // Bơm danh sách mới vào thẻ select và thiết lập lại trạng thái được chọn đúng số bước
+            selectNext.innerHTML = nextOptionsHtml;
+            selectFail.innerHTML = failOptionsHtml;
+
+            // Khôi phục giá trị đã chọn (nếu đã lưu), mặc định là __auto__
+            selectNext.value = savedNext || '__auto__';
+            selectFail.value = savedFail;
+        });
+    };
+// ==========================================
+    // THUẬT TOÁN NẮM KÉO DRAG & DROP SẮP XẾP VÀ CHÈN BƯỚC QUY TRÌNH QUY CHUẨN NATIVE
+    // ==========================================
+    let currentDraggingSodoRow = null;
+
+    function initSodoDragAndDropEvents(rowEl) {
+        rowEl.addEventListener('dragstart', function(e) {
+            currentDraggingSodoRow = this;
+            this.classList.add('opacity-40', 'border-pink-400');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        rowEl.addEventListener('dragend', function() {
+            currentDraggingSodoRow = null;
+            this.classList.remove('opacity-40', 'border-pink-400');
+            // Cập nhật lại số thứ tự tịnh tiến và biên dịch lại sơ đồ ngay sau khi thả tay
+            window.reIndexAllSodoRows();
+        });
+
+        rowEl.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        });
+
+        rowEl.addEventListener('dragenter', function() {
+            this.classList.add('bg-slate-50');
+        });
+
+        rowEl.addEventListener('dragleave', function() {
+            this.classList.remove('bg-slate-50');
+        });
+
+        rowEl.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('bg-slate-50');
+            if (currentDraggingSodoRow && currentDraggingSodoRow !== this) {
+                const container = document.getElementById('container-sd-blocks');
+                const allRows = Array.from(container.children);
+                const fromIndex = allRows.indexOf(currentDraggingSodoRow);
+                const toIndex = allRows.indexOf(this);
+
+                // Thực hiện chèn/hoán đổi vị trí thực tế trong cấu trúc cây DOM HTML
+                if (fromIndex < toIndex) {
+                    this.parentNode.insertBefore(currentDraggingSodoRow, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(currentDraggingSodoRow, this);
+                }
+            }
+            return false;
+        });
+    }
+
+    // HÀM TRỢ LÝ ĐA CHỨC NĂNG: Tịnh tiến lại số hiệu hiển thị, tịnh tiến thuộc tính và làm tươi ma trận Select
+    window.reIndexAllSodoRows = function() {
+        const container = document.getElementById('container-sd-blocks');
+        const rows = container.querySelectorAll('.sd-block-row');
+        
+        rows.forEach((row, idx) => {
+            const oldStep = row.dataset.step;
+            const newStep = (idx + 1).toString();
+            
+            if(oldStep !== newStep) {
+                // Tịnh tiến thuộc tính lõi và số nhãn chữ hiển thị trực quan trên form
+                row.dataset.step = newStep;
+                const badge = row.querySelector('.sd-step-badge');
+                if(badge) badge.textContent = `Bước ${newStep}`;
+            }
+        });
+
+        // Kích hoạt nạp lại dữ liệu cho các ô select và vẽ lại hình dạng sơ đồ mới cấu trúc lại
+        window.updateAllSodoSelectOptions();
+        window.compileSodoDataToMermaid();
     };
 
-    try {
-        if (fcCurrentDiagramId) {
-            await db.collection('SoDoQuyTrinh').doc(fcCurrentDiagramId).update(data);
+    // ĐĂNG KÝ CƯỠNG BỨC TOÀN CỤC CHỐNG LỖI CẤU TRÚC PHẠM VI (SCOPE) CỦA TRÌNH DUYỆT
+    window.handleShapeChange = handleShapeChange;
+    window.syncSodoSplitInputsToBack = syncSodoSplitInputsToBack;
+    // 3. Logic xử lý nút chuyển hướng Sơ đồ Ngang hay Dọc
+    function changeSodoDirection(dir) {
+        sodoCurrentDirection = dir;
+        const btnTD = document.getElementById('btn-dir-td');
+        const btnLR = document.getElementById('btn-dir-lr');
+        
+        if(dir === 'TD') {
+            btnTD.className = "px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm transition-all";
+            btnLR.className = "px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition-all";
         } else {
-            const docRef = await db.collection('SoDoQuyTrinh').add(data);
-            fcCurrentDiagramId = docRef.id;
+            btnLR.className = "px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm transition-all";
+            btnTD.className = "px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition-all";
         }
-        await fcLoadDiagramList();
-        showSystemSuccess('Đã lưu sơ đồ!', `Sơ đồ "${ten}" đã được đồng bộ an toàn lên đám mây Firebase.`);
-    } catch (e) {
-        alert('Lỗi khi lưu: ' + e.message);
+        compileSodoDataToMermaid();
     }
-}
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHIÊN BẢN MỚI: HỖ TRỢ RẼ NHÁNH HOÀN CHỈNH)
+  function compileSodoDataToMermaid() {
+      const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
+      const renderContainer = document.getElementById('canvas-mermaid-render');
+      if(!renderContainer) return;
+      
+      if(rows.length === 0) {
+          renderContainer.innerHTML = `<div class="text-center py-24 text-slate-400 text-xs font-medium">Chưa có bước nào để vẽ sơ đồ. Thầy vui lòng bấm thêm bước.</div>`;
+          return;
+      }
 
-// --- Xóa hẳn sơ đồ đang mở khỏi Firebase ---
-function fcDeleteDiagram() {
-    if (!fcCurrentDiagramId) { alert('Chưa có sơ đồ nào đang mở để xóa. Hãy chọn 1 sơ đồ từ danh sách.'); return; }
-    const diagram = fcDiagramsCache.find(d => d.id === fcCurrentDiagramId);
-    showSystemConfirm(
-        'Xóa sơ đồ?',
-        `Bạn có chắc chắn muốn xóa vĩnh viễn sơ đồ "${diagram ? diagram.ten : ''}" không? Hành động này không thể khôi phục.`,
-        async () => {
-            try {
-                await db.collection('SoDoQuyTrinh').doc(fcCurrentDiagramId).delete();
-                closeSystemConfirm();
-                fcNewDiagram();
-                await fcLoadDiagramList();
-            } catch (e) {
-                alert('Lỗi khi xóa: ' + e.message);
+      sodoActiveDescMap.clear(); 
+      
+      // Sử dụng biến hướng toàn cục thay vì ghi cứng TD (FIX BUG HƯỚNG SƠ ĐỒ)
+      let code = `graph ${sodoCurrentDirection}\n`;
+      
+      // HÀM BỔ TRỢ: Tự động ngắt dòng văn bản sau mỗi khoảng 4 từ
+      function wrapTextWithNewlines(text, maxWords = 4) {
+          const words = text.split(/\s+/);
+          let result = [];
+          for (let i = 0; i < words.length; i += maxWords) {
+              result.push(words.slice(i, i + maxWords).join(" "));
+          }
+          return result.join("\\n");
+      }
+      
+      // Thu thập metadata của tất cả các bước
+      const stepsData = [];
+      rows.forEach(row => {
+          const step = row.dataset.step;
+          const title = row.querySelector('.sd-block-title').value.trim() || `Bước ${step}`;
+          const shape = row.querySelector('.sd-block-shape').value;
+          const desc = row.querySelector('.sd-block-desc').value.trim();
+          const backRawVal = row.querySelector('.sd-block-back').value.trim();
+          const nodeId = `step_${step}`;
+          
+          // Phân tách giá trị back: "nextOrYes,noStep"
+          let nextOrYes = "__auto__";
+          let noStep = "";
+          if (backRawVal.includes(",")) {
+              const parts = backRawVal.split(",");
+              nextOrYes = parts[0].trim() || "__auto__";
+              noStep = parts[1].trim();
+          } else if (backRawVal) {
+              nextOrYes = backRawVal;
+          }
+
+          stepsData.push({ step, title, shape, desc, nodeId, nextOrYes, noStep });
+          sodoActiveDescMap.set(nodeId, { title: title, desc: desc || "Chưa có mô tả hay lưu ý chuyên môn bổ sung cho bước quy trình này." });
+      });
+      
+      // =========================================================================
+      // VÒNG 1: KHAI BÁO HÌNH KHỐI (SỬA CÚ PHÁP HÌNH THOI CHO MERMAID V10)
+      // =========================================================================
+      stepsData.forEach(sd => {
+          const formattedTitle = wrapTextWithNewlines(sd.title, 4);
+          if(sd.shape === "round") {
+              code += `  ${sd.nodeId}(("${formattedTitle}")):::shape-round\n`;
+          } else if(sd.shape === "rhombus") {
+              // CÚ PHÁP ĐÚNG cho hình thoi trong Mermaid v10: dùng { } không dùng {{ }}
+              code += `  ${sd.nodeId}{"${formattedTitle}"}:::shape-rhombus\n`;
+          } else {
+              code += `  ${sd.nodeId}["${formattedTitle}"]:::shape-rect\n`;
+          }
+      });
+
+      // =========================================================================
+      // VÒNG 2: SINH MÃ ĐƯỜNG NỐI DỰA TRÊN KHAI BÁO TƯỜNG MINH CỦA TỪNG BƯỚC
+      // =========================================================================
+      stepsData.forEach((sd, index) => {
+          const currentNodeId = sd.nodeId;
+          
+          // --- Xử lý nhánh "Tiếp theo" hoặc "Đạt" ---
+          let nextTarget = sd.nextOrYes;
+          
+          if (nextTarget === "__auto__") {
+              // Tự động: Nối đến bước liền sau trong danh sách form
+              if (index < stepsData.length - 1) {
+                  const nextNodeId = stepsData[index + 1].nodeId;
+                  if (sd.shape === "rhombus") {
+                      code += `  ${currentNodeId} -->|"Đạt"| ${nextNodeId}\n`;
+                  } else {
+                      code += `  ${currentNodeId} --> ${nextNodeId}\n`;
+                  }
+              }
+              // Nếu là bước cuối cùng + auto → không sinh mũi tên (kết thúc ngầm)
+          } else if (nextTarget === "__end__") {
+              // Kết thúc tường minh: Không sinh mũi tên nào
+              // (Bước này là điểm kết thúc của luồng)
+          } else if (nextTarget) {
+              // Nhảy đến bước cụ thể do người dùng chọn
+              const targetNodeId = `step_${nextTarget}`;
+              // Kiểm tra bước đích có tồn tại trong danh sách không
+              const targetExists = stepsData.some(s => s.nodeId === targetNodeId);
+              if (targetExists) {
+                  if (sd.shape === "rhombus") {
+                      code += `  ${currentNodeId} -->|"Đạt"| ${targetNodeId}\n`;
+                  } else {
+                      code += `  ${currentNodeId} --> ${targetNodeId}\n`;
+                  }
+              }
+          }
+          
+          // --- Xử lý nhánh "Không đạt" (Chỉ áp dụng cho khối Quyết định) ---
+          if (sd.shape === "rhombus" && sd.noStep) {
+              const failNodeId = `step_${sd.noStep}`;
+              const failExists = stepsData.some(s => s.nodeId === failNodeId);
+              if (failExists) {
+                  code += `  ${currentNodeId} -->|"Không đạt"| ${failNodeId}\n`;
+              }
+          }
+      });
+
+      // =========================================================================
+      // ĐĂNG KÝ HÀM MỞ SIDEBAR HIỂN THỊ MÔ TẢ BƯỚC KHI CLICK VÀO SƠ ĐỒ
+      // =========================================================================
+      window.openSodoSidebarWithData = function(nodeId) {
+          if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
+          const data = sodoActiveDescMap.get(nodeId);
+          const stepNum = nodeId.replace('step_', '');
+          document.getElementById('sd-side-badge').textContent = `Mã khối: Bước ${stepNum}`;
+          document.getElementById('sd-side-title').textContent = data.title;
+          document.getElementById('sd-side-desc').textContent = data.desc;
+          document.getElementById('sodo-sidebar-panel').classList.add('active');
+      };
+
+      // =========================================================================
+      // RENDER SƠ ĐỒ RA CANVAS BẰNG MERMAID ENGINE
+      // =========================================================================
+      try {
+          if (typeof mermaid !== 'undefined') {
+              mermaid.initialize({
+                  startOnLoad: false,
+                  theme: 'neutral',
+                  securityLevel: 'loose',
+                  themeVariables: {
+                      fontFamily: '"Times New Roman", Times, serif',
+                      fontSize: '13px'
+                  },
+                  flowchart: {
+                      htmlLabels: false, 
+                      useMaxWidth: false,
+                      curve: 'basis' // Sử dụng đường cong mềm mại thay vì góc vuông ortho (tránh lỗi render rẽ nhánh)
+                  }
+              });
+
+              const styleBlock = document.getElementById('mermaid-ortho-fix') || document.createElement('style');
+              styleBlock.id = 'mermaid-ortho-fix';
+              styleBlock.innerHTML = `
+                  .edgePath .path { stroke-width: 1.8px !important; stroke: #94a3b8 !important; }
+                  g.edgePath path.path { marker-end: url(#arrowhead) !important; }
+                  .node .label { padding: 10px 16px !important; }
+
+                  /* Phong cách kính mờ Mica Glassmorphism */
+                  .node.shape-round rect, .node.shape-round circle, .node.shape-round polygon {
+                      fill: rgba(14, 165, 233, 0.12) !important;
+                      stroke: rgba(14, 165, 233, 0.5) !important;
+                      stroke-width: 1.5px !important;
+                  }
+                  .node.shape-round text { fill: #0284c7 !important; font-weight: 700 !important; }
+
+                  .node.shape-rect rect, .node.shape-rect circle, .node.shape-rect polygon {
+                      fill: rgba(16, 185, 129, 0.12) !important;
+                      stroke: rgba(16, 185, 129, 0.5) !important;
+                      stroke-width: 1.5px !important;
+                  }
+                  .node.shape-rect text { fill: #059669 !important; font-weight: 700 !important; }
+
+                  .node.shape-rhombus rect, .node.shape-rhombus circle, .node.shape-rhombus polygon {
+                      fill: rgba(139, 92, 246, 0.12) !important;
+                      stroke: rgba(139, 92, 246, 0.5) !important;
+                      stroke-width: 1.5px !important;
+                  }
+                  .node.shape-rhombus text { fill: #7c3aed !important; font-weight: 700 !important; }
+
+                  .node:hover rect, .node:hover circle, .node:hover polygon {
+                      fill: rgba(236, 72, 153, 0.18) !important;
+                      stroke: rgba(236, 72, 153, 0.8) !important;
+                      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                  }
+                  .node:hover text { fill: #db2777 !important; }
+              `;
+              if(!styleBlock.parentNode) document.head.appendChild(styleBlock);
+
+              const idDocBanSvg = 'sodo-svg-' + Date.now();
+
+              mermaid.render(idDocBanSvg, code).then(({ svg }) => {
+                  renderContainer.innerHTML = svg;
+
+                  renderContainer.style.display = 'flex';
+                  renderContainer.style.alignItems = 'center';
+                  renderContainer.style.justifyContent = 'center';
+                  renderContainer.style.width = '100%';
+                  renderContainer.style.height = '100%';
+
+                  const svgElement = renderContainer.querySelector('svg');
+                  if(svgElement) {
+                      svgElement.removeAttribute('width');
+                      svgElement.style.width = '100%';
+                      svgElement.style.height = '100%';
+                      
+                      if(typeof svgPanZoom !== 'undefined') {
+                          if(window.currentSodoPanZoom) {
+                              try { window.currentSodoPanZoom.destroy(); } catch(e){}
+                          }
+                          window.currentSodoPanZoom = svgPanZoom(svgElement, {
+                                zoomEnabled: true,          
+                                controlIconsEnabled: false, 
+                                fit: true,                  
+                                center: true,               
+                                minZoom: 0.2,               
+                                maxZoom: 10,                
+                                panEnabled: true            
+                          });
+                      }
+
+                      svgElement.querySelectorAll('.node').forEach(nodeEl => {
+                          nodeEl.style.cursor = 'pointer';
+                          nodeEl.addEventListener('click', function(e) {
+                              e.stopPropagation();
+                              const idAttribute = nodeEl.id || "";
+                              const match = idAttribute.match(/step_\d+/);
+                              if(match) {
+                                  window.openSodoSidebarWithData(match[0]);
+                              } else {
+                                  const classList = nodeEl.className.baseVal || "";
+                                  const classMatch = classList.match(/step_\d+/);
+                                  if(classMatch) window.openSodoSidebarWithData(classMatch[0]);
+                              }
+                          });
+                      });
+                  }
+              }).catch(err => {
+                  console.error("Lỗi dựng hình sơ đồ quy trình: ", err);
+                  renderContainer.innerHTML = `<div class="text-center py-12 text-red-400 text-xs font-medium"><p class="mb-2">⚠️ Lỗi biên dịch sơ đồ</p><pre class="text-[10px] text-left bg-red-50 p-3 rounded-lg max-w-md mx-auto overflow-auto">${err.message || err}</pre></div>`;
+              });
+          }
+      } catch (e) {
+          console.error("Lỗi khởi tạo hệ thống Mermaid: ", e);
+      }
+  }
+    // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do (ĐÃ VÁ CÚ PHÁP CHUẨN)
+    window.openSodoSidebarWithData = function(nodeId) {
+        if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
+        
+        const data = sodoActiveDescMap.get(nodeId);
+        const stepNum = nodeId.replace('step_', '');
+
+        document.getElementById('sd-side-badge').textContent = `Mã khối: Bước ${stepNum}`;
+        document.getElementById('sd-side-title').textContent = data.title;
+        document.getElementById('sd-side-desc').textContent = data.desc;
+
+        document.getElementById('sodo-sidebar-panel').classList.add('active');
+    };
+
+    function closeSodoSidebar() {
+        const sidebar = document.getElementById('sodo-sidebar-panel');
+        if (sidebar) sidebar.classList.remove('active');
+    }
+
+    function clearSodoForm() {
+        document.getElementById('inp-sd-id').value = "";
+        document.getElementById('inp-sd-ten').value = "";
+        document.getElementById('container-sd-blocks').innerHTML = "";
+        sodoCurrentDirection = 'TD';
+        const btnTD = document.getElementById('btn-dir-td');
+        if (btnTD) btnTD.click();
+    }
+   // ====================================================================
+    // BỘ ĐỒNG BỘ DỮ LIỆU CLOUD FIREBASE FIRESTORE - LOGIC (PHẦN 4)
+    // ====================================================================
+
+    // 1. Hàm đóng gói mảng tịnh tiến và đẩy lên Cloud Firebase
+    // 1. Hàm đóng gói mảng tịnh tiến và đẩy lên Cloud Firebase (BẢN VÁ CHỐNG LAG LẶP NÚT)
+    async function saveQuyTrinhServer() {
+        const id = document.getElementById('inp-sd-id').value;
+        const tenQuyTrinh = document.getElementById('inp-sd-ten').value.trim();
+        
+        if(!tenQuyTrinh) { 
+            alert("Thầy vui lòng điền Tên Quy trình công việc trước khi lưu."); 
+            return; 
+        }
+
+        const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
+        if(rows.length === 0) {
+            alert("Quy trình phải có ít nhất một bước thực hiện.");
+            return;
+        }
+
+        // --- BẢN VÁ CHỐNG LAG: BẬT TRẠNG THÁI XOAY XOÀI ĐỒNG BỘ 100% VỚI BIÊN BẢN ---
+        const btnSave = document.getElementById('btn-save-quytrinh');
+        let originalBtnText = "";
+        if (btnSave) {
+            originalBtnText = btnSave.innerHTML;
+            // ÉP KIỂU HIỂN THỊ VÒNG XOAY HOẠT CẢNH QUAY ĐỀU CỦA LUCIDE TRÊN KHUNG MICA
+            btnSave.innerHTML = '<i data-lucide="loader" class="animate-spin" style="width:16px;height:16px;display:inline-block;margin-right:6px;"></i> Đang đồng bộ...';
+            btnSave.disabled = true; // Khóa cứng chuột hoàn toàn chống bấm đúp tạo rác Firebase
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        // Thu thập dữ liệu sạch từ Form tịnh tiến
+        const blockData = [];
+        rows.forEach(row => {
+            blockData.push({
+                step: row.dataset.step,
+                title: row.querySelector('.sd-block-title').value.trim(),
+                desc: row.querySelector('.sd-block-desc').value.trim(),
+                shape: row.querySelector('.sd-block-shape').value,
+                back: row.querySelector('.sd-block-back').value.trim()
+            });
+        });
+
+        // Đóng gói payload dữ liệu bao gồm cả hướng xoay sơ đồ
+        const dataSD = {
+            ten: tenQuyTrinh,
+            direction: sodoCurrentDirection,
+            blocks: JSON.stringify(blockData),
+            lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        try {
+            if(id) {
+                // CHẾ ĐỘ CHỈNH SỬA: Cập nhật đè thông minh lên tài liệu cũ
+                await db.collection("QuyTrinhSodo").doc(id).update(dataSD);
+                if (typeof showSystemSuccess === 'function') {
+                    showSystemSuccess("Cập nhật quy trình thành công", "Sơ đồ đã được cập nhật bản vá mới an toàn trên Firebase.");
+                } else { alert("Cập nhật sơ đồ thành công!"); }
+            } else {
+                // CHẾ ĐỘ TẠO MỚI: Thêm tài liệu mới vào bảng lưu trữ chuyên môn
+                await db.collection("QuyTrinhSodo").add(dataSD);
+                if (typeof showSystemSuccess === 'function') {
+                    showSystemSuccess("Lưu trữ quy trình thành công", "Sơ đồ thuật toán mới đã được đồng bộ hóa an toàn.");
+                } else { alert("Lưu trữ sơ đồ thành công!"); }
+                
+                // Xóa trống Form để chuẩn bị cho lượt tạo tiếp theo
+                clearSodoForm();
+                const container = document.getElementById('container-sd-blocks');
+                container.innerHTML = "";
+            }
+            // Nạp lại bảng lịch sử để cập nhật thẻ hiển thị ngay lập tức
+            loadQuyTrinhLichSuTable();
+        } catch(e) { 
+            alert("Lỗi kết nối Firebase khi lưu sơ đồ: " + e.message); 
+        } finally {
+            // --- PHỤC HỒI TRẠNG THÁI NÚT KHI ĐƯỜNG TRUYỀN MẠNG ĐÃ CHẠY XONG AN TOÀN ---
+            if (btnSave) {
+                btnSave.innerHTML = originalBtnText;
+                btnSave.disabled = false; // Mở khóa chuột
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         }
-    );
-}
-// =========================================================================
+    }
+
+    // 2. Hàm quét Cloud Firebase tải danh sách toàn bộ các quy trình về chân trang
+    async function loadQuyTrinhLichSuTable() {
+        const historyContainer = document.getElementById('list-sd-history');
+        if(!historyContainer) return;
+
+        try {
+            const snapshot = await db.collection("QuyTrinhSodo").orderBy("lastUpdated", "desc").get();
+            if(snapshot.empty) {
+                historyContainer.innerHTML = `<p class="text-xs italic text-slate-400 col-span-full py-4 text-center">Chưa có sơ đồ quy trình nào được lưu trữ trong kho của tổ.</p>`;
+                return;
+            }
+
+            historyContainer.innerHTML = snapshot.docs.map(doc => {
+                const d = doc.data();
+                // Ép hàm escHtml an toàn phòng chống lỗi ký tự đặc biệt
+                const safeName = typeof escHtml === 'function' ? escHtml(d.ten) : d.ten;
+                
+                return `
+                    <div class="bg-slate-50/50 p-3 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm hover:border-pink-300 transition-all group">
+                        <div class="min-w-0 flex-1 pr-3">
+                            <div class="text-xs font-bold text-slate-700 truncate">${safeName}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+                                <i data-lucide="calendar" style="width:10px;height:10px;"></i> Quy trình tổ chuyên môn
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="loadOldQuyTrinhToForm('${doc.id}')" class="text-[11px] bg-pink-50 text-pink-700 border border-pink-100 px-2.5 py-1 rounded-md font-bold hover:bg-pink-100 transition-all shadow-sm">Xem & Sửa</button>
+                            <button onclick="deleteQuyTrinh('${doc.id}')" class="text-slate-300 hover:text-red-500 p-1.5 rounded-md hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100">
+                                ❌
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            if(typeof lucide !== 'undefined') lucide.createIcons();
+        } catch(e) { 
+            console.error("Lỗi đồng bộ lịch sử Firebase: ", e); 
+        }
+    }
+
+    // 3. Hàm nạp dữ liệu cũ từ Firebase đổ đầy lại Form trái và xoay lại hướng sơ đồ
+    window.loadOldQuyTrinhToForm = async function(id) {
+        try {
+            const doc = await db.collection("QuyTrinhSodo").doc(id).get();
+            if(!doc.exists) return;
+            const d = doc.data();
+
+            document.getElementById('inp-sd-id').value = id;
+            document.getElementById('inp-sd-ten').value = d.ten;
+
+            const container = document.getElementById('container-sd-blocks');
+            container.innerHTML = ""; // Dọn sạch form hiện tại
+
+            const blocks = JSON.parse(d.blocks || '[]');
+            
+            // Tái thiết lập các hàng ô chữ tịnh tiến kèm dữ liệu ghi chú ẩn
+            blocks.forEach(b => {
+                addSodoBlockRow(b.title, b.shape, b.back || "", b.desc || "");
+            });
+
+            // Khôi phục hướng sơ đồ Ngang/Dọc chuẩn xác lúc lưu
+            if(d.direction) {
+                changeSodoDirection(d.direction);
+            } else {
+                changeSodoDirection('TD');
+            }
+
+            closeSodoSidebar();
+            compileSodoDataToMermaid(); // Kích hoạt vẽ kết xuất đồ họa tức thì
+            
+            // Cuộn nhẹ màn hình lên đầu phân khu để thầy cô tiện theo dõi
+            document.getElementById('so-do-view').scrollIntoView({ behavior: 'smooth' });
+        } catch(e) { 
+            alert("Lỗi khôi phục quy trình: " + e.message); 
+        }
+    };
+
+    // 4. Hàm xóa quy trình cũ khỏi Firebase thông qua cửa sổ xác nhận thông minh
+    window.deleteQuyTrinh = function(id) {
+        const runDelete = async () => {
+            try {
+                await db.collection("QuyTrinhSodo").doc(id).delete();
+                // Nếu đang mở đúng quy trình bị xóa, dọn sạch form luôn
+                if(document.getElementById('inp-sd-id').value === id) {
+                    clearSodoForm();
+                    document.getElementById('container-sd-blocks').innerHTML = "";
+                }
+                loadQuyTrinhLichSuTable();
+                compileSodoDataToMermaid();
+            } catch(e) { alert("Lỗi khi xóa dữ liệu: " + e.message); }
+        };
+
+        // Ưu tiên gọi hàm xác nhận Modal đồng bộ của thầy nếu có, ngược lại dùng confirm nguyên bản
+        if(typeof showSystemConfirm === 'function') {
+            showSystemConfirm(
+                "Xóa sơ đồ quy trình tổ?",
+                "Thầy có chắc chắn muốn xóa vĩnh viễn sơ đồ quy trình này khỏi hệ thống đám mây Firebase không?",
+                runDelete
+            );
+        } else {
+            if(confirm("Thầy có chắc chắn muốn xóa quy trình này không?")) {
+                runDelete();
+            }
+        }
+    };
+
+    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT SƠ ĐỒ THÀNH FILE ẢNH PNG (BẢN VÁ TRIỆT ĐỂ LỖI 2 TAINTED CANVAS)
+    // ====================================================================
+    // ====================================================================
+    // THUẬT TOÁN ĐÓNG GÓI VÀ XUẤT ẢNH PNG (BẢN CAO CẤP: GIỮ MÀU MICA + HIỂN THỊ MÔ TẢ CÁC BƯỚC)
+    // ====================================================================
+    window.downloadSodoAsImage = function() {
+        const renderContainer = document.getElementById('canvas-mermaid-render');
+        if (!renderContainer) {
+            alert("Không tìm thấy khung vẽ sơ đồ thưa thầy.");
+            return;
+        }
+        
+        const svgElement = renderContainer.querySelector('svg');
+        const tenQuyTrinh = document.getElementById('inp-sd-ten').value.trim() || "quy-trinh-thuat-toan";
+
+        if(!svgElement) {
+            alert("Chưa có sơ đồ nào hiển thị hoặc quy trình đang trống để tải về thưa thầy.");
+            return;
+        }
+
+        try {
+            // 1. Tạo bản sao tạm thời của SVG để tính toán kích thước thực tế nguyên bản
+            const svgClone = svgElement.cloneNode(true);
+            svgClone.style.width = '';
+            svgClone.style.height = '';
+            svgClone.style.transform = '';
+            
+            // Lấy kích thước hình học nguyên bản của sơ đồ để xuất ảnh vuông vắn
+            const bBox = svgElement.getBBox();
+            const width = bBox.width + 120;  // Tăng padding lên 120px rộng rãi để chứa text mô tả dài
+            const height = bBox.height + 120;
+            
+            svgClone.setAttribute('width', width);
+            svgClone.setAttribute('height', height);
+            svgClone.setAttribute('viewBox', `${bBox.x - 60} ${bBox.y - 60} ${width} ${height}`);
+
+            // 2. Chuyển đổi mã nguồn SVG thành chuỗi text mã hóa
+            const serializer = new XMLSerializer();
+            let svgString = serializer.serializeToString(svgClone);
+
+            // BẢN VÁ ĐẮT GIÁ: Quét tìm foreignObject và gộp Tên bước + Mô tả chi tiết thành văn bản đồ họa SVG sạch
+            svgString = svgString.replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, function(match) {
+                // Định vị nodeId từ chuỗi bọc (Ví dụ: step_1, step_2)
+                const idMatch = match.match(/id="([^"]+)"/i) || match.match(/class="[\s\S]*?(step_\d+)/i);
+                let nodeId = idMatch ? idMatch[1] : "";
+                if(!nodeId && match.includes("step_")) {
+                    const m = match.match(/step_\d+/);
+                    if(m) nodeId = m[0];
+                }
+                
+                // Trích xuất lấy nội dung chữ tiêu đề thô bên trong các thẻ HTML lồng nhau
+                const divMatch = match.match(/<div[\s\S]*?>([\s\S]*?)<\/div>/i);
+                let titleText = divMatch ? divMatch[1] : "";
+                titleText = titleText.replace(/<[^>]*>/g, "").trim(); // làm sạch thẻ HTML thô
+                
+                // TRA CỨU LẤY PHẦN MÔ TẢ ẨN TỪ BỘ NHỚ TẠM MAP
+                let descText = "";
+                if (nodeId && typeof sodoActiveDescMap !== 'undefined' && sodoActiveDescMap.has(nodeId)) {
+                    const fullData = sodoActiveDescMap.get(nodeId);
+                    // Nếu có mô tả thực tế và không phải chuỗi mặc định trống thì lấy
+                    if(fullData.desc && !fullData.desc.includes("Chưa có mô tả")) {
+                        descText = fullData.desc.trim();
+                    }
+                }
+
+                // Lấy các thuộc tính hình học x, y, width, height để định tâm chữ
+                const x = match.match(/x="([^"]+)"/)?.[1] || "0";
+                const y = match.match(/y="([^"]+)"/)?.[1] || "0";
+                const w = match.match(/width="([^"]+)"/)?.[1] || "100";
+                const h = match.match(/height="([^"]+)"/)?.[1] || "40";
+                
+                const cx = parseFloat(x) + parseFloat(w) / 2;
+                const cy = parseFloat(y) + parseFloat(h) / 2;
+
+                // Tạo chuỗi hiển thị: Nếu bước có mô tả thì vẽ 2 dòng (Dòng 1: Tiêu đề, Dòng 2: Mô tả nhỏ hơn)
+                if (descText) {
+                    return `<text x="${cx}" y="${cy - 4}" text-anchor="middle" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" fill="#1e293b">
+                                ${titleText}
+                            </text>
+                            <text x="${cx}" y="${cy + 12}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10px" font-weight="normal" fill="#64748b" font-style="italic">
+                                (${descText.length > 25 ? descText.substring(0, 22) + "..." : descText})
+                            </text>`;
+                } else {
+                    // Nếu không có mô tả, chỉ hiển thị nguyên bản tên bước ở chính tâm khối
+                    return `<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-family="Arial, sans-serif" font-size="13px" font-weight="bold" fill="#1e293b">${titleText}</text>`;
+                }
+            });
+
+            // TIÊM BẢNG CSS MÀU MICA CAO CẤP ĐỒNG BỘ ĐÈ VÀO RUỘT SVG XUẤT ẢNH
+            svgString = svgString.replace('</svg>', `
+                <style>
+                    svg { font-family: Arial, sans-serif !important; }
+                    /* Nhuộm hệ màu Mica đúc phẳng sắc nét cho từng loại khối */
+                    .shape-round rect, .shape-round circle, .shape-round polygon, .shape-round .label-container { fill: #f0fdf4 !important; stroke: #22c55e !important; stroke-width: 2px !important; }
+                    .shape-rect rect, .shape-rect circle, .shape-rect polygon, .shape-rect .label-container { fill: #f8fafc !important; stroke: #64748b !important; stroke-width: 2px !important; }
+                    .shape-rhombus rect, .shape-rhombus circle, .shape-rhombus polygon, .shape-rhombus .label-container { fill: #f5f3ff !important; stroke: #7c3aed !important; stroke-width: 2px !important; }
+                    /* Định dạng đường mũi tên liên kết tịnh tiến */
+                    .edgePaths .edgePath .path { stroke: #94a3b8 !important; stroke-width: 1.8px !important; }
+                    .marker path { fill: #94a3b8 !important; }
+                </style>
+            </svg>`);
+
+            // Đóng gói chuỗi sạch không nhiễm độc
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(svgBlob);
+
+            // 3. Dựng cấu trúc ảnh ngầm (Canvas) để ghi nhận hình ảnh phẳng sạch
+            const image = new Image();
+            image.onload = function() {
+                const canvas = document.createElement('canvas');
+                canvas.width = width * 2;   // Nhân đôi độ phân giải lên hệ ảnh Retina HD căng nét
+                canvas.height = height * 2;
+                
+                const context = canvas.getContext('2d');
+                context.scale(2, 2); // Kéo giãn tỷ lệ vẽ tương ứng để chữ không vỡ hạt
+                
+                // Nhuộm nền trắng sạch sẽ cho file ảnh PNG tải về
+                context.fillStyle = '#ffffff';
+                context.fillRect(0, 0, width, height);
+                
+                // Vẽ sơ đồ thuật toán lên nền trắng canvas
+                context.drawImage(image, 0, 0);
+                
+                // 4. Kích nổ lệnh tải file xuống máy tính cá nhân thưa thầy
+                const pngURL = canvas.toDataURL('image/png');
+                const downloadLink = document.createElement('a');
+                
+                const safeFileName = tenQuyTrinh.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-") + "-sodo.png";
+                
+                downloadLink.href = pngURL;
+                downloadLink.download = safeFileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                URL.revokeObjectURL(blobURL);
+            };
+
+            image.src = blobURL;
+        } catch (error) {
+            console.error("Lỗi xuất ảnh: ", error);
+            alert("Gặp sự cố khi xuất ảnh sơ đồ: " + error.message);
+        }
+    };
   </script>
    <!-- SYSTEM CONFIRM MODAL FOR BIEN BAN -->
 <div id="sys-confirm-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
@@ -5083,6 +5730,29 @@ function fcDeleteDiagram() {
             <h3 class="text-lg font-bold text-slate-800 mb-2" id="sys-success-title">Thành công!</h3>
             <p class="text-sm text-slate-500 leading-relaxed px-2" id="sys-success-desc">Dữ liệu biên bản họp tổ đã được đồng bộ an toàn lên đám mây Firebase.</p>
             <button id="btn-success-close" class="mt-6 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-colors">Tuyệt vời</button>
+        </div>
+    </div>
+</div>
+  <div id="sodo-sidebar-panel" class="fixed top-0 right-0 h-full w-[320px] z-[110] shadow-[-10px_0_30px_rgba(15,23,42,0.04)] translate-x-full transition-transform duration-300 ease-out flex flex-col border-l border-slate-200/50" style="background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+    <div class="px-5 py-4 border-b border-slate-200/60 flex justify-between items-center bg-white/40 shrink-0">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="notebook-tabs" class="w-4 h-4 text-pink-600"></i> Hướng dẫn chi tiết
+        </h3>
+        <button onclick="closeSodoSidebar()" class="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all">
+            <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto p-5 space-y-4 scrollbar-thin">
+        <div>
+            <span id="sd-side-badge" class="text-[9px] font-bold text-pink-700 bg-pink-50 px-1.5 py-0.5 rounded uppercase tracking-wide">Mã khối</span>
+            <h4 id="sd-side-title" class="text-base font-bold text-slate-800 mt-2 font-serif" style="font-family: 'Newsreader', serif;">Tiêu đề bước quy trình</h4>
+        </div>
+        <div class="border-t border-slate-100 pt-3">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Nội dung / Lưu ý chuyên môn:</p>
+            <div id="sd-side-desc" class="text-xs text-slate-600 leading-relaxed bg-white/50 p-3 rounded-lg border border-slate-100 font-medium whitespace-pre-line shadow-sm">
+                Chưa có mô tả chi tiết cho bước này. Thầy cô có thể điền thêm lưu ý ở form bên trái.
+            </div>
         </div>
     </div>
 </div>
