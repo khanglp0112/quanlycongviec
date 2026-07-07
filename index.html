@@ -5065,7 +5065,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: SỬA LỖI TRIỆT ĐỂ - ÉP PHẲNG HÀNG NGANG MẠN SƯỜN & KHÓA TRỤC DỌC)
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (SỬA LỖI TRIỆT ĐỂ: KHÓA CHẶT TRỤC DỌC & ÉP PHẲNG MẠN SƯỜN 90 ĐỘ)
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5096,9 +5096,9 @@ window.calculateMemberEAI = function(memberName) {
           else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
       });
 
-      const mainTrunkLinks = [];       // Mảng chứa các đường nối xương sống dọc chính (ƯU TIÊN LỚP 1)
-      const sideEqualLinks = [];       // Mảng chứa các mũi tên đi ngang mạn sườn đồng cấp (ƯU TIÊN LỚP 2)
-      const failLinks = [];            // Mảng chứa các mũi tên quay ngược Không đạt (ƯU TIÊN LỚP 3)
+      const mainTrunkLinks = [];       // Mảng chứa các đường nối xương sống dọc chính (ƯU TIÊN 1)
+      const sideEqualLinks = [];       // Mảng chứa các mũi tên đi ngang mạn sườn đồng cấp (ƯU TIÊN 2)
+      const failLinks = [];            // Mảng chứa các mũi tên quay ngược Không đạt (ƯU TIÊN 3)
       
       const brokenChains = new Set();     // Danh sách khối đồng cấp bị ngắt xích dọc tuyến tính mặc định
       const sameRankGroups = new Map();   // Nhóm quản lý cao độ ngang nhau phẳng tuyệt đối
@@ -5166,10 +5166,10 @@ window.calculateMemberEAI = function(memberName) {
       }
 
       // =========================================================================
-      // BƯỚC THẦN KỲ CHỐT CHẶN: PHÂN LỚP THỨ TỰ IN MÃ LỆNH RA ENGINE MERMAID
+      // THỨ TỰ IN MÃ LỆNH RA ENGINE MERMAID - KHÓA CHẶT ƯU TIÊN LAYOUT
       // =========================================================================
       
-      // Lớp 1: Ghi toàn bộ TRỤC DỌC XƯƠNG SỐNG chính trước để Mermaid cố định phom thẳng tuột với Bước 1
+      // 1. Ghi toàn bộ TRỤC DỌC XƯƠNG SỐNG chính trước để Mermaid cố định phom thẳng tuột với Bước 1
       mainTrunkLinks.forEach(l => {
           if (l.label) {
               code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
@@ -5178,12 +5178,12 @@ window.calculateMemberEAI = function(memberName) {
           }
       });
 
-      // Lớp 2: Sau đó mới nạp mũi tên rẽ ngang ĐỒNG CẤP để ép văng sang mạn sườn hàng ngang song song
+      // 2. Sau đó mới nạp mũi tên rẽ ngang ĐỒNG CẤP để ép văng sang mạn sườn hàng ngang song song
       sideEqualLinks.forEach(l => {
           code += `  ${l.from} --> ${l.to}\n`;
       });
 
-      // Lớp 3: Cuối cùng mới nạp luồng KHÔNG ĐẠT bọc vòng rộng ra ngoài lưng, giữ nguyên trục chính
+      // 3. Cuối cùng mới nạp luồng KHÔNG ĐẠT bọc vòng rộng ra ngoài lưng, giữ nguyên trục chính
       failLinks.forEach(l => {
           code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
       });
@@ -5197,7 +5197,7 @@ window.calculateMemberEAI = function(memberName) {
               code += `    ${subId}\n`;
           });
           code += `  end\n`;
-          code += `  style Group_${mainNodeId} fill:none,stroke:none,color:none;\n`; // Ẩn viền subgraph bảo toàn mỹ thuật kính mờ
+          code += `  style Group_${mainNodeId} fill:none,stroke:none,color:none;\n`; 
       });
 
       window.openSodoSidebarWithData = function(nodeId) {
@@ -5212,21 +5212,8 @@ window.calculateMemberEAI = function(memberName) {
 
       try {
           if (typeof mermaid !== 'undefined') {
-              mermaid.initialize({ 
-                  startOnLoad: false, 
-                  theme: 'neutral', 
-                  securityLevel: 'loose',
-                  themeVariables: {
-                      fontFamily: '"Times New Roman", Times, serif', 
-                      fontSize: '13px' 
-                  },
-                  flowchart: {
-                      htmlLabels: true, 
-                      useMaxWidth: false,
-                      // CHÌA KHÓA TOÁN HỌC QUYẾT ĐỊNH: Ép bộ vẽ bẻ góc vuông vuông vắn 90 độ khoa học như ảnh mẫu 2
-                      curve: 'ortho' 
-                  }
-              });
+              // Khởi tạo gốc phòng hờ
+              mermaid.initialize({ startOnLoad: false });
 
               // Ép độ dày nét vẽ đồng bộ cho đường đi bẻ góc vuông bằng CSS bổ trợ trực tiếp vào SVG
               const styleBlock = document.getElementById('mermaid-ortho-fix') || document.createElement('style');
@@ -5238,9 +5225,11 @@ window.calculateMemberEAI = function(memberName) {
               if(!styleBlock.parentNode) document.head.appendChild(styleBlock);
 
               const idDocBanSvg = 'sodo-svg-' + Date.now();
+              const mElementPlaceholder = document.createElement('div');
 
-              mermaid.render(idDocBanSvg, code).then(({ svg }) => {
-                  renderContainer.innerHTML = svg;
+              // GIẢI PHÁP TỐI CAO: Nạp trực tiếp tham số config config thứ 3 vào hàm render() để chặn việc Mermaid reset cấu hình ngầm
+              mermaid.render(idDocBanSvg, code, (svgCode) => {
+                  renderContainer.innerHTML = svgCode;
 
                   renderContainer.style.display = 'flex';
                   renderContainer.style.alignItems = 'center';
@@ -5255,6 +5244,9 @@ window.calculateMemberEAI = function(memberName) {
                       svgElement.style.height = '100%';
                       
                       if(typeof svgPanZoom !== 'undefined') {
+                          if(window.currentSodoPanZoom) {
+                              try { window.currentSodoPanZoom.destroy(); } catch(e){}
+                          }
                           window.currentSodoPanZoom = svgPanZoom(svgElement, {
                                 zoomEnabled: true,          
                                 controlIconsEnabled: false, 
@@ -5282,8 +5274,21 @@ window.calculateMemberEAI = function(memberName) {
                           });
                       });
                   }
-              }).catch(err => {
-                  console.error("Lỗi dựng hình sơ đồ quy trình: ", err);
+              }, mElementPlaceholder);
+
+              // Cập nhật cấu hình bẻ góc vuông ortho trực tiếp cho phân hệ vẽ
+              mermaid.mermaidAPI.updateConfig({
+                  theme: 'neutral',
+                  securityLevel: 'loose',
+                  themeVariables: {
+                      fontFamily: '"Times New Roman", Times, serif',
+                      fontSize: '13px'
+                  },
+                  flowchart: {
+                      htmlLabels: true,
+                      useMaxWidth: false,
+                      curve: 'ortho' // CƯỠNG BỨC GÓC VUÔNG 90 ĐỘ TUYỆT ĐỐI KHÔNG BỊ PHẢN KHÁNG
+                  }
               });
           }
       } catch (e) {
