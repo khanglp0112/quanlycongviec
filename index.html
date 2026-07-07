@@ -5065,7 +5065,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: KHÓA TRỤC PHÂN CẤP CỐ ĐỊNH & LIÊN KẾT TRỰC TIẾP)
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: BẢN NÂNG CẤP ÉP PHẲNG SONG SONG TUYỆT ĐỐI)
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5097,9 +5097,10 @@ window.calculateMemberEAI = function(memberName) {
       });
 
       // KHỞI TẠO MẠNG LƯỚI PHÂN TÍCH QUAN HỆ ĐỒ THỊ
-      const links = [];               // Chứa danh sách các đường nối trực tiếp tường minh
+      const links = [];               // Chứa danh sách các đường nối có mũi tên
       const brokenChains = new Set();    // Danh sách các bước bị ngắt kết nối dọc tuyến tính mặc định
-      const sameRankGroups = new Map();  // Nhóm các bước cùng tầng phân cấp (khóa vị trí hàng ngang)
+      const parallelPairs = [];          // Danh sách các cặp khối cần giằng phẳng song song ngang hàng
+      const parallelTargets = new Map(); // Map lưu cấu trúc: nodeId -> targetNodeId (bước gốc song song)
 
       // VÒNG 2: GIẢI NÉN CHUỖI ĐIỀU HƯỚNG ĐỂ PHÂN TÁCH LUỒNG TRỰC TIẾP & ĐỒNG CẤP
       rows.forEach((row) => {
@@ -5117,7 +5118,7 @@ window.calculateMemberEAI = function(memberName) {
               equalStep = parts[0].trim();
               failStep = parts[1].trim();
           } else {
-              // Cơ chế phòng hờ tương thích ngược với file cũ
+              // Cơ chế phòng hờ tương thích ngược với dữ liệu cũ
               if(shape === 'rhombus') failStep = backRawVal;
               else equalStep = backRawVal;
           }
@@ -5127,20 +5128,18 @@ window.calculateMemberEAI = function(memberName) {
               links.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
           }
 
-          // Xử lý luồng thiết lập kết nối đồng cấp trực tiếp
+          // Ghi nhận luồng thiết lập kết nối đồng cấp trực tiếp
           if (equalStep) {
               const targetNodeId = `step_${equalStep}`;
-              // Vẽ đường kết nối ngang trực tiếp từ khối chỉ định sang khối đồng cấp
-              links.push({ from: targetNodeId, to: nodeId, label: "Đồng cấp" });
               
-              // Chặt đứt sợi xích nối dọc mặc định tuyến tính đâm vào khối này để giải phóng trục dọc
-              brokenChains.add(nodeId);
+              // 1. Tạo sợi dây giằng phẳng không hướng (---) để ép Mermaid khóa chặt 2 khối cùng cao độ ngang hàng
+              parallelPairs.push({ from: targetNodeId, to: nodeId });
+              
+              // Ghi nhớ ma trận để lát nữa nhân bản đường nối hướng tâm từ cha chung
+              parallelTargets.set(nodeId, targetNodeId);
 
-              // Gom các bước vào cùng một nhóm phân tầng (Cưỡng bức Mermaid khóa chặt cao độ ngang nhau)
-              if (!sameRankGroups.has(targetNodeId)) {
-                  sameRankGroups.set(targetNodeId, []);
-              }
-              sameRankGroups.get(targetNodeId).push(nodeId);
+              // 2. Chặt đứt sợi xích nối dọc mặc định tuyến tính đâm vào khối này để giải phóng trục dọc
+              brokenChains.add(nodeId);
           }
       });
 
@@ -5163,7 +5162,27 @@ window.calculateMemberEAI = function(memberName) {
           }
       });
 
-      // VÒNG 4: BIÊN DỊCH TOÀN BỘ MẢNG LIÊN KẾT TRỰC TIẾP VÀO MÃ LỆNH MERMAID
+      // VÒNG 4: THUẬT TOÁN ĐA ĐIỂM HƯỚNG TÂM CHO CHA CHUNG - ÉP ĐƯỜNG MŨI TÊN TÁCH LUỒNG ĐỐI XỨNG PHẲNG
+      parallelTargets.forEach((targetNodeId, sourceNodeId) => {
+          // Tìm xem khối nào đang làm cha cắm mũi tên vào khối gốc (targetNodeId)
+          const parentLinks = links.filter(l => l.to === targetNodeId && l.from !== sourceNodeId);
+          
+          parentLinks.forEach(pLink => {
+              // Cho khối cha đâm thêm 1 đường mũi tên song song vào khối đồng cấp mới để tạo nhánh đối xứng
+              links.push({ 
+                  from: pLink.from, 
+                  to: sourceNodeId, 
+                  label: pLink.label ? `${pLink.label} (Nhánh 2)` : "" 
+              });
+          });
+          
+          // Phòng hờ trường hợp không tìm thấy cha (bị cô lập), tự động vẽ mũi tên bắc ngang sang
+          if (parentLinks.length === 0) {
+              links.push({ from: targetNodeId, to: sourceNodeId, label: "Đồng cấp" });
+          }
+      });
+
+      // VÒNG 5: BIÊN DỊCH CÁC LIÊN KẾT CÓ MŨI TÊN VÀO MÃ LỆNH MERMAID
       links.forEach(l => {
           if (l.label) {
               code += `  ${l.from} -- ${l.label} --> ${l.to}\n`;
@@ -5172,17 +5191,9 @@ window.calculateMemberEAI = function(memberName) {
           }
       });
 
-      // VÒNG 5: KỸ THUẬT KHÓA TRỤC PHÂN CẤP CỐ ĐỊNH (CƯỠNG BỨC SAME RANK TRÊN MERMAID)
-      sameRankGroups.forEach((subNodes, mainNodeId) => {
-          // Bao bọc các khối đồng cấp vào trong một subgraph ẩn danh để cố định cao độ, chống đảo vị trí lung tung
-          code += `  subgraph Group_${mainNodeId} [" "]\n`;
-          code += `    direction LR\n`;
-          code += `    ${mainNodeId}\n`;
-          subNodes.forEach(subId => {
-              code += `    ${subId}\n`;
-          });
-          code += `  end\n`;
-          code += `  style Group_${mainNodeId} fill:none,stroke:none,color:none;\n`; // Giấu viền subgraph để giữ mỹ thuật thấu kính của thầy
+      // VÒNG 6: ÉP BUỘC ĐƯỜNG GIẰNG KHÔNG HƯỚNG NẰM NGANG ĐỂ CỐ ĐỊNH PHẲNG SONG SONG
+      parallelPairs.forEach(p => {
+          code += `  ${p.from} --- ${p.to}\n`;
       });
 
       window.openSodoSidebarWithData = function(nodeId) {
