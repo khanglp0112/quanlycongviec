@@ -400,6 +400,7 @@
       <button id="btn-working-hours" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="clock" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Giờ làm</span></button> 
       <button id="btn-timeline" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#e5e5e5; color:#1a1a1a;" onmouseenter="this.style.background='#d4d4d4'" onmouseleave="this.style.background='#e5e5e5'"><i data-lucide="calendar-range" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Timeline</span></button> 
       <button id="btn-links" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#3b82f6; color:#ffffff;" onmouseenter="this.style.background='#2563eb'" onmouseleave="this.style.background='#3b82f6'" onclick="toggleLienKet()"><i data-lucide="link" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Liên kết</span></button>
+      <button id="btn-flowchart" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#0891b2; color:#ffffff;" onmouseenter="this.style.background='#0e7490'" onmouseleave="this.style.background='#0891b2'" onclick="toggleFlowchart()"><i data-lucide="workflow" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Sơ đồ quy trình</span></button>
       <button id="btn-show-chamtiet" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#8b5cf6; color:#ffffff;" onmouseenter="this.style.background='#7c3aed'" onmouseleave="this.style.background='#8b5cf6'" onclick="toggleChamTiet()"><i data-lucide="calculator" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Chấm tiết</span></button>
       <button id="btn-show-bienban" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-white" style="background:#ea580c;" onmouseenter="this.style.background='#c2410c'" onmouseleave="this.style.background='#ea580c'" onclick="toggleBienBan()"><i data-lucide="file-text" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Biên bản họp</span></button>
       <button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
@@ -467,6 +468,57 @@
             </thead>
             <tbody id="ds-lien-ket" class="divide-y divide-slate-200"></tbody>
         </table>
+    </div>
+  </div>
+</div>
+    <!-- ==================================================================== -->
+<!-- PHẦN MỚI: GIAO DIỆN SƠ ĐỒ QUY TRÌNH / THUẬT TOÁN (KÉO-THẢ)            -->
+<!-- ==================================================================== -->
+<div id="flowchart-view" class="hidden fade-in mt-5 mb-6 px-4 sm:px-6 flex-1 w-full min-w-0">
+  <div class="rounded-2xl p-4 sm:p-6 border border-white/70 shadow-[0_15px_45px_rgba(0,0,0,0.05),0_1px_3px_rgba(0,0,0,0.02)]" style="background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.85)); backdrop-filter: blur(12px);">
+
+    <div class="flex justify-between items-center mb-4 flex-wrap gap-3">
+        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i data-lucide="workflow" class="text-cyan-600"></i> Sơ đồ quy trình / Thuật toán
+        </h2>
+        <button onclick="toggleFlowchart()" class="p-2 rounded-lg bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+    </div>
+
+    <!-- Thanh chọn / quản lý sơ đồ đã lưu -->
+    <div class="flex flex-wrap items-center gap-2 mb-4 p-3 rounded-xl border border-slate-100" style="background: rgba(248, 250, 252, 0.6);">
+        <select id="fc-select-diagram" onchange="fcLoadSelected()" class="px-3 py-2 rounded-lg text-sm border border-slate-200 outline-none font-medium bg-white/80 min-w-[200px]">
+            <option value="">+ Sơ đồ mới...</option>
+        </select>
+        <input id="fc-diagram-name" type="text" placeholder="Tên sơ đồ *" class="px-3 py-2 rounded-lg text-sm border border-slate-200 outline-none focus:border-cyan-500 bg-white/80 flex-1 min-w-[160px]">
+        <button onclick="fcSaveDiagram()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold text-white bg-cyan-600 hover:bg-cyan-700 transition-colors"><i data-lucide="save" style="width:15px;height:15px;"></i>Lưu</button>
+        <button onclick="fcNewDiagram()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"><i data-lucide="file-plus" style="width:15px;height:15px;"></i>Làm mới</button>
+        <button onclick="fcDeleteDiagram()" class="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold text-rose-600 bg-rose-50 border border-rose-100 hover:bg-rose-100 transition-colors"><i data-lucide="trash-2" style="width:15px;height:15px;"></i>Xóa</button>
+    </div>
+
+    <!-- Thanh công cụ thêm khối / nối mũi tên -->
+    <div class="flex flex-wrap items-center gap-2 mb-3">
+        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Thêm khối:</span>
+        <button onclick="fcAddNode('start')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white transition-transform hover:scale-105" style="background:#10b981;"><i data-lucide="play" style="width:13px;height:13px;"></i>Bắt đầu/Kết thúc</button>
+        <button onclick="fcAddNode('process')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white transition-transform hover:scale-105" style="background:#3b82f6;"><i data-lucide="square" style="width:13px;height:13px;"></i>Xử lý (tuần tự)</button>
+        <button onclick="fcAddNode('decision')" class="flex items-center gap-1.5 text-xs font-bold text-white transition-transform hover:scale-105" style="background:#f59e0b; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); padding:9px 18px;">Rẽ nhánh</button>
+        <div class="w-px h-6 bg-slate-200 mx-1"></div>
+        <button id="fc-btn-connect" onclick="fcToggleConnectMode()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors"><i data-lucide="git-commit-horizontal" style="width:13px;height:13px;"></i>Nối mũi tên</button>
+        <button onclick="fcDeleteSelected()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-rose-600 bg-white border border-rose-100 hover:bg-rose-50 transition-colors"><i data-lucide="eraser" style="width:13px;height:13px;"></i>Xóa mục đang chọn</button>
+        <span class="text-[11px] text-slate-400 italic ml-2 hidden md:inline">Mẹo: bấm "Nối mũi tên" rồi lần lượt bấm khối nguồn → khối đích. Nhấp đúp vào khối để sửa chữ.</span>
+    </div>
+
+    <!-- Vùng vẽ sơ đồ -->
+    <div id="fc-canvas-wrapper" class="relative w-full overflow-auto rounded-xl border-2 border-dashed border-slate-200" style="height: 65vh; background: radial-gradient(circle, #e2e8f0 1px, transparent 1px) 0 0/16px 16px, #ffffff;">
+        <div id="fc-canvas" style="position:relative; width:2200px; height:1500px;">
+            <svg id="fc-svg" width="2200" height="1500" style="position:absolute; top:0; left:0; pointer-events:none; z-index:1;">
+                <defs>
+                    <marker id="fc-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="#64748b"></path>
+                    </marker>
+                </defs>
+            </svg>
+            <!-- Các khối (node) được JS chèn động vào đây -->
+        </div>
     </div>
   </div>
 </div>
@@ -1957,6 +2009,7 @@ document.getElementById('btn-timeline').onclick = () => {
       document.getElementById('stats-bar').classList.add('hidden');
       document.getElementById('timeline-view').classList.remove('hidden');
       document.getElementById('bien-ban-view').classList.add('hidden');
+      if (document.getElementById('flowchart-view')) document.getElementById('flowchart-view').classList.add('hidden');
       if (typeof timelineMode !== 'undefined' && timelineMode === 'calendar') renderCalendar(); 
       else renderTimeline();
     };
@@ -3209,6 +3262,7 @@ function toggleChamTiet() {
         const statsBar = document.getElementById('stats-bar');
         const emptyState = document.getElementById('empty-state');
         const bbView = document.getElementById('bien-ban-view');
+        const fcView = document.getElementById('flowchart-view');
  
         if (chamTiet.classList.contains('hidden')) {
             if (board) board.classList.add('hidden');
@@ -3218,6 +3272,7 @@ function toggleChamTiet() {
             if (statsBar) statsBar.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
             if (bbView) bbView.classList.add('hidden');
+            if (fcView) fcView.classList.add('hidden');
          
             chamTiet.classList.remove('hidden');
             renderChamTietTable();
@@ -3236,6 +3291,7 @@ function toggleBienBan() {
         const timeline = document.getElementById('timeline-view');
         const emptyState = document.getElementById('empty-state');
         const bbView = document.getElementById('bien-ban-view');
+        const fcView = document.getElementById('flowchart-view');
 
         if (!bbView) return;
 
@@ -3245,6 +3301,7 @@ function toggleBienBan() {
             if (ctView) ctView.classList.add('hidden'); 
             if (timeline) timeline.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
+            if (fcView) fcView.classList.add('hidden');
             
             // Hiện thị biên bản họp tổ
             bbView.classList.remove('hidden');
@@ -4121,6 +4178,7 @@ function toggleLienKet() {
         const statsBar = document.getElementById('stats-bar');
         const emptyState = document.getElementById('empty-state');
         const bbView = document.getElementById('bien-ban-view');
+        const fcView = document.getElementById('flowchart-view');
  
         if (!lkView) return;
         if (lkView.classList.contains('hidden')) {
@@ -4131,6 +4189,7 @@ function toggleLienKet() {
             if (statsBar) statsBar.classList.add('hidden');
             if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
             if (bbView) bbView.classList.add('hidden');
+            if (fcView) fcView.classList.add('hidden');
          
             lkView.classList.remove('hidden');
             renderLienKet();
@@ -4584,6 +4643,409 @@ window.calculateMemberEAI = function(memberName) {
         return { score: eaiPercent, label: `⏳ Hiệu suất cần cải thiện (${eaiPercent}%)`, color: 'text-amber-700 bg-amber-50 border-amber-200' };
     }
 };
+// =========================================================================
+
+// =========================================================================
+// PHẦN MỚI: TRÌNH VẼ SƠ ĐỒ QUY TRÌNH / THUẬT TOÁN (KÉO-THẢ TRỰC QUAN)
+// Lưu trữ trên Firestore, collection "SoDoQuyTrinh"
+// =========================================================================
+let fcNodes = [];              // { id, type: 'start'|'process'|'decision', x, y, text }
+let fcEdges = [];              // { id, from, to, label }
+let fcCurrentDiagramId = null;
+let fcDiagramsCache = [];
+let fcConnectMode = false;
+let fcConnectSource = null;
+let fcSelected = null;         // { kind: 'node'|'edge', id }
+let fcDrag = null;             // { nodeId, offsetX, offsetY }
+
+const FC_DIMS = {
+    start:    { w: 150, h: 56 },
+    process:  { w: 170, h: 70 },
+    decision: { w: 160, h: 120 }
+};
+
+function toggleFlowchart() {
+    const board = document.getElementById('board-view');
+    const lkView = document.getElementById('lien-ket-view');
+    const ctView = document.getElementById('cham-tiet-view');
+    const timeline = document.getElementById('timeline-view');
+    const filterBar = document.getElementById('filter-bar');
+    const statsBar = document.getElementById('stats-bar');
+    const emptyState = document.getElementById('empty-state');
+    const bbView = document.getElementById('bien-ban-view');
+    const fcView = document.getElementById('flowchart-view');
+
+    if (!fcView) return;
+
+    if (fcView.classList.contains('hidden')) {
+        if (board) board.classList.add('hidden');
+        if (lkView) lkView.classList.add('hidden');
+        if (ctView) ctView.classList.add('hidden');
+        if (timeline) timeline.classList.add('hidden');
+        if (filterBar) filterBar.classList.add('hidden');
+        if (statsBar) statsBar.classList.add('hidden');
+        if (emptyState) { emptyState.classList.add('hidden'); emptyState.classList.remove('flex'); }
+        if (bbView) bbView.classList.add('hidden');
+
+        fcView.classList.remove('hidden');
+        fcLoadDiagramList();
+    } else {
+        fcView.classList.add('hidden');
+        if (filterBar) filterBar.classList.remove('hidden');
+        if (statsBar) statsBar.classList.remove('hidden');
+        renderTasks();
+    }
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// --- Thêm khối mới ---
+function fcAddNode(type) {
+    const dims = FC_DIMS[type] || FC_DIMS.process;
+    const node = {
+        id: 'n' + Date.now() + Math.floor(Math.random() * 1000),
+        type,
+        x: 60 + (fcNodes.length % 6) * 40,
+        y: 40 + (fcNodes.length % 8) * 30,
+        text: type === 'start' ? 'Bắt đầu' : (type === 'decision' ? 'Điều kiện?' : 'Bước xử lý')
+    };
+    fcNodes.push(node);
+    fcRenderCanvas();
+}
+
+// --- Vẽ lại toàn bộ canvas: xóa khối cũ, vẽ lại khối + đường nối ---
+function fcRenderCanvas() {
+    const canvas = document.getElementById('fc-canvas');
+    if (!canvas) return;
+
+    // Xóa các node div cũ (giữ lại svg)
+    canvas.querySelectorAll('.fc-node').forEach(el => el.remove());
+
+    fcNodes.forEach(node => fcCreateNodeElement(node));
+    fcRenderEdges();
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function fcCreateNodeElement(node) {
+    const canvas = document.getElementById('fc-canvas');
+    const dims = FC_DIMS[node.type] || FC_DIMS.process;
+
+    const el = document.createElement('div');
+    el.className = 'fc-node';
+    el.dataset.id = node.id;
+    el.style.position = 'absolute';
+    el.style.left = node.x + 'px';
+    el.style.top = node.y + 'px';
+    el.style.width = dims.w + 'px';
+    el.style.height = dims.h + 'px';
+    el.style.zIndex = 2;
+    el.style.display = 'flex';
+    el.style.alignItems = 'center';
+    el.style.justifyContent = 'center';
+    el.style.padding = '6px 10px';
+    el.style.textAlign = 'center';
+    el.style.fontSize = '13px';
+    el.style.fontWeight = '700';
+    el.style.color = '#ffffff';
+    el.style.cursor = 'grab';
+    el.style.userSelect = 'none';
+    el.style.boxShadow = '0 3px 8px rgba(15,23,42,0.15)';
+    el.style.transition = 'box-shadow 0.15s ease';
+
+    if (node.type === 'start') {
+        el.style.borderRadius = '9999px';
+        el.style.background = '#10b981';
+    } else if (node.type === 'decision') {
+        el.style.background = '#f59e0b';
+        el.style.clipPath = 'polygon(50% 0, 100% 50%, 50% 100%, 0 50%)';
+    } else {
+        el.style.borderRadius = '10px';
+        el.style.background = '#3b82f6';
+    }
+
+    if (fcSelected && fcSelected.kind === 'node' && fcSelected.id === node.id) {
+        el.style.outline = '3px solid #0f172a';
+        el.style.outlineOffset = '2px';
+    }
+    if (fcConnectMode && fcConnectSource === node.id) {
+        el.style.outline = '3px solid #ec4899';
+        el.style.outlineOffset = '2px';
+    }
+
+    const span = document.createElement('span');
+    span.textContent = node.text;
+    span.style.pointerEvents = 'none';
+    span.style.wordBreak = 'break-word';
+    span.style.maxWidth = '100%';
+    el.appendChild(span);
+
+    // --- Click: chọn khối hoặc nối mũi tên ---
+    el.addEventListener('click', (e) => {
+        if (fcDrag && fcDrag.moved) { fcDrag.moved = false; return; } // vừa kéo xong thì bỏ qua click
+        if (fcConnectMode) {
+            if (!fcConnectSource) {
+                fcConnectSource = node.id;
+                fcRenderCanvas();
+            } else if (fcConnectSource !== node.id) {
+                const sourceNode = fcNodes.find(n => n.id === fcConnectSource);
+                let label = '';
+                if (sourceNode && sourceNode.type === 'decision') {
+                    label = prompt('Nhập nhãn cho nhánh này (VD: Đúng / Sai / Có / Không) — để trống nếu không cần:', '') || '';
+                }
+                fcEdges.push({ id: 'e' + Date.now() + Math.floor(Math.random() * 1000), from: fcConnectSource, to: node.id, label });
+                fcConnectSource = null;
+                fcRenderCanvas();
+            } else {
+                fcConnectSource = null;
+                fcRenderCanvas();
+            }
+        } else {
+            fcSelected = { kind: 'node', id: node.id };
+            fcRenderCanvas();
+        }
+    });
+
+    // --- Nhấp đúp: sửa chữ trong khối ---
+    el.addEventListener('dblclick', (e) => {
+        e.stopPropagation();
+        const newText = prompt('Sửa nội dung khối:', node.text);
+        if (newText !== null) {
+            node.text = newText.trim() || node.text;
+            fcRenderCanvas();
+        }
+    });
+
+    // --- Kéo-thả di chuyển khối (Pointer Events, hỗ trợ cả chuột và cảm ứng) ---
+    el.addEventListener('pointerdown', (e) => {
+        if (fcConnectMode) return;
+        e.preventDefault();
+        el.setPointerCapture(e.pointerId);
+        const canvasRect = canvas.getBoundingClientRect();
+        fcDrag = {
+            nodeId: node.id,
+            offsetX: e.clientX - canvasRect.left - node.x,
+            offsetY: e.clientY - canvasRect.top - node.y,
+            moved: false
+        };
+        el.style.cursor = 'grabbing';
+    });
+
+    el.addEventListener('pointermove', (e) => {
+        if (!fcDrag || fcDrag.nodeId !== node.id) return;
+        const canvasRect = canvas.getBoundingClientRect();
+        let newX = e.clientX - canvasRect.left - fcDrag.offsetX;
+        let newY = e.clientY - canvasRect.top - fcDrag.offsetY;
+        newX = Math.max(0, newX);
+        newY = Math.max(0, newY);
+        node.x = newX;
+        node.y = newY;
+        el.style.left = newX + 'px';
+        el.style.top = newY + 'px';
+        fcDrag.moved = true;
+        fcRenderEdges(); // chỉ vẽ lại đường nối cho mượt, không tạo lại toàn bộ khối
+    });
+
+    el.addEventListener('pointerup', (e) => {
+        if (fcDrag && fcDrag.nodeId === node.id) {
+            el.style.cursor = 'grab';
+            try { el.releasePointerCapture(e.pointerId); } catch (err) {}
+        }
+        setTimeout(() => { fcDrag = null; }, 0);
+    });
+
+    canvas.appendChild(el);
+}
+
+// --- Tính điểm giao giữa tâm khối và biên hình chữ nhật theo hướng tới khối kia ---
+function fcRectBorderPoint(cx, cy, halfW, halfH, dx, dy) {
+    if (dx === 0 && dy === 0) return { x: cx, y: cy };
+    const scaleX = dx !== 0 ? halfW / Math.abs(dx) : Infinity;
+    const scaleY = dy !== 0 ? halfH / Math.abs(dy) : Infinity;
+    const scale = Math.min(scaleX, scaleY);
+    return { x: cx + dx * scale, y: cy + dy * scale };
+}
+
+// --- Vẽ lại các đường nối (mũi tên) dựa trên vị trí hiện tại của khối ---
+function fcRenderEdges() {
+    const svg = document.getElementById('fc-svg');
+    if (!svg) return;
+    svg.querySelectorAll('.fc-edge-line, .fc-edge-label-bg, .fc-edge-label-text').forEach(el => el.remove());
+    document.querySelectorAll('.fc-edge-del').forEach(el => el.remove());
+
+    fcEdges.forEach(edge => {
+        const from = fcNodes.find(n => n.id === edge.from);
+        const to = fcNodes.find(n => n.id === edge.to);
+        if (!from || !to) return;
+
+        const fd = FC_DIMS[from.type] || FC_DIMS.process;
+        const td = FC_DIMS[to.type] || FC_DIMS.process;
+        const fcx = from.x + fd.w / 2, fcy = from.y + fd.h / 2;
+        const tcx = to.x + td.w / 2, tcy = to.y + td.h / 2;
+        const dx = tcx - fcx, dy = tcy - fcy;
+
+        const p1 = fcRectBorderPoint(fcx, fcy, fd.w / 2, fd.h / 2, dx, dy);
+        const p2 = fcRectBorderPoint(tcx, tcy, td.w / 2, td.h / 2, -dx, -dy);
+
+        const isSelected = fcSelected && fcSelected.kind === 'edge' && fcSelected.id === edge.id;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+        line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
+        line.setAttribute('stroke', isSelected ? '#ec4899' : '#64748b');
+        line.setAttribute('stroke-width', isSelected ? '3' : '2');
+        line.setAttribute('marker-end', 'url(#fc-arrow)');
+        line.classList.add('fc-edge-line');
+        svg.appendChild(line);
+
+        // Nhãn nhánh (VD: Đúng/Sai) + nút xóa nhanh, đặt ở điểm giữa đường nối
+        const midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
+        const del = document.createElement('div');
+        del.className = 'fc-edge-del';
+        del.style.position = 'absolute';
+        del.style.left = midX + 'px';
+        del.style.top = midY + 'px';
+        del.style.transform = 'translate(-50%, -50%)';
+        del.style.zIndex = '3';
+        del.style.fontSize = '11px';
+        del.style.fontWeight = '700';
+        del.style.color = '#0f172a';
+        del.style.background = 'rgba(255,255,255,0.9)';
+        del.style.border = '1px solid #cbd5e1';
+        del.style.borderRadius = '9999px';
+        del.style.padding = '2px 8px';
+        del.style.cursor = 'pointer';
+        del.style.whiteSpace = 'nowrap';
+        del.title = 'Bấm để chọn/xóa đường nối này';
+        del.textContent = edge.label ? edge.label : '•';
+        del.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fcSelected = { kind: 'edge', id: edge.id };
+            fcRenderCanvas();
+        });
+        document.getElementById('fc-canvas').appendChild(del);
+    });
+}
+
+// --- Bật/tắt chế độ nối mũi tên ---
+function fcToggleConnectMode() {
+    fcConnectMode = !fcConnectMode;
+    fcConnectSource = null;
+    const btn = document.getElementById('fc-btn-connect');
+    if (fcConnectMode) {
+        btn.style.background = '#0f172a';
+        btn.style.color = '#ffffff';
+    } else {
+        btn.style.background = '#ffffff';
+        btn.style.color = '#475569';
+    }
+    fcRenderCanvas();
+}
+
+// --- Xóa khối/đường nối đang được chọn ---
+function fcDeleteSelected() {
+    if (!fcSelected) { alert('Hãy bấm chọn một khối hoặc một đường nối trước khi xóa.'); return; }
+    if (fcSelected.kind === 'node') {
+        fcNodes = fcNodes.filter(n => n.id !== fcSelected.id);
+        fcEdges = fcEdges.filter(e => e.from !== fcSelected.id && e.to !== fcSelected.id);
+    } else if (fcSelected.kind === 'edge') {
+        fcEdges = fcEdges.filter(e => e.id !== fcSelected.id);
+    }
+    fcSelected = null;
+    fcRenderCanvas();
+}
+
+// --- Tạo sơ đồ mới trắng ---
+function fcNewDiagram() {
+    fcNodes = [];
+    fcEdges = [];
+    fcCurrentDiagramId = null;
+    fcSelected = null;
+    fcConnectMode = false;
+    fcConnectSource = null;
+    document.getElementById('fc-diagram-name').value = '';
+    document.getElementById('fc-select-diagram').value = '';
+    fcRenderCanvas();
+}
+
+// --- Tải danh sách sơ đồ đã lưu từ Firebase ---
+async function fcLoadDiagramList() {
+    const select = document.getElementById('fc-select-diagram');
+    try {
+        const snapshot = await db.collection('SoDoQuyTrinh').get();
+        fcDiagramsCache = [];
+        snapshot.forEach(doc => { const d = doc.data(); d.id = doc.id; fcDiagramsCache.push(d); });
+        fcDiagramsCache.sort((a, b) => (a.ten || '').localeCompare(b.ten || ''));
+
+        select.innerHTML = '<option value="">+ Sơ đồ mới...</option>' +
+            fcDiagramsCache.map(d => `<option value="${d.id}">${d.ten}</option>`).join('');
+
+        if (fcCurrentDiagramId) select.value = fcCurrentDiagramId;
+        else fcRenderCanvas(); // hiện canvas trắng nếu chưa chọn gì
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+// --- Chọn 1 sơ đồ có sẵn từ dropdown để mở ---
+function fcLoadSelected() {
+    const select = document.getElementById('fc-select-diagram');
+    const id = select.value;
+    if (!id) { fcNewDiagram(); return; }
+    const diagram = fcDiagramsCache.find(d => d.id === id);
+    if (!diagram) return;
+    fcCurrentDiagramId = id;
+    fcNodes = diagram.nodes || [];
+    fcEdges = diagram.edges || [];
+    fcSelected = null;
+    document.getElementById('fc-diagram-name').value = diagram.ten || '';
+    fcRenderCanvas();
+}
+
+// --- Lưu sơ đồ hiện tại lên Firebase ---
+async function fcSaveDiagram() {
+    const ten = document.getElementById('fc-diagram-name').value.trim();
+    if (!ten) { alert('Vui lòng đặt tên cho sơ đồ trước khi lưu!'); return; }
+
+    const data = {
+        ten,
+        nodes: fcNodes,
+        edges: fcEdges,
+        updated_at: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        if (fcCurrentDiagramId) {
+            await db.collection('SoDoQuyTrinh').doc(fcCurrentDiagramId).update(data);
+        } else {
+            const docRef = await db.collection('SoDoQuyTrinh').add(data);
+            fcCurrentDiagramId = docRef.id;
+        }
+        await fcLoadDiagramList();
+        showSystemSuccess('Đã lưu sơ đồ!', `Sơ đồ "${ten}" đã được đồng bộ an toàn lên đám mây Firebase.`);
+    } catch (e) {
+        alert('Lỗi khi lưu: ' + e.message);
+    }
+}
+
+// --- Xóa hẳn sơ đồ đang mở khỏi Firebase ---
+function fcDeleteDiagram() {
+    if (!fcCurrentDiagramId) { alert('Chưa có sơ đồ nào đang mở để xóa. Hãy chọn 1 sơ đồ từ danh sách.'); return; }
+    const diagram = fcDiagramsCache.find(d => d.id === fcCurrentDiagramId);
+    showSystemConfirm(
+        'Xóa sơ đồ?',
+        `Bạn có chắc chắn muốn xóa vĩnh viễn sơ đồ "${diagram ? diagram.ten : ''}" không? Hành động này không thể khôi phục.`,
+        async () => {
+            try {
+                await db.collection('SoDoQuyTrinh').doc(fcCurrentDiagramId).delete();
+                closeSystemConfirm();
+                fcNewDiagram();
+                await fcLoadDiagramList();
+            } catch (e) {
+                alert('Lỗi khi xóa: ' + e.message);
+            }
+        }
+    );
+}
 // =========================================================================
   </script>
    <!-- SYSTEM CONFIRM MODAL FOR BIEN BAN -->
