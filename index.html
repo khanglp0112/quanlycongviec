@@ -5065,7 +5065,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: SỬA LỖI BẺ TRỤC DỌC & ÉP MẠN SƯỜN CHUẨN XƯƠNG SỐNG)
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: BẢN VÁ TỐI ƯU KHÓA TRỤC THẲNG & ÉP MẠN SƯỜN TUYỆT ĐỐI)
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5078,7 +5078,7 @@ window.calculateMemberEAI = function(memberName) {
 
       sodoActiveDescMap.clear(); 
       
-      // Khởi tạo đồ thị dạng đường cong uốn lượn tự nhiên gốc của thầy Khang
+      // Sử dụng cấu hình đồ thị uốn lượn cong tự nhiên nguyên bản của thầy
       let code = `graph ${sodoCurrentDirection}\n`;
       
       // VÒNG 1: KHỞI TẠO ĐỊNH DANH HÌNH KHỐI NGUYÊN BẢN CỦA THẦY KHANG
@@ -5096,12 +5096,13 @@ window.calculateMemberEAI = function(memberName) {
           else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
       });
 
-      const links = [];                // Chứa danh sách các đường nối có mũi tên trực tiếp
-      const brokenChains = new Set();     // Danh sách các bước bị ngắt kết nối dọc tuyến tính để đưa sang mạn sườn
-      const sameRankGroups = new Map();   // Gom cụm ép phẳng hàng ngang
-      const mainTrunkSteps = [];          // Tập hợp lưu các khối nằm trên trục xương sống chính
+      const links = [];                // Mảng chứa các đường nối xuôi trục dọc hoặc rẽ ngang
+      const failLinks = [];            // Mảng riêng chứa các mũi tên quay về (Không đạt)
+      const brokenChains = new Set();     // Danh sách khối đồng cấp bị ngắt xích dọc
+      const sameRankGroups = new Map();   // Nhóm quản lý cao độ ngang nhau
+      const mainTrunkSteps = [];          // Danh sách các khối thuộc trục xương sống chính
 
-      // VÒNG 2: GIẢI NÉN CHUỖI ĐIỀU HƯỚNG ĐỂ PHÂN TÁCH LUỒNG TRỰC TIẾP TƯỜNG MINH
+      // VÒNG 2: PHÂN RÃ DỮ LIỆU ĐỂ PHÂN TÁCH LUỒNG TRỰC TIẾP
       rows.forEach((row) => {
           const step = row.dataset.step;
           const nodeId = `step_${step}`;
@@ -5120,38 +5121,34 @@ window.calculateMemberEAI = function(memberName) {
               else equalStep = backRawVal;
           }
 
-          // Xử lý luồng rẽ nhánh Không đạt (Bắn đường mũi tên uốn rộng qua lưng, không được bẻ lệch trục chính)
+          // Xử lý luồng Không đạt: Sử dụng nét đứt giãn rộng để triệt tiêu lực hút làm vẹo trục dọc của Bước 3
           if (shape === "rhombus" && failStep) {
-              links.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
+              failLinks.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
           }
 
-          // Xử lý luồng thiết lập kết nối đồng cấp mạn sườn
+          // Xử lý luồng đồng cấp mạn sườn
           if (equalStep) {
               const targetNodeId = `step_${equalStep}`;
               
-              // Bắn duy nhất 1 đường mũi tên ngang trực tiếp từ trục chính sang mạn sườn (KHÔNG chữ nhãn)
-              links.push({ from: targetNodeId, to: nodeId, label: "" });
-
-              // Chặt đứt sợi xích nối dọc mặc định đâm vào khối này để ép nó nhảy ra khỏi hàng dọc
+              // Đánh dấu chặt đứt liên kết dọc mặc định để ép khối phụ văng sang mạn sườn
               brokenChains.add(nodeId);
 
-              // Đăng ký nhóm ép phẳng hàng ngang
+              // Đăng ký gom nhóm ép ngang hàng
               if (!sameRankGroups.has(targetNodeId)) {
                   sameRankGroups.set(targetNodeId, []);
               }
               sameRankGroups.get(targetNodeId).push(nodeId);
           } else {
-              // Khối không chọn đồng cấp sẽ được coi là nằm trên trục xương sống chính
+              // Khối nằm trên trục xương sống thẳng đứng
               mainTrunkSteps.push(nodeId);
           }
       });
 
-      // VÒNG 3: THUẬT TOÁN DỰNG TRỤC XƯƠNG SỐNG THẲNG TẮP (BẮC CẦU KHI PHÁT SINH KHỐI MẠN SƯỜN)
+      // VÒNG 3: DỰNG TRỤC XƯƠNG SỐNG THẲNG ĐỨNG (KẾT NỐI LIÊN TỤC KHÔNG ĐỨT ĐOẠN)
       for (let i = 0; i < mainTrunkSteps.length - 1; i++) {
           const currentNodeId = mainTrunkSteps[i];
           const nextNodeId = mainTrunkSteps[i + 1];
           
-          // Tìm khối HTML tương ứng để xem hình dáng phục vụ gán nhãn chữ Đạt
           const currentStepNum = currentNodeId.replace('step_', '');
           const currentRow = document.querySelector(`#container-sd-blocks .sd-block-row[data-step="${currentStepNum}"]`);
           const shape = currentRow ? currentRow.querySelector('.sd-block-shape').value : 'rect';
@@ -5163,16 +5160,30 @@ window.calculateMemberEAI = function(memberName) {
           }
       }
 
-      // VÒNG 4: BIÊN DỊCH CÁC LIÊN KẾT CÓ MŨI TÊN VÀO MÃ LỆNH MERMAID
+      // VÒNG 4: NẠP LỆNH CHO CÁC ĐƯỜNG MŨI TÊN XUÔI TRỤC VÀ MŨI TÊN NGANG MẠN SƯỜN
       links.forEach(l => {
           if (l.label) {
-              code += `  ${l.from} -- ${l.label} --> ${l.to}\n`;
+              code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
           } else {
               code += `  ${l.from} --> ${l.to}\n`;
           }
       });
 
-      // VÒNG 5: CƯỠNG BỨC KHÓA VỊ TRÍ MẠN SƯỜN (SAME RANK LAYER)
+      // VÒNG 5: NẠP CÁC KHỐI ĐỒNG CẤP VÀO HƯỚNG LIÊN KẾT NGANG ĐẶC BIỆT
+      sameRankGroups.forEach((subNodes, mainNodeId) => {
+          subNodes.forEach(subId => {
+              // Sử dụng nét đứt có hướng đi ngang để Mermaid tự động đẩy sang bên cạnh khối gốc
+              code += `  ${mainNodeId} -.-> ${subId}\n`;
+          });
+      });
+
+      // VÒNG 6: NẠP LUỒNG KHÔNG ĐẠT NỚI LỎNG TRỌNG SỐ (ÉP ĐƯỜNG VÒNG RỘNG QUA LƯNG)
+      failLinks.forEach(fl => {
+          // Khai báo nét đứt dài -. nhãn chữ .-> làm giãn biên biên dịch, giữ nguyên vị trí trục dọc chính
+          code += `  ${fl.from} -. "${fl.label}" .-> ${fl.to}\n`;
+      });
+
+      // VÒNG 7: KHÓA BẰNG CẤP CÙNG HÀNG NGANG BẰNG SUBGRAPH ẨN
       sameRankGroups.forEach((subNodes, mainNodeId) => {
           code += `  subgraph Group_${mainNodeId} [" "]\n`;
           code += `    direction LR\n`;
