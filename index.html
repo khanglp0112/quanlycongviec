@@ -5240,14 +5240,14 @@ window.calculateMemberEAI = function(memberName) {
                   }
                   .node.shape-round text { fill: #0284c7 !important; font-weight: 700 !important; }
 
-                  /* 3. KHỐI HÀNH ĐỘNG (CHỮ NHẬT): Kính mờ khói xám Slate quý phái trung tính */
-                  .node.shape-rect rect, .node.shape-rect circle, .node.shape-rect polygon {
-                      fill: rgba(241, 245, 249, 0.55) !important;
-                      stroke: rgba(148, 163, 184, 0.4) !important;
-                      stroke-width: 1.5px !important;
-                      filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.02)) !important;
-                  }
-                  .node.shape-rect text { fill: #334155 !important; font-weight: 700 !important; }
+                  /* KHỐI HÀNH ĐỘNG (CHỮ NHẬT): Kính mờ sắc Xanh Coban */
+.node.shape-rect rect, .node.shape-rect circle, .node.shape-rect polygon {
+    fill: rgba(59, 130, 246, 0.12) !important;
+    stroke: rgba(59, 130, 246, 0.5) !important;
+    stroke-width: 1.5px !important;
+    filter: drop-shadow(0 4px 6px rgba(15, 23, 42, 0.02)) !important;
+}
+.node.shape-rect text { fill: #2563eb !important; font-weight: 700 !important; }
 
                   /* 4. KHỐI QUYẾT ĐỊNH (HÌNH THOI): Kính mờ sắc Tím Thạch Anh sậm pha lê */
                   .node.shape-rhombus rect, .node.shape-rhombus circle, .node.shape-rhombus polygon {
