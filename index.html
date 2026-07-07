@@ -5065,7 +5065,7 @@ window.calculateMemberEAI = function(memberName) {
         }
         compileSodoDataToMermaid();
     }
-// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (VÁ LỖI TRIỆT ĐỂ: ÉP GÓC VUÔNG ORTHO 90 ĐỘ CỐ ĐỊNH TRỤC DỌC CHÍNH)
+// 4. THUẬT TOÁN BIÊN DỊCH MERMAID (PHẦN 1: GIẢI PHÁP 1 - KHÓA TRỤC DỌC ƯU TIÊN TIỀN ĐỀ)
   function compileSodoDataToMermaid() {
       const rows = document.querySelectorAll('#container-sd-blocks .sd-block-row');
       const renderContainer = document.getElementById('canvas-mermaid-render');
@@ -5096,12 +5096,15 @@ window.calculateMemberEAI = function(memberName) {
           else code += `  ${nodeId}["${title}"]:::shape-rect\n`;
       });
 
-      const links = [];                // Chứa danh sách các đường nối có mũi tên trực tiếp
-      const brokenChains = new Set();     // Danh sách các bước bị ngắt kết nối dọc tuyến tính mặc định để đưa sang mạn sườn
+      const mainTrunkLinks = [];       // Mảng chứa các đường nối xương sống dọc chính (ƯU TIÊN 1)
+      const sideEqualLinks = [];       // Mảng chứa các mũi tên đi ngang mạn sườn (ƯU TIÊN 2)
+      const failLinks = [];            // Mảng chứa các mũi tên quay ngược Không đạt (ƯU TIÊN 3)
+      
+      const brokenChains = new Set();     // Danh sách khối đồng cấp bị ngắt xích dọc tuyến tính mặc định
       const sameRankGroups = new Map();   // Nhóm quản lý cao độ ngang nhau phẳng tuyệt đối
-      const mainTrunkSteps = [];          // Danh sách các khối thuộc trục xương sống chính từ trên xuống dưới
+      const mainTrunkSteps = [];          // Danh sách các khối thuộc trục xương sống chính
 
-      // VÒNG 2: GIẢI NÉN CHUỖI ĐIỀU HƯỚNG ĐỂ PHÂN TÁCH LUỒNG TRỰC TIẾP TƯỜNG MINH
+      // VÒNG 2: PHÂN RÃ LUỒNG DỮ LIỆU ĐỂ PHÂN TÁCH TRỤC CHÍNH VÀ MẠN SƯỜN
       rows.forEach((row) => {
           const step = row.dataset.step;
           const nodeId = `step_${step}`;
@@ -5120,33 +5123,33 @@ window.calculateMemberEAI = function(memberName) {
               else equalStep = backRawVal;
           }
 
-          // Xử lý luồng Không đạt (Quay ngược về bước sửa lỗi, bẻ vuông góc bọc ngoài)
+          // Ghi nhận luồng Không đạt (Quay ngược về bước cũ)
           if (shape === "rhombus" && failStep) {
-              links.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
+              failLinks.push({ from: nodeId, to: `step_${failStep}`, label: "Không đạt" });
           }
 
-          // Xử lý luồng thiết lập kết nối đồng cấp mạn sườn hàng ngang
+          // Ghi nhận luồng thiết lập kết nối đồng cấp mạn sườn hàng ngang
           if (equalStep) {
               const targetNodeId = `step_${equalStep}`;
               
-              // Bắn 1 đường mũi tên nét liền đi ngang trực tiếp từ khối trục chính sang khối đồng cấp mạn sườn (KHÔNG cần chữ nhãn)
-              links.push({ from: targetNodeId, to: nodeId, label: "" });
+              // Đưa vào mảng riêng để lát nữa ghi sau cùng mạn sườn (KHÔNG chữ nhãn)
+              sideEqualLinks.push({ from: targetNodeId, to: nodeId, label: "" });
 
               // Ngắt liên kết dọc mặc định đâm vào khối này để giải phóng nó ra khỏi hàng dọc chính
               brokenChains.add(nodeId);
 
-              // Đăng ký nhóm ép phẳng cùng cao độ ngang nhau
+              // Đăng ký nhóm ép phẳng cùng cao độ ngang nhau mạn sườn
               if (!sameRankGroups.has(targetNodeId)) {
                   sameRankGroups.set(targetNodeId, []);
               }
               sameRankGroups.get(targetNodeId).push(nodeId);
           } else {
-              // Khối không chọn đồng cấp sẽ được cố định nằm trên trục xương sống chính
+              // Khối không chọn đồng cấp mặc định là xương sống cốt lõi đứng thẳng
               mainTrunkSteps.push(nodeId);
           }
       });
 
-      // VÒNG 3: DỰNG TRỤC XƯƠNG SỐNG THẲNG ĐỨNG (BẮC CẦU KHI PHÁT SINH KHỐI MẠN SƯỜN)
+      // VÒNG 3: DỰNG ĐƯỜNG KẾT NỐI CHO TRỤC XƯƠNG SỐNG CHÍNH (ĐƯỢC ĐẨY LÊN ƯU TIÊN ĐẦU TIÊN)
       for (let i = 0; i < mainTrunkSteps.length - 1; i++) {
           const currentNodeId = mainTrunkSteps[i];
           const nextNodeId = mainTrunkSteps[i + 1];
@@ -5156,14 +5159,18 @@ window.calculateMemberEAI = function(memberName) {
           const shape = currentRow ? currentRow.querySelector('.sd-block-shape').value : 'rect';
 
           if (shape === "rhombus") {
-              links.push({ from: currentNodeId, to: nextNodeId, label: "Đạt" });
+              mainTrunkLinks.push({ from: currentNodeId, to: nextNodeId, label: "Đạt" });
           } else {
-              links.push({ from: currentNodeId, to: nextNodeId, label: "" });
+              mainTrunkLinks.push({ from: currentNodeId, to: nextNodeId, label: "" });
           }
       }
 
-      // VÒNG 4: BIÊN DỊCH CÁC LIÊN KẾT NÉT LIỀN VÀO MÃ LỆNH MERMAID
-      links.forEach(l => {
+      // =========================================================================
+      // BƯỚC THẦN KỲ CHỐT CHẶN: THỨ TỰ IN MÃ LỆNH RA MERMAID BẮT BUỘC PHẢI PHÂN LỚP
+      // =========================================================================
+      
+      // 1. Ghi toàn bộ TRỤC DỌC XƯƠNG SỐNG chính trước để Mermaid khóa cứng phom thẳng tuột
+      mainTrunkLinks.forEach(l => {
           if (l.label) {
               code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
           } else {
@@ -5171,7 +5178,17 @@ window.calculateMemberEAI = function(memberName) {
           }
       });
 
-      // VÒNG 5: ÉP PHẲNG KHÓA CAO ĐỘ HÀNG NGANG BẰNG SUBGRAPH ĐỊNH HƯỚNG MẠN SƯỜN
+      // 2. Sau đó mới ghi các mũi tên đi ngang ĐỒNG CẤP mạn sườn để ép văng sang hai bên hàng ngang song song
+      sideEqualLinks.forEach(l => {
+          code += `  ${l.from} --> ${l.to}\n`;
+      });
+
+      // 3. Cuối cùng mới ghi luồng KHÔNG ĐẠT bọc vòng rộng ra ngoài lưng không ảnh hưởng đến khối lõi
+      failLinks.forEach(l => {
+          code += `  ${l.from} -->|"${l.label}"| ${l.to}\n`;
+      });
+
+      // VÒNG 5: CƯỠNG BỨC CAO ĐỘ PHẲNG BẰNG SUBGRAPH ĐỊNH HƯỚNG MẠN SƯỜN
       sameRankGroups.forEach((subNodes, mainNodeId) => {
           code += `  subgraph Group_${mainNodeId} [" "]\n`;
           code += `    direction LR\n`;
@@ -5180,7 +5197,7 @@ window.calculateMemberEAI = function(memberName) {
               code += `    ${subId}\n`;
           });
           code += `  end\n`;
-          code += `  style Group_${mainNodeId} fill:none,stroke:none,color:none;\n`; // Giấu viền bảo toàn mỹ thuật kính mờ
+          code += `  style Group_${mainNodeId} fill:none,stroke:none,color:none;\n`; // Giấu viền mica
       });
 
       window.openSodoSidebarWithData = function(nodeId) {
@@ -5206,7 +5223,7 @@ window.calculateMemberEAI = function(memberName) {
                   flowchart: {
                       htmlLabels: true, 
                       useMaxWidth: false,
-                      // CHÌA KHÓA TOÁN HỌC: Ép bộ vẽ bẻ góc vuông vuông vắn 90 độ như ảnh 2
+                      // Ép bộ vẽ bẻ góc vuông vuông vắn 90 độ khoa học
                       curve: 'ortho' 
                   }
               });
