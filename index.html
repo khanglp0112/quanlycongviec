@@ -348,9 +348,6 @@
         border: 1px solid rgba(5, 150, 105, 0.45) !important; 
     }
     #btn-export-excel:hover { background: #059669 !important; color: #ffffff !important; border-color: #059669 !important; }
-/* ĐỒNG BỘ PHONG CÁCH ĐỔ MÀU CHO NÚT SƠ ĐỒ QUY TRÌNH KHI HOVER CHỐT KHỐI */
-#btn-so-do { background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(236, 72, 153, 0.16)) !important; color: #db2777 !important; border-color: rgba(244, 114, 182, 0.4) !important; }
-#btn-so-do:hover { background: #db2777 !important; color: #ffffff !important; border-color: #db2777 !important; }
     /* Nút "Thêm việc" Kanban tối cao: Khối pha lê Hổ phách đúc sậm sang trọng làm điểm chốt dòng */
     #btn-add {
         background: linear-gradient(135deg, #f59e0b, #d97706) !important;
@@ -651,6 +648,9 @@
       <button id="btn-export-excel" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#10b981; color:#ffffff;" onmouseenter="this.style.background='#059669'" onmouseleave="this.style.background='#10b981'"><i data-lucide="download" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Xuất Excel</span></button>
       <button id="btn-archive" onclick="openArchiveModal()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-sm hover:shadow" style="background:#ffffff;color:#475569;border:1px solid #cbd5e1;"><i data-lucide="archive" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Kho lưu trữ</span></button>
       <button id="btn-so-do" onclick="toggleSoDoView()" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all border border-pink-200/60 shadow-sm" style="background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(236, 72, 153, 0.16)); color: #db2777;">
+          <i data-lucide="git-fork" class="w-4 h-4"></i>
+          <span class="hidden xl:inline">Sơ đồ quy trình</span>
+      </button>
       <button id="btn-add" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors" style="background:#f59e0b; color:#0f172a;" onmouseenter="this.style.background='#fbbf24'" onmouseleave="this.style.background='#f59e0b'"><i data-lucide="plus" style="width:16px;height:16px;"></i><span class="hidden xl:inline">Thêm việc</span></button>
     </div>
 </header>
