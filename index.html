@@ -1503,54 +1503,57 @@ async function openQuickView(id) {
         if (data.ngayHop) { const p = data.ngayHop.split('-'); dateDisplay = `ngày ${p[2]} tháng ${p[1]} năm ${p[0]}`; }
 
         // Đổ khuôn chữ font-serif như văn bản in ấn thực tế
+       // Đổ khuôn chữ font-sans phẳng hoàn toàn, tự động dãn h-auto theo nội dung biên bản dài
         content.innerHTML = `
-            <div class="flex justify-between items-start text-center text-xs font-sans font-bold text-slate-700 mb-8 border-b border-slate-100 pb-4">
-                <div>
-                    <p class="uppercase underline underline-offset-4">TRƯỜNG THCS - THPT IGC TÂY NINH</p>
+            <div class="w-full h-auto text-slate-800 leading-relaxed font-sans" style="height: auto !important;">
+                <div class="flex justify-between items-start text-center text-xs font-sans font-bold text-slate-700 mb-8 border-b border-slate-100 pb-4">
+                    <div>
+                        <p class="uppercase underline underline-offset-4">TRƯỜNG THCS - THPT IGC TÂY NINH</p>
+                    </div>
+                    <div>
+                        <p class="uppercase">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                        <p class="underline underline-offset-4">Độc lập - Tự do - Hạnh phúc</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="uppercase">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
-                    <p class="underline underline-offset-4">Độc lập - Tự do - Hạnh phúc</p>
+
+                <div class="text-center my-6 font-sans">
+                    <h1 class="text-lg font-bold text-slate-900 uppercase tracking-tight">${escHtml(data.tieuDe)}</h1>
+                    <p class="text-xs italic text-slate-500 mt-1">Tây Ninh, ${dateDisplay}</p>
                 </div>
-            </div>
 
-            <div class="text-center my-6 font-sans">
-                <h1 class="text-lg font-bold text-slate-900 uppercase tracking-tight">${escHtml(data.tieuDe)}</h1>
-                <p class="text-xs italic text-slate-500 mt-1">Tây Ninh, ${dateDisplay}</p>
-            </div>
-
-            <div class="text-sm space-y-1.5 mb-6">
-                <p><b>1. Thời gian bắt đầu:</b> ${data.gioBD || '……h……'} - <b>Kết thúc:</b> ${data.gioKT || '……h……'}</p>
-                <p><b>2. Địa điểm họp tổ:</b> ${escHtml(data.diaDiem)}</p>
-                <p><b>3. Chủ trì cuộc họp:</b> ${escHtml(data.chuTri)} | <b>Thư ký ghi chép:</b> ${escHtml(data.thuKy)}</p>
-            </div>
-
-            <div class="text-sm mb-6">
-                <p class="font-bold mb-1">II. THÀNH PHẦN THAM DỰ CUỘC HỌP:</p>
-                <div class="pl-4 space-y-1 text-slate-700">
-                    ${data.thanhPhan && data.thanhPhan.length > 0 
-                        ? data.thanhPhan.map((gv, i) => `<p>${i+1}. Ông/Bà: <b>${escHtml(gv.hoTen)}</b> - Chức vụ: ${escHtml(gv.chucVu)} ${gv.ghiChu ? `<i>(${escHtml(gv.ghiChu)})</i>` : ''}</p>`).join('')
-                        : '<p class="italic text-slate-400">Không ghi nhận danh sách.</p>'}
+                <div class="text-sm space-y-1.5 mb-6">
+                    <p><b>1. Thời gian bắt đầu:</b> ${data.gioBD || '……h……'} - <b>Kết thúc:</b> ${data.gioKT || '……h……'}</p>
+                    <p><b>2. Địa điểm họp tổ:</b> ${escHtml(data.diaDiem)}</p>
+                    <p><b>3. Chủ trì cuộc họp:</b> ${escHtml(data.chuTri)} | <b>Thư ký ghi chép:</b> ${escHtml(data.thuKy)}</p>
                 </div>
-            </div>
 
-            <div class="text-sm mb-12">
-                <p class="font-bold mb-2">III. NỘI DUNG CHI TIẾT PHIÊN HỌP TỔ CHUYÊN MÔN:</p>
-                <div class="pl-4 text-slate-800 leading-relaxed space-y-2 rich-text-preview" style="word-break: break-word;">
-                    ${data.noiDung || '<p class="slate-400 italic">Nội dung trống.</p>'}
+                <div class="text-sm mb-6">
+                    <p class="font-bold mb-1">II. THÀNH PHẦN THAM DỰ CUỘC HỌP:</p>
+                    <div class="pl-4 space-y-1 text-slate-700">
+                        ${data.thanhPhan && data.thanhPhan.length > 0 
+                            ? data.thanhPhan.map((gv, i) => `<p>${i+1}. Ông/Bà: <b>${escHtml(gv.hoTen)}</b> - Chức vụ: ${escHtml(gv.chucVu)} ${gv.ghiChu ? `<i>(${escHtml(gv.ghiChu)})</i>` : ''}</p>`).join('')
+                            : '<p class="italic text-slate-400">Không ghi nhận danh sách.</p>'}
+                    </div>
                 </div>
-            </div>
 
-            <div class="grid grid-cols-2 gap-4 text-center text-sm font-sans mt-12 pt-6 border-t border-slate-100">
-                <div>
-                    <p class="font-bold uppercase">THƯ KÝ PHIÊN HỌP</p>
-                    <p class="text-xs text-slate-400 italic mt-0.5">(Ký và ghi rõ họ tên)</p>
-                    <p class="mt-16 font-bold text-slate-700">${escHtml(data.thuKy)}</p>
+                <div class="text-sm mb-12">
+                    <p class="font-bold mb-2">III. NỘI DUNG CHI TIẾT PHIÊN HỌP TỔ CHUYÊN MÔN:</p>
+                    <div class="pl-4 text-slate-800 leading-relaxed space-y-2 rich-text-preview" style="word-break: break-word;">
+                        ${data.noiDung || '<p class="slate-400 italic">Nội dung trống.</p>'}
+                    </div>
                 </div>
-                <div>
-                    <p class="font-bold uppercase">CHỦ TRÌ CUỘC HỌP</p>
-                    <p class="text-xs text-slate-400 italic mt-0.5">(Ký và ghi rõ họ tên)</p>
-                    <p class="mt-16 font-bold text-slate-700">${escHtml(data.chuTri)}</p>
+
+                <div class="grid grid-cols-2 gap-4 text-center text-sm font-sans mt-12 pt-6 border-t border-slate-100">
+                    <div>
+                        <p class="font-bold uppercase">THƯ KÝ PHIÊN HỌP</p>
+                        <p class="text-xs text-slate-400 italic mt-0.5">(Ký và ghi rõ họ tên)</p>
+                        <p class="mt-16 font-bold text-slate-700">${escHtml(data.thuKy)}</p>
+                    </div>
+                    <div>
+                        <p class="font-bold uppercase">CHỦ TRÌ CUỘC HỌP</p>
+                        <p class="text-xs text-slate-400 italic mt-0.5">(Ký và ghi rõ họ tên)</p>
+                        <p class="mt-16 font-bold text-slate-700">${escHtml(data.chuTri)}</p>
+                    </div>
                 </div>
             </div>
         `;
