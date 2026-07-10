@@ -5348,8 +5348,10 @@ window.calculateMemberEAI = function(memberName) {
         rowEl.removeAttribute('draggable');
         rowEl.style.cursor = 'grab';
 
-        // Không kích hoạt kéo thả nếu bấm vào ô input, select, textarea hoặc nút bấm bên trong khối
-            if (e.target.closest('input') || e.target.closest('select') || e.target.closest('textarea') || e.target.closest('button')) {
+        // Tìm phần tử làm tay nắm kéo (nếu có thanh bám, hoặc click trực tiếp vào khối)
+        rowEl.addEventListener('pointerdown', function(e) {
+            // Không kích hoạt nếu bấm vào ô input, select hoặc nút bấm bên trong khối
+            if (e.target.closest('input') || e.target.closest('select') || e.target.closest('button')) {
                 return;
             }
             
