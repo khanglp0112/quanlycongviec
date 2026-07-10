@@ -5299,7 +5299,7 @@ window.calculateMemberEAI = function(memberName) {
         });
     };
 // =========================================================================
-    // VÁ LỖI HỆ THỐNG KÉO THẢ SƠ ĐỒ QUY TRÌNH - ĐỒNG BỘ DATA-SAVED-VAL TUYỆT ĐỐI
+    // VÁ LỖI HỆ THỐNG KÉO THẢ SƠ ĐỒ QUY TRÌNH - SỬA LỖI CUỘN CHUỘT VÀ KẸT KHỐI
     // =========================================================================
     let currentDraggingSodoRow = null;
     let sodoDropIndicator = null;
@@ -5354,6 +5354,14 @@ window.calculateMemberEAI = function(memberName) {
         return indicator;
     }
 
+    // HÀM DỌN SẠCH TRẠNG THÁI TUYỆT ĐỐI - CHỐNG KẸT KHỐI KHI THẢ CHUỘT
+    function clearAllSodoDragStates() {
+        stopSodoAutoScroll();
+        if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
+        document.querySelectorAll('.sd-dragging').forEach(el => el.classList.remove('sd-dragging'));
+        document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
+    }
+
     function initSodoDragAndDropEvents(rowEl) {
         rowEl.addEventListener('dragstart', function(e) {
             currentDraggingSodoRow = this;
@@ -5363,13 +5371,11 @@ window.calculateMemberEAI = function(memberName) {
         });
 
         rowEl.addEventListener('dragend', function() {
-            this.classList.remove('sd-dragging');
-            stopSodoAutoScroll();
-            if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
-            document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
+            clearAllSodoDragStates();
             if (currentDraggingSodoRow) {
                 currentDraggingSodoRow.classList.add('sd-just-dropped');
-                setTimeout(() => currentDraggingSodoRow?.classList.remove('sd-just-dropped'), 450);
+                const target = currentDraggingSodoRow;
+                setTimeout(() => target?.classList.remove('sd-just-dropped'), 450);
             }
             currentDraggingSodoRow = null;
             window.reIndexAllSodoRows();
@@ -5391,6 +5397,16 @@ window.calculateMemberEAI = function(memberName) {
             this.classList.add('sd-drag-over');
         });
 
+        // TOÁN TỬ ÉP BUỘC CUỘN BẰNG CON LĂN CHUỘT KHI ĐANG KÉO (FIX LỖI ĐÓNG BĂNG CUỘN)
+        rowEl.addEventListener('wheel', function(e) {
+            if (currentDraggingSodoRow) {
+                const panel = getSodoScrollPanel();
+                if (panel) {
+                    panel.scrollTop += e.deltaY;
+                }
+            }
+        });
+
         rowEl.addEventListener('dragleave', function(e) {
             const rect = this.getBoundingClientRect();
             if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
@@ -5400,19 +5416,21 @@ window.calculateMemberEAI = function(memberName) {
 
         rowEl.addEventListener('drop', function(e) {
             e.preventDefault(); e.stopPropagation();
-            this.classList.remove('sd-drag-over');
+            clearAllSodoDragStates();
             if (currentDraggingSodoRow && currentDraggingSodoRow !== this) {
                 const container = document.getElementById('container-sd-blocks');
                 const rect = this.getBoundingClientRect();
                 if (e.clientY < rect.top + rect.height / 2) { container.insertBefore(currentDraggingSodoRow, this); } 
                 else { if (this.nextSibling && this.nextSibling !== sodoDropIndicator) { container.insertBefore(currentDraggingSodoRow, this.nextSibling); } else { container.appendChild(currentDraggingSodoRow); } }
             }
-            if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
             return false;
         });
     }
 
-    // HÀM RE-INDEX NÂNG CAO: Đồng bộ sâu toàn bộ các thuộc tính ẩn sau khi đổi chỗ
+    // BẮT SỰ KIỆN TOÀN CỤC CHỐNG LỖI THẢ CHUỘT NGOÀI VÙNG CONTAINER
+    window.addEventListener('dragover', function(e) { if(currentDraggingSodoRow) updateSodoAutoScroll(e.clientY); });
+    window.addEventListener('drop', function() { if(currentDraggingSodoRow) { clearAllSodoDragStates(); currentDraggingSodoRow = null; window.reIndexAllSodoRows(); } });
+
     window.reIndexAllSodoRows = function() {
         const container = document.getElementById('container-sd-blocks');
         const indicator = container.querySelector('.sd-drop-indicator');
@@ -5420,7 +5438,6 @@ window.calculateMemberEAI = function(memberName) {
         
         const rows = container.querySelectorAll('.sd-block-row');
         
-        // Bước A: Thu thập lại toàn bộ giá trị đang chọn thực tế trước khi tịnh tiến ID
         rows.forEach(row => {
             const selectNext = row.querySelector('.sd-block-next-select');
             const selectFail = row.querySelector('.sd-block-fail-select');
@@ -5428,7 +5445,6 @@ window.calculateMemberEAI = function(memberName) {
             if(selectFail) selectFail.setAttribute('data-saved-val', selectFail.value);
         });
 
-        // Bước B: Đồng bộ viết lại số nhãn bước (Step badge) tuần tự từ 1 đến hết
         rows.forEach((row, idx) => {
             const newStep = (idx + 1).toString();
             row.dataset.step = newStep;
@@ -5436,7 +5452,6 @@ window.calculateMemberEAI = function(memberName) {
             if(badge) badge.textContent = `Bước ${newStep}`;
         });
 
-        // Bước C: Nạp lại danh sách Option xổ xuống và ép Mermaid vẽ lại giao diện chuẩn xác
         window.updateAllSodoSelectOptions();
         window.compileSodoDataToMermaid();
     };
