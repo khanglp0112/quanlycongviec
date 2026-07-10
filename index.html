@@ -5299,138 +5299,121 @@ window.calculateMemberEAI = function(memberName) {
         });
     };
 // =========================================================================
-    // VÁ LỖI HỆ THỐNG KÉO THẢ SƠ ĐỒ QUY TRÌNH - SỬA LỖI CUỘN CHUỘT VÀ KẸT KHỐI
+    // CƠ CHẾ KÉO THẢ MỚI TOÀN DIỆN BẰNG POINTER EVENTS (FIX LĂN CHUỘT & KẸT KHỐI)
     // =========================================================================
     let currentDraggingSodoRow = null;
     let sodoDropIndicator = null;
-    let sodoAutoScrollRAF = null;  
-    let sodoAutoScrollSpeed = 0;   
-    const SCROLL_EDGE_SIZE = 60;   
-    const SCROLL_MAX_SPEED = 12;   
+    let sodoDragPlaceholder = null; // Khối giả lập vị trí
+    let startY = 0;
+    let startScrollTop = 0;
 
     function getSodoScrollPanel() { return document.getElementById('sodo-scroll-panel'); }
-
-    function startSodoAutoScroll() {
-        if (sodoAutoScrollRAF) return;
-        function scrollStep() {
-            const panel = getSodoScrollPanel();
-            if (panel && sodoAutoScrollSpeed !== 0) { panel.scrollTop += sodoAutoScrollSpeed; }
-            sodoAutoScrollRAF = requestAnimationFrame(scrollStep);
-        }
-        sodoAutoScrollRAF = requestAnimationFrame(scrollStep);
-    }
-
-    function stopSodoAutoScroll() {
-        if (sodoAutoScrollRAF) { cancelAnimationFrame(sodoAutoScrollRAF); sodoAutoScrollRAF = null; }
-        sodoAutoScrollSpeed = 0;
-        const panel = getSodoScrollPanel();
-        if (panel) { panel.classList.remove('sd-scroll-top', 'sd-scroll-bottom'); }
-    }
-
-    function updateSodoAutoScroll(clientY) {
-        const panel = getSodoScrollPanel();
-        if (!panel) return;
-        const rect = panel.getBoundingClientRect();
-        const distFromTop = clientY - rect.top;
-        const distFromBottom = rect.bottom - clientY;
-        panel.classList.remove('sd-scroll-top', 'sd-scroll-bottom');
-        if (distFromTop < SCROLL_EDGE_SIZE && distFromTop > 0) {
-            const intensity = 1 - (distFromTop / SCROLL_EDGE_SIZE);
-            sodoAutoScrollSpeed = -Math.round(SCROLL_MAX_SPEED * intensity * intensity);
-            panel.classList.add('sd-scroll-top'); startSodoAutoScroll();
-        } else if (distFromBottom < SCROLL_EDGE_SIZE && distFromBottom > 0) {
-            const intensity = 1 - (distFromBottom / SCROLL_EDGE_SIZE);
-            sodoAutoScrollSpeed = Math.round(SCROLL_MAX_SPEED * intensity * intensity);
-            panel.classList.add('sd-scroll-bottom'); startSodoAutoScroll();
-        } else { sodoAutoScrollSpeed = 0; stopSodoAutoScroll(); }
-    }
 
     function createDropIndicator() {
         if (sodoDropIndicator) return sodoDropIndicator;
         const indicator = document.createElement('div');
         indicator.className = 'sd-drop-indicator';
+        indicator.style.height = '4px';
+        indicator.style.background = '#ec4899';
+        indicator.style.borderRadius = '2px';
+        indicator.style.margin = '8px 0';
+        indicator.style.boxShadow = '0 0 8px rgba(236, 72, 153, 0.6)';
         indicator.style.display = 'none';
         sodoDropIndicator = indicator;
         return indicator;
     }
 
-    // HÀM DỌN SẠCH TRẠNG THÁI TUYỆT ĐỐI - CHỐNG KẸT KHỐI KHI THẢ CHUỘT
-    function clearAllSodoDragStates() {
-        stopSodoAutoScroll();
-        if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
-        document.querySelectorAll('.sd-dragging').forEach(el => el.classList.remove('sd-dragging'));
-        document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
-    }
-
+    // KHỞI TẠO SỰ KIỆN CHUỘT CHO TỪNG KHỐI
     function initSodoDragAndDropEvents(rowEl) {
-        rowEl.addEventListener('dragstart', function(e) {
+        // Gỡ bỏ thuộc tính draggable mặc định của HTML5 để tránh xung đột vật lý
+        rowEl.removeAttribute('draggable');
+        rowEl.style.cursor = 'grab';
+
+        // Tìm phần tử làm tay nắm kéo (nếu có thanh bám, hoặc click trực tiếp vào khối)
+        rowEl.addEventListener('pointerdown', function(e) {
+            // Không kích hoạt nếu bấm vào ô input, select hoặc nút bấm bên trong khối
+            if (e.target.closest('input') || e.target.closest('select') || e.target.closest('button')) {
+                return;
+            }
+            
             currentDraggingSodoRow = this;
+            startY = e.clientY;
+            const panel = getSodoScrollPanel();
+            startScrollTop = panel ? panel.scrollTop : 0;
+
+            // Ép con trỏ toàn cục nhận diện giữ khối
+            rowEl.setPointerCapture(e.pointerId);
             this.classList.add('sd-dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/plain', this.dataset.step);
+            this.style.cursor = 'grabbing';
+            
+            const indicator = createDropIndicator();
+            indicator.style.display = 'block';
+            this.parentNode.insertBefore(indicator, this);
         });
 
-        rowEl.addEventListener('dragend', function() {
-            clearAllSodoDragStates();
-            if (currentDraggingSodoRow) {
-                currentDraggingSodoRow.classList.add('sd-just-dropped');
-                const target = currentDraggingSodoRow;
-                setTimeout(() => target?.classList.remove('sd-just-dropped'), 450);
+        rowEl.addEventListener('pointermove', function(e) {
+            if (currentDraggingSodoRow !== this) return;
+            e.preventDefault();
+
+            const container = document.getElementById('container-sd-blocks');
+            const indicator = createDropIndicator();
+            
+            // Tìm khối nằm ngay dưới tọa độ chuột hiện tại
+            const children = Array.from(container.children).filter(el => el !== currentDraggingSodoRow && el !== indicator);
+            let targetSibling = null;
+
+            for (let child of children) {
+                const rect = child.getBoundingClientRect();
+                if (e.clientY < rect.top + rect.height / 2) {
+                    targetSibling = child;
+                    break;
+                }
             }
+
+            // Di chuyển thanh chỉ báo hồng tới vị trí phân tách
+            if (targetSibling) {
+                container.insertBefore(indicator, targetSibling);
+            } else {
+                container.appendChild(indicator);
+            }
+        });
+
+        rowEl.addEventListener('pointerup', function(e) {
+            if (currentDraggingSodoRow !== this) return;
+            
+            rowEl.releasePointerCapture(e.pointerId);
+            this.classList.remove('sd-dragging');
+            this.style.cursor = 'grab';
+
+            const container = document.getElementById('container-sd-blocks');
+            if (sodoDropIndicator && sodoDropIndicator.style.display === 'block') {
+                // Di chuyển khối thật vào đúng vị trí thanh chỉ báo màu hồng đang đứng
+                container.insertBefore(this, sodoDropIndicator);
+                sodoDropIndicator.style.display = 'none';
+            }
+
             currentDraggingSodoRow = null;
+            
+            // Hiệu ứng nhả khối thành công
+            this.classList.add('sd-just-dropped');
+            const target = this;
+            setTimeout(() => target.classList.remove('sd-just-dropped'), 450);
+
+            // Sắp xếp lại chỉ số bước và vẽ lại sơ đồ
             window.reIndexAllSodoRows();
         });
 
-        rowEl.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            if (!currentDraggingSodoRow || currentDraggingSodoRow === this) return;
-            updateSodoAutoScroll(e.clientY);
-            const container = document.getElementById('container-sd-blocks');
-            const indicator = createDropIndicator();
-            const rect = this.getBoundingClientRect();
-            const isAbove = e.clientY < rect.top + rect.height / 2;
-            if (!indicator.parentNode || indicator.parentNode !== container) { container.appendChild(indicator); }
-            indicator.style.display = 'block';
-            if (isAbove) { container.insertBefore(indicator, this); } 
-            else { if (this.nextSibling) { container.insertBefore(indicator, this.nextSibling); } else { container.appendChild(indicator); } }
-            this.classList.add('sd-drag-over');
-        });
-
-        // TOÁN TỬ ÉP BUỘC CUỘN BẰNG CON LĂN CHUỘT KHI ĐANG KÉO (FIX LỖI ĐÓNG BĂNG CUỘN)
-        rowEl.addEventListener('wheel', function(e) {
-            if (currentDraggingSodoRow) {
-                const panel = getSodoScrollPanel();
-                if (panel) {
-                    panel.scrollTop += e.deltaY;
-                }
-            }
-        });
-
-        rowEl.addEventListener('dragleave', function(e) {
-            const rect = this.getBoundingClientRect();
-            if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
-                this.classList.remove('sd-drag-over');
-            }
-        });
-
-        rowEl.addEventListener('drop', function(e) {
-            e.preventDefault(); e.stopPropagation();
-            clearAllSodoDragStates();
-            if (currentDraggingSodoRow && currentDraggingSodoRow !== this) {
-                const container = document.getElementById('container-sd-blocks');
-                const rect = this.getBoundingClientRect();
-                if (e.clientY < rect.top + rect.height / 2) { container.insertBefore(currentDraggingSodoRow, this); } 
-                else { if (this.nextSibling && this.nextSibling !== sodoDropIndicator) { container.insertBefore(currentDraggingSodoRow, this.nextSibling); } else { container.appendChild(currentDraggingSodoRow); } }
-            }
-            return false;
+        rowEl.addEventListener('pointercancel', function(e) {
+            if (currentDraggingSodoRow !== this) return;
+            rowEl.releasePointerCapture(e.pointerId);
+            this.classList.remove('sd-dragging');
+            this.style.cursor = 'grab';
+            if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
+            currentDraggingSodoRow = null;
         });
     }
 
-    // BẮT SỰ KIỆN TOÀN CỤC CHỐNG LỖI THẢ CHUỘT NGOÀI VÙNG CONTAINER
-    window.addEventListener('dragover', function(e) { if(currentDraggingSodoRow) updateSodoAutoScroll(e.clientY); });
-    window.addEventListener('drop', function() { if(currentDraggingSodoRow) { clearAllSodoDragStates(); currentDraggingSodoRow = null; window.reIndexAllSodoRows(); } });
-
+    // LẮP THÊM ĐOẠN ĐỒNG BỘ DATA-SAVED-VAL CHO HÀM RE-INDEX
     window.reIndexAllSodoRows = function() {
         const container = document.getElementById('container-sd-blocks');
         const indicator = container.querySelector('.sd-drop-indicator');
@@ -5438,6 +5421,7 @@ window.calculateMemberEAI = function(memberName) {
         
         const rows = container.querySelectorAll('.sd-block-row');
         
+        // Bước A: Giữ cấu trúc dữ liệu nhánh cũ trước khi viết lại ID
         rows.forEach(row => {
             const selectNext = row.querySelector('.sd-block-next-select');
             const selectFail = row.querySelector('.sd-block-fail-select');
@@ -5445,6 +5429,7 @@ window.calculateMemberEAI = function(memberName) {
             if(selectFail) selectFail.setAttribute('data-saved-val', selectFail.value);
         });
 
+        // Bước B: Đánh lại chỉ số Step Badge tuần tự
         rows.forEach((row, idx) => {
             const newStep = (idx + 1).toString();
             row.dataset.step = newStep;
@@ -5452,6 +5437,7 @@ window.calculateMemberEAI = function(memberName) {
             if(badge) badge.textContent = `Bước ${newStep}`;
         });
 
+        // Bước C: Gọi hàm nạp lại danh sách Option và kích hoạt vẽ đồ thị
         window.updateAllSodoSelectOptions();
         window.compileSodoDataToMermaid();
     };
