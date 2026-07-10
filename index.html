@@ -612,32 +612,11 @@
     box-shadow: 0 0 8px rgba(236, 72, 153, 0.6) !important;
     transition: all 0.15s ease !important;
 }
-/* SỬA LỖI TỐI HẬU: ÉP TRANG TRẮNG PHẢI CO DÃN BẤT TẬN THEO CHỮ */
-#sys-quickview-content {
-    display: flex !important;
-    flex-direction: column !important;
-    height: auto !important;
-    min-height: 1123px !important; /* Đảm bảo tối thiểu bằng 1 trang A4 */
-    max-height: none !important;
-    overflow: visible !important;
-}
-
-/* Phá bỏ toàn bộ giới hạn chiều cao ngầm của trình soạn thảo và chữ bên trong */
-#sys-quickview-content *,
-#sys-quickview-content .rich-text-preview {
-    position: relative !important; /* Chống tràn tuyệt đối */
+   #sys-quickview-content .rich-text-preview,
+#sys-quickview-content div {
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
-    display: block !important;
-}
-
-/* Riêng phần chia cột chữ ký cuối trang thì giữ nguyên hàng ngang flex */
-#sys-quickview-content .grid {
-    display: grid !important;
-}
-#sys-quickview-content .flex {
-    display: flex !important;
 }
   </style>
   <!-- ==================================================================== -->
