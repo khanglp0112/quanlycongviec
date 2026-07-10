@@ -581,7 +581,27 @@
         bottom: 0; border-radius: 0 0 12px 12px;
         background: linear-gradient(to top, rgba(236, 72, 153, 0.12), transparent);
     }
-
+/* CSS TRỢ LỰC KÉO THẢ MƯỢT MÀ */
+.sd-block-row {
+    cursor: grab !important; /* Biến con trỏ chuột thành hình bàn tay nắm kéo */
+    user-select: none;
+}
+.sd-block-row:active {
+    cursor: grabbing !important; /* Khi đang giữ chuột thì bàn tay nắm chặt lại */
+}
+.sd-dragging {
+    opacity: 0.4 !important; /* Làm mờ khối đang được kéo đi */
+    border: 1.5px dashed #ec4899 !important; /* Đổi viền sang nét đứt màu hồng */
+    background: rgba(236, 72, 153, 0.05) !important;
+}
+.sd-drop-indicator {
+    height: 4px !important;
+    background: #ec4899 !important; /* Nét kẻ ngang màu hồng rực để báo vị trí thả */
+    border-radius: 2px !important;
+    margin: 8px 0 !important;
+    box-shadow: 0 0 8px rgba(236, 72, 153, 0.6) !important;
+    transition: all 0.15s ease !important;
+}
   </style>
   <!-- ==================================================================== -->
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
