@@ -999,7 +999,13 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         
         <div id="sodo-scroll-panel" class="lg:col-span-1 space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/80 h-[680px] overflow-y-auto scrollbar-thin">
-            <input type="hidden" id="inp-sd-id" value="">
+         <!-- NÚT THU GỌN KHAY NHẬP LIỆU TOÀN DIỆN -->
+            <div class="flex justify-end border-b border-slate-200 pb-2 mb-2">
+                <button type="button" onclick="toggleSodoLeftPanel(true)" class="flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold border border-slate-200 bg-white text-slate-500 hover:text-pink-600 hover:border-pink-200 transition-all shadow-sm">
+                    <i data-lucide="panel-left-close" class="w-3.5 h-3.5"></i> <span>Ẩn khay nhập liệu</span>
+                </button>
+            </div>   
+         <input type="hidden" id="inp-sd-id" value="">
             
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">Tên Quy trình công việc *</label>
@@ -1034,7 +1040,10 @@
             </div>
             
            <div id="sodo-canvas-holder" class="flex-1 w-full border border-slate-200 rounded-xl bg-white relative shadow-inner overflow-hidden" style="min-height: 500px;">
-                <div id="canvas-mermaid-render" class="w-full h-full"></div>
+                <button id="btn-sodo-expand-left" type="button" onclick="toggleSodoLeftPanel(false)" class="hidden absolute top-3 left-3 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-pink-700 border border-pink-200/50 shadow-md backdrop-blur-md transition-all hover:bg-pink-50" style="background: rgba(255, 255, 255, 0.85);">
+                    <i data-lucide="panel-left-open" class="w-4 h-4"></i> <span>Hiện khay nhập liệu</span>
+                </button>
+            <div id="canvas-mermaid-render" class="w-full h-full"></div>
             </div>
         </div>
 
@@ -5477,7 +5486,33 @@ window.calculateMemberEAI = function(memberName) {
     window.handleShapeChange = handleShapeChange;
     window.syncSodoSplitInputsToBack = syncSodoSplitInputsToBack;
     // 3. Logic xử lý nút chuyển hướng Sơ đồ Ngang hay Dọc
-    function changeSodoDirection(dir) {
+    // =========================================================================
+    // HÀM ĐIỀU KHIỂN THU GỌN / MỞ RỘNG KHAY NHẬP LIỆU SƠ ĐỒ PHẲNG WIDESCREEN
+    // =========================================================================
+    window.toggleSodoLeftPanel = function(shouldHide) {
+        const leftPanel = document.getElementById('sodo-scroll-panel');
+        const rightPanel = leftPanel?.nextElementSibling; 
+        const expandBtn = document.getElementById('btn-sodo-expand-left');
+
+        if (!leftPanel || !rightPanel) return;
+
+        if (shouldHide) {
+            leftPanel.classList.add('hidden');
+            rightPanel.classList.replace('lg:col-span-2', 'lg:col-span-3');
+            if (expandBtn) expandBtn.classList.remove('hidden');
+        } else {
+            leftPanel.classList.remove('hidden');
+            rightPanel.classList.replace('lg:col-span-3', 'lg:col-span-2');
+            if (expandBtn) expandBtn.classList.add('hidden');
+        }
+
+        setTimeout(() => {
+            if (typeof window.compileSodoDataToMermaid === 'function') {
+                window.compileSodoDataToMermaid();
+            }
+        }, 50);
+    };
+   function changeSodoDirection(dir) {
         sodoCurrentDirection = dir;
         const btnTD = document.getElementById('btn-dir-td');
         const btnLR = document.getElementById('btn-dir-lr');
