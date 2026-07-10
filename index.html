@@ -561,6 +561,27 @@
         transition: stroke-dashoffset 1s linear;
     }
 
+    /* ==================================================================== */
+    /* VÙNG TỰ ĐỘNG CUỘN KHI KÉO GẦN BIÊN TRÊN / DƯỚI (AUTO-SCROLL EDGE) */
+    /* ==================================================================== */
+    #sodo-scroll-panel {
+        position: relative; /* Cho phép định vị pseudo-elements */
+    }
+    #sodo-scroll-panel.sd-scroll-top::before,
+    #sodo-scroll-panel.sd-scroll-bottom::after {
+        content: ''; position: absolute; left: 0; right: 0;
+        height: 40px; z-index: 15; pointer-events: none;
+        transition: opacity 0.2s ease;
+    }
+    #sodo-scroll-panel.sd-scroll-top::before {
+        top: 0; border-radius: 12px 12px 0 0;
+        background: linear-gradient(to bottom, rgba(236, 72, 153, 0.12), transparent);
+    }
+    #sodo-scroll-panel.sd-scroll-bottom::after {
+        bottom: 0; border-radius: 0 0 12px 12px;
+        background: linear-gradient(to top, rgba(236, 72, 153, 0.12), transparent);
+    }
+
   </style>
   <!-- ==================================================================== -->
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
@@ -944,7 +965,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         
-        <div class="lg:col-span-1 space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/80 h-[680px] overflow-y-auto scrollbar-thin">
+        <div id="sodo-scroll-panel" class="lg:col-span-1 space-y-4 bg-slate-50/60 p-4 rounded-xl border border-slate-200/80 h-[680px] overflow-y-auto scrollbar-thin">
             <input type="hidden" id="inp-sd-id" value="">
             
             <div>
@@ -5262,6 +5283,68 @@ window.calculateMemberEAI = function(memberName) {
     // ==========================================
     let currentDraggingSodoRow = null;
     let sodoDropIndicator = null;
+    let sodoAutoScrollRAF = null;  // requestAnimationFrame ID cho auto-scroll
+    let sodoAutoScrollSpeed = 0;   // Tốc độ cuộn hiện tại (px/frame)
+    const SCROLL_EDGE_SIZE = 60;   // Khoảng cách từ biên kích hoạt cuộn (px)
+    const SCROLL_MAX_SPEED = 12;   // Tốc độ cuộn tối đa (px/frame)
+
+    // Hệ thống tự động cuộn container khi kéo gần biên trên/dưới
+    function getSodoScrollPanel() {
+        return document.getElementById('sodo-scroll-panel');
+    }
+
+    function startSodoAutoScroll() {
+        if (sodoAutoScrollRAF) return;
+        function scrollStep() {
+            const panel = getSodoScrollPanel();
+            if (panel && sodoAutoScrollSpeed !== 0) {
+                panel.scrollTop += sodoAutoScrollSpeed;
+            }
+            sodoAutoScrollRAF = requestAnimationFrame(scrollStep);
+        }
+        sodoAutoScrollRAF = requestAnimationFrame(scrollStep);
+    }
+
+    function stopSodoAutoScroll() {
+        if (sodoAutoScrollRAF) {
+            cancelAnimationFrame(sodoAutoScrollRAF);
+            sodoAutoScrollRAF = null;
+        }
+        sodoAutoScrollSpeed = 0;
+        const panel = getSodoScrollPanel();
+        if (panel) {
+            panel.classList.remove('sd-scroll-top', 'sd-scroll-bottom');
+        }
+    }
+
+    function updateSodoAutoScroll(clientY) {
+        const panel = getSodoScrollPanel();
+        if (!panel) return;
+
+        const rect = panel.getBoundingClientRect();
+        const distFromTop = clientY - rect.top;
+        const distFromBottom = rect.bottom - clientY;
+
+        panel.classList.remove('sd-scroll-top', 'sd-scroll-bottom');
+
+        if (distFromTop < SCROLL_EDGE_SIZE && distFromTop > 0) {
+            // Gần biên trên → cuộn lên
+            const intensity = 1 - (distFromTop / SCROLL_EDGE_SIZE);
+            sodoAutoScrollSpeed = -Math.round(SCROLL_MAX_SPEED * intensity * intensity);
+            panel.classList.add('sd-scroll-top');
+            startSodoAutoScroll();
+        } else if (distFromBottom < SCROLL_EDGE_SIZE && distFromBottom > 0) {
+            // Gần biên dưới → cuộn xuống
+            const intensity = 1 - (distFromBottom / SCROLL_EDGE_SIZE);
+            sodoAutoScrollSpeed = Math.round(SCROLL_MAX_SPEED * intensity * intensity);
+            panel.classList.add('sd-scroll-bottom');
+            startSodoAutoScroll();
+        } else {
+            // Ở vùng giữa an toàn → dừng cuộn
+            sodoAutoScrollSpeed = 0;
+            stopSodoAutoScroll();
+        }
+    }
 
     // Tạo phần tử chỉ báo vị trí thả (thanh sáng hồng mỏng)
     function createDropIndicator() {
@@ -5306,6 +5389,9 @@ window.calculateMemberEAI = function(memberName) {
         rowEl.addEventListener('dragend', function() {
             this.classList.remove('sd-dragging');
             
+            // Dừng auto-scroll
+            stopSodoAutoScroll();
+            
             // Ẩn thanh chỉ báo
             if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
             
@@ -5328,6 +5414,9 @@ window.calculateMemberEAI = function(memberName) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
             if (!currentDraggingSodoRow || currentDraggingSodoRow === this) return;
+
+            // Kích hoạt auto-scroll khi chuột gần biên trên/dưới container
+            updateSodoAutoScroll(e.clientY);
 
             const container = document.getElementById('container-sd-blocks');
             const indicator = createDropIndicator();
@@ -5437,6 +5526,9 @@ window.calculateMemberEAI = function(memberName) {
             const touch = e.touches[0];
             touchClone.style.top = (touch.clientY - 20) + 'px';
 
+            // Kích hoạt auto-scroll khi ngón tay gần biên trên/dưới container
+            updateSodoAutoScroll(touch.clientY);
+
             // Tìm phần tử đích dưới ngón tay
             touchClone.style.display = 'none';
             const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -5499,6 +5591,7 @@ window.calculateMemberEAI = function(memberName) {
             // Dọn dẹp trạng thái
             document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
             if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
+            stopSodoAutoScroll();
             rowEl.classList.remove('sd-dragging');
             currentDraggingSodoRow = null;
             touchCurrentTarget = null;
@@ -5511,6 +5604,7 @@ window.calculateMemberEAI = function(memberName) {
             if (touchClone) { touchClone.remove(); touchClone = null; }
             document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
             if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
+            stopSodoAutoScroll();
             rowEl.classList.remove('sd-dragging');
             currentDraggingSodoRow = null;
             touchCurrentTarget = null;
