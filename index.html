@@ -447,6 +447,120 @@
         color: #db2777 !important;
         transition: all 0.2s ease !important;
     }
+
+    /* ==================================================================== */
+    /* HỆ THỐNG KÉO THẢ BẢNG NHẬP LIỆU SƠ ĐỒ QUY TRÌNH TỐI ƯU CAO CẤP   */
+    /* ==================================================================== */
+    
+    /* Thanh chỉ báo vị trí thả (Drop Indicator Line) */
+    .sd-drop-indicator {
+        position: absolute; left: 8px; right: 8px; height: 3px;
+        background: linear-gradient(90deg, transparent, #ec4899, #f472b6, transparent);
+        border-radius: 99px; z-index: 20; pointer-events: none;
+        box-shadow: 0 0 8px rgba(236, 72, 153, 0.4), 0 0 16px rgba(236, 72, 153, 0.15);
+        animation: dropLinePulse 1.2s ease-in-out infinite;
+    }
+    @keyframes dropLinePulse {
+        0%, 100% { opacity: 0.7; transform: scaleX(0.95); }
+        50% { opacity: 1; transform: scaleX(1); }
+    }
+
+    /* Hiệu ứng đang kéo: Khối bị kéo mờ đi và thu nhỏ nhẹ */
+    .sd-block-row.sd-dragging {
+        opacity: 0.35 !important;
+        transform: scale(0.96) !important;
+        border-color: #f472b6 !important;
+        border-style: dashed !important;
+        box-shadow: none !important;
+        transition: opacity 0.2s, transform 0.2s, border-color 0.2s !important;
+    }
+
+    /* Hiệu ứng khối đích khi có phần tử bay qua trên đầu */
+    .sd-block-row.sd-drag-over {
+        border-color: #f9a8d4 !important;
+        background: rgba(252, 231, 243, 0.25) !important;
+        transition: background 0.15s, border-color 0.15s !important;
+    }
+
+    /* Hiệu ứng nhỏ xíu khi hoàn thành thả thành công */
+    .sd-block-row.sd-just-dropped {
+        animation: dropSuccess 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    @keyframes dropSuccess {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    }
+
+    /* ==================================================================== */
+    /* HỘP THOẠI XÁC NHẬN XÓA BƯỚC QUY TRÌNH (MICA GLASSMORPHISM PREMIUM)  */
+    /* ==================================================================== */
+    #sodo-delete-confirm-modal {
+        position: fixed; inset: 0; z-index: 250;
+        background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(10px);
+        display: flex; align-items: center; justify-content: center; padding: 16px;
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #sodo-delete-confirm-modal.show {
+        opacity: 1; pointer-events: auto;
+    }
+    #sodo-delete-confirm-box {
+        transform: scale(0.9) translateY(12px);
+        opacity: 0;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+    }
+    #sodo-delete-confirm-modal.show #sodo-delete-confirm-box {
+        transform: scale(1) translateY(0); opacity: 1;
+    }
+
+    /* ==================================================================== */
+    /* THANH THÔNG BÁO HOÀN TÁC (UNDO TOAST) NỔI GÓC DƯỚI TRÁI            */
+    /* ==================================================================== */
+    #sodo-undo-toast {
+        position: fixed; bottom: 24px; left: 24px; z-index: 300;
+        background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(16px);
+        color: #f1f5f9; border-radius: 14px; padding: 14px 20px;
+        display: flex; align-items: center; gap: 12px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transform: translateY(120%) scale(0.9); opacity: 0;
+        pointer-events: none;
+        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+    }
+    #sodo-undo-toast.show {
+        transform: translateY(0) scale(1); opacity: 1;
+        pointer-events: auto;
+    }
+    #sodo-undo-toast .undo-btn {
+        background: linear-gradient(135deg, #f472b6, #ec4899);
+        color: #fff; border: none; border-radius: 8px;
+        padding: 6px 16px; font-size: 12px; font-weight: 700;
+        cursor: pointer; white-space: nowrap;
+        transition: filter 0.2s, transform 0.15s;
+        box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
+    }
+    #sodo-undo-toast .undo-btn:hover { filter: brightness(1.12); }
+    #sodo-undo-toast .undo-btn:active { transform: scale(0.95); }
+    #sodo-undo-toast .undo-countdown {
+        width: 28px; height: 28px; border-radius: 50%;
+        border: 2.5px solid rgba(255, 255, 255, 0.15);
+        border-top-color: #f472b6;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 800; color: #f472b6;
+        flex-shrink: 0;
+    }
+    #sodo-undo-toast .undo-progress-ring {
+        position: absolute; top: 0; left: 0;
+        width: 100%; height: 100%;
+        transform: rotate(-90deg);
+    }
+    #sodo-undo-toast .undo-progress-ring circle {
+        fill: none; stroke: #f472b6; stroke-width: 2.5;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1s linear;
+    }
+
   </style>
   <!-- ==================================================================== -->
   <!-- BIÊN BẢN HỌP TỔ - THƯ VIỆN BỔ TRỢ XỬ LÝ ĐỔ DỮ LIỆU VÀO FILE WORD     -->
@@ -4881,14 +4995,160 @@ window.calculateMemberEAI = function(memberName) {
         initSodoDragAndDropEvents(div);
         window.updateAllSodoSelectOptions();
     }
-    // Hàm xóa hàng bước và tự động cấu trúc lại số thứ tự tịnh tiến
+    // ==================================================================
+    // BỘ NÃO QUẢN LÝ NGĂN XẾP HOÀN TÁC (UNDO STACK) CHO SƠ ĐỒ QUY TRÌNH
+    // ==================================================================
+    let sodoUndoStack = [];       // Mảng chứa dữ liệu các bước đã xóa (LIFO)
+    let sodoUndoTimer = null;     // Timer đếm ngược hiển thị toast
+    let sodoUndoCountdown = 0;    // Số giây còn lại để hoàn tác
+    const SODO_UNDO_TIMEOUT = 8;  // Thời gian cho phép hoàn tác (giây)
+
+    // Hàm xóa hàng bước có HỘP THOẠI XÁC NHẬN + HOÀN TÁC (UNDO)
     function removeSodoBlockRow(btn) {
-        btn.closest('.sd-block-row').remove();
-        document.querySelectorAll('#container-sd-blocks .sd-block-row').forEach((row, idx) => {
-            const newIndex = idx + 1;
-            row.dataset.step = newIndex;
-            row.querySelector('.sd-step-badge').textContent = `Bước ${newIndex}`;
+        const row = btn.closest('.sd-block-row');
+        if (!row) return;
+
+        const stepName = row.querySelector('.sd-block-title')?.value?.trim() || `Bước ${row.dataset.step}`;
+
+        // Hiển thị hộp thoại xác nhận xóa bước
+        showSodoDeleteConfirm(
+            `Xóa bước "${stepName}"?`,
+            `Bước này sẽ bị loại khỏi sơ đồ quy trình. Thầy có thể bấm "Hoàn tác" trong ${SODO_UNDO_TIMEOUT} giây sau khi xóa để khôi phục lại.`,
+            function() {
+                // Lưu snapshot dữ liệu bước trước khi xóa để hỗ trợ Undo
+                const undoData = {
+                    index: Array.from(row.parentNode.children).indexOf(row),
+                    title: row.querySelector('.sd-block-title')?.value || '',
+                    shape: row.querySelector('.sd-block-shape')?.value || 'rect',
+                    back: row.querySelector('.sd-block-back')?.value || '',
+                    desc: row.querySelector('.sd-block-desc')?.value || '',
+                    timestamp: Date.now()
+                };
+
+                // Thực hiện xóa khỏi DOM
+                row.style.transition = 'opacity 0.25s ease, transform 0.25s ease, max-height 0.3s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'scale(0.92) translateX(-20px)';
+                row.style.maxHeight = row.offsetHeight + 'px';
+                
+                setTimeout(() => {
+                    row.style.maxHeight = '0px';
+                    row.style.padding = '0';
+                    row.style.margin = '0';
+                    row.style.overflow = 'hidden';
+                }, 50);
+
+                setTimeout(() => {
+                    row.remove();
+                    // Tái cấu trúc lại số thứ tự tịnh tiến
+                    document.querySelectorAll('#container-sd-blocks .sd-block-row').forEach((r, idx) => {
+                        r.dataset.step = idx + 1;
+                        r.querySelector('.sd-step-badge').textContent = `Bước ${idx + 1}`;
+                    });
+                    window.updateAllSodoSelectOptions();
+                    compileSodoDataToMermaid();
+                }, 300);
+
+                // Đẩy vào ngăn xếp Undo và hiển thị toast thông báo
+                sodoUndoStack.push(undoData);
+                showSodoUndoToast(undoData.title || `Bước ${undoData.index + 1}`);
+            }
+        );
+    }
+
+    // HÀM HIỂN THỊ HỘP THOẠI XÁC NHẬN XÓA BƯỚC QUY TRÌNH
+    let sodoDeleteConfirmCallback = null;
+    function showSodoDeleteConfirm(title, desc, onConfirm) {
+        const modal = document.getElementById('sodo-delete-confirm-modal');
+        if (!modal) return;
+        document.getElementById('sodo-del-title').textContent = title;
+        document.getElementById('sodo-del-desc').textContent = desc;
+        sodoDeleteConfirmCallback = onConfirm;
+        modal.classList.add('show');
+    }
+    function closeSodoDeleteConfirm() {
+        const modal = document.getElementById('sodo-delete-confirm-modal');
+        if (modal) modal.classList.remove('show');
+        sodoDeleteConfirmCallback = null;
+    }
+    function confirmSodoDelete() {
+        if (typeof sodoDeleteConfirmCallback === 'function') sodoDeleteConfirmCallback();
+        closeSodoDeleteConfirm();
+    }
+
+    // HÀM HIỂN THỊ THANH UNDO TOAST VỚI ĐẾM NGƯỢC TRỰC QUAN
+    function showSodoUndoToast(stepName) {
+        const toast = document.getElementById('sodo-undo-toast');
+        if (!toast) return;
+
+        // Hủy timer cũ nếu đang chạy
+        if (sodoUndoTimer) { clearInterval(sodoUndoTimer); sodoUndoTimer = null; }
+
+        const msgEl = toast.querySelector('.undo-message');
+        const countEl = toast.querySelector('.undo-countdown-num');
+        if (msgEl) msgEl.textContent = `Đã xóa "${stepName.substring(0, 25)}${stepName.length > 25 ? '...' : ''}"` ;
+        
+        sodoUndoCountdown = SODO_UNDO_TIMEOUT;
+        if (countEl) countEl.textContent = sodoUndoCountdown;
+
+        toast.classList.add('show');
+
+        // Đếm ngược mỗi giây
+        sodoUndoTimer = setInterval(() => {
+            sodoUndoCountdown--;
+            if (countEl) countEl.textContent = Math.max(0, sodoUndoCountdown);
+            
+            if (sodoUndoCountdown <= 0) {
+                clearInterval(sodoUndoTimer);
+                sodoUndoTimer = null;
+                hideSodoUndoToast();
+                // Xóa vĩnh viễn khỏi stack khi hết thời gian
+                sodoUndoStack = sodoUndoStack.filter(u => Date.now() - u.timestamp < SODO_UNDO_TIMEOUT * 1000);
+            }
+        }, 1000);
+    }
+
+    function hideSodoUndoToast() {
+        const toast = document.getElementById('sodo-undo-toast');
+        if (toast) toast.classList.remove('show');
+        if (sodoUndoTimer) { clearInterval(sodoUndoTimer); sodoUndoTimer = null; }
+    }
+
+    // HÀM THỰC THI HOÀN TÁC - KHÔI PHỤC BƯỚC ĐÃ XÓA TỪ NGĂN XẾP
+    function undoSodoDelete() {
+        if (sodoUndoStack.length === 0) return;
+        
+        const undoData = sodoUndoStack.pop();
+        hideSodoUndoToast();
+
+        // Tái tạo lại bước đã xóa bằng cách chèn lại đúng vị trí cũ
+        const container = document.getElementById('container-sd-blocks');
+        const totalRows = container.children.length;
+        const insertIndex = Math.min(undoData.index, totalRows);
+
+        // Tạo hàng mới thông qua hàm sinh chuẩn
+        addSodoBlockRow(undoData.title, undoData.shape, undoData.back, undoData.desc);
+
+        // Di chuyển hàng vừa thêm (ở cuối) về đúng vị trí ban đầu
+        const newRow = container.lastElementChild;
+        if (insertIndex < totalRows && container.children[insertIndex]) {
+            container.insertBefore(newRow, container.children[insertIndex]);
+        }
+
+        // Thêm hiệu ứng nhấp nháy cho bước vừa khôi phục
+        newRow.style.animation = 'dropSuccess 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        newRow.style.outline = '2px solid rgba(236, 72, 153, 0.4)';
+        newRow.style.outlineOffset = '2px';
+        setTimeout(() => {
+            newRow.style.outline = 'none';
+        }, 1500);
+
+        // Tái cấu trúc lại số thứ tự
+        document.querySelectorAll('#container-sd-blocks .sd-block-row').forEach((r, idx) => {
+            r.dataset.step = idx + 1;
+            r.querySelector('.sd-step-badge').textContent = `Bước ${idx + 1}`;
         });
+        window.updateAllSodoSelectOptions();
         compileSodoDataToMermaid();
     }
 
@@ -4998,61 +5258,273 @@ window.calculateMemberEAI = function(memberName) {
         });
     };
 // ==========================================
-    // THUẬT TOÁN NẮM KÉO DRAG & DROP SẮP XẾP VÀ CHÈN BƯỚC QUY TRÌNH QUY CHUẨN NATIVE
+    // THUẬT TOÁN KÉO THẢ TỐI ƯU HÓA CAO CẤP VỚI CHỈ BÁO VỊ TRÍ THẢ TRỰC QUAN
     // ==========================================
     let currentDraggingSodoRow = null;
+    let sodoDropIndicator = null;
+
+    // Tạo phần tử chỉ báo vị trí thả (thanh sáng hồng mỏng)
+    function createDropIndicator() {
+        if (sodoDropIndicator) return sodoDropIndicator;
+        const indicator = document.createElement('div');
+        indicator.className = 'sd-drop-indicator';
+        indicator.style.display = 'none';
+        sodoDropIndicator = indicator;
+        return indicator;
+    }
 
     function initSodoDragAndDropEvents(rowEl) {
+        // ----- SỰ KIỆN CHUỘT (DESKTOP) -----
         rowEl.addEventListener('dragstart', function(e) {
             currentDraggingSodoRow = this;
-            this.classList.add('opacity-40', 'border-pink-400');
+            this.classList.add('sd-dragging');
+            
+            // Tạo ảnh kéo tùy chỉnh (ghost) mờ nhẹ và thu nhỏ
+            try {
+                const ghost = this.cloneNode(true);
+                ghost.style.width = this.offsetWidth + 'px';
+                ghost.style.opacity = '0.75';
+                ghost.style.transform = 'scale(0.92) rotate(-1deg)';
+                ghost.style.borderRadius = '12px';
+                ghost.style.boxShadow = '0 12px 28px rgba(236, 72, 153, 0.2)';
+                ghost.style.border = '1.5px solid #f472b6';
+                ghost.style.position = 'absolute';
+                ghost.style.top = '-9999px';
+                ghost.style.left = '-9999px';
+                ghost.style.pointerEvents = 'none';
+                document.body.appendChild(ghost);
+                e.dataTransfer.setDragImage(ghost, this.offsetWidth / 2, 20);
+                setTimeout(() => ghost.remove(), 0);
+            } catch(err) {
+                // Fallback: sử dụng ghost mặc định nếu trình duyệt không hỗ trợ
+            }
+            
             e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', this.dataset.step);
         });
 
         rowEl.addEventListener('dragend', function() {
+            this.classList.remove('sd-dragging');
+            
+            // Ẩn thanh chỉ báo
+            if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
+            
+            // Xóa mọi trạng thái drag-over còn sót
+            document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
+            
+            // Hiệu ứng thả thành công
+            if (currentDraggingSodoRow) {
+                currentDraggingSodoRow.classList.add('sd-just-dropped');
+                setTimeout(() => currentDraggingSodoRow?.classList.remove('sd-just-dropped'), 450);
+            }
+            
             currentDraggingSodoRow = null;
-            this.classList.remove('opacity-40', 'border-pink-400');
-            // Cập nhật lại số thứ tự tịnh tiến và biên dịch lại sơ đồ ngay sau khi thả tay
+            
+            // Cập nhật lại số thứ tự tịnh tiến và biên dịch lại sơ đồ
             window.reIndexAllSodoRows();
         });
 
         rowEl.addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
-            return false;
+            if (!currentDraggingSodoRow || currentDraggingSodoRow === this) return;
+
+            const container = document.getElementById('container-sd-blocks');
+            const indicator = createDropIndicator();
+            
+            // Tính toán vị trí chuột tương đối với phần tử đích
+            const rect = this.getBoundingClientRect();
+            const midY = rect.top + rect.height / 2;
+            const isAbove = e.clientY < midY;
+            
+            // Chèn thanh chỉ báo vào đúng vị trí trước hoặc sau phần tử đích
+            if (!indicator.parentNode || indicator.parentNode !== container) {
+                container.appendChild(indicator);
+            }
+            indicator.style.display = 'block';
+            
+            if (isAbove) {
+                container.insertBefore(indicator, this);
+            } else {
+                if (this.nextSibling) {
+                    container.insertBefore(indicator, this.nextSibling);
+                } else {
+                    container.appendChild(indicator);
+                }
+            }
+            
+            this.classList.add('sd-drag-over');
         });
 
-        rowEl.addEventListener('dragenter', function() {
-            this.classList.add('bg-slate-50');
-        });
-
-        rowEl.addEventListener('dragleave', function() {
-            this.classList.remove('bg-slate-50');
+        rowEl.addEventListener('dragleave', function(e) {
+            // Chỉ xóa class khi chuột thực sự rời khỏi phần tử (không phải children)
+            const rect = this.getBoundingClientRect();
+            if (e.clientX < rect.left || e.clientX > rect.right || 
+                e.clientY < rect.top || e.clientY > rect.bottom) {
+                this.classList.remove('sd-drag-over');
+            }
         });
 
         rowEl.addEventListener('drop', function(e) {
             e.preventDefault();
-            this.classList.remove('bg-slate-50');
+            e.stopPropagation();
+            
+            this.classList.remove('sd-drag-over');
+            
             if (currentDraggingSodoRow && currentDraggingSodoRow !== this) {
                 const container = document.getElementById('container-sd-blocks');
-                const allRows = Array.from(container.children);
-                const fromIndex = allRows.indexOf(currentDraggingSodoRow);
-                const toIndex = allRows.indexOf(this);
-
-                // Thực hiện chèn/hoán đổi vị trí thực tế trong cấu trúc cây DOM HTML
-                if (fromIndex < toIndex) {
-                    this.parentNode.insertBefore(currentDraggingSodoRow, this.nextSibling);
+                
+                // Xác định vị trí thả dựa theo thanh chỉ báo
+                const rect = this.getBoundingClientRect();
+                const midY = e.clientY < rect.top + rect.height / 2;
+                
+                if (midY) {
+                    container.insertBefore(currentDraggingSodoRow, this);
                 } else {
-                    this.parentNode.insertBefore(currentDraggingSodoRow, this);
+                    if (this.nextSibling && this.nextSibling !== sodoDropIndicator) {
+                        container.insertBefore(currentDraggingSodoRow, this.nextSibling);
+                    } else {
+                        container.appendChild(currentDraggingSodoRow);
+                    }
                 }
             }
+            
+            // Ẩn thanh chỉ báo sau khi thả xong
+            if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
+            
             return false;
         });
+
+        // ----- HỖ TRỢ CẢM ỨNG (TOUCH DEVICES - TABLET / ĐIỆN THOẠI) -----
+        let touchStartY = 0;
+        let touchClone = null;
+        let touchCurrentTarget = null;
+
+        const dragHandle = rowEl.querySelector('.group-drag-handle');
+        const touchTarget = dragHandle || rowEl;
+
+        touchTarget.addEventListener('touchstart', function(e) {
+            if (e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            touchStartY = touch.clientY;
+            currentDraggingSodoRow = rowEl;
+            
+            // Chờ 150ms để phân biệt giữa tap và drag
+            this._touchTimeout = setTimeout(() => {
+                rowEl.classList.add('sd-dragging');
+                
+                // Tạo bản sao nổi theo ngón tay
+                touchClone = rowEl.cloneNode(true);
+                touchClone.style.position = 'fixed';
+                touchClone.style.width = rowEl.offsetWidth + 'px';
+                touchClone.style.opacity = '0.8';
+                touchClone.style.transform = 'scale(0.92) rotate(-1deg)';
+                touchClone.style.zIndex = '9999';
+                touchClone.style.pointerEvents = 'none';
+                touchClone.style.boxShadow = '0 12px 28px rgba(236, 72, 153, 0.25)';
+                touchClone.style.border = '1.5px solid #f472b6';
+                touchClone.style.borderRadius = '12px';
+                touchClone.style.left = rowEl.getBoundingClientRect().left + 'px';
+                touchClone.style.top = (touch.clientY - 20) + 'px';
+                document.body.appendChild(touchClone);
+            }, 150);
+        }, { passive: false });
+
+        touchTarget.addEventListener('touchmove', function(e) {
+            if (!currentDraggingSodoRow || !touchClone) return;
+            e.preventDefault();
+
+            const touch = e.touches[0];
+            touchClone.style.top = (touch.clientY - 20) + 'px';
+
+            // Tìm phần tử đích dưới ngón tay
+            touchClone.style.display = 'none';
+            const elemBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            touchClone.style.display = '';
+
+            const targetRow = elemBelow?.closest('.sd-block-row');
+            document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
+            
+            if (targetRow && targetRow !== currentDraggingSodoRow) {
+                targetRow.classList.add('sd-drag-over');
+                touchCurrentTarget = targetRow;
+
+                // Hiển thị thanh chỉ báo
+                const container = document.getElementById('container-sd-blocks');
+                const indicator = createDropIndicator();
+                const rect = targetRow.getBoundingClientRect();
+                const isAbove = touch.clientY < rect.top + rect.height / 2;
+
+                if (!indicator.parentNode || indicator.parentNode !== container) {
+                    container.appendChild(indicator);
+                }
+                indicator.style.display = 'block';
+
+                if (isAbove) {
+                    container.insertBefore(indicator, targetRow);
+                } else {
+                    if (targetRow.nextSibling) {
+                        container.insertBefore(indicator, targetRow.nextSibling);
+                    } else {
+                        container.appendChild(indicator);
+                    }
+                }
+            }
+        }, { passive: false });
+
+        touchTarget.addEventListener('touchend', function(e) {
+            clearTimeout(this._touchTimeout);
+            
+            if (touchClone) {
+                touchClone.remove();
+                touchClone = null;
+            }
+
+            if (currentDraggingSodoRow && touchCurrentTarget && currentDraggingSodoRow !== touchCurrentTarget) {
+                const container = document.getElementById('container-sd-blocks');
+                const allRows = Array.from(container.querySelectorAll('.sd-block-row'));
+                const fromIdx = allRows.indexOf(currentDraggingSodoRow);
+                const toIdx = allRows.indexOf(touchCurrentTarget);
+
+                if (fromIdx < toIdx) {
+                    touchCurrentTarget.parentNode.insertBefore(currentDraggingSodoRow, touchCurrentTarget.nextSibling);
+                } else {
+                    touchCurrentTarget.parentNode.insertBefore(currentDraggingSodoRow, touchCurrentTarget);
+                }
+
+                currentDraggingSodoRow.classList.add('sd-just-dropped');
+                setTimeout(() => currentDraggingSodoRow?.classList.remove('sd-just-dropped'), 450);
+            }
+
+            // Dọn dẹp trạng thái
+            document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
+            if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
+            rowEl.classList.remove('sd-dragging');
+            currentDraggingSodoRow = null;
+            touchCurrentTarget = null;
+            
+            window.reIndexAllSodoRows();
+        }, { passive: false });
+
+        touchTarget.addEventListener('touchcancel', function() {
+            clearTimeout(this._touchTimeout);
+            if (touchClone) { touchClone.remove(); touchClone = null; }
+            document.querySelectorAll('.sd-drag-over').forEach(el => el.classList.remove('sd-drag-over'));
+            if (sodoDropIndicator) sodoDropIndicator.style.display = 'none';
+            rowEl.classList.remove('sd-dragging');
+            currentDraggingSodoRow = null;
+            touchCurrentTarget = null;
+        }, { passive: false });
     }
 
-    // HÀM TRỢ LÝ ĐA CHỨC NĂNG: Tịnh tiến lại số hiệu hiển thị, tịnh tiến thuộc tính và làm tươi ma trận Select
+    // HÀM TRỢ LÝ ĐA CHỨC NĂNG: Tịnh tiến lại số hiệu hiển thị, thuộc tính và làm tươi ma trận Select
     window.reIndexAllSodoRows = function() {
         const container = document.getElementById('container-sd-blocks');
+        
+        // Loại bỏ drop indicator nếu còn sót trong container
+        const indicator = container.querySelector('.sd-drop-indicator');
+        if (indicator) indicator.remove();
+        
         const rows = container.querySelectorAll('.sd-block-row');
         
         rows.forEach((row, idx) => {
@@ -5733,7 +6205,52 @@ window.calculateMemberEAI = function(memberName) {
         </div>
     </div>
 </div>
-  <div id="sodo-sidebar-panel" class="fixed top-0 right-0 h-full w-[320px] z-[110] shadow-[-10px_0_30px_rgba(15,23,42,0.04)] translate-x-full transition-transform duration-300 ease-out flex flex-col border-l border-slate-200/50" style="background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+  <!-- ==================================================================== -->
+<!-- HỘP THOẠI XÁC NHẬN XÓA BƯỚC QUY TRÌNH (PREMIUM GLASSMORPHISM)      -->
+<!-- ==================================================================== -->
+<div id="sodo-delete-confirm-modal">
+    <div id="sodo-delete-confirm-box" class="max-w-md w-full rounded-2xl overflow-hidden shadow-2xl" style="background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5);">
+        <!-- Header cảnh báo hồng pha lê -->
+        <div class="px-6 py-4 border-b flex items-center gap-3" style="background: linear-gradient(135deg, rgba(252, 231, 243, 0.6), rgba(251, 207, 232, 0.3)); border-color: rgba(244, 114, 182, 0.15);">
+            <div class="p-2 rounded-full" style="background: rgba(236, 72, 153, 0.12);">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="#ec4899" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+            </div>
+            <h3 id="sodo-del-title" class="text-sm font-bold text-slate-800">Xác nhận xóa bước?</h3>
+        </div>
+        <!-- Nội dung thông báo -->
+        <div class="px-6 py-4">
+            <p id="sodo-del-desc" class="text-[13px] text-slate-600 leading-relaxed">Bước này sẽ bị xóa khỏi sơ đồ quy trình. Hành động có thể hoàn tác trong vài giây sau khi xóa.</p>
+        </div>
+        <!-- Hàng nút bấm -->
+        <div class="px-6 py-3 flex justify-end gap-2 border-t" style="background: rgba(248, 250, 252, 0.5); border-color: rgba(226, 232, 240, 0.5);">
+            <button onclick="closeSodoDeleteConfirm()" class="px-4 py-2 text-sm font-semibold text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors">Hủy bỏ</button>
+            <button onclick="confirmSodoDelete()" class="px-5 py-2 text-sm font-bold text-white rounded-xl shadow-md transition-all" style="background: linear-gradient(135deg, #f472b6, #db2777); box-shadow: 0 4px 12px rgba(219, 39, 119, 0.25); text-shadow: 0 1px 2px rgba(0,0,0,0.1);" onmouseenter="this.style.filter='brightness(1.08)'" onmouseleave="this.style.filter='none'" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='none'">Xóa bước này</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================================================================== -->
+<!-- THANH THÔNG BÁO HOÀN TÁC (UNDO TOAST) NỔI GÓC DƯỚI TRÁI            -->
+<!-- ==================================================================== -->
+<div id="sodo-undo-toast">
+    <div class="flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-pink-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v2M3 10l4-4m-4 4l4 4" />
+        </svg>
+        <span class="undo-message text-[13px] font-semibold truncate max-w-[180px]">Đã xóa bước</span>
+    </div>
+    <button onclick="undoSodoDelete()" class="undo-btn">↩ Hoàn tác</button>
+    <div class="undo-countdown relative" style="width:28px;height:28px;">
+        <svg class="undo-progress-ring" viewBox="0 0 28 28">
+            <circle cx="14" cy="14" r="11" stroke-dasharray="69.115" stroke-dashoffset="0"></circle>
+        </svg>
+        <span class="undo-countdown-num absolute inset-0 flex items-center justify-center text-[11px] font-extrabold text-pink-400">8</span>
+    </div>
+</div>
+
+<div id="sodo-sidebar-panel" class="fixed top-0 right-0 h-full w-[320px] z-[110] shadow-[-10px_0_30px_rgba(15,23,42,0.04)] translate-x-full transition-transform duration-300 ease-out flex flex-col border-l border-slate-200/50" style="background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
     <div class="px-5 py-4 border-b border-slate-200/60 flex justify-between items-center bg-white/40 shrink-0">
         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
             <i data-lucide="notebook-tabs" class="w-4 h-4 text-pink-600"></i> Hướng dẫn chi tiết
