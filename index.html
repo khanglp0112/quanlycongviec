@@ -34,12 +34,6 @@
         transform: scale(1) translateY(0);
         opacity: 1;
     }
-    /* Tối ưu hóa hiệu ứng kính mờ khi cuộn để chống lag giật trên Chrome/Edge */
-    [style*="backdrop-filter"] {
-        will-change: backdrop-filter;
-        transform: translateZ(0);
-        backface-visibility: hidden;
-    }
     .cham-tiet-container { background: #ffffff !important; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .table-responsive { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
     .sticky-col { position: sticky; left: 0; background: #f8fafc; z-index: 10; border-right: 2px solid #e2e8f0 !important; }
@@ -50,15 +44,13 @@
     * { box-sizing: border-box; }
     body { font-family: 'Geist', sans-serif; margin: 0; }
     .font-display { font-family: 'Newsreader', serif; }
-  /* --- BỘ NÃO ÉP VIỀN KÍNH ĐÚC 3D NỔI KHỐI ĐỘC LẬP CHỐNG DÍNH --- */
+  /* --- BỘ NÃO ÉP VIỀN KÍNH ĐÚC 3D NỔI KHỐI ĐỘC LẬP CHỐNG DÍNH (ĐÃ TỐI ƯU HÓA HIỆU NĂNG) --- */
     .task-card { 
-        /* 1. Nền kính mờ trong suốt giữ sắc trắng ở mức 55% để hiển thị chữ rõ nét */
-        background: rgba(255, 255, 255, 0.55) !important; 
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        /* 1. Nền trắng đục bán trong suốt cao (95%) thay vì kính mờ để tối ưu hóa hiệu năng render */
+        background: rgba(255, 255, 255, 0.95) !important; 
         
         /* 2. CHỐNG DÍNH KHỐI: Ép đường viền màu xám Slate bán trong suốt, định hình phom thẻ dứt khoát */
-        border: 1.5px solid rgba(148, 163, 184, 0.3) !important; 
+        border: 1.5px solid rgba(148, 163, 184, 0.25) !important; 
         
         /* 3. Tạo bóng đổ kép sắc cạnh vi mô giúp giả lập độ dày vật lý của rìa tấm kính */
         box-shadow: 0 4px 10px rgba(15, 23, 42, 0.03), 0 1px 2px rgba(15, 23, 42, 0.02) !important;
@@ -67,7 +59,7 @@
     
     /* Hiệu ứng tương tác tách lớp cực mạnh khi di chuột trên Laptop */
     .task-card:hover { 
-        background: rgba(255, 255, 255, 0.85) !important; /* Hút sáng trắng nổi bật hẳn lên */
+        background: #ffffff !important; /* Hút sáng trắng nổi bật hẳn lên */
         border-color: rgba(59, 130, 246, 0.6) !important; /* Viền sáng rực màu xanh công nghệ để định vị thẻ */
         transform: translateY(-6px) !important; /* Nhấc hẳn miếng kính lên cao tạo chiều sâu lập thể */
         
@@ -1091,7 +1083,7 @@
   <div id="board-view" class="flex-1 w-full px-4 sm:px-6 pt-5 pb-6 overflow-auto transition-all duration-300 ease-in-out">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-0 py-2">
 
-   <div class="rounded-2xl p-4 border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]" style="background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.85)); backdrop-filter: blur(10px);">
+   <div class="rounded-2xl p-4 border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]" style="background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(248,250,252,0.95));">
     <div class="flex items-center gap-2 mb-4 shrink-0">
      <div class="w-2.5 h-2.5 rounded-full animate-pulse" style="background:#38bdf8;"></div>
      <span class="text-sm font-black text-slate-800 tracking-tight">Chờ làm</span>
@@ -1100,7 +1092,7 @@
     <div id="col-todo" class="space-y-3 scrollbar-thin overflow-y-auto pr-1 flex-1" style="max-height: calc(100vh - 290px);"></div>
    </div>
 
-   <div class="rounded-2xl p-4 border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]" style="background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.85)); backdrop-filter: blur(10px);">
+   <div class="rounded-2xl p-4 border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]" style="background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(248,250,252,0.95));">
     <div class="flex items-center gap-2 mb-4 shrink-0">
      <div class="w-2.5 h-2.5 rounded-full animate-pulse" style="background:#a78bfa;"></div>
      <span class="text-sm font-black text-slate-800 tracking-tight">Đang làm</span>
@@ -1109,7 +1101,7 @@
     <div id="col-doing" class="space-y-3 scrollbar-thin overflow-y-auto pr-1 flex-1" style="max-height: calc(100vh - 290px);"></div>
    </div>
 
-   <div class="rounded-2xl p-4 border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]" style="background: linear-gradient(145deg, rgba(255,255,255,0.95), rgba(248,250,252,0.85)); backdrop-filter: blur(10px);">
+   <div class="rounded-2xl p-4 border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.04),0_1px_3px_rgba(0,0,0,0.02)] flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]" style="background: linear-gradient(145deg, rgba(255,255,255,0.98), rgba(248,250,252,0.95));">
     <div class="flex items-center gap-2 mb-4 shrink-0">
      <div class="w-2.5 h-2.5 rounded-full" style="background:#34d399;"></div>
      <span class="text-sm font-black text-slate-800 tracking-tight">Hoàn thành</span>
@@ -2647,7 +2639,13 @@ function renderTasks() {
         existingMap.forEach((el, id) => { if (!newIds.has(id)) el.remove(); });
         cols[status].forEach((t) => {
           const existing = existingMap.get(t.__backendId);
-          if (existing) { updateCard(existing, t); } else { const card = createCard(t); container.appendChild(card); }
+          if (existing) {
+            updateCard(existing, t);
+            container.appendChild(existing); // Di chuyển/sắp xếp thẻ cũ theo thứ tự mới trong DOM
+          } else {
+            const card = createCard(t);
+            container.appendChild(card);
+          }
         });
       });
 
