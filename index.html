@@ -15,7 +15,7 @@
     /* Lớp nền mờ (Backdrop) */
     .modal-backdrop-smooth {
         position: fixed; inset: 0; z-index: 50;
-        background: rgba(15, 23, 42, 0.6); /* Nền tối đậm để làm nổi bật modal, không dùng blur để hoạt ảnh mượt */
+        background: rgba(15, 23, 42, 0.4); /* Đồng bộ màu phủ nền 0.4 mềm mại như Giờ làm / Kho lưu trữ */
         display: flex; align-items: center; justify-content: center; p: 4px;
         opacity: 0; pointer-events: none;
         transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -499,7 +499,7 @@
     /* ==================================================================== */
     #sodo-delete-confirm-modal {
         position: fixed; inset: 0; z-index: 250;
-        background: rgba(15, 23, 42, 0.65); /* Nền tối đậm để làm nổi bật modal, không dùng blur để hoạt ảnh mượt */
+        background: rgba(15, 23, 42, 0.4); /* Đồng bộ màu phủ nền 0.4 mềm mại như Giờ làm / Kho lưu trữ */
         display: flex; align-items: center; justify-content: center; padding: 16px;
         opacity: 0; pointer-events: none;
         transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -891,8 +891,8 @@
 </div>
 
 <!-- Cửa sổ phụ nhỏ (Modal): Thêm giáo viên mới vào bộ lõi hệ thống -->
-<div id="modal-bb-them-gv" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300">
-    <div class="rounded-2xl p-6 w-full max-w-sm border border-slate-200 transform transition-all" style="background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+<div id="modal-bb-them-gv" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/40 transition-all duration-300">
+    <div class="rounded-2xl p-6 w-full max-w-sm border border-slate-200 transform transition-all" style="background: rgba(255, 255, 255, 0.9); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
         <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-1.5">
             <i data-lucide="user-plus" class="text-blue-600"></i> Thêm nhân sự mới vào tổ
         </h3>
@@ -914,8 +914,8 @@
 </div>
 
 <!-- Cửa sổ phụ (Modal): Quản lý danh sách giáo viên mẫu tổng -->
-<div id="modal-bb-ql-gv" class="hidden fixed inset-0 z-[105] flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300">
-    <div class="rounded-2xl p-6 w-full max-w-md border border-slate-200 flex flex-col max-h-[80vh] transform transition-all" style="background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+<div id="modal-bb-ql-gv" class="hidden fixed inset-0 z-[105] flex items-center justify-center p-4 bg-slate-900/40 transition-all duration-300">
+    <div class="rounded-2xl p-6 w-full max-w-md border border-slate-200 flex flex-col max-h-[80vh] transform transition-all" style="background: rgba(255, 255, 255, 0.9); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
                 <i data-lucide="users" class="text-slate-600"></i> Quản lý danh sách nhân sự tổ
@@ -1163,7 +1163,7 @@
    </div>
 
 <div id="working-hours-modal" class="modal-backdrop-smooth">
-  <div class="modal-box-smooth w-full max-w-5xl rounded-2xl p-6 flex flex-col border border-slate-200/80 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.12)]" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(16px); max-height:90vh;">
+  <div class="modal-box-smooth w-full max-w-5xl rounded-2xl p-6 flex flex-col border border-slate-200/80 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.12)]" style="background: rgba(255, 255, 255, 0.9); max-height:90vh;">
      
      <div class="flex items-center justify-between mb-3 flex-shrink-0">
        <div>
@@ -1209,8 +1209,8 @@
 
   </div>
 </div>
-  <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300" style="overflow-y:auto;">
-  <div class="w-full max-w-4xl rounded-2xl p-6 my-4 border border-slate-200 overflow-hidden scrollbar-thin" style="background: #ffffff; max-height:90vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+  <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 transition-all duration-300" style="overflow-y:auto;">
+  <div class="w-full max-w-4xl rounded-2xl p-6 my-4 border border-slate-200 overflow-hidden scrollbar-thin" style="background: rgba(255, 255, 255, 0.9); max-height:90vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 class="font-display text-lg font-bold" style="color:#1e293b;" id="edit-hours-title">Quản lý giờ làm việc</h2><button id="btn-edit-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -1236,8 +1236,8 @@
      </form>
     </div>
    </div>
-   <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300">
-  <div class="w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200" style="background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+   <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 transition-all duration-300">
+  <div class="w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200" style="background: rgba(255, 255, 255, 0.9); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#1e293b;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -1246,7 +1246,7 @@
     </div>
    </div>
 <div id="modal" class="modal-backdrop-smooth">
-  <div class="modal-box-smooth w-full max-w-2xl rounded-2xl p-6 overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200 shadow-2xl" style="background: #ffffff; max-height: 90vh;">
+  <div class="modal-box-smooth w-full max-w-2xl rounded-2xl p-6 overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200 shadow-2xl" style="background: rgba(255, 255, 255, 0.9); max-height: 90vh;">
      <div class="flex items-center justify-between mb-5">
       <h2 id="modal-title" class="font-display text-lg font-bold" style="color:#1e293b;">Thêm công việc</h2><button id="btn-modal-close" class="p-1 rounded-lg transition-colors flex-shrink-0" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -1309,8 +1309,8 @@
      </form>
     </div>
    </div>
- <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300">
-    <div class="w-full max-w-md rounded-2xl p-6 transform transition-all border border-slate-200" style="background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+ <div id="members-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 transition-all duration-300">
+    <div class="w-full max-w-md rounded-2xl p-6 transform transition-all border border-slate-200" style="background: rgba(255, 255, 255, 0.9); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-5">
       <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;">Quản lý thành viên</h2>
 <!-- ĐÃ VÁ LỖI ĐỒNG BỘ TÊN ID MEMBERS-MODAL VÀ ÉP LỆNH ĐÓNG PHẲNG DỨT ĐIỂM -->
@@ -1323,8 +1323,8 @@
     </div>
    </div>
 
-   <div id="edit-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300">
-    <div class="w-full max-w-xs rounded-2xl p-6 transform transition-all border border-slate-200" style="background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+   <div id="edit-member-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 transition-all duration-300">
+    <div class="w-full max-w-xs rounded-2xl p-6 transform transition-all border border-slate-200" style="background: rgba(255, 255, 255, 0.9); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 class="font-display text-lg font-bold" style="color:#1a1a1a;" id="edit-member-title">Sửa thành viên</h2>
       <button id="btn-edit-member-close" class="p-1 rounded-lg transition-colors text-slate-400 hover:text-slate-700"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
@@ -1343,8 +1343,8 @@
      </form>
     </div>
    </div>
-   <div id="archive-modal" class="fixed inset-0 hidden items-center justify-center z-[60] transition-opacity" style="background: rgba(15, 23, 42, 0.65);">
-    <div class="bg-white rounded-xl shadow-2xl w-11/12 max-w-5xl h-[80vh] flex flex-col transform transition-all premium-fade-up border border-slate-100">
+   <div id="archive-modal" class="fixed inset-0 hidden items-center justify-center z-[60] transition-opacity" style="background: rgba(15, 23, 42, 0.4);">
+    <div class="rounded-xl shadow-2xl w-11/12 max-w-5xl h-[80vh] flex flex-col transform transition-all premium-fade-up border border-slate-100" style="background: rgba(255, 255, 255, 0.9);">
       <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
         <h2 class="text-base font-bold text-slate-800 flex items-center gap-2 tracking-wide">
           <i data-lucide="archive" class="w-5 h-5 text-slate-500"></i> KHO LƯU TRỮ CÔNG VIỆC
@@ -6172,8 +6172,8 @@ window.calculateMemberEAI = function(memberName) {
     };
   </script>
    <!-- SYSTEM CONFIRM MODAL FOR BIEN BAN -->
-<div id="sys-confirm-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/60 p-4">
-    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform scale-95 transition-all duration-300" id="sys-modal-box">
+<div id="sys-confirm-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/40 p-4">
+    <div class="rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform scale-95 transition-all duration-300" id="sys-modal-box" style="background: rgba(255, 255, 255, 0.9);">
         <!-- Header cảnh báo -->
         <div class="bg-rose-50 px-6 py-4 border-b border-rose-100 flex items-center gap-3">
             <div class="p-2 bg-rose-100 text-rose-600 rounded-full">
@@ -6195,8 +6195,8 @@ window.calculateMemberEAI = function(memberName) {
     </div>
 </div>
   
-<div id="sys-success-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/60 p-4">
-    <div class="rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300 border border-slate-200" id="sys-success-box" style="background: #ffffff;">
+<div id="sys-success-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/40 p-4">
+    <div class="rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300 border border-slate-200" id="sys-success-box" style="background: rgba(255, 255, 255, 0.9);">
         <div class="px-6 py-8 flex flex-col items-center text-center">
             <div class="p-3 bg-emerald-100 text-emerald-600 rounded-full mb-4 animate-bounce">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -6213,7 +6213,7 @@ window.calculateMemberEAI = function(memberName) {
 <!-- HỘP THOẠI XÁC NHẬN XÓA BƯỚC QUY TRÌNH (PREMIUM GLASSMORPHISM)      -->
 <!-- ==================================================================== -->
 <div id="sodo-delete-confirm-modal">
-    <div id="sodo-delete-confirm-box" class="max-w-md w-full rounded-2xl overflow-hidden shadow-2xl" style="background: #ffffff; border: 1px solid rgba(255, 255, 255, 0.5);">
+    <div id="sodo-delete-confirm-box" class="max-w-md w-full rounded-2xl overflow-hidden shadow-2xl" style="background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.5);">
         <!-- Header cảnh báo hồng pha lê -->
         <div class="px-6 py-4 border-b flex items-center gap-3" style="background: linear-gradient(135deg, rgba(252, 231, 243, 0.6), rgba(251, 207, 232, 0.3)); border-color: rgba(244, 114, 182, 0.15);">
             <div class="p-2 rounded-full" style="background: rgba(236, 72, 153, 0.12);">
@@ -6277,8 +6277,8 @@ window.calculateMemberEAI = function(memberName) {
         </div>
     </div>
 </div>
-<div id="sys-quickview-panel" class="fixed inset-0 z-[120] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/65 p-4">
-    <div id="sys-quickview-box" class="bg-slate-100 w-full max-w-4xl rounded-2xl h-[90vh] flex flex-col shadow-2xl border border-slate-200 transform scale-95 transition-all duration-300 overflow-hidden">
+<div id="sys-quickview-panel" class="fixed inset-0 z-[120] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/40 p-4">
+    <div id="sys-quickview-box" class="w-full max-w-4xl rounded-2xl h-[90vh] flex flex-col shadow-2xl border border-slate-200 transform scale-95 transition-all duration-300 overflow-hidden" style="background: rgba(255, 255, 255, 0.9);">
         
         <div class="px-6 py-3.5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
             <h2 class="text-sm font-bold text-slate-700 flex items-center gap-2 tracking-wide">
