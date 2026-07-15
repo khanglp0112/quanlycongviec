@@ -1620,9 +1620,7 @@ window.addEventListener('beforeunload', (event) => {
 document.addEventListener("DOMContentLoaded", () => {
     const btnSuccessClose = document.getElementById('btn-success-close');
     if (btnSuccessClose) btnSuccessClose.addEventListener('click', closeSystemSuccess);
-});
-// Lắng nghe sự kiện click từ các nút bấm trong hộp thoại
-document.addEventListener("DOMContentLoaded", () => {
+    // Lắng nghe sự kiện click từ các nút bấm trong hộp thoại
     const btnCancel = document.getElementById('btn-modal-cancel');
     const btnConfirm = document.getElementById('btn-modal-confirm');
     if (btnCancel) btnCancel.addEventListener('click', closeSystemConfirm);
@@ -1646,8 +1644,18 @@ document.addEventListener("DOMContentLoaded", () => {
       d.textContent = s || '';
       return d.innerHTML;
     }
+    // =========================================================================
+    // TỐI ƯU HIỆU NĂNG: DEBOUNCE lucide.createIcons() CHỐNG QUÉT DOM TRÀN LAN
+    // =========================================================================
+    let _iconRefreshTimer = null;
+    function refreshIcons(container) {
+      if (_iconRefreshTimer) cancelAnimationFrame(_iconRefreshTimer);
+      _iconRefreshTimer = requestAnimationFrame(() => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        _iconRefreshTimer = null;
+      });
+    }
    // Bộ lọc nhận diện Link và giữ nguyên vẹn dấu xuống dòng
-// Bộ lọc nhận diện Link và giữ nguyên vẹn dấu xuống dòng
     function linkify(text) {
         if (!text) return '';
         let safeText = escHtml(text); // Làm sạch mã độc trước
@@ -1661,7 +1669,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Mở màn hình xem logo to
     function openLogoViewer() {
         document.getElementById('logo-viewer-modal').classList.remove('hidden');
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     // Đóng màn hình xem logo
@@ -1800,7 +1808,7 @@ function populateMemberSelects() {
           </div>
         </div>
       `).join('');
-      lucide.createIcons();
+      refreshIcons();
     }
 // =========================================================================
 // BỔ SUNG PHẦN 2A: HÀM ĐẾM VÀ TRẢ VỀ DANH SÁCH NGÀY LÀM VIỆC THỰC TẾ (TRỪ CHỦ NHẬT)
@@ -2098,7 +2106,7 @@ function renderWorkingHoursConfigList() {
   `).join('');
 }
 // =========================================================================
-  if (typeof lucide !== 'undefined') lucide.createIcons();
+  refreshIcons();
 }
 // =========================================================================
 
@@ -2270,7 +2278,7 @@ function renderWorkingHoursConfigList() {
             <p class="font-medium">Không có công việc trong timeline này</p>
           </div>
         `;
-        lucide.createIcons();
+        refreshIcons();
         return;
       }
 
@@ -2317,7 +2325,7 @@ if (currentDate !== dateStr) {
         `;
       });
       container.innerHTML = html;
-      lucide.createIcons();
+      refreshIcons();
     }
 
     function openAddMember() {
@@ -2450,13 +2458,6 @@ document.getElementById('btn-timeline').onclick = () => {
     document.getElementById('btn-wh-tab-config').onclick = () => switchWorkingHoursTab('config');
     // =========================================================================
     document.getElementById('members-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('members-modal').classList.add('hidden'); } });
-document.getElementById('working-hours-modal').addEventListener('click', e => { 
-      if (e.target === e.currentTarget) { 
-        const whModal = document.getElementById('working-hours-modal');
-        whModal.classList.remove('show'); 
-        whModal.classList.add('hidden'); 
-      } 
-    });
     document.getElementById('btn-edit-hours-close').onclick = () => { document.getElementById('edit-hours-modal').classList.add('hidden'); };
     document.getElementById('edit-hours-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('edit-hours-modal').classList.add('hidden'); } });
     document.getElementById('btn-add-member').onclick = openAddMember;
@@ -2492,7 +2493,7 @@ document.getElementById('working-hours-modal').addEventListener('click', e => {
         if (member) {
           btn.disabled = true;
           btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:6px;animation:spin 1s linear infinite;"></i>Đang xóa...';
-          lucide.createIcons();
+          refreshIcons();
           db.collection("ThanhVien").doc(memberId).delete()
           .then(() => {
               const mIndex = membersData.findIndex(m => m.__backendId === memberId);
@@ -2678,7 +2679,9 @@ function renderTasks() {
         emptyState.classList.add('hidden');
         emptyState.classList.remove('flex');
       }
-      if (typeof populateMemberSelects === 'function') populateMemberSelects();
+      // TỐI ƯU: Chỉ gọi populateMemberSelects khi modal thêm/sửa công việc đang mở
+      const modalEl = document.getElementById('modal');
+      if (typeof populateMemberSelects === 'function' && modalEl && modalEl.classList.contains('show')) populateMemberSelects();
       if (!document.getElementById('working-hours-modal').classList.contains('hidden')) renderWorkingHoursList();
     }
 
@@ -2775,7 +2778,7 @@ ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
           </div>
         </div>
       `;
-      lucide.createIcons();
+      refreshIcons();
     }
 
 function showTaskDetail(task) {
@@ -2829,7 +2832,7 @@ function showTaskDetail(task) {
         }
     });
     document.getElementById('task-detail-modal').classList.remove('hidden');
-    lucide.createIcons();
+    refreshIcons();
     }
 
     function changeStatusAndClose(id, newStatus) {
@@ -2913,9 +2916,6 @@ document.getElementById('inp-actual-hours-review').value = task.actual_hours || 
   document.getElementById('inp-status').value = task.status;
   document.getElementById('inp-edit-id').value = id;
   document.getElementById('inp-start-date').value = task.start_date || (task.created_at ? task.created_at.substring(0, 10) : '');
-  // BỔ SUNG VÁ LỖI 1A: Tự động nạp Ngày nhận việc cũ lên form khi bấm Sửa
-  // Nếu task cũ chưa có trường này, hệ thống sẽ tự động lấy 10 ký tự đầu của ngày tạo (yyyy-mm-dd) làm mốc mặc định
-  document.getElementById('inp-start-date').value = task.start_date || (task.created_at ? task.created_at.substring(0, 10) : '');
 
   updateRatingButtons(); updateReviewSections();
   document.getElementById('modal-title').textContent = 'Sửa công việc';
@@ -2954,7 +2954,7 @@ toast.className = 'bg-white px-5 py-3.5 rounded-xl shadow-[0_15px_40px_-10px_rgb
             </div>
         `;
         toastContainer.appendChild(toast);
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
 
         // Hiệu ứng nảy lên
         requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
@@ -3045,7 +3045,7 @@ let draggedSubtask = null; // Biến toàn cục để nhớ xem đang kéo mụ
         // ------------------------------------
 
         container.appendChild(div);
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     function toggleSubtask(taskId, idx, isDone) {
@@ -3074,8 +3074,6 @@ let draggedSubtask = null; // Biến toàn cục để nhớ xem đang kéo mụ
   document.querySelectorAll('.assignee-cb').forEach(cb => cb.checked = false);
   document.getElementById('subtasks-container').innerHTML = '';
   document.getElementById('inp-start-date').value = '';
-    // PHẦN 2C: Xóa trắng ô ngày nhận việc khi đóng form để tránh lưu đè dữ liệu rác
-document.getElementById('inp-start-date').value = '';
     if (typeof populateMemberSelects === 'function') populateMemberSelects();
 }
 
@@ -3370,12 +3368,14 @@ function changeWorkingHoursWeek(direction) {
       });
     }
 
-    lucide.createIcons();
+    refreshIcons();
 
     setInterval(() => {
-      document.querySelectorAll('.countdown-timer').forEach(el => {
+      const timers = document.querySelectorAll('.countdown-timer');
+      if (timers.length === 0) return; // Bỏ qua nếu không có timer nào trên trang
+      const now = new Date();
+      timers.forEach(el => {
         const deadline = new Date(el.getAttribute('data-deadline'));
-        const now = new Date();
         el.textContent = formatCountdown(deadline - now);
       });
     }, 1000);
@@ -3402,7 +3402,7 @@ function changeWorkingHoursWeek(direction) {
         document.getElementById('archive-modal').classList.remove('hidden');
         document.getElementById('archive-modal').classList.add('flex');
         renderArchiveList();
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
     
     function closeArchiveModal() {
@@ -3576,7 +3576,7 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
 
       db.collection("CongViec").add(newTaskData).then((docRef) => {
           newTaskData.__backendId = docRef.id; allTasks.push(newTaskData); renderTasks();
-          if (typeof lucide !== 'undefined') lucide.createIcons();
+          refreshIcons();
       }).catch((error) => { alert("Lỗi sao chép Firebase: " + error.message); });
     }
 
@@ -3651,7 +3651,7 @@ function toggleBienBan() {
             if (typeof renderTasks === 'function') renderTasks();
         }
 
-        try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
+        try { refreshIcons(); } catch (e) {}
     }
     // Hàm điều khiển lệnh định dạng chữ trong thanh Rich Text Editor Mini
     function execEditorCommand(command) {
@@ -3702,7 +3702,7 @@ function toggleBienBan() {
         
         // Luôn cập nhật lại danh sách Thư ký & Chủ trì ở cuối
         updateBBChủTrìThưKýSelects();
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     // Hàm bổ trợ 3.2: Sinh ra chuỗi HTML danh sách giáo viên kèm tùy chọn [Thêm...]
@@ -3768,7 +3768,7 @@ function toggleBienBan() {
             </td>
         `;
         tbody.appendChild(tr);
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     // Hàm 3.5: Xóa một dòng bất kỳ trên bảng và sắp xếp lại Số thứ tự STT
@@ -3889,7 +3889,7 @@ function toggleBienBan() {
         `).join('');
 
         document.getElementById('modal-bb-ql-gv').classList.remove('hidden');
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     function closeQuanLyGiaoVienModal() {
@@ -3955,7 +3955,7 @@ function toggleBienBan() {
         originalBtnText = btnSave.innerHTML;
         btnSave.innerHTML = '<i data-lucide="loader" class="animate-spin" style="width:16px;height:16px;display:inline-block;margin-right:6px;"></i> Đang đồng bộ...';
         btnSave.disabled = true;
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     // Gom dữ liệu thành phần động mục II
@@ -4026,7 +4026,7 @@ function toggleBienBan() {
         if (btnSave) {
             btnSave.innerHTML = originalBtnText;
             btnSave.disabled = false;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            refreshIcons();
         }
     }
 }
@@ -4083,7 +4083,7 @@ html += `
             });
 
             tbody.innerHTML = html;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            refreshIcons();
         } catch (error) {
             console.error("Lỗi đồng bộ lịch sử: ", error);
             tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-red-500 font-medium">Không thể nạp lịch sử do lỗi: ${error.message}</td></tr>`;
@@ -4145,7 +4145,7 @@ html += `
             document.getElementById('sel-bb-chutri').value = data.chuTri || "";
             document.getElementById('sel-bb-thuky').value = data.thuKy || "";
             
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            refreshIcons();
             
             // Cuộn trang mượt mà lên đầu Form để thầy cô dễ quan sát và chỉnh sửa
             document.getElementById('bien-ban-view').scrollIntoView({ behavior: 'smooth' });
@@ -4312,7 +4312,7 @@ function deleteBienBan(id, tenBB) {
         const btnExport = document.querySelector('button[onclick="exportWordFromPhoi()"]');
         const originalText = btnExport.innerHTML;
         btnExport.innerHTML = '<i data-lucide="loader" class="animate-spin" style="width:16px;height:16px;display:inline-block;margin-right:6px;"></i> Đang đóng gói file...';
-        if (typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
         btnExport.disabled = true;
 
 try {
@@ -4377,7 +4377,7 @@ try {
             // Khôi phục lại trạng thái ban đầu cho nút bấm trên giao diện
             btnExport.innerHTML = originalText;
             btnExport.disabled = false;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            refreshIcons();
         }
     }
     async function renderChamTietTable() {
@@ -4528,7 +4528,7 @@ function toggleLienKet() {
             if (statsBar) statsBar.classList.remove('hidden');
             renderTasks(); // Gọi lại bộ não để phục hồi giao diện chuẩn
         }
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     function editLienKet(id, ten, url, moTa) {
@@ -4539,7 +4539,7 @@ function toggleLienKet() {
         const btn = document.getElementById('btn-lk-submit');
         btn.innerHTML = '<i data-lucide="save" style="width:16px;height:16px;"></i> Cập nhật link';
         btn.classList.replace('bg-blue-600', 'bg-emerald-600');
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
         document.getElementById('inp-lk-ten').focus();
     }
 
@@ -4686,7 +4686,7 @@ function drawLinksTable() {
             `;
             tbody.appendChild(tr);
         });
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
 // ====================================================================
@@ -4729,7 +4729,7 @@ function deleteLienKet(id) {
             XLSX.utils.book_append_sheet(workbook, worksheet, "CongViecToToanTin");
             XLSX.writeFile(workbook, "BaoCaoCongViec_" + new Date().toLocaleDateString('vi-VN').replace(/\//g, '-') + ".xlsx");
             btn.innerHTML = oldText; btn.disabled = false;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            refreshIcons();
         }, 500);
     });
 
@@ -4763,7 +4763,7 @@ function deleteLienKet(id) {
         document.getElementById('timeline-calendar-container').classList.toggle('hidden', isVert);
         
         if (isVert) renderTimeline(); else renderCalendar();
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     function changeMonth(step) {
@@ -4827,7 +4827,7 @@ function deleteLienKet(id) {
             });
             grid.appendChild(dayCell);
         }
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
    // === THUẬT TOÁN ĐỔI THỨ TỰ SUB-TASK ===
     const subtasksContainer = document.getElementById('subtasks-container');
@@ -4886,7 +4886,7 @@ function deleteLienKet(id) {
         menu.style.left = e.clientX + 'px';
         menu.style.top = e.clientY + 'px';
         menu.classList.remove('hidden');
-        lucide.createIcons();
+        refreshIcons();
     }
 
     async function togglePinTask() {
@@ -5024,7 +5024,7 @@ window.calculateMemberEAI = function(memberName) {
             if (statsBar) statsBar.classList.remove('hidden');
             if (typeof renderTasks === 'function') renderTasks();
         }
-        if(typeof lucide !== 'undefined') lucide.createIcons();
+        refreshIcons();
     }
 
     // 2. HÀM SINH TỰ ĐỘNG MỘT HÀNG Ô CHỮ (BẢN VÁ PHẦN 2: GIAO DIỆN SELECT THÔNG MINH ĐỘNG)
@@ -5798,19 +5798,7 @@ window.calculateMemberEAI = function(memberName) {
           console.error("Lỗi khởi tạo hệ thống Mermaid: ", e);
       }
   }
-    // 5. Hệ thống hàm điều khiển thanh Sidebar ghi chú trượt ngang tự do (ĐÃ VÁ CÚ PHÁP CHUẨN)
-    window.openSodoSidebarWithData = function(nodeId) {
-        if(!nodeId || !sodoActiveDescMap.has(nodeId)) return;
-        
-        const data = sodoActiveDescMap.get(nodeId);
-        const stepNum = nodeId.replace('step_', '');
-
-        document.getElementById('sd-side-badge').textContent = `Mã khối: Bước ${stepNum}`;
-        document.getElementById('sd-side-title').textContent = data.title;
-        document.getElementById('sd-side-desc').textContent = data.desc;
-
-        document.getElementById('sodo-sidebar-panel').classList.add('active');
-    };
+    // (Khai báo đã được gộp về hàm openSodoSidebarWithData ở dòng 5672 bên trên)
 
     function closeSodoSidebar() {
         const sidebar = document.getElementById('sodo-sidebar-panel');
@@ -5854,7 +5842,7 @@ window.calculateMemberEAI = function(memberName) {
             // ÉP KIỂU HIỂN THỊ VÒNG XOAY HOẠT CẢNH QUAY ĐỀU CỦA LUCIDE TRÊN KHUNG MICA
             btnSave.innerHTML = '<i data-lucide="loader" class="animate-spin" style="width:16px;height:16px;display:inline-block;margin-right:6px;"></i> Đang đồng bộ...';
             btnSave.disabled = true; // Khóa cứng chuột hoàn toàn chống bấm đúp tạo rác Firebase
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            refreshIcons();
         }
 
         // Thu thập dữ liệu sạch từ Form tịnh tiến
@@ -5905,7 +5893,7 @@ window.calculateMemberEAI = function(memberName) {
             if (btnSave) {
                 btnSave.innerHTML = originalBtnText;
                 btnSave.disabled = false; // Mở khóa chuột
-                if (typeof lucide !== 'undefined') lucide.createIcons();
+                refreshIcons();
             }
         }
     }
@@ -5945,7 +5933,7 @@ window.calculateMemberEAI = function(memberName) {
                 `;
             }).join('');
             
-            if(typeof lucide !== 'undefined') lucide.createIcons();
+            refreshIcons();
         } catch(e) { 
             console.error("Lỗi đồng bộ lịch sử Firebase: ", e); 
         }
