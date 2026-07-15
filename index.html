@@ -15,10 +15,10 @@
     /* Lớp nền mờ (Backdrop) */
     .modal-backdrop-smooth {
         position: fixed; inset: 0; z-index: 50;
-        background: rgba(15, 23, 42, 0.6); /* Tăng độ đục để làm nổi bật modal mà không cần blur đắt đỏ */
+        background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px);
         display: flex; align-items: center; justify-content: center; p: 4px;
         opacity: 0; pointer-events: none;
-        transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .modal-backdrop-smooth.show {
         opacity: 1; pointer-events: auto;
@@ -499,10 +499,10 @@
     /* ==================================================================== */
     #sodo-delete-confirm-modal {
         position: fixed; inset: 0; z-index: 250;
-        background: rgba(15, 23, 42, 0.65); /* Tăng độ đục để làm nổi bật modal mà không cần blur đắt đỏ */
+        background: rgba(15, 23, 42, 0.45); backdrop-filter: blur(10px);
         display: flex; align-items: center; justify-content: center; padding: 16px;
         opacity: 0; pointer-events: none;
-        transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     #sodo-delete-confirm-modal.show {
         opacity: 1; pointer-events: auto;
@@ -521,7 +521,7 @@
     /* ==================================================================== */
     #sodo-undo-toast {
         position: fixed; bottom: 24px; left: 24px; z-index: 300;
-        background: #0f172a; /* Nền tối đậm đà thay vì blur kính */
+        background: rgba(15, 23, 42, 0.92); backdrop-filter: blur(16px);
         color: #f1f5f9; border-radius: 14px; padding: 14px 20px;
         display: flex; align-items: center; gap: 12px;
         box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -891,8 +891,8 @@
 </div>
 
 <!-- Cửa sổ phụ nhỏ (Modal): Thêm giáo viên mới vào bộ lõi hệ thống -->
-<div id="modal-bb-them-gv" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300">
-    <div class="rounded-2xl p-6 w-full max-w-sm border border-slate-200 transform transition-all" style="background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+<div id="modal-bb-them-gv" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="rounded-2xl p-6 w-full max-w-sm border border-slate-200 transform transition-all" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
         <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-1.5">
             <i data-lucide="user-plus" class="text-blue-600"></i> Thêm nhân sự mới vào tổ
         </h3>
@@ -914,8 +914,8 @@
 </div>
 
 <!-- Cửa sổ phụ (Modal): Quản lý danh sách giáo viên mẫu tổng -->
-<div id="modal-bb-ql-gv" class="hidden fixed inset-0 z-[105] flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300">
-    <div class="rounded-2xl p-6 w-full max-w-md border border-slate-200 flex flex-col max-h-[80vh] transform transition-all" style="background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+<div id="modal-bb-ql-gv" class="hidden fixed inset-0 z-[105] flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+    <div class="rounded-2xl p-6 w-full max-w-md border border-slate-200 flex flex-col max-h-[80vh] transform transition-all" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-base font-bold text-slate-800 flex items-center gap-1.5">
                 <i data-lucide="users" class="text-slate-600"></i> Quản lý danh sách nhân sự tổ
@@ -1209,8 +1209,8 @@
 
   </div>
 </div>
-  <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300" style="overflow-y:auto;">
-  <div class="w-full max-w-4xl rounded-2xl p-6 my-4 border border-slate-200 overflow-hidden scrollbar-thin" style="background: #ffffff; max-height:90vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+  <div id="edit-hours-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300" style="overflow-y:auto;">
+  <div class="w-full max-w-4xl rounded-2xl p-6 my-4 border border-slate-200 overflow-hidden scrollbar-thin" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height:90vh; overflow-y:auto; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 class="font-display text-lg font-bold" style="color:#1e293b;" id="edit-hours-title">Quản lý giờ làm việc</h2><button id="btn-edit-hours-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -1236,8 +1236,8 @@
      </form>
     </div>
    </div>
-   <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 transition-all duration-300">
-  <div class="w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200" style="background: #ffffff; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+   <div id="task-detail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 transition-all duration-300">
+  <div class="w-full max-w-4xl rounded-2xl p-8 max-h-[90vh] overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
      <div class="flex items-center justify-between mb-4">
       <h2 id="detail-title" class="font-display text-lg font-bold" style="color:#1e293b;"></h2><button id="btn-detail-close" class="p-1 rounded-lg transition-colors" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -1246,7 +1246,7 @@
     </div>
    </div>
 <div id="modal" class="modal-backdrop-smooth">
-  <div class="modal-box-smooth w-full max-w-2xl rounded-2xl p-6 overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200 shadow-2xl" style="background: #ffffff; max-height: 90vh;">
+  <div class="modal-box-smooth w-full max-w-2xl rounded-2xl p-6 overflow-y-auto overflow-hidden scrollbar-thin border border-slate-200 shadow-2xl" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px); max-height: 90vh;">
      <div class="flex items-center justify-between mb-5">
       <h2 id="modal-title" class="font-display text-lg font-bold" style="color:#1e293b;">Thêm công việc</h2><button id="btn-modal-close" class="p-1 rounded-lg transition-colors flex-shrink-0" style="color:#64748b;" onmouseenter="this.style.color='#1e293b'" onmouseleave="this.style.color='#64748b'"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
      </div>
@@ -6172,7 +6172,7 @@ window.calculateMemberEAI = function(memberName) {
     };
   </script>
    <!-- SYSTEM CONFIRM MODAL FOR BIEN BAN -->
-<div id="sys-confirm-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/60 p-4">
+<div id="sys-confirm-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden transform scale-95 transition-all duration-300" id="sys-modal-box">
         <!-- Header cảnh báo -->
         <div class="bg-rose-50 px-6 py-4 border-b border-rose-100 flex items-center gap-3">
@@ -6195,8 +6195,8 @@ window.calculateMemberEAI = function(memberName) {
     </div>
 </div>
   
-<div id="sys-success-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/60 p-4">
-    <div class="rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300 border border-slate-200" id="sys-success-box" style="background: #ffffff;">
+<div id="sys-success-modal" class="fixed inset-0 z-[200] flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/40 p-4">
+    <div class="rounded-2xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-all duration-300 border border-slate-200" id="sys-success-box" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(8px);">
         <div class="px-6 py-8 flex flex-col items-center text-center">
             <div class="p-3 bg-emerald-100 text-emerald-600 rounded-full mb-4 animate-bounce">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -6213,7 +6213,7 @@ window.calculateMemberEAI = function(memberName) {
 <!-- HỘP THOẠI XÁC NHẬN XÓA BƯỚC QUY TRÌNH (PREMIUM GLASSMORPHISM)      -->
 <!-- ==================================================================== -->
 <div id="sodo-delete-confirm-modal">
-    <div id="sodo-delete-confirm-box" class="max-w-md w-full rounded-2xl overflow-hidden shadow-2xl" style="background: #ffffff; border: 1px solid rgba(255, 255, 255, 0.5);">
+    <div id="sodo-delete-confirm-box" class="max-w-md w-full rounded-2xl overflow-hidden shadow-2xl" style="background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.5);">
         <!-- Header cảnh báo hồng pha lê -->
         <div class="px-6 py-4 border-b flex items-center gap-3" style="background: linear-gradient(135deg, rgba(252, 231, 243, 0.6), rgba(251, 207, 232, 0.3)); border-color: rgba(244, 114, 182, 0.15);">
             <div class="p-2 rounded-full" style="background: rgba(236, 72, 153, 0.12);">
@@ -6277,7 +6277,7 @@ window.calculateMemberEAI = function(memberName) {
         </div>
     </div>
 </div>
-<div id="sys-quickview-panel" class="fixed inset-0 z-[120] flex items-center justify-center invisible opacity-0 transition-all duration-300 bg-slate-900/65 p-4">
+<div id="sys-quickview-panel" class="fixed inset-0 z-[120] flex items-center justify-center invisible opacity-0 transition-all duration-300 backdrop-blur-sm bg-slate-900/50 p-4">
     <div id="sys-quickview-box" class="bg-slate-100 w-full max-w-4xl rounded-2xl h-[90vh] flex flex-col shadow-2xl border border-slate-200 transform scale-95 transition-all duration-300 overflow-hidden">
         
         <div class="px-6 py-3.5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0">
