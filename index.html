@@ -11,19 +11,20 @@
   <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Newsreader:wght@600;700&display=swap" rel="stylesheet">
   <style>
-   /* --- HOẠT CẢNH MỞ MODAL MỀM MẠI --- */
-    /* Lớp nền mờ (Backdrop) */
+   /* --- HOẠT CẢNH MỞ MODAL MỀM M�     /* Lớp nền mờ (Backdrop) */
     .modal-backdrop-smooth {
         position: fixed; inset: 0; z-index: 50;
         background: rgba(15, 23, 42, 0.55); /* Tăng nhẹ độ phủ tối để tăng tương phản, hỗ trợ chống xuyên thấu chữ */
         display: flex; align-items: center; justify-content: center; p: 4px;
         opacity: 0; pointer-events: none;
-        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        visibility: hidden;
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s linear;
         backdrop-filter: blur(4px); /* Giảm xuống 4px để tăng mạnh hiệu năng */
         -webkit-backdrop-filter: blur(4px);
     }
     .modal-backdrop-smooth.show {
         opacity: 1; pointer-events: auto;
+        visibility: visible;
     }
 
     /* Khung nội dung bên trong (Hộp thoại) - Tạo hiệu ứng nảy nhẹ và mờ sang rõ */
@@ -37,6 +38,42 @@
         opacity: 1;
     }
 
+    /* Hiệu ứng mở rộng mượt mà bằng CSS Animation cho các hộp thoại dùng lớp .hidden của Tailwind */
+    #edit-hours-modal:not(.hidden),
+    #task-detail-modal:not(.hidden),
+    #members-modal:not(.hidden),
+    #edit-member-modal:not(.hidden),
+    #archive-modal:not(.hidden),
+    #modal-bb-them-gv:not(.hidden),
+    #modal-bb-ql-gv:not(.hidden),
+    #logo-viewer-modal:not(.hidden) {
+        animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    #edit-hours-modal:not(.hidden) > div,
+    #task-detail-modal:not(.hidden) > div,
+    #members-modal:not(.hidden) > div,
+    #edit-member-modal:not(.hidden) > div,
+    #archive-modal:not(.hidden) > div,
+    #modal-bb-them-gv:not(.hidden) > div,
+    #modal-bb-ql-gv:not(.hidden) > div,
+    #logo-viewer-modal:not(.hidden) > div {
+        animation: modalBoxScaleIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes modalFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes modalBoxScaleIn {
+        from { transform: scale(0.93) translateY(12px); opacity: 0; }
+        to { transform: scale(1) translateY(0); opacity: 1; }
+    }smooth {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+
     /* Áp dụng làm mờ nền nhẹ & tăng độ che phủ cho toàn bộ các lớp phủ modal (Backdrops) để chống xuyên thấu chữ hiệu năng cao */
     #sodo-delete-confirm-modal,
     #archive-modal,
@@ -46,7 +83,7 @@
         -webkit-backdrop-filter: blur(4px) !important;
     }
 
-    /* Nền các khung hộp thoại bán trong suốt cao (97%) chống xuyên thấu chữ, lược bỏ backdrop-filter để triệt tiêu giật lag khi mở */
+    /* Nền các khung hộp thoại bán trong suốt (83%) tinh tế, lược bỏ backdrop-filter để triệt tiêu giật lag khi mở rộng */
     .modal-box-smooth,
     #sys-modal-box,
     #sys-success-box,
@@ -54,8 +91,8 @@
     #sys-quickview-box,
     div[class*="bg-slate-900/40"] > div,
     #archive-modal > div {
-        background: rgba(255, 255, 255, 0.97) !important; /* Độ đục 97% giúp nền bán trong suốt nhẹ nhưng chữ sau không thể xuyên thấu */
-        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        background: rgba(255, 255, 255, 0.83) !important; /* Độ đục 83% đạt tỷ lệ bán trong suốt mờ ảo cực đẹp, không bị xuyên thấu chữ nhờ lớp nền backdrop đã được mờ hóa */
+        border: 1px solid rgba(255, 255, 255, 0.65) !important;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
     }
     .cham-tiet-container { background: #ffffff !important; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
@@ -2440,13 +2477,7 @@ document.getElementById('btn-timeline').onclick = () => {
     };
 
     // 3. Luồng Đóng (Bấm màng nền bọc ngoài): Đồng bộ giấu sạch class tương tự nút X
-    document.getElementById('working-hours-modal').addEventListener('click', e => { 
-      if (e.target === e.currentTarget) { 
-        const whModal = document.getElementById('working-hours-modal');
-        whModal.classList.remove('show'); 
-        whModal.classList.add('hidden'); 
-      } 
-    });
+    
 
     // 4. Logic cốt lõi: Thuật toán chuyển đổi qua lại giữa 2 phân khu Tabs phẳng
     function switchWorkingHoursTab(tabName) {
@@ -2477,13 +2508,7 @@ document.getElementById('btn-timeline').onclick = () => {
     document.getElementById('btn-wh-tab-config').onclick = () => switchWorkingHoursTab('config');
     // =========================================================================
     document.getElementById('members-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('members-modal').classList.add('hidden'); } });
-document.getElementById('working-hours-modal').addEventListener('click', e => { 
-      if (e.target === e.currentTarget) { 
-        const whModal = document.getElementById('working-hours-modal');
-        whModal.classList.remove('show'); 
-        whModal.classList.add('hidden'); 
-      } 
-    });
+
     document.getElementById('btn-edit-hours-close').onclick = () => { document.getElementById('edit-hours-modal').classList.add('hidden'); };
     document.getElementById('edit-hours-modal').addEventListener('click', e => { if (e.target === e.currentTarget) { document.getElementById('edit-hours-modal').classList.add('hidden'); } });
     document.getElementById('btn-add-member').onclick = openAddMember;
@@ -2712,7 +2737,7 @@ function renderTasks() {
         emptyState.classList.remove('flex');
       }
       if (typeof populateMemberSelects === 'function') populateMemberSelects();
-      if (!document.getElementById('working-hours-modal').classList.contains('hidden')) renderWorkingHoursList();
+      if (document.getElementById('working-hours-modal').classList.contains('show')) renderWorkingHoursList();
     }
 
     function createCard(t) {
