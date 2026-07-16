@@ -15,12 +15,12 @@
     /* Lớp nền mờ (Backdrop) */
     .modal-backdrop-smooth {
         position: fixed; inset: 0; z-index: 50;
-        background: rgba(15, 23, 42, 0.4); /* Đồng bộ màu phủ nền 0.4 mềm mại như Giờ làm / Kho lưu trữ */
+        background: rgba(15, 23, 42, 0.55); /* Tăng nhẹ độ phủ tối để tăng tương phản, hỗ trợ chống xuyên thấu chữ */
         display: flex; align-items: center; justify-content: center; p: 4px;
         opacity: 0; pointer-events: none;
-        transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        backdrop-filter: blur(4px); /* Giảm xuống 4px để tăng mạnh hiệu năng */
+        -webkit-backdrop-filter: blur(4px);
     }
     .modal-backdrop-smooth.show {
         opacity: 1; pointer-events: auto;
@@ -30,22 +30,23 @@
     .modal-box-smooth {
         transform: scale(0.92) translateY(10px);
         opacity: 0;
-        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
     }
     .modal-backdrop-smooth.show .modal-box-smooth {
         transform: scale(1) translateY(0);
         opacity: 1;
     }
 
-    /* Áp dụng làm mờ nền cho toàn bộ các lớp phủ modal (Backdrops) để chống xuyên thấu chữ từ phía sau */
+    /* Áp dụng làm mờ nền nhẹ & tăng độ che phủ cho toàn bộ các lớp phủ modal (Backdrops) để chống xuyên thấu chữ hiệu năng cao */
     #sodo-delete-confirm-modal,
     #archive-modal,
     div[class*="bg-slate-900/40"] {
-        backdrop-filter: blur(8px) !important;
-        -webkit-backdrop-filter: blur(8px) !important;
+        background: rgba(15, 23, 42, 0.55) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
     }
 
-    /* Nền các khung hộp thoại bán trong suốt nhưng chữ/nội dung không bị xuyên thấu từ sau lên nhờ backdrop blur */
+    /* Nền các khung hộp thoại bán trong suốt cao (97%) chống xuyên thấu chữ, lược bỏ backdrop-filter để triệt tiêu giật lag khi mở */
     .modal-box-smooth,
     #sys-modal-box,
     #sys-success-box,
@@ -53,10 +54,9 @@
     #sys-quickview-box,
     div[class*="bg-slate-900/40"] > div,
     #archive-modal > div {
-        background: rgba(255, 255, 255, 0.85) !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        background: rgba(255, 255, 255, 0.97) !important; /* Độ đục 97% giúp nền bán trong suốt nhẹ nhưng chữ sau không thể xuyên thấu */
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
     }
     .cham-tiet-container { background: #ffffff !important; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
     .table-responsive { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
