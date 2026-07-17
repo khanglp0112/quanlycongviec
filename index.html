@@ -1739,8 +1739,8 @@ function populateMemberSelects() {
       
       const listDiv = document.getElementById('assignee-list');
       if (listDiv) {
-          const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
-          const currentMon = new Date(currentMonStr);
+          const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : getLocalTodayString();
+          const currentMon = parseLocalDate(currentMonStr);
           const nextMon = new Date(currentMon); nextMon.setDate(currentMon.getDate() + 7);
 
           // Tối ưu hóa: Lấy các giá trị DOM ngoài vòng lặp map để tránh layout thrashing
@@ -1766,14 +1766,14 @@ function populateMemberSelects() {
               totalDaysOfTaskOnForm = listDaysOfTaskOnForm.length;
               if (totalDaysOfTaskOnForm > 0) {
                   for (let i = 0; i < 6; i++) {
-                      const ngayChay = new Date(currentMon.getTime() + i * 24 * 60 * 60 * 1000);
+                      const ngayChay = new Date(currentMon); ngayChay.setDate(currentMon.getDate() + i);
                       weekDaysListStr.push(`${ngayChay.getFullYear()}-${String(ngayChay.getMonth() + 1).padStart(2, '0')}-${String(ngayChay.getDate()).padStart(2, '0')}`);
                   }
               }
           }
 
           // Mở phép map quét qua danh sách giáo viên
-          listDiv.innerHTML = membersData.map(m => {
+          listDiv.innerHTML = membersData.filter(m => !m.deleted).map(m => {
               const workQuota = parseFloat(m.work_quota || '40');
               const fixedHours = parseFloat(m.fixed_hours || '0');
               
@@ -1834,7 +1834,7 @@ function populateMemberSelects() {
     }
     function renderMembersList() {
       const container = document.getElementById('members-list');
-      container.innerHTML = membersData.map((m) => `
+      container.innerHTML = membersData.filter(m => !m.deleted).map((m) => `
         <div class="flex items-center justify-between p-3 rounded-lg border border-slate-100" style="background: rgba(255, 255, 255, 0.8);">
           <div class="flex items-center gap-2">
             <div class="avatar" style="background:${m.color};width:28px;height:28px;font-size:12px;">${m.name.charAt(0).toUpperCase()}</div>
@@ -1851,14 +1851,32 @@ function populateMemberSelects() {
 // =========================================================================
 // BỔ SUNG PHẦN 2A: HÀM ĐẾM VÀ TRẢ VỀ DANH SÁCH NGÀY LÀM VIỆC THỰC TẾ (TRỪ CHỦ NHẬT)
 // =========================================================================
+function parseLocalDate(dateStr) {
+    if (!dateStr) return null;
+    const parts = dateStr.substring(0, 10).split('-');
+    if (parts.length !== 3) return null;
+    return new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+}
+
+function getLocalTodayString() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const r = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${r}`;
+}
+
+// =========================================================================
+// Bá»” SUNG PHáº¦N 2A: HÃ€M Äáº¾M VÃ€ TRáº¢ Vá»€ DANH SÃCH NGÃ€Y LÃ€M VIá»†C THá»°C Táº¾ (TRá»ª CHá»¦ NHáº¬T)
+// =========================================================================
 function getWorkingDaysList(startDateStr, endDateStr) {
     const workingDays = [];
     if (!startDateStr || !endDateStr) return workingDays;
 
-    const start = new Date(startDateStr.substring(0, 10) + 'T00:00:00');
-    const end = new Date(endDateStr.substring(0, 10) + 'T00:00:00');
+    const start = parseLocalDate(startDateStr);
+    const end = parseLocalDate(endDateStr);
 
-    if (start > end) return workingDays;
+    if (!start || !end || start > end) return workingDays;
 
     let current = new Date(start);
     while (current <= end) {
@@ -1879,7 +1897,7 @@ function getWorkingDaysList(startDateStr, endDateStr) {
 window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchived = false) {
     if (typeof allTasks === 'undefined' || !allTasks || allTasks.length === 0) return 0;
     
-    // Parse using ISO format to ensure consistent UTC/local parsing
+    // Parse using local timezone
     const currentMonday = new Date(mondayDate.getTime ? mondayDate.getTime() : mondayDate);
     const nextMonday = new Date(currentMonday);
     nextMonday.setDate(currentMonday.getDate() + 7);
@@ -1887,7 +1905,8 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
     // Táº¡o danh sÃ¡ch 6 ngÃ y lÃ m viá»‡c (T2 Ä‘áº¿n T7) trong tuáº§n
     const weekDaysListStr = [];
     for (let i = 0; i < 6; i++) {
-        const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
+        const ngayChay = new Date(currentMonday);
+        ngayChay.setDate(currentMonday.getDate() + i);
         weekDaysListStr.push(`${ngayChay.getFullYear()}-${String(ngayChay.getMonth() + 1).padStart(2, '0')}-${String(ngayChay.getDate()).padStart(2, '0')}`);
     }
     
@@ -1903,22 +1922,16 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
         if (!E) return;
         const S = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "") || E;
         
-        // Parse dates as YYYY-MM-DD literal to avoid timezone shifts
-        const taskStart = new Date(S.substring(0, 10));
-        const taskEnd = new Date(E.substring(0, 10));
+        // Parse dates using local timezone helper
+        const taskStart = parseLocalDate(S);
+        const taskEnd = parseLocalDate(E);
+        if (!taskStart || !taskEnd) return;
         
-        // Normalize currentMonday and nextMonday to YYYY-MM-DD literals for safe comparison
-        const curMonNormal = new Date(currentMonday.getFullYear() + '-' + String(currentMonday.getMonth() + 1).padStart(2, '0') + '-' + String(currentMonday.getDate()).padStart(2, '0'));
-        const nextMonNormal = new Date(nextMonday.getFullYear() + '-' + String(nextMonday.getMonth() + 1).padStart(2, '0') + '-' + String(nextMonday.getDate()).padStart(2, '0'));
-        
-        console.log(`[Task Hours Debug] Member: ${memberName}, Task: "${t.title}"`);
-        console.log(`  S: ${S}, E: ${E}`);
-        console.log(`  taskStart: ${taskStart.toISOString()}, taskEnd: ${taskEnd.toISOString()}`);
-        console.log(`  curMonNormal: ${curMonNormal.toISOString()}, nextMonNormal: ${nextMonNormal.toISOString()}`);
+        const curMonNormal = currentMonday;
+        const nextMonNormal = nextMonday;
         
         // Overlap condition
         if (taskStart < nextMonNormal && taskEnd >= curMonNormal) {
-            console.log(`  -> OVERLAPS!`);
             const soNguoiLamChung = assigneesArray.length > 0 ? assigneesArray.length : 1;
             const hoursToUse = parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours || 0) : (t.estimated_hours || 0));
             
@@ -1934,14 +1947,10 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
                 const gioPhanBoMoiNguoi = (hoursToUse / soNguoiLamChung);
                 const allocated = (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
                 taskHours += allocated;
-                console.log(`  -> Allocated: ${allocated}h (Common: ${soNguoiLamChung}, Days in week: ${soNgayTrungTrongTuan}/${tongSoNgayCuaTask})`);
             } else {
                 const allocated = (hoursToUse / soNguoiLamChung);
                 taskHours += allocated;
-                console.log(`  -> Allocated full (no working days): ${allocated}h`);
             }
-        } else {
-            console.log(`  -> NO OVERLAP`);
         }
     });
     
@@ -1954,8 +1963,8 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
 // =========================================================================
 function renderWorkingHoursList() {
   const container = document.getElementById('working-hours-list');
-  const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
-  const currentMonday = new Date(currentMonStr);
+  const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : getLocalTodayString();
+  const currentMonday = parseLocalDate(currentMonStr);
  if (typeof changeWorkingHoursWeek.offsetDays === 'number') {
     currentMonday.setDate(currentMonday.getDate() + changeWorkingHoursWeek.offsetDays);
   }
@@ -1974,7 +1983,7 @@ function renderWorkingHoursList() {
   // Tối ưu hóa: Tạo danh sách 6 ngày làm việc trong tuần xem xét từ bên ngoài vòng lặp lặp giáo viên/công việc
   const danhSachNgayTrongTuanXem = [];
   for (let i = 0; i < 6; i++) {
-    const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
+    const ngayChay = new Date(currentMonday); ngayChay.setDate(currentMonday.getDate() + i);
     danhSachNgayTrongTuanXem.push(`${ngayChay.getFullYear()}-${String(ngayChay.getMonth() + 1).padStart(2, '0')}-${String(ngayChay.getDate()).padStart(2, '0')}`);
   }
 
@@ -1982,7 +1991,7 @@ function renderWorkingHoursList() {
   container.innerHTML = '';
 
   // Vòng lặp quét qua từng giáo viên để định danh và đổ thông số chính xác 100%
-  container.innerHTML = membersData.map((m) => {
+  container.innerHTML = membersData.filter(m => !m.deleted).map((m) => {
     const workQuota = parseFloat(m.work_quota || '40');
     const fixedHours = parseFloat(m.fixed_hours || '0');
     
@@ -1996,8 +2005,8 @@ function renderWorkingHoursList() {
       const E = t.deadline;
       if (!E) return false;
       const S = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "") || E;
-      const taskStart = new Date(S + 'T00:00:00');
-      const taskEnd = new Date(E + 'T23:59:59');
+      const taskStart = parseLocalDate(S);
+      const taskEnd = parseLocalDate(E);
       return taskStart < nextMonday && taskEnd >= currentMonday;
     }) : [];
 
@@ -2179,7 +2188,7 @@ function renderWorkingHoursConfigList() {
   const configContainer = document.getElementById('working-hours-config-list');
   if (!configContainer) return;
   
-  configContainer.innerHTML = membersData.map((m) => `
+  configContainer.innerHTML = membersData.filter(m => !m.deleted).map((m) => `
     <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-white shadow-sm hover:border-blue-200 transition-all duration-200">
       <div class="flex items-center gap-2.5 min-w-0">
         <div class="w-2 h-2 rounded-full flex-shrink-0" style="background:${m.color};"></div>
@@ -2212,21 +2221,22 @@ function renderWorkingHoursConfigList() {
       const fixedHours = input.value.trim();
       member.fixed_hours = fixedHours;
       db.collection("ThanhVien").doc(memberId).update({ fixed_hours: fixedHours }).catch(e => console.log(e));
-    }
-
-    function getWeekDays(startDate) {
+    }    function getWeekDays(startDate) {
       const days = [];
-      let start = new Date(startDate);
+      let start = parseLocalDate(startDate);
       const dayOfWeek = start.getDay();
       const diff = start.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
       start.setDate(diff);
-      const dayNames = ['Chủ nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+      const dayNames = ['Chá»§ nháº­t', 'Thá»© 2', 'Thá»© 3', 'Thá»© 4', 'Thá»© 5', 'Thá»© 6', 'Thá»© 7'];
       for (let i = 0; i < 7; i++) {
         const date = new Date(start);
         date.setDate(date.getDate() + i);
         const day = dayNames[date.getDay()];
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const dd = String(date.getDate()).padStart(2, '0');
         days.push({
-          date: date.toISOString().split('T')[0],
+          date: `${yyyy}-${mm}-${dd}`,
           dayName: day,
           display: `${day} (${date.toLocaleDateString('vi-VN')})`
         });
@@ -2243,8 +2253,8 @@ function renderWorkingHoursConfigList() {
       let manualFixed = 0;
       dayInputs.forEach(input => { manualFixed += parseFloat(input.value) || 0; });
       
-      const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : new Date().toISOString().split('T')[0];
-      const currentMonday = new Date(currentMonStr);
+      const currentMonStr = typeof getCurrentMonday === 'function' ? getCurrentMonday() : getLocalTodayString();
+      const currentMonday = parseLocalDate(currentMonStr);
       const nextMonday = new Date(currentMonday);
       nextMonday.setDate(currentMonday.getDate() + 7);
       
@@ -2560,12 +2570,10 @@ document.getElementById('btn-timeline').onclick = () => {
           btn.disabled = true;
           btn.innerHTML = '<i data-lucide="loader" style="width:14px;height:14px;display:inline;margin-right:6px;animation:spin 1s linear infinite;"></i>Đang xóa...';
           lucide.createIcons();
-          db.collection("ThanhVien").doc(memberId).delete()
+                    db.collection("ThanhVien").doc(memberId).update({ deleted: true })
           .then(() => {
-              const mIndex = membersData.findIndex(m => m.__backendId === memberId);
-              if (mIndex > -1) membersData.splice(mIndex, 1);
-              const lIndex = membersList.findIndex(m => m.name === member.name);
-              if (lIndex > -1) membersList.splice(lIndex, 1);
+              member.deleted = true;
+              membersList = membersData.filter(x => !x.deleted).map(x => ({ name: x.name, color: x.color }));
               renderMembersList();
               populateMemberSelects();
               renderTasks();
@@ -2594,22 +2602,36 @@ document.getElementById('btn-timeline').onclick = () => {
       if (isDuplicate) { errorEl.textContent = 'Tên thành viên đã tồn tại.'; errorEl.classList.remove('hidden'); return; }
       
       btn.disabled = true;
-      errorEl.classList.add('hidden');
-      
-      if (!memberId) {
+      errorEl.classList.add('hidden');      if (!memberId) {
+        // Check if there is a soft-deleted member with the same name
+        const softDeletedMember = membersData.find(m => m.deleted && m.name.toLowerCase() === name.toLowerCase());
+        if (softDeletedMember) {
+          db.collection("ThanhVien").doc(softDeletedMember.__backendId).update({ deleted: false })
+          .then(() => {
+              softDeletedMember.deleted = false;
+              membersList = membersData.filter(x => !x.deleted).map(x => ({ name: x.name, color: x.color }));
+              renderMembersList(); populateMemberSelects(); renderTasks();
+              document.getElementById("inp-member-name").value = "";
+              btn.textContent = "LÆ°u"; btn.disabled = false;
+              document.getElementById('edit-member-modal').classList.add('hidden');
+          })
+          .catch(error => { alert("Lá»—i khÃ´i phá»¥c: " + error.message); btn.disabled = false; });
+          return;
+        }
+        
         const mauSac = COLORS[membersData.length % COLORS.length];
         db.collection("ThanhVien").add({
-            Ten: name, ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp()
+            Ten: name, ThoiGianThem: firebase.firestore.FieldValue.serverTimestamp(), deleted: false
         })
         .then((docRef) => {
-            membersData.push({ __backendId: docRef.id, name: name, color: mauSac });
-            membersList.push({ name: name, color: mauSac });
+            membersData.push({ __backendId: docRef.id, name: name, color: mauSac, deleted: false });
+            membersList = membersData.filter(x => !x.deleted).map(x => ({ name: x.name, color: x.color }));
             renderMembersList(); populateMemberSelects();
             document.getElementById("inp-member-name").value = "";
-            btn.textContent = "Lưu"; btn.disabled = false;
+            btn.textContent = "LÆ°u"; btn.disabled = false;
             document.getElementById('edit-member-modal').classList.add('hidden');
         })
-        .catch(error => { alert("Lỗi thêm: " + error.message); btn.disabled = false; });
+        .catch(error => { alert("Lá»—i thÃªm: " + error.message); btn.disabled = false; });
       } else {
         const oldMember = membersData.find(m => m.__backendId === memberId);
         const oldName = oldMember ? oldMember.name : null;
@@ -3591,7 +3613,8 @@ function changeWorkingHoursWeek(direction) {
         let needsUpdate = false;
         const batch = db.batch();
 
-        membersData.forEach(m => {
+                membersData.forEach(m => {
+            if (m.deleted) return;
             if (!m.weekly_start_date || m.weekly_start_date < currentMonday) {
                 m.weekly_start_date = currentMonday;
                 m.week_hours_data = '[]'; // Chỉ xóa giờ nhập tay của ngày
@@ -3601,74 +3624,130 @@ function changeWorkingHoursWeek(direction) {
             }
         });
         if (needsUpdate) await batch.commit();
-    }
-    async function loadDataFromFirebase() {
+    }    async function loadDataFromFirebase() {
       try {
         const membersSnapshot = await db.collection("ThanhVien").get();
         membersData = [];
         membersSnapshot.forEach((doc) => {
           let data = doc.data();
-          data.__backendId = doc.id; data.name = data.Ten; 
+          data.__backendId = doc.id;
+          
+          // Auto migrate Mojibake/short names
+          let originalName = data.Ten;
+          let name = originalName;
+          let nameChanged = false;
+          if (name === "CÃƒÂ´ CÃƒÂºc" || name === "CÃ´ CÃºc") {
+            name = "CÃ´ TrÃ  Thu CÃºc";
+            nameChanged = true;
+          } else if (name === "CÃƒÂ´ Oanh" || name === "CÃ´ Oanh") {
+            name = "CÃ´ ÄoÃ n Thá»‹ Kim Oanh";
+            nameChanged = true;
+          }
+          if (nameChanged) {
+            db.collection("ThanhVien").doc(doc.id).update({ Ten: name });
+            data.Ten = name;
+          }
+          
+          data.name = data.Ten; 
           data.color = (typeof COLORS !== 'undefined') ? COLORS[membersData.length % COLORS.length] : '#38bdf8';
           data.work_quota = data.work_quota || '40'; data.fixed_hours = data.fixed_hours || '0';
-          data.week_hours_data = data.week_hours_data || '[]'; data.weekly_start_date = data.weekly_start_date || new Date().toISOString().split('T')[0];
+          data.week_hours_data = data.week_hours_data || '[]'; 
+          data.weekly_start_date = data.weekly_start_date || getLocalTodayString();
+          data.deleted = data.deleted || false;
           membersData.push(data);
         });
-        membersList = membersData.map(m => ({ name: m.name, color: m.color }));
-await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
-     await autoArchiveTasks(); // Quét dọn các công việc đã xong quá 7 ngày
+        
+        // Populate active members list
+        membersList = membersData.filter(m => !m.deleted).map(m => ({ name: m.name, color: m.color }));
+        
+        await autoResetWeeklyHours(); // KÃ­ch hoáº¡t dá»n dáº¹p tuáº§n má»›i
+        await autoArchiveTasks(); // QuÃ©t dá»n cÃ¡c cÃ´ng viá»‡c Ä‘Ã£ xong quÃ¡ 7 ngÃ y
+        
         const tasksSnapshot = await db.collection("CongViec").get();
         allTasks = [];
-        tasksSnapshot.forEach((doc) => { let data = doc.data(); data.__backendId = doc.id; allTasks.push(data); });
+        tasksSnapshot.forEach((doc) => { 
+          let data = doc.data(); 
+          data.__backendId = doc.id; 
+          
+          // Migrate task assignee names if they match old names
+          if (data.assignee) {
+            let assignees = data.assignee.split(',').map(s => s.trim());
+            let assigneeChanged = false;
+            let newAssignees = assignees.map(name => {
+              if (name === "CÃƒÂ´ CÃƒÂºc" || name === "CÃ´ CÃºc") {
+                assigneeChanged = true;
+                return "CÃ´ TrÃ  Thu CÃºc";
+              }
+              if (name === "CÃƒÂ´ Oanh" || name === "CÃ´ Oanh") {
+                assigneeChanged = true;
+                return "CÃ´ ÄoÃ n Thá»‹ Kim Oanh";
+              }
+              return name;
+            });
+            if (assigneeChanged) {
+              data.assignee = newAssignees.join(', ');
+              db.collection("CongViec").doc(doc.id).update({ assignee: data.assignee });
+            }
+          }
+          
+          allTasks.push(data); 
+        });
 
         if (typeof populateMemberSelects === "function") populateMemberSelects();
         if (typeof renderMembersList === "function") renderMembersList();
         if (typeof renderTasks === "function") renderTasks();
-       // Nạp dữ liệu lịch sử các biên bản họp tổ từ Firebase khi vừa mở trang web
+        // Náº¡p dá»¯ liá»‡u lá»‹ch sá»­ cÃ¡c biÃªn báº£n há»p tá»• tá»« Firebase khi vá»«a má»Ÿ trang web
         if (typeof renderBBLichSuTable === "function") renderBBLichSuTable();
-      } catch (error) { console.error("Lỗi tải dữ liệu:", error); }
-   // Tự động tắt màn hình chào sau 0.8 giây để tạo độ mượt
-                setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            if(splash) splash.classList.add('hidden-splash');
-        }, 800); 
-        
-        // --- Tá»° Äá»˜NG PHá»¤C Há»’I THÃ€NH VIÃŠN Náº¾U Bá»Š THIáº¾U ---
-        try {
-            const membersSnapshot = await db.collection("ThanhVien").get();
-            let hasCuc = false;
-            let hasOanh = false;
-            membersSnapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.Ten === "CÃ´ CÃºc") hasCuc = true;
-                if (data.Ten === "CÃ´ Oanh") hasOanh = true;
-            });
-            if (!hasCuc) {
-                await db.collection("ThanhVien").add({
-                    Ten: "CÃ´ CÃºc",
-                    work_quota: "40",
-                    fixed_hours: "0",
-                    weekly_start_date: new Date().toISOString().split('T')[0],
-                    week_hours_data: "[]"
-                });
-            }
-            if (!hasOanh) {
-                await db.collection("ThanhVien").add({
-                    Ten: "CÃ´ Oanh",
-                    work_quota: "40",
-                    fixed_hours: "0",
-                    weekly_start_date: new Date().toISOString().split('T')[0],
-                    week_hours_data: "[]"
-                });
-            }
-            if (!hasCuc || !hasOanh) {
-                // Táº£i láº¡i dá»¯ liá»‡u sau khi phá»¥c há»“i Ä‘á»ƒ cáº­p nháº­t giao diá»‡n
-                setTimeout(() => { loadDataFromFirebase(); }, 500);
-            }
-        } catch (e) {
-            console.error("Lá»—i tá»± Ä‘á»™ng phá»¥c há»“i thÃ nh viÃªn:", e);
+      } catch (error) { console.error("Lá»—i táº£i dá»¯ liá»‡u:", error); }
+      
+      // Tá»± Ä‘á»™ng táº¯t mÃ n hÃ¬nh chÃ o sau 0.8 giÃ¢y Ä‘á»ƒ táº¡o Ä‘á»™ mÆ°á»£t
+      setTimeout(() => {
+        const splash = document.getElementById('splash-screen');
+        if(splash) splash.classList.add('hidden-splash');
+      }, 800); 
+      
+      // --- Tá»° Äá»˜NG PHá»¤C Há»’I THÃ€NH VIÃŠN Náº¾U Bá»Š THIáº¾U ---
+      try {
+        const membersSnapshot = await db.collection("ThanhVien").get();
+        let hasCuc = false;
+        let hasOanh = false;
+        membersSnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.Ten === "CÃ´ TrÃ  Thu CÃºc" || data.Ten === "CÃƒÂ´ CÃƒÂºc" || data.Ten === "CÃ´ CÃºc") {
+            if (!data.deleted) hasCuc = true;
+          }
+          if (data.Ten === "CÃ´ ÄoÃ n Thá»‹ Kim Oanh" || data.Ten === "CÃƒÂ´ Oanh" || data.Ten === "CÃ´ Oanh") {
+            if (!data.deleted) hasOanh = true;
+          }
+        });
+        if (!hasCuc) {
+          await db.collection("ThanhVien").add({
+            Ten: "CÃ´ TrÃ  Thu CÃºc",
+            work_quota: "40",
+            fixed_hours: "0",
+            weekly_start_date: getLocalTodayString(),
+            week_hours_data: "[]",
+            deleted: false
+          });
         }
-   }
+        if (!hasOanh) {
+          await db.collection("ThanhVien").add({
+            Ten: "CÃ´ ÄoÃ n Thá»‹ Kim Oanh",
+            work_quota: "40",
+            fixed_hours: "0",
+            weekly_start_date: getLocalTodayString(),
+            week_hours_data: "[]",
+            deleted: false
+          });
+        }
+        if (!hasCuc || !hasOanh) {
+          // Táº£i láº¡i dá»¯ liá»‡u sau khi phá»¥c há»“i Ä‘á»ƒ cáº­p nháº­t giao diá»‡n
+          setTimeout(() => { loadDataFromFirebase(); }, 500);
+        }
+      } catch (e) {
+        Write-Host "Lá»—i tá»± Ä‘á»™ng phá»¥c há»“i thÃ nh viÃªn: " $e.Message
+      }
+    }
     loadDataFromFirebase();
 
     function duplicateTask(id) {
