@@ -1777,7 +1777,7 @@ function populateMemberSelects() {
               const workQuota = parseFloat(m.work_quota || '40');
               const fixedHours = parseFloat(m.fixed_hours || '0');
               
-              const taskHours = (typeof calculateMemberTaskHours === 'function') ? calculateMemberTaskHours(m.name, currentMon, true) : 0;
+              let taskHours = (typeof calculateMemberTaskHours === 'function') ? calculateMemberTaskHours(m.name, currentMon, true) : 0;
 
               // --- PHẦN 3C: TÍNH TOÁN GIỜ MÔ PHỎNG ĐỘNG NGAY TRÊN FORM (Đã tối ưu hóa tính toán lặp) ---
               if (formStatus !== 'done' && selectedNamesOnForm.includes(m.name) && formEstHours > 0) {
@@ -2217,9 +2217,6 @@ function renderWorkingHoursConfigList() {
       nextMonday.setDate(currentMonday.getDate() + 7);
       
       const taskHours = (typeof calculateMemberTaskHours === 'function') ? calculateMemberTaskHours(member.name, currentMonday, false) : 0;
-          }
-        });
-      }
 
       const totalUsed = manualFixed + taskHours;
       const remaining = Math.max(0, quota - totalUsed);
