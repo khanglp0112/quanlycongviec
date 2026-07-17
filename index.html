@@ -3666,17 +3666,6 @@ function changeWorkingHoursWeek(direction) {
           if (data.assignee) {
             let assignees = data.assignee.split(',').map(s => s.trim());
             let assigneeChanged = false;
-            let newAssignees = assignees.map(name => {
-              if (name === "CÃƒÂ´ CÃƒÂºc" || name === "CÃ´ CÃºc") {
-                assigneeChanged = true;
-                return "CÃ´ TrÃ  Thu CÃºc";
-              }
-              if (name === "CÃƒÂ´ Oanh" || name === "CÃ´ Oanh") {
-                assigneeChanged = true;
-                return "CÃ´ ÄoÃ n Thá»‹ Kim Oanh";
-              }
-              return name;
-            });
             if (assigneeChanged) {
               data.assignee = newAssignees.join(', ');
               db.collection("CongViec").doc(doc.id).update({ assignee: data.assignee });
@@ -3706,37 +3695,8 @@ function changeWorkingHoursWeek(direction) {
         let hasOanh = false;
         membersSnapshot.forEach((doc) => {
           const data = doc.data();
-          if (data.Ten === "CÃ´ TrÃ  Thu CÃºc" || data.Ten === "CÃƒÂ´ CÃƒÂºc" || data.Ten === "CÃ´ CÃºc") {
-            if (!data.deleted) hasCuc = true;
-          }
-          if (data.Ten === "CÃ´ ÄoÃ n Thá»‹ Kim Oanh" || data.Ten === "CÃƒÂ´ Oanh" || data.Ten === "CÃ´ Oanh") {
-            if (!data.deleted) hasOanh = true;
-          }
+        
         });
-        if (!hasCuc) {
-          await db.collection("ThanhVien").add({
-            Ten: "CÃ´ TrÃ  Thu CÃºc",
-            work_quota: "40",
-            fixed_hours: "0",
-            weekly_start_date: getLocalTodayString(),
-            week_hours_data: "[]",
-            deleted: false
-          });
-        }
-        if (!hasOanh) {
-          await db.collection("ThanhVien").add({
-            Ten: "CÃ´ ÄoÃ n Thá»‹ Kim Oanh",
-            work_quota: "40",
-            fixed_hours: "0",
-            weekly_start_date: getLocalTodayString(),
-            week_hours_data: "[]",
-            deleted: false
-          });
-        }
-        if (!hasCuc || !hasOanh) {
-          // Táº£i láº¡i dá»¯ liá»‡u sau khi phá»¥c há»“i Ä‘á»ƒ cáº­p nháº­t giao diá»‡n
-          setTimeout(() => { loadDataFromFirebase(); }, 500);
-        }
       } catch (e) {
         console.error("Lỗi tự động phục hồi thành viên: ", e);
       }
