@@ -1866,7 +1866,7 @@ function getWorkingDaysList(startDateStr, endDateStr) {
             const yyyy = current.getFullYear();
             const mm = String(current.getMonth() + 1).padStart(2, '0');
             const dd = String(current.getDate()).padStart(2, '0');
-            workingDays.push(${yyyy}--);
+            workingDays.push(`${yyyy}-${mm}-${dd}`);
         }
         current.setDate(current.getDate() + 1);
     }
@@ -1887,7 +1887,7 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
     const weekDaysListStr = [];
     for (let i = 0; i < 6; i++) {
         const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
-        weekDaysListStr.push(${ngayChay.getFullYear()}--);
+        weekDaysListStr.push(`${ngayChay.getFullYear()}-${String(ngayChay.getMonth() + 1).padStart(2, '0')}-${String(ngayChay.getDate()).padStart(2, '0')}`);
     }
     
     let taskHours = 0;
