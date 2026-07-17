@@ -1970,6 +1970,19 @@ function renderWorkingHoursList() {
     const fixedHours = parseFloat(m.fixed_hours || '0');
     
         // Sá»­ dá»¥ng bá»™ tÃ­nh giá» thÃ´ng minh cÃ³ phÃ¢n bá»• ngÃ y lÃ m viá»‡c Ä‘á»“ng bá»™
+    // Lá»c cÃ´ng viá»‡c trong tuáº§n Ä‘á»ƒ phá»¥c vá»¥ hiá»ƒn thá»‹ sá»‘ lÆ°á»£ng tráº¡ng thÃ¡i viá»‡c (chá»/Ä‘ang cháº¡y)
+    const memberTasksThisWeek = (typeof allTasks !== 'undefined') ? allTasks.filter(t => {
+      if (t.archived) return false;
+      if (!t.assignee || !t.assignee.includes(m.name)) return false;
+      const E = t.deadline;
+      if (!E) return false;
+      const S = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "") || E;
+      const taskStart = new Date(S + 'T00:00:00');
+      const taskEnd = new Date(E + 'T23:59:59');
+      return taskStart < nextMonday && taskEnd >= currentMonday;
+    }) : [];
+
+    // Sá»­ dá»¥ng bá»™ tÃ­nh giá» thÃ´ng minh cÃ³ phÃ¢n bá»• ngÃ y lÃ m viá»‡c Ä‘á»“ng bá»™
     const taskEstimated = (typeof calculateMemberTaskHours === 'function') ? calculateMemberTaskHours(m.name, currentMonday, false) : 0;
     const totalUsedEst = fixedHours + taskEstimated;
     const remainingEst = Math.max(0, workQuota - totalUsedEst);
