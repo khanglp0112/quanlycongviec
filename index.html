@@ -1896,7 +1896,7 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
         if (excludeArchived && t.archived) return; // Bá» qua náº¿u Ä‘Ã£ lÆ°u trá»¯ (khi xem trÃªn form phÃ¢n cÃ´ng)
         
         // Kiá»ƒm tra giÃ¡o viÃªn Ä‘Æ°á»£c phÃ¢n cÃ´ng (há»— trá»£ cáº£ dáº¡ng danh sÃ¡ch ngÄƒn cÃ¡ch báº±ng dáº¥u pháº©y)
-        const assigneesArray = t.assignee ? t.assignee.split(',').map(s => s.trim()) : [];
+        const assigneesArray = t.assignee ? (Array.isArray(t.assignee) ? t.assignee : t.assignee.split(',').map(s => s.trim())) : [];
         if (!assigneesArray.includes(memberName)) return;
         
         const E = t.deadline;
@@ -1973,7 +1973,9 @@ function renderWorkingHoursList() {
     // Lá»c cÃ´ng viá»‡c trong tuáº§n Ä‘á»ƒ phá»¥c vá»¥ hiá»ƒn thá»‹ sá»‘ lÆ°á»£ng tráº¡ng thÃ¡i viá»‡c (chá»/Ä‘ang cháº¡y)
     const memberTasksThisWeek = (typeof allTasks !== 'undefined') ? allTasks.filter(t => {
       if (t.archived) return false;
-      if (!t.assignee || !t.assignee.includes(m.name)) return false;
+      if (!t.assignee) return false;
+      const assigneesArray = Array.isArray(t.assignee) ? t.assignee : t.assignee.split(',').map(s => s.trim());
+      if (!assigneesArray.includes(m.name)) return false;
       const E = t.deadline;
       if (!E) return false;
       const S = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "") || E;
@@ -2812,7 +2814,7 @@ ${deadlineInfo}${supportersInfo}${hoursInfo}${weeklyInfo}${subtasksInfo}
         <div class="flex items-center justify-between mt-3">
 <div class="flex items-center gap-2">
             <div class="flex items-center pl-1">
-              ${(t.assignee ? t.assignee.split(',').map(s => s.trim()) : []).map((name, i) => `
+              ${(t.assignee ? (Array.isArray(t.assignee) ? t.assignee : t.assignee.split(',').map(s => s.trim())) : []).map((name, i) => `
                 <div class="avatar relative" style="background:${getMemberColor(name)};width:24px;height:24px;font-size:11px;border:2px solid #fff;margin-left:-8px;z-index:${10-i};" title="${name}">${name.charAt(0).toUpperCase()}</div>
               `).join('')}
             </div>
@@ -4999,7 +5001,7 @@ window.calculateMemberEAI = function(memberName) {
     let totalActual = 0;
 
     allTasks.forEach(t => {
-        const assigneesArray = t.assignee ? t.assignee.split(',').map(s => s.trim()) : [];
+        const assigneesArray = t.assignee ? (Array.isArray(t.assignee) ? t.assignee : t.assignee.split(',').map(s => s.trim())) : [];
         const isAssignee = assigneesArray.includes(memberName);
         
         if (isAssignee && t.status === 'done' && t.completed_at) {
