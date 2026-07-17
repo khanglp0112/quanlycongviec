@@ -2227,7 +2227,7 @@ function renderWorkingHoursConfigList() {
       const dayOfWeek = start.getDay();
       const diff = start.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); 
       start.setDate(diff);
-      const dayNames = ['Chá»§ nháº­t', 'Thá»© 2', 'Thá»© 3', 'Thá»© 4', 'Thá»© 5', 'Thá»© 6', 'Thá»© 7'];
+      const dayNames = ['Chủ nhật', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7'];
       for (let i = 0; i < 7; i++) {
         const date = new Date(start);
         date.setDate(date.getDate() + i);
