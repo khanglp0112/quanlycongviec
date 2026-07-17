@@ -3745,7 +3745,7 @@ function changeWorkingHoursWeek(direction) {
           setTimeout(() => { loadDataFromFirebase(); }, 500);
         }
       } catch (e) {
-        Write-Host "Lá»—i tá»± Ä‘á»™ng phá»¥c há»“i thÃ nh viÃªn: " $e.Message
+        console.error("Lỗi tự động phục hồi thành viên: ", e);
       }
     }
     loadDataFromFirebase();
