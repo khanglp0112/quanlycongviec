@@ -3636,13 +3636,6 @@ function changeWorkingHoursWeek(direction) {
           let originalName = data.Ten;
           let name = originalName;
           let nameChanged = false;
-          if (name === "CÃƒÂ´ CÃƒÂºc" || name === "CÃ´ CÃºc") {
-            name = "CÃ´ TrÃ  Thu CÃºc";
-            nameChanged = true;
-          } else if (name === "CÃƒÂ´ Oanh" || name === "CÃ´ Oanh") {
-            name = "CÃ´ ÄoÃ n Thá»‹ Kim Oanh";
-            nameChanged = true;
-          }
           if (nameChanged) {
             db.collection("ThanhVien").doc(doc.id).update({ Ten: name });
             data.Ten = name;
