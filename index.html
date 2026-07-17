@@ -1782,7 +1782,7 @@ function populateMemberSelects() {
                   allTasks.forEach(t => {
                       if (t.assignee && t.assignee.includes(m.name) && !t.archived) {
                           let targetDateStr = t.deadline;
-                          if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
+                          // Bá» qua completed_at Ä‘á»ƒ luÃ´n dÃ¹ng deadline cho káº¿ hoáº¡ch tuáº§n
                           
                           if (targetDateStr) {
                               const d = new Date(targetDateStr);
@@ -1932,7 +1932,7 @@ function renderWorkingHoursList() {
     const memberTasksThisWeek = allTasks.filter(t => {
       if (!t.assignee || !t.assignee.includes(m.name)) return false;
       let targetDateStr = t.deadline;
-      if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
+      // Bá» qua completed_at Ä‘á»ƒ luÃ´n dÃ¹ng deadline cho káº¿ hoáº¡ch tuáº§n
       if (!targetDateStr) return false;
       const d = new Date(targetDateStr);
       return d >= currentMonday && d < nextMonday;
@@ -1941,26 +1941,29 @@ function renderWorkingHoursList() {
     // Giữ nguyên vẹn thuật toán lõi tính toán gánh việc và dàn đều tải tuần cũ của thầy
     memberTasksThisWeek.forEach(t => {
       const soNguoiLamChung = (t.assignee && Array.isArray(t.assignee)) ? t.assignee.length : 1;
-      if (t.status === 'done') {
-        const ngayHoanThanhStr = t.completed_at ? t.completed_at.substring(0, 10) : "";
-        const ngayDauTuanXemStr = currentMonday.toISOString().substring(0, 10);
-        const ngayCuoiTuanXemStr = new Date(currentMonday.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
-        if (ngayHoanThanhStr >= ngayDauTuanXemStr && ngayHoanThanhStr <= ngayCuoiTuanXemStr) {
-          taskEstimated += (parseFloat(t.actual_hours || t.estimated_hours || 0) / soNguoiLamChung);
+      const hoursToUse = parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours || 0) : (t.estimated_hours || 0));
+      
+      const ngayNhanStr = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "");
+      const ngayChotStr = t.deadline ? t.deadline.substring(0, 10) : "";
+      if (ngayNhanStr && ngayChotStr) {
+        const danhSachNgayCuaTask = getWorkingDaysList(ngayNhanStr, ngayChotStr);
+        const tongSoNgayCuaTask = danhSachNgayCuaTask.length;
+        if (tongSoNgayCuaTask > 0) {
+          let soNgayTrungTrongTuan = 0;
+          danhSachNgayCuaTask.forEach(ngayTask => {
+            if (danhSachNgayTrongTuanXem.includes(ngayTask)) {
+              soNgayTrungTrongTuan++;
+            }
+          });
+          const gioPhanBoMoiNguoi = (hoursToUse / soNguoiLamChung);
+          taskEstimated += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
+        } else {
+          taskEstimated += (hoursToUse / soNguoiLamChung);
         }
       } else {
-        const ngayNhanStr = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "");
-        const ngayChotStr = t.deadline ? t.deadline.substring(0, 10) : "";
-        if (ngayNhanStr && ngayChotStr) {
-          const danhSachNgayCuaTask = getWorkingDaysList(ngayNhanStr, ngayChotStr);
-          const tongSoNgayCuaTask = danhSachNgayCuaTask.length;
-          if (tongSoNgayCuaTask > 0) {
-            let soNgayTrungTrongTuan = 0;
-            danhSachNgayCuaTask.forEach(ngayTask => {
-              if (danhSachNgayTrongTuanXem.includes(ngayTask)) {
-                soNgayTrungTrongTuan++;
-              }
-            });
+        taskEstimated += (hoursToUse / soNguoiLamChung);
+      }
+    });
             const gioDuKienTong = parseFloat(t.estimated_hours || 0);
             const gioPhanBoMoiNguoi = (gioDuKienTong / soNguoiLamChung);
             taskEstimated += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
@@ -2223,7 +2226,7 @@ function renderWorkingHoursConfigList() {
         allTasks.forEach(t => {
           if (t.assignee && t.assignee.includes(member.name)) {
             let targetDateStr = t.deadline;
-            if (t.status === 'done') targetDateStr = t.completed_at || t.deadline;
+            // Bá» qua completed_at Ä‘á»ƒ luÃ´n dÃ¹ng deadline cho káº¿ hoáº¡ch tuáº§n
             
             if (targetDateStr) {
                 const d = new Date(targetDateStr);
