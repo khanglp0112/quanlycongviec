@@ -2083,8 +2083,10 @@ function renderWorkingHoursList() {
               </div>
             </div>
           </div>
-          <div class="text-right">
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm ${textBadgeColor}">
+      <!-- KHAY PHẢI: KHÓA CHỐNG CO RÚT (flex-shrink-0) -->
+          <div class="text-right flex-shrink-0">
+            <!-- NHÃN GIỜ CÒN TRỐNG: ÉP LUÔN TRÊN 1 DÒNG DUY NHẤT (whitespace-nowrap) -->
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border shadow-sm whitespace-nowrap ${textBadgeColor}">
               ${badgeLabel}
             </span>
             <div class="text-[11px] font-bold text-slate-700 mt-1">${totalUsedEst.toFixed(1)}<span class="text-slate-400 font-medium"> / ${workQuota}h</span></div>
