@@ -3216,17 +3216,29 @@ document.getElementById('inp-start-date').value = '';
     }
 
 document.getElementById('btn-add').onclick = () => { 
+      // 1. ƯU TIÊN HIỂN THỊ TRƯỚC: Phát lệnh mở khung Modal nảy lên ngay micro giây đầu tiên
+      openModal(); 
+
+      // 2. ĐẨY CÁC THAO TÁC ẨN PHÂN KHU KHÁC RA SAU: Không làm nghẽn hành vi click của chuột
       document.getElementById('timeline-view').classList.add('hidden');
       document.getElementById('cham-tiet-view').classList.add('hidden');
       document.getElementById('lien-ket-view').classList.add('hidden');
       document.getElementById('bien-ban-view').classList.add('hidden');
+      
       const filterBar = document.getElementById('filter-bar');
       const statsBar = document.getElementById('stats-bar');
       if (filterBar) filterBar.classList.remove('hidden');
       if (statsBar) statsBar.classList.remove('hidden');
       
-      renderTasks(); // Để hệ thống tự quét xem nên hiện Bảng hay hiện "Chưa có việc"
-      closeModal(); openModal(); 
+      // 3. THỰC HIỆN DỌN SẠCH FORM NGÀY TRONG LÚC KHUNG ĐANG BAY LÊN (UX TRICK)
+      document.getElementById('task-form').reset();
+      document.getElementById('inp-edit-id').value = '';
+      document.getElementById('inp-status').value = 'todo';
+      document.getElementById('subtasks-container').innerHTML = '';
+      document.querySelectorAll('.assignee-cb').forEach(cb => cb.checked = false);
+      
+      // 4. LÀM TƯƠI LẠI SỐ LIỆU PHÍA DƯỚI NỀN ẨN
+      renderTasks(); 
     };
  // =========================================================================
 // PHẦN 3 PHỤ: HÀM TĂNG/GIẢM TUẦN ĐỘC LẬP CHỈ TRONG BẢNG GIỜ LÀM VIỆC
