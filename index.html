@@ -1777,22 +1777,7 @@ function populateMemberSelects() {
               const workQuota = parseFloat(m.work_quota || '40');
               const fixedHours = parseFloat(m.fixed_hours || '0');
               
-              let taskHours = 0;
-              if (typeof allTasks !== 'undefined' && allTasks.length > 0) {
-                  allTasks.forEach(t => {
-                      if (t.assignee && t.assignee.includes(m.name) && !t.archived) {
-                          let targetDateStr = t.deadline;
-                          // Bá» qua completed_at Ä‘á»ƒ luÃ´n dÃ¹ng deadline cho káº¿ hoáº¡ch tuáº§n
-                          
-                          if (targetDateStr) {
-                              const d = new Date(targetDateStr);
-                              if (d >= currentMon && d < nextMon) {
-                                  taskHours += parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours) : t.estimated_hours) || 0;
-                              }
-                          }
-                      }
-                  });
-              }
+              const taskHours = (typeof calculateMemberTaskHours === 'function') ? calculateMemberTaskHours(m.name, currentMon, true) : 0;
 
               // --- PHẦN 3C: TÍNH TOÁN GIỜ MÔ PHỎNG ĐỘNG NGAY TRÊN FORM (Đã tối ưu hóa tính toán lặp) ---
               if (formStatus !== 'done' && selectedNamesOnForm.includes(m.name) && formEstHours > 0) {
@@ -1870,7 +1855,6 @@ function getWorkingDaysList(startDateStr, endDateStr) {
     const workingDays = [];
     if (!startDateStr || !endDateStr) return workingDays;
 
-    // Chuyển đổi chuỗi yyyy-mm-dd thành đối tượng Date (mốc 00:00:00 để tính toán chính xác ngày)
     const start = new Date(startDateStr.substring(0, 10) + 'T00:00:00');
     const end = new Date(endDateStr.substring(0, 10) + 'T00:00:00');
 
@@ -1878,17 +1862,74 @@ function getWorkingDaysList(startDateStr, endDateStr) {
 
     let current = new Date(start);
     while (current <= end) {
-        // current.getDay() === 0 đại diện cho ngày Chủ Nhật trong JavaScript
         if (current.getDay() !== 0) {
             const yyyy = current.getFullYear();
             const mm = String(current.getMonth() + 1).padStart(2, '0');
             const dd = String(current.getDate()).padStart(2, '0');
-            workingDays.push(`${yyyy}-${mm}-${dd}`);
+            workingDays.push(${yyyy}--);
         }
         current.setDate(current.getDate() + 1);
     }
     return workingDays;
 }
+
+// =========================================================================
+// HÃ€M TÃNH GIá»œ LÃ€M VIá»†C DÃ€N Äá»€U Cá»¦A GIÃO VIÃŠN TRONG TUáº¦N (UNIFIED RESOURCE CALCULATOR)
+// =========================================================================
+window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchived = false) {
+    if (typeof allTasks === 'undefined' || !allTasks || allTasks.length === 0) return 0;
+    
+    const currentMonday = new Date(mondayDate.getTime ? mondayDate.getTime() : mondayDate);
+    const nextMonday = new Date(currentMonday);
+    nextMonday.setDate(currentMonday.getDate() + 7);
+    
+    // Táº¡o danh sÃ¡ch 6 ngÃ y lÃ m viá»‡c (T2 Ä‘áº¿n T7) trong tuáº§n
+    const weekDaysListStr = [];
+    for (let i = 0; i < 6; i++) {
+        const ngayChay = new Date(currentMonday.getTime() + i * 24 * 60 * 60 * 1000);
+        weekDaysListStr.push(${ngayChay.getFullYear()}--);
+    }
+    
+    let taskHours = 0;
+    
+    allTasks.forEach(t => {
+        if (excludeArchived && t.archived) return; // Bá» qua náº¿u Ä‘Ã£ lÆ°u trá»¯ (khi xem trÃªn form phÃ¢n cÃ´ng)
+        
+        // Kiá»ƒm tra giÃ¡o viÃªn Ä‘Æ°á»£c phÃ¢n cÃ´ng (há»— trá»£ cáº£ dáº¡ng danh sÃ¡ch ngÄƒn cÃ¡ch báº±ng dáº¥u pháº©y)
+        const assigneesArray = t.assignee ? t.assignee.split(',').map(s => s.trim()) : [];
+        if (!assigneesArray.includes(memberName)) return;
+        
+        const E = t.deadline;
+        if (!E) return;
+        const S = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "") || E;
+        
+        const taskStart = new Date(S + 'T00:00:00');
+        const taskEnd = new Date(E + 'T23:59:59');
+        
+        // Äiá»u kiá»‡n trÃ¹ng láº¯p: cÃ³ giao vá»›i tuáº§n xem xÃ©t
+        if (taskStart < nextMonday && taskEnd >= currentMonday) {
+            const soNguoiLamChung = assigneesArray.length > 0 ? assigneesArray.length : 1;
+            const hoursToUse = parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours || 0) : (t.estimated_hours || 0));
+            
+            const danhSachNgayCuaTask = getWorkingDaysList(S, E);
+            const tongSoNgayCuaTask = danhSachNgayCuaTask.length;
+            if (tongSoNgayCuaTask > 0) {
+                let soNgayTrungTrongTuan = 0;
+                danhSachNgayCuaTask.forEach(ngayTask => {
+                    if (weekDaysListStr.includes(ngayTask)) {
+                        soNgayTrungTrongTuan++;
+                    }
+                });
+                const gioPhanBoMoiNguoi = (hoursToUse / soNguoiLamChung);
+                taskHours += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
+            } else {
+                taskHours += (hoursToUse / soNguoiLamChung);
+            }
+        }
+    });
+    
+    return taskHours;
+};
 
 
 // =========================================================================
@@ -1928,43 +1969,8 @@ function renderWorkingHoursList() {
     const workQuota = parseFloat(m.work_quota || '40');
     const fixedHours = parseFloat(m.fixed_hours || '0');
     
-    let taskEstimated = 0;
-    const memberTasksThisWeek = allTasks.filter(t => {
-      if (!t.assignee || !t.assignee.includes(m.name)) return false;
-      let targetDateStr = t.deadline;
-      // Bá» qua completed_at Ä‘á»ƒ luÃ´n dÃ¹ng deadline cho káº¿ hoáº¡ch tuáº§n
-      if (!targetDateStr) return false;
-      const d = new Date(targetDateStr);
-      return d >= currentMonday && d < nextMonday;
-    });
-
-    // Giữ nguyên vẹn thuật toán lõi tính toán gánh việc và dàn đều tải tuần cũ của thầy
-    memberTasksThisWeek.forEach(t => {
-      const soNguoiLamChung = (t.assignee && Array.isArray(t.assignee)) ? t.assignee.length : 1;
-      const hoursToUse = parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours || 0) : (t.estimated_hours || 0));
-      
-      const ngayNhanStr = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "");
-      const ngayChotStr = t.deadline ? t.deadline.substring(0, 10) : "";
-      if (ngayNhanStr && ngayChotStr) {
-        const danhSachNgayCuaTask = getWorkingDaysList(ngayNhanStr, ngayChotStr);
-        const tongSoNgayCuaTask = danhSachNgayCuaTask.length;
-        if (tongSoNgayCuaTask > 0) {
-          let soNgayTrungTrongTuan = 0;
-          danhSachNgayCuaTask.forEach(ngayTask => {
-            if (danhSachNgayTrongTuanXem.includes(ngayTask)) {
-              soNgayTrungTrongTuan++;
-            }
-          });
-          const gioPhanBoMoiNguoi = (hoursToUse / soNguoiLamChung);
-          taskEstimated += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
-        } else {
-          taskEstimated += (hoursToUse / soNguoiLamChung);
-        }
-      } else {
-        taskEstimated += (hoursToUse / soNguoiLamChung);
-      }
-    });
-
+        // Sá»­ dá»¥ng bá»™ tÃ­nh giá» thÃ´ng minh cÃ³ phÃ¢n bá»• ngÃ y lÃ m viá»‡c Ä‘á»“ng bá»™
+    const taskEstimated = (typeof calculateMemberTaskHours === 'function') ? calculateMemberTaskHours(m.name, currentMonday, false) : 0;
     const totalUsedEst = fixedHours + taskEstimated;
     const remainingEst = Math.max(0, workQuota - totalUsedEst);
     const percent = Math.min(100, (totalUsedEst / workQuota) * 100);
@@ -2210,19 +2216,7 @@ function renderWorkingHoursConfigList() {
       const nextMonday = new Date(currentMonday);
       nextMonday.setDate(currentMonday.getDate() + 7);
       
-      let taskHours = 0;
-      if (member && typeof allTasks !== 'undefined') {
-        allTasks.forEach(t => {
-          if (t.assignee && t.assignee.includes(member.name)) {
-            let targetDateStr = t.deadline;
-            // Bá» qua completed_at Ä‘á»ƒ luÃ´n dÃ¹ng deadline cho káº¿ hoáº¡ch tuáº§n
-            
-            if (targetDateStr) {
-                const d = new Date(targetDateStr);
-                if (d >= currentMonday && d < nextMonday) {
-                    taskHours += parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours) : t.estimated_hours) || 0;
-                }
-            }
+      const taskHours = (typeof calculateMemberTaskHours === 'function') ? calculateMemberTaskHours(member.name, currentMonday, false) : 0;
           }
         });
       }
