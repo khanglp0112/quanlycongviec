@@ -1879,6 +1879,7 @@ function getWorkingDaysList(startDateStr, endDateStr) {
 window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchived = false) {
     if (typeof allTasks === 'undefined' || !allTasks || allTasks.length === 0) return 0;
     
+    // Parse using ISO format to ensure consistent UTC/local parsing
     const currentMonday = new Date(mondayDate.getTime ? mondayDate.getTime() : mondayDate);
     const nextMonday = new Date(currentMonday);
     nextMonday.setDate(currentMonday.getDate() + 7);
@@ -1893,9 +1894,8 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
     let taskHours = 0;
     
     allTasks.forEach(t => {
-        if (excludeArchived && t.archived) return; // Bá» qua náº¿u Ä‘Ã£ lÆ°u trá»¯ (khi xem trÃªn form phÃ¢n cÃ´ng)
+        if (excludeArchived && t.archived) return;
         
-        // Kiá»ƒm tra giÃ¡o viÃªn Ä‘Æ°á»£c phÃ¢n cÃ´ng (há»— trá»£ cáº£ dáº¡ng danh sÃ¡ch ngÄƒn cÃ¡ch báº±ng dáº¥u pháº©y)
         const assigneesArray = t.assignee ? (Array.isArray(t.assignee) ? t.assignee : t.assignee.split(',').map(s => s.trim())) : [];
         if (!assigneesArray.includes(memberName)) return;
         
@@ -1903,11 +1903,22 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
         if (!E) return;
         const S = t.start_date || (t.created_at ? t.created_at.substring(0, 10) : "") || E;
         
-        const taskStart = new Date(S + 'T00:00:00');
-        const taskEnd = new Date(E + 'T23:59:59');
+        // Parse dates as YYYY-MM-DD literal to avoid timezone shifts
+        const taskStart = new Date(S.substring(0, 10));
+        const taskEnd = new Date(E.substring(0, 10));
         
-        // Äiá»u kiá»‡n trÃ¹ng láº¯p: cÃ³ giao vá»›i tuáº§n xem xÃ©t
-        if (taskStart < nextMonday && taskEnd >= currentMonday) {
+        // Normalize currentMonday and nextMonday to YYYY-MM-DD literals for safe comparison
+        const curMonNormal = new Date(currentMonday.getFullYear() + '-' + String(currentMonday.getMonth() + 1).padStart(2, '0') + '-' + String(currentMonday.getDate()).padStart(2, '0'));
+        const nextMonNormal = new Date(nextMonday.getFullYear() + '-' + String(nextMonday.getMonth() + 1).padStart(2, '0') + '-' + String(nextMonday.getDate()).padStart(2, '0'));
+        
+        console.log(`[Task Hours Debug] Member: ${memberName}, Task: "${t.title}"`);
+        console.log(`  S: ${S}, E: ${E}`);
+        console.log(`  taskStart: ${taskStart.toISOString()}, taskEnd: ${taskEnd.toISOString()}`);
+        console.log(`  curMonNormal: ${curMonNormal.toISOString()}, nextMonNormal: ${nextMonNormal.toISOString()}`);
+        
+        // Overlap condition
+        if (taskStart < nextMonNormal && taskEnd >= curMonNormal) {
+            console.log(`  -> OVERLAPS!`);
             const soNguoiLamChung = assigneesArray.length > 0 ? assigneesArray.length : 1;
             const hoursToUse = parseFloat(t.status === 'done' ? (t.actual_hours || t.estimated_hours || 0) : (t.estimated_hours || 0));
             
@@ -1921,10 +1932,16 @@ window.calculateMemberTaskHours = function(memberName, mondayDate, excludeArchiv
                     }
                 });
                 const gioPhanBoMoiNguoi = (hoursToUse / soNguoiLamChung);
-                taskHours += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
+                const allocated = (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
+                taskHours += allocated;
+                console.log(`  -> Allocated: ${allocated}h (Common: ${soNguoiLamChung}, Days in week: ${soNgayTrungTrongTuan}/${tongSoNgayCuaTask})`);
             } else {
-                taskHours += (hoursToUse / soNguoiLamChung);
+                const allocated = (hoursToUse / soNguoiLamChung);
+                taskHours += allocated;
+                console.log(`  -> Allocated full (no working days): ${allocated}h`);
             }
+        } else {
+            console.log(`  -> NO OVERLAP`);
         }
     });
     
@@ -3611,10 +3628,46 @@ await autoResetWeeklyHours(); // Kích hoạt dọn dẹp tuần mới
         if (typeof renderBBLichSuTable === "function") renderBBLichSuTable();
       } catch (error) { console.error("Lỗi tải dữ liệu:", error); }
    // Tự động tắt màn hình chào sau 0.8 giây để tạo độ mượt
-        setTimeout(() => {
+                setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             if(splash) splash.classList.add('hidden-splash');
         }, 800); 
+        
+        // --- Tá»° Äá»˜NG PHá»¤C Há»’I THÃ€NH VIÃŠN Náº¾U Bá»Š THIáº¾U ---
+        try {
+            const membersSnapshot = await db.collection("ThanhVien").get();
+            let hasCuc = false;
+            let hasOanh = false;
+            membersSnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.Ten === "CÃ´ CÃºc") hasCuc = true;
+                if (data.Ten === "CÃ´ Oanh") hasOanh = true;
+            });
+            if (!hasCuc) {
+                await db.collection("ThanhVien").add({
+                    Ten: "CÃ´ CÃºc",
+                    work_quota: "40",
+                    fixed_hours: "0",
+                    weekly_start_date: new Date().toISOString().split('T')[0],
+                    week_hours_data: "[]"
+                });
+            }
+            if (!hasOanh) {
+                await db.collection("ThanhVien").add({
+                    Ten: "CÃ´ Oanh",
+                    work_quota: "40",
+                    fixed_hours: "0",
+                    weekly_start_date: new Date().toISOString().split('T')[0],
+                    week_hours_data: "[]"
+                });
+            }
+            if (!hasCuc || !hasOanh) {
+                // Táº£i láº¡i dá»¯ liá»‡u sau khi phá»¥c há»“i Ä‘á»ƒ cáº­p nháº­t giao diá»‡n
+                setTimeout(() => { loadDataFromFirebase(); }, 500);
+            }
+        } catch (e) {
+            console.error("Lá»—i tá»± Ä‘á»™ng phá»¥c há»“i thÃ nh viÃªn:", e);
+        }
    }
     loadDataFromFirebase();
 
