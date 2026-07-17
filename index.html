@@ -1964,17 +1964,6 @@ function renderWorkingHoursList() {
         taskEstimated += (hoursToUse / soNguoiLamChung);
       }
     });
-            const gioDuKienTong = parseFloat(t.estimated_hours || 0);
-            const gioPhanBoMoiNguoi = (gioDuKienTong / soNguoiLamChung);
-            taskEstimated += (gioPhanBoMoiNguoi / tongSoNgayCuaTask) * soNgayTrungTrongTuan;
-          } else {
-            taskEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
-          }
-        } else {
-          taskEstimated += (parseFloat(t.estimated_hours || 0) / soNguoiLamChung);
-        }
-      }
-    });
 
     const totalUsedEst = fixedHours + taskEstimated;
     const remainingEst = Math.max(0, workQuota - totalUsedEst);
